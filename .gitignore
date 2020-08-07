@@ -1,0 +1,62 @@
+# OS Generated
+# ============
+._*
+.DS_Store
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Dd]esktop.ini
+[Tt]humbs.db
+
+# IDE Generated
+# =============
+.vs/
+.consulo/
+.gradle/
+.idea/
+*.tmp
+*.mdb
+*.opendb
+*.svd
+*.tmp
+*.VC.db
+*.booproj
+*.csproj
+*.pdb
+*.pidb
+*.sln
+*.suo
+*.unityproj
+*.user
+*.userprefs
+[Ee]xported[Oo]bj/
+
+# Unity Generated
+# ===============
+*.stackdump
+*.mdb.meta
+*.pdb.meta
+*.pidb.meta
+*.gen.csproj.meta
+*.DotSettings
+*.symbols.zip
+sysinfo.txt
+crashlytics-build.properties
+
+# Project Relative
+# ================
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ibrary/
+/[Ll]ogs/
+/[Mm]emory[Cc]aptures/
+/[Oo]bj/
+/[Tt]emp/
+/[Uu]ser[Ss]ettings/
+/Assets/AssetStoreTools*
+/Assets/SceneDependencyCache*
+/Assets/TypeDependencyCache*
+
+# Misc
+# ====
+__*
