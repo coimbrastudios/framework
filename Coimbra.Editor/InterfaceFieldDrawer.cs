@@ -3,11 +3,9 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
-    [PublicAPI]
     [CustomPropertyDrawer(typeof(InterfaceField<>), true)]
     public sealed class InterfaceFieldDrawer : PropertyDrawer
     {
@@ -16,6 +14,7 @@ namespace Coimbra
 
         private static readonly GUIContent HiddenLabel = new GUIContent(" ");
 
+        [PublicAPI]
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
@@ -26,11 +25,13 @@ namespace Coimbra
             return Mathf.Max(systemObjectHeight, unityObjectHeight);
         }
 
+        [PublicAPI]
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             OnGUI(position, property, label, true);
         }
 
+        [PublicAPI]
         public void OnGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
             object[] tooltipAttributeArray = fieldInfo.GetCustomAttributes(typeof(TooltipAttribute), true);
@@ -50,6 +51,7 @@ namespace Coimbra
                 baseType = baseType.BaseType;
             }
 #endif
+
             Type interfaceType = baseType.GenericTypeArguments[0];
             string suffix = $"* {interfaceType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
@@ -67,7 +69,7 @@ namespace Coimbra
                 {
                     position.height = EditorGUI.GetPropertyHeight(unityObject, true);
 
-                    Object value = EditorGUI.ObjectField(position, propertyScope.content, unityObject.objectReferenceValue, typeof(Object), allowSceneObjects);
+                    UnityEngine.Object value = EditorGUI.ObjectField(position, propertyScope.content, unityObject.objectReferenceValue, typeof(UnityEngine.Object), allowSceneObjects);
 
                     if (changeCheckScope.changed)
                     {

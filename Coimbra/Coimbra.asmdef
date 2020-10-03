@@ -1,7 +1,7 @@
 {
     "name": "Coimbra",
-    "references": [
-    ],
+    "rootNamespace": "",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

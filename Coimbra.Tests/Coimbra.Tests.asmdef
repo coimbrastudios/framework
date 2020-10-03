@@ -1,14 +1,11 @@
 {
-    "name": "Coimbra.Tests.Editor",
+    "name": "Coimbra.Tests",
     "references": [
         "Coimbra",
-        "Coimbra.Tests",
         "UnityEditor.TestRunner",
         "UnityEngine.TestRunner"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
