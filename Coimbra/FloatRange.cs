@@ -1,5 +1,4 @@
-﻿using Coimbra.Attributes;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -12,9 +11,9 @@ namespace Coimbra
     [Serializable]
     public struct FloatRange : IEquatable<FloatRange>
     {
-        [FormerlySerializedAs("m_Min")] [Summary(nameof(Min))]
+        [FormerlySerializedAs("x")] [FormerlySerializedAs("m_X")] [FormerlySerializedAs("m_Min")] [Tooltip("The smallest value on the range.")]
         [SerializeField] private float _min;
-        [FormerlySerializedAs("m_Max")] [Summary(nameof(Max))]
+        [FormerlySerializedAs("y")] [FormerlySerializedAs("m_Y")] [FormerlySerializedAs("m_Max")] [Tooltip("The biggest value on the range.")]
         [SerializeField] private float _max;
 
         /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>

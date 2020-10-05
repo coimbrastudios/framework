@@ -1,5 +1,4 @@
-﻿using Coimbra.Attributes;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,9 +13,9 @@ namespace Coimbra
     public abstract class ManagedPoolBase<T>
         where T : class
     {
-        [FormerlySerializedAs("m_PreloadCount")] [Min(0)] [Summary(nameof(PreloadCount))]
+        [FormerlySerializedAs("m_PreloadCount")] [Min(0)] [Tooltip("Amount of items available from the beginning.")]
         [SerializeField] private int _preloadCount;
-        [FormerlySerializedAs("m_MaxCapacity")] [Min(0)] [Summary(nameof(MaxCapacity))]
+        [FormerlySerializedAs("m_MaxCapacity")] [Min(0)] [Tooltip("Max amount of items in the pool. If 0 it is treated as infinity capacity.")]
         [SerializeField] private int _maxCapacity;
 
         private readonly Disposable<T>.DisposeHandler _disposeHandler;
@@ -141,11 +140,6 @@ namespace Coimbra
         /// </summary>
         public void Release([NotNull] T item)
         {
-            if (item == null)
-            {
-                throw new ArgumentNullException(nameof(item));
-            }
-
             bool release = false;
 
             lock (_lock)

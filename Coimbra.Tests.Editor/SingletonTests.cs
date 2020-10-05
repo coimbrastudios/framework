@@ -2,7 +2,8 @@ using NUnit.Framework;
 
 namespace Coimbra
 {
-    [TestFixture(TestOf = typeof(Singleton<>))]
+    [TestFixture]
+    [TestOf(typeof(Singleton<>))]
     public sealed class SingletonTests
     {
         private sealed class DummySingleton
