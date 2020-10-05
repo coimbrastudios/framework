@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,13 +7,12 @@ namespace Coimbra
     [CanEditMultipleObjects]
     public abstract class ObjectInspectorBase : Editor
     {
-        public static bool IsEnabled = true;
+        protected bool IsExtendedInspectorEnabled => LocalSettingsProvider.EnableExtendedInspectorGlobally || serializedObject.targetObject.GetType().GetCustomAttribute<ExtendedInspectorAttribute>() != null;
 
         public override void OnInspectorGUI()
         {
-            if (IsEnabled)
+            if (IsExtendedInspectorEnabled)
             {
-                EditorGUILayout.LabelField("fun");
                 DrawExtendedInspector();
             }
             else

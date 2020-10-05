@@ -4,28 +4,28 @@ namespace Coimbra
 {
     public interface IDummyInterface
     {
-        public DummyAsset Asset { get; set; }
+        DummyAsset Asset { get; set; }
 
-        public DummyAsset[] AssetArray { get; set; }
+        DummyAsset[] AssetArray { get; set; }
 
-        public DummyBehaviour Behaviour { get; set; }
+        DummyBehaviour Behaviour { get; set; }
 
-        public DummyBehaviour[] BehaviourArray { get; set; }
+        DummyBehaviour[] BehaviourArray { get; set; }
 
-        public int Integer { get; set; }
+        int Integer { get; set; }
 
-        public int[] IntegerArray { get; set; }
+        int[] IntegerArray { get; set; }
 
-        public string String { get; set; }
+        string String { get; set; }
 
-        public string[] StringArray { get; set; }
+        string[] StringArray { get; set; }
 
-        public Texture Texture { get; set; }
+        Texture Texture { get; set; }
 
-        public Texture[] TextureArray { get; set; }
+        Texture[] TextureArray { get; set; }
 
-        public Vector3Int Vector { get; set; }
+        Vector3Int Vector { get; set; }
 
-        public Vector3Int[] VectorArray { get; set; }
+        Vector3Int[] VectorArray { get; set; }
     }
 }

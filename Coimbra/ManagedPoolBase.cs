@@ -119,7 +119,11 @@ namespace Coimbra
                 }
             }
 
-            item ??= OnCreate();
+            if (item == null)
+            {
+                item = OnCreate();
+            }
+
             OnGet(item);
 
             return item;

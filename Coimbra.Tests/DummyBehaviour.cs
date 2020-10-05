@@ -5,11 +5,9 @@ namespace Coimbra
     public class DummyBehaviour : MonoBehaviour, IDummyInterface
     {
 #if !UNITY_2020_1_OR_NEWER
-        [SerializeField] private DummyInterfaceField _interfaceField;
-        [SerializeField] private DummyInterfaceField[] _interfaceFieldArray;
+        [SerializeField] private DummyInterfaceField _interfaceField = new DummyInterfaceField();
 #else
         [SerializeField] private InterfaceField<IDummyInterface> _interfaceField;
-        [SerializeField] private InterfaceField<IDummyInterface>[] _interfaceFieldArray;
 #endif
         [SerializeField] private int _integer;
         [SerializeField] private string _string;
@@ -31,13 +29,15 @@ namespace Coimbra
         public InterfaceField<IDummyInterface> InterfaceField
         {
             get => _interfaceField;
+#if !UNITY_2020_1_OR_NEWER
+            set => _interfaceField = new DummyInterfaceField
+            {
+                Value = value.Value,
+            };
+#else
             set => _interfaceField = value;
-        }
+#endif
 
-        public InterfaceField<IDummyInterface>[] InterfaceFieldArray
-        {
-            get => _interfaceFieldArray;
-            set => _interfaceFieldArray = value;
         }
 
         public DummyAsset Asset
