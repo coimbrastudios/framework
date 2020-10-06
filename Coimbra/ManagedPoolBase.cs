@@ -26,7 +26,6 @@ namespace Coimbra
         /// <summary>
         ///     If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
         /// </summary>
-        [PublicAPI]
         protected ManagedPoolBase()
         {
             _disposeHandler = Release;
@@ -35,7 +34,6 @@ namespace Coimbra
         /// <summary>
         ///     If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
         /// </summary>
-        [PublicAPI]
         protected ManagedPoolBase(int preloadCount, int maxCapacity)
             : this()
         {
@@ -105,7 +103,6 @@ namespace Coimbra
         /// <summary>
         ///     Pick one item from the pool.
         /// </summary>
-        [NotNull]
         public T Get()
         {
             T item = null;
@@ -174,7 +171,6 @@ namespace Coimbra
         /// <summary>
         ///     Called when creating a new item for the pool. It should never return null.
         /// </summary>
-        [NotNull]
         protected abstract T OnCreate();
 
         /// <summary>

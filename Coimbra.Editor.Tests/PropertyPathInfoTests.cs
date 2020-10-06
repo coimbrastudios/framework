@@ -1,3 +1,4 @@
+using Coimbra.Tests;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -5,11 +6,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Editor.Tests
 {
     [TestFixture]
     [TestOf(typeof(PropertyPathInfo))]
-    public class PropertyPathInfoTests
+    internal class PropertyPathInfoTests
     {
         private const int ArrayLenght = 10;
         private DummyAsset[] _assetArray;

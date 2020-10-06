@@ -22,7 +22,6 @@ namespace Coimbra
         private T _value;
 
 #if !UNITY_2020_1_OR_NEWER
-        [PublicAPI]
         public InterfaceField()
         {
             _systemObject = null;
@@ -30,7 +29,6 @@ namespace Coimbra
         }
 #endif
 
-        [PublicAPI]
         public InterfaceField(T value)
             : this()
         {
@@ -40,22 +38,18 @@ namespace Coimbra
         /// <summary>
         ///     True if the <see cref="Value"/> is not null.
         /// </summary>
-        [PublicAPI]
         public bool HasValue => _systemObject != null || _unityObject != null;
 
         /// <summary>
         ///     Is the <see cref="Value"/> a non-<a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
         /// </summary>
-        [PublicAPI]
         public bool IsSystemObject => _systemObject != null;
 
         /// <summary>
         ///     Is the <see cref="Value"/> an <a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
         /// </summary>
-        [PublicAPI]
         public bool IsUnityObject => _unityObject != null;
 
-        [PublicAPI]
         public T Value
         {
             get => _value;
@@ -76,31 +70,31 @@ namespace Coimbra
             }
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator T(InterfaceField<T> target)
         {
             return target.Value;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator InterfaceField<T>(T target)
         {
             return new InterfaceField<T>(target);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator ==(InterfaceField<T> x, InterfaceField<T> y)
         {
             return x.Equals(y);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator !=(InterfaceField<T> x, InterfaceField<T> y)
         {
             return !x.Equals(y);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override int GetHashCode()
         {
             if (_systemObject != null)
@@ -116,7 +110,7 @@ namespace Coimbra
             return 0;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override bool Equals(object other)
         {
             if (other is T t)
@@ -132,7 +126,7 @@ namespace Coimbra
             return false;
         }
 
-        [CanBeNull] [PublicAPI] [Pure]
+        [CanBeNull] [Pure]
         public override string ToString()
         {
             if (_systemObject != null)
@@ -148,13 +142,13 @@ namespace Coimbra
             return null;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Equals(T other)
         {
             return _value == other;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Equals(InterfaceField<T> other)
         {
             return _value == other.Value;

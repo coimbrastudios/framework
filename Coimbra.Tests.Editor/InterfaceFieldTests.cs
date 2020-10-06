@@ -1,11 +1,11 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Tests.Editor
 {
     [TestFixture]
     [TestOf(typeof(InterfaceField<>))]
-    public sealed class InterfaceFieldTests
+    internal sealed class InterfaceFieldTests
     {
         private static IDummyInterface[] _systemObjects =
         {

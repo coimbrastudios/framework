@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     [CustomPropertyDrawer(typeof(EnableGUIAttribute))]
     public sealed class EnableGUIDrawer : DecoratorDrawer

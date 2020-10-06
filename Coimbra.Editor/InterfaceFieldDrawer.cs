@@ -1,10 +1,9 @@
-using JetBrains.Annotations;
 using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     [CustomPropertyDrawer(typeof(InterfaceField<>), true)]
     public sealed class InterfaceFieldDrawer : PropertyDrawer
@@ -14,7 +13,6 @@ namespace Coimbra
 
         private static readonly GUIContent HiddenLabel = new GUIContent(" ");
 
-        [PublicAPI]
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
@@ -25,13 +23,11 @@ namespace Coimbra
             return Mathf.Max(systemObjectHeight, unityObjectHeight);
         }
 
-        [PublicAPI]
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             OnGUI(position, property, label, true);
         }
 
-        [PublicAPI]
         public void OnGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
             object[] tooltipAttributeArray = fieldInfo.GetCustomAttributes(typeof(TooltipAttribute), true);

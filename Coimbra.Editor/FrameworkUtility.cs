@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     internal static class FrameworkUtility
     {

@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Tests
 {
     [Serializable]
-    public class DummyStruct : IDummyInterface
+    internal class DummyStruct : IDummyInterface
     {
         [SerializeField] private int _integer;
         [SerializeField] private string _string;

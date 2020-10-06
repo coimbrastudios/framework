@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Tests
 {
-    public class DummyBehaviour : MonoBehaviour, IDummyInterface
+    internal class DummyBehaviour : MonoBehaviour, IDummyInterface
     {
 #if !UNITY_2020_1_OR_NEWER
         [SerializeField] private DummyInterfaceField _interfaceField = new DummyInterfaceField();

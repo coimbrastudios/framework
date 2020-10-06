@@ -8,12 +8,11 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     /// <summary>
     ///     Extensions to make easier to use the <see cref="PropertyPathInfo"/>.
     /// </summary>
-    [PublicAPI]
     public static class PropertyPathInfoExtensions
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;

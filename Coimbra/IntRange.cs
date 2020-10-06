@@ -18,7 +18,6 @@ namespace Coimbra
 
         /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
         /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
-        [PublicAPI]
         public IntRange(int a, int b = 0)
         {
             _min = a < b ? a : b;
@@ -28,70 +27,64 @@ namespace Coimbra
         /// <summary>
         ///     The diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
-        [PublicAPI]
         public int Lenght => Max - Min;
 
         /// <summary>
         ///     The biggest value on the range.
         /// </summary>
-        [PublicAPI]
         public int Max => _max;
 
         /// <summary>
         ///     The smallest value on the range.
         /// </summary>
-        [PublicAPI]
         public int Min => _min;
 
         /// <summary>
         ///     Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
         /// </summary>
-        [PublicAPI]
         public int RandomExclusive => UnityEngine.Random.Range(Min, Max);
 
         /// <summary>
         ///     Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
-        [PublicAPI]
         public int RandomInclusive => UnityEngine.Random.Range(Min, Max + 1);
 
         /// <summary>
         ///     The sum of <see cref="Min"/> and <see cref="Max"/>.
         /// </summary>
-        [PublicAPI]
         public int Sum => Min + Max;
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator FloatRange(IntRange value)
         {
             return new FloatRange(value.Min, value.Max);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator Vector2(IntRange value)
         {
             return new Vector2(value.Min, value.Max);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator Vector2Int(IntRange value)
         {
             return new Vector2Int(value.Min, value.Max);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator IntRange(Vector2Int value)
         {
             return new IntRange(value.x, value.y);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator ==(IntRange a, IntRange b)
         {
             return a.Min == b.Min && a.Max == b.Max;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator !=(IntRange a, IntRange b)
         {
             return !(a == b);
@@ -100,7 +93,7 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [exclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool ContainsExclusive(int value)
         {
             return value >= Min && value < Max;
@@ -109,7 +102,7 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [exclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool ContainsExclusive(float value)
         {
             return value >= Min && value < Max;
@@ -118,7 +111,7 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool ContainsInclusive(int value)
         {
             return value >= Min && value <= Max;
@@ -127,13 +120,13 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool ContainsInclusive(float value)
         {
             return value >= Min && value <= Max;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -164,19 +157,19 @@ namespace Coimbra
             }
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override int GetHashCode()
         {
             return (Min.GetHashCode() + Max.GetHashCode()) * 37;
         }
 
-        [NotNull] [PublicAPI] [Pure]
+        [NotNull] [Pure]
         public override string ToString()
         {
             return $"[{Min}, {Max}]";
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Equals(IntRange other)
         {
             return this == other;

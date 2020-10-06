@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     /// <summary>
     ///     Reflection information for a given <a href="https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html">SerializedProperty</a>.
@@ -17,7 +17,6 @@ namespace Coimbra
         /// <summary>
         /// Receives the old value and expects the new value.
         /// </summary>
-        [PublicAPI]
         public delegate T SetValueHandler<T>(T oldValue);
 
         private string _propertyPath;
@@ -37,7 +36,7 @@ namespace Coimbra
         /// <summary>
         ///     Get the object that contains that field.
         /// </summary>
-        [PublicAPI] [Pure] [CanBeNull]
+        [CanBeNull] [Pure]
         public object GetScope([NotNull] Object context)
         {
             PropertyPathInfo propertyPathInfo = this;
@@ -46,7 +45,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScope"/>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [CanBeNull]
+        [CanBeNull] [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetScope<T>([NotNull] Object context)
         {
             object value = GetScope(context);
@@ -57,7 +56,7 @@ namespace Coimbra
         /// <summary>
         ///     Get the object that contains that field for each context.
         /// </summary>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public object[] GetScopes([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -71,7 +70,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public T[] GetScopes<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];
@@ -85,7 +84,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetScopes([NotNull] Object[] context, [NotNull] List<object> append)
         {
             int capacity = append.Count + context.Length;
@@ -103,7 +102,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetScopes<T>([NotNull] Object[] context, [NotNull] List<T> append)
         {
             int capacity = append.Count + context.Length;
@@ -123,7 +122,7 @@ namespace Coimbra
         /// <summary>
         ///     Get the field value.
         /// </summary>
-        [PublicAPI] [Pure] [CanBeNull]
+        [CanBeNull] [Pure]
         public object GetValue([NotNull] Object context)
         {
             PropertyPathInfo propertyPathInfo = this;
@@ -133,7 +132,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValue"/>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [CanBeNull]
+        [CanBeNull] [MethodImpl(MethodImplOptions.AggressiveInlining)] [Pure]
         public T GetValue<T>([NotNull] Object context)
         {
             object value = GetValue(context);
@@ -144,7 +143,7 @@ namespace Coimbra
         /// <summary>
         ///     Get the field value for each context.
         /// </summary>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public object[] GetValues([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -158,7 +157,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [PublicAPI] [Pure] [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public T[] GetValues<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];
@@ -172,7 +171,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetValues([NotNull] Object[] context, [NotNull] List<object> append)
         {
             int capacity = append.Count + context.Length;
@@ -189,7 +188,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetValues<T>([NotNull] Object[] context, [NotNull] List<T> append)
         {
             int capacity = append.Count + context.Length;
@@ -208,7 +207,6 @@ namespace Coimbra
         /// <summary>
         ///     Set the field value.
         /// </summary>
-        [PublicAPI]
         public void SetValue<T>([NotNull] Object context, [CanBeNull] T value)
         {
             object target = context;
@@ -261,7 +259,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="SetValue{T}(Object,T)"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValue<T>([NotNull] Object target, [NotNull] SetValueHandler<T> callback)
         {
             T oldValue = GetValue<T>(target);
@@ -272,7 +270,7 @@ namespace Coimbra
         /// <summary>
         ///     Set the field value for each context.
         /// </summary>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValues<T>([NotNull] Object[] targets, [CanBeNull] T value)
         {
             foreach (Object target in targets)
@@ -282,7 +280,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="SetValues{T}(Object[],T)"/>
-        [PublicAPI] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValues<T>([NotNull] Object[] targets, [NotNull] SetValueHandler<T> callback)
         {
             foreach (Object target in targets)
@@ -291,7 +289,6 @@ namespace Coimbra
             }
         }
 
-        [PublicAPI]
         public override string ToString()
         {
             if (_propertyPath != null)

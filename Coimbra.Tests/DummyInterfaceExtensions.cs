@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Tests
 {
-    public static class DummyInterfaceExtensions
+    internal static class DummyInterfaceExtensions
     {
         public static void Initialize<T>(this T target, DummyAsset[] assets, DummyBehaviour[] behaviours, int[] integers, string[] strings, Texture[] textures, Vector3Int[] vectors)
             where T : IDummyInterface

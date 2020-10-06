@@ -18,7 +18,6 @@ namespace Coimbra
 
         /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
         /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
-        [PublicAPI]
         public FloatRange(float a, float b = 0)
         {
             _min = a < b ? a : b;
@@ -28,52 +27,47 @@ namespace Coimbra
         /// <summary>
         ///     The diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
-        [PublicAPI]
         public float Lenght => Max - Min;
 
         /// <summary>
         ///     The biggest value on the range.
         /// </summary>
-        [PublicAPI]
         public float Max => _max;
 
         /// <summary>
         ///     The smallest value on the range.
         /// </summary>
-        [PublicAPI]
         public float Min => _min;
 
         /// <summary>
         ///     Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
-        [PublicAPI]
         public float Random => UnityEngine.Random.Range(Min, Max);
 
         /// <summary>
         ///     The sum of <see cref="Min"/> and <see cref="Max"/>.
         /// </summary>
-        [PublicAPI]
         public float Sum => Min + Max;
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator Vector2(FloatRange value)
         {
             return new Vector2(value.Min, value.Max);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static implicit operator FloatRange(Vector2 value)
         {
             return new FloatRange(value.x, value.y);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator ==(FloatRange a, FloatRange b)
         {
             return Mathf.Approximately(a.Min, b.Min) && Mathf.Approximately(a.Max, b.Max);
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public static bool operator !=(FloatRange a, FloatRange b)
         {
             return !(a == b);
@@ -82,7 +76,7 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Contains(int value)
         {
             return value >= Min && value <= Max;
@@ -91,13 +85,13 @@ namespace Coimbra
         /// <summary>
         ///     Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Contains(float value)
         {
             return value >= Min && value <= Max;
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -128,19 +122,19 @@ namespace Coimbra
             }
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public override int GetHashCode()
         {
             return (Min.GetHashCode() + Max.GetHashCode()) * 37;
         }
 
-        [NotNull] [PublicAPI] [Pure]
+        [NotNull] [Pure]
         public override string ToString()
         {
             return $"[{Min:F}, {Max:F}]";
         }
 
-        [PublicAPI] [Pure]
+        [Pure]
         public bool Equals(FloatRange other)
         {
             return this == other;

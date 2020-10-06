@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Tests
 {
-    public interface IDummyInterface
+    internal interface IDummyInterface
     {
         DummyAsset Asset { get; set; }
 

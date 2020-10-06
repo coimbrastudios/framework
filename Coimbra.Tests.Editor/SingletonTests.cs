@@ -1,10 +1,10 @@
 using NUnit.Framework;
 
-namespace Coimbra
+namespace Coimbra.Tests.Editor
 {
     [TestFixture]
     [TestOf(typeof(Singleton<>))]
-    public sealed class SingletonTests
+    internal sealed class SingletonTests
     {
         private sealed class DummySingleton
         {
