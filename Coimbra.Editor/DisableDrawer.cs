@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    [CustomPropertyDrawer(typeof(DisableGUIAttribute))]
-    public sealed class DisableGUIDrawer : DecoratorDrawer
+    [CustomPropertyDrawer(typeof(DisableAttribute))]
+    public sealed class DisableDrawer : DecoratorDrawer
     {
         public override float GetHeight()
         {
