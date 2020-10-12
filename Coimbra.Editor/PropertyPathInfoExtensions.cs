@@ -18,6 +18,12 @@ namespace Coimbra.Editor
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new Dictionary<SerializedProperty, PropertyPathInfo>();
 
+        /// <inheritdoc cref="PropertyPathInfo.Index"/>
+        public static int? GetIndex(this SerializedProperty property)
+        {
+            return property.GetPropertyPathInfo().Index;
+        }
+
         /// <summary>
         ///     Creates or gets a cached <see cref="PropertyPathInfo"/>.
         /// </summary>
@@ -163,6 +169,20 @@ namespace Coimbra.Editor
             return arguments.Length > 0 ? arguments[0] : type;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static FieldInfo GetField(Type type, string field)
+        {
+            if (type == typeof(Vector2Int) || type == typeof(Vector3Int))
+            {
+                if (field.Length == 1)
+                {
+                    field = $"m_{field.ToUpperInvariant()}";
+                }
+            }
+
+            return type.GetField(field, PropertyPathInfoFlags);
+        }
+
         private static PropertyPathInfo GetPropertyPathInfoRecursive(Type rootTargetType, List<string> splitPropertyPath)
         {
             if (splitPropertyPath.Count == 0)
@@ -197,20 +217,6 @@ namespace Coimbra.Editor
             splitPropertyPath.RemoveAt(0);
 
             return new PropertyPathInfo(fieldInfo, GetPropertyPathInfoRecursive(fieldInfo.FieldType, splitPropertyPath));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static FieldInfo GetField(Type type, string field)
-        {
-            if (type == typeof(Vector2Int) || type == typeof(Vector3Int))
-            {
-                if (field.Length == 1)
-                {
-                    field = $"m_{field.ToUpperInvariant()}";
-                }
-            }
-
-            return type.GetField(field, PropertyPathInfoFlags);
         }
     }
 }

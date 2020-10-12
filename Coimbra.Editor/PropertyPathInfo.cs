@@ -15,15 +15,16 @@ namespace Coimbra.Editor
     public sealed class PropertyPathInfo
     {
         /// <summary>
-        /// Receives the old value and expects the new value.
+        ///     Receives the old value and expects the new value.
         /// </summary>
         public delegate T SetValueHandler<T>(T oldValue);
 
-        private string _propertyPath;
+        /// <summary>
+        ///     Null if not an array element.
+        /// </summary>
+        public readonly int? Index;
 
-        private int? Index { get; }
-        private FieldInfo FieldInfo { get; }
-        private PropertyPathInfo Next { get; }
+        private string _propertyPath;
 
         internal PropertyPathInfo(FieldInfo fieldInfo, PropertyPathInfo next, int? index = null)
         {
@@ -32,6 +33,9 @@ namespace Coimbra.Editor
             Next = next;
             Index = index;
         }
+
+        private FieldInfo FieldInfo { get; }
+        private PropertyPathInfo Next { get; }
 
         /// <summary>
         ///     Get the object that contains that field.
