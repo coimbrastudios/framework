@@ -13,7 +13,7 @@ namespace Coimbra.Editor
 
         public override void OnGUI(Rect position)
         {
-            GUI.enabled = EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode;
+            GUI.enabled = CSEditorUtility.IsPlayMode;
         }
     }
 }

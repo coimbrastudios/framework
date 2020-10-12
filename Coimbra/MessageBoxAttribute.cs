@@ -11,9 +11,9 @@ namespace Coimbra
     {
         public readonly string Message;
 
-        public readonly MessageBoxType Type;
+        public readonly MessageType Type;
 
-        public MessageBoxAttribute(string message, MessageBoxType type = MessageBoxType.None)
+        public MessageBoxAttribute(string message, MessageType type = MessageType.None)
         {
             Message = message;
             Type = type;

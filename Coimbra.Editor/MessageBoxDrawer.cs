@@ -15,7 +15,7 @@ namespace Coimbra.Editor
 
             switch (messageBoxAttribute.Type)
             {
-                case MessageBoxType.Info:
+                case MessageType.Info:
                 {
                     // ReSharper disable once StringLiteralTypo
                     FitIcon("console.infoicon", ref contentWidth, out minContentHeight);
@@ -23,7 +23,7 @@ namespace Coimbra.Editor
                     break;
                 }
 
-                case MessageBoxType.Warning:
+                case MessageType.Warning:
                 {
                     // ReSharper disable once StringLiteralTypo
                     FitIcon("console.warnicon", ref contentWidth, out minContentHeight);
@@ -31,7 +31,7 @@ namespace Coimbra.Editor
                     break;
                 }
 
-                case MessageBoxType.Error:
+                case MessageType.Error:
                 {
                     // ReSharper disable once StringLiteralTypo
                     FitIcon("console.erroricon", ref contentWidth, out minContentHeight);
@@ -55,34 +55,34 @@ namespace Coimbra.Editor
         public override void OnGUI(Rect position)
         {
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
-            MessageType messageType;
+            UnityEditor.MessageType messageType;
 
             switch (messageBoxAttribute.Type)
             {
-                case MessageBoxType.Info:
+                case MessageType.Info:
                 {
-                    messageType = MessageType.Info;
+                    messageType = UnityEditor.MessageType.Info;
 
                     break;
                 }
 
-                case MessageBoxType.Warning:
+                case MessageType.Warning:
                 {
-                    messageType = MessageType.Warning;
+                    messageType = UnityEditor.MessageType.Warning;
 
                     break;
                 }
 
-                case MessageBoxType.Error:
+                case MessageType.Error:
                 {
-                    messageType = MessageType.Error;
+                    messageType = UnityEditor.MessageType.Error;
 
                     break;
                 }
 
                 default:
                 {
-                    messageType = MessageType.None;
+                    messageType = UnityEditor.MessageType.None;
 
                     break;
                 }

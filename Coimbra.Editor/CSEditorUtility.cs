@@ -1,13 +1,27 @@
 using System;
 using System.IO;
+using UnityEditor;
 
 namespace Coimbra.Editor
 {
-    internal static class FrameworkUtility
+    /// <summary>
+    ///     General editor utilities.
+    /// </summary>
+    public static class CSEditorUtility
     {
         internal const string PackageName = "com.coimbrastudios.framework";
         internal const string UserPreferencesPath = "Preferences/CS Framework";
         internal const string ProjectSettingsPath = "Project/CS Framework";
+
+        /// <summary>
+        /// Is currently on edit mode?
+        /// </summary>
+        public static bool IsEditMode => !EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode;
+
+        /// <summary>
+        /// Is currently on play mode?
+        /// </summary>
+        public static bool IsPlayMode => EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode;
 
         internal static void EnsureDirectoryExists(string directory)
         {
