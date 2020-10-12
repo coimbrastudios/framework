@@ -844,7 +844,7 @@ namespace CodingSeb.ExpressionEvaluator
         {
             get
             {
-                BindingFlags flag = BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance;
+                BindingFlags flag = BindingFlags.Default | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 
                 if (!OptionCaseSensitiveEvaluationActive)
                     flag |= BindingFlags.IgnoreCase;
@@ -859,7 +859,7 @@ namespace CodingSeb.ExpressionEvaluator
         {
             get
             {
-                BindingFlags flag = BindingFlags.Default | BindingFlags.Public | BindingFlags.Static;
+                BindingFlags flag = BindingFlags.Default | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
                 if (!OptionCaseSensitiveEvaluationActive)
                     flag |= BindingFlags.IgnoreCase;
