@@ -1,9 +1,7 @@
-using UnityEngine;
-
 namespace Coimbra
 {
     /// <summary>
-    ///     Disable the field on the inspector when on edit mode.
+    ///     Disable the field on the inspector while on edit mode.
     /// </summary>
-    public sealed class DisableOnEditModeAttribute : PropertyAttribute { }
+    public sealed class DisableOnEditModeAttribute : DisableAttribute { }
 }

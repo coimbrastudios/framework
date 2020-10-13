@@ -3,11 +3,26 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    [CustomPropertyDrawer(typeof(MessageBoxAttribute))]
-    public sealed class MessageBoxDrawer : DecoratorDrawer
+    [CustomPropertyDrawer(typeof(MessageBoxAttribute), true)]
+    public class MessageBoxDrawer : DecoratorDrawer
     {
         public override float GetHeight()
         {
+            if (attribute is MessageBoxOnEditModeAttribute)
+            {
+                if (CSUtility.IsPlayMode)
+                {
+                    return 0;
+                }
+            }
+            else if (attribute is MessageBoxOnPlayModeAttribute)
+            {
+                if (CSUtility.IsEditMode)
+                {
+                    return 0;
+                }
+            }
+
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
             GUIContent content = new GUIContent(messageBoxAttribute.Message);
             float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
@@ -47,6 +62,11 @@ namespace Coimbra.Editor
                 }
             }
 
+            if (!messageBoxAttribute.FillLabelArea)
+            {
+                contentWidth -= EditorGUIUtility.labelWidth;
+            }
+
             float height = EditorStyles.helpBox.CalcHeight(content, contentWidth);
 
             return Mathf.Max(height, minContentHeight);
@@ -54,6 +74,11 @@ namespace Coimbra.Editor
 
         public override void OnGUI(Rect position)
         {
+            if (position.height == 0)
+            {
+                return;
+            }
+
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
             UnityEditor.MessageType messageType;
 
@@ -86,6 +111,11 @@ namespace Coimbra.Editor
 
                     break;
                 }
+            }
+
+            if (!messageBoxAttribute.FillLabelArea)
+            {
+                position.xMin += EditorGUIUtility.labelWidth;
             }
 
             EditorGUI.HelpBox(position, messageBoxAttribute.Message, messageType);

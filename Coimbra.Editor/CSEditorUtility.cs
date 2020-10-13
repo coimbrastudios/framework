@@ -13,16 +13,6 @@ namespace Coimbra.Editor
         internal const string UserPreferencesPath = "Preferences/CS Framework";
         internal const string ProjectSettingsPath = "Project/CS Framework";
 
-        /// <summary>
-        /// Is currently on edit mode?
-        /// </summary>
-        public static bool IsEditMode => !EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode;
-
-        /// <summary>
-        /// Is currently on play mode?
-        /// </summary>
-        public static bool IsPlayMode => EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode;
-
         internal static void EnsureDirectoryExists(string directory)
         {
             if (!Directory.Exists(directory))

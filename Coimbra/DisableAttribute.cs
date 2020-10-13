@@ -5,5 +5,5 @@ namespace Coimbra
     /// <summary>
     ///     Disable the field on the inspector.
     /// </summary>
-    public sealed class DisableAttribute : PropertyAttribute { }
+    public class DisableAttribute : PropertyAttribute { }
 }

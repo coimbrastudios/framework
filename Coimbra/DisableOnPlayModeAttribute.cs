@@ -1,9 +1,7 @@
-using UnityEngine;
-
 namespace Coimbra
 {
     /// <summary>
-    ///     Disable the field on the inspector when on play mode.
+    ///     Disable the field on the inspector while on play mode.
     /// </summary>
-    public sealed class DisableOnPlayModeAttribute : PropertyAttribute { }
+    public sealed class DisableOnPlayModeAttribute : DisableAttribute { }
 }

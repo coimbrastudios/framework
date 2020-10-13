@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace Coimbra.Editor
 {
     [InitializeOnLoad]
     internal static class CSExpressionEvaluator
     {
-        private const string EvaluateWarning = "Unable to evaluate expression \"{0}\": {1}";
+        private const char OptionalExpressionChar = '?';
+        private const string ExpressionIsNullOrWhiteSpaceMessage = "Expression is null or white space.";
+        private const string InvalidExpressionMessageFormat = "Invalid expression \"{0}\"";
         private static readonly CodingSeb.ExpressionEvaluator.ExpressionEvaluator Instance;
 
         static CSExpressionEvaluator()
@@ -20,74 +22,39 @@ namespace Coimbra.Editor
             };
         }
 
-        internal static bool TryEvaluate(string expression, object context = null, IDictionary<string, object> variables = null, bool methodFallback = true)
+        internal static object Evaluate(string expression, object context, IDictionary<string, object> variables)
         {
             try
             {
                 Instance.Context = context;
                 Instance.Variables = variables;
-                Instance.Evaluate(expression);
 
-                return true;
+                return Instance.Evaluate(expression);
             }
             catch (Exception e)
             {
-                if (methodFallback)
-                {
-                    try
-                    {
-                        Instance.Evaluate(expression + "()");
-
-                        return true;
-                    }
-                    catch
-                    {
-                        Debug.LogWarningFormat(EvaluateWarning, expression, e);
-                    }
-                }
-                else
-                {
-                    Debug.LogWarningFormat(EvaluateWarning, expression, e);
-                }
-
-                return false;
+                throw new ArgumentException(string.Format(InvalidExpressionMessageFormat, expression), nameof(expression), e);
             }
         }
 
-        internal static bool TryEvaluate<T>(string expression, out T result, object context = null, IDictionary<string, object> variables = null, bool methodFallback = true)
+        internal static string Validate(ref string expression, out bool hadExpressionChar)
         {
-            try
+            hadExpressionChar = false;
+
+            if (string.IsNullOrWhiteSpace(expression))
             {
-                Instance.Context = context;
-                Instance.Variables = variables;
-                result = Instance.Evaluate<T>(expression);
-
-                return true;
+                return ExpressionIsNullOrWhiteSpaceMessage;
             }
-            catch (Exception e)
+
+            if (expression[0] != OptionalExpressionChar)
             {
-                if (methodFallback)
-                {
-                    try
-                    {
-                        result = Instance.Evaluate<T>(expression + "()");
-
-                        return true;
-                    }
-                    catch
-                    {
-                        Debug.LogWarningFormat(EvaluateWarning, expression, e);
-                    }
-                }
-                else
-                {
-                    Debug.LogWarningFormat(EvaluateWarning, expression, e);
-                }
-
-                result = default;
-
-                return false;
+                return null;
             }
+
+            expression = expression.Substring(1, expression.Length - 1);
+            hadExpressionChar = true;
+
+            return string.IsNullOrWhiteSpace(expression) ? ExpressionIsNullOrWhiteSpaceMessage : null;
         }
     }
 }
