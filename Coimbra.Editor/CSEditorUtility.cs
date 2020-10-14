@@ -9,7 +9,7 @@ namespace Coimbra.Editor
     /// </summary>
     public static class CSEditorUtility
     {
-        internal const string PackageName = "com.coimbrastudios.framework";
+        internal const string PackageName = "com.coimbrastudios";
         internal const string UserPreferencesPath = "Preferences/CS Framework";
         internal const string ProjectSettingsPath = "Project/CS Framework";
 
