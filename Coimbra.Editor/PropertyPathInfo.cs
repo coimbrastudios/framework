@@ -20,6 +20,11 @@ namespace Coimbra.Editor
         public delegate T SetValueHandler<T>(T oldValue);
 
         /// <summary>
+        ///     The field info for this property.
+        /// </summary>
+        public readonly FieldInfo FieldInfo;
+
+        /// <summary>
         ///     Null if not an array element.
         /// </summary>
         public readonly int? Index;
@@ -34,7 +39,6 @@ namespace Coimbra.Editor
             Index = index;
         }
 
-        private FieldInfo FieldInfo { get; }
         private PropertyPathInfo Next { get; }
 
         /// <summary>

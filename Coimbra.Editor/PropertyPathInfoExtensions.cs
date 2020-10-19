@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Coimbra.Editor
 {
@@ -15,8 +14,14 @@ namespace Coimbra.Editor
     /// </summary>
     public static class PropertyPathInfoExtensions
     {
-        private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+        private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
         private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new Dictionary<SerializedProperty, PropertyPathInfo>();
+
+        /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
+        public static FieldInfo GetFieldInfo(this SerializedProperty property)
+        {
+            return property.GetPropertyPathInfo().FieldInfo;
+        }
 
         /// <inheritdoc cref="PropertyPathInfo.Index"/>
         public static int? GetIndex(this SerializedProperty property)
@@ -183,22 +188,20 @@ namespace Coimbra.Editor
             return type.GetField(field, PropertyPathInfoFlags);
         }
 
-        private static PropertyPathInfo GetPropertyPathInfoRecursive(Type rootTargetType, List<string> splitPropertyPath)
+        [CanBeNull]
+        private static PropertyPathInfo GetPropertyPathInfoRecursive(Type targetType, List<string> splitPropertyPath)
         {
             if (splitPropertyPath.Count == 0)
             {
                 return null;
             }
 
-            FieldInfo fieldInfo = GetField(rootTargetType, splitPropertyPath[0]);
+            FieldInfo fieldInfo = GetField(targetType, splitPropertyPath[0]);
 
-            while (fieldInfo == null && rootTargetType.BaseType != null)
+            if (fieldInfo == null)
             {
-                rootTargetType = rootTargetType.BaseType;
-                fieldInfo = GetField(rootTargetType, splitPropertyPath[0]);
+                return null;
             }
-
-            Assert.IsNotNull(fieldInfo);
 
             if (splitPropertyPath.Count > 2 && splitPropertyPath[1] == "Array")
             {

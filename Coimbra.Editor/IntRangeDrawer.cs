@@ -51,7 +51,7 @@ namespace Coimbra.Editor
             float totalWidth = position.width;
             float fieldWith = totalWidth / 2 - spacing / 2 - labelWidth;
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent("Min"), minProperty))
+            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(IntRange.Min)), minProperty))
             {
                 position.width = labelWidth;
                 EditorGUI.LabelField(position, propertyScope.content);
@@ -73,7 +73,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent("Max"), maxProperty))
+            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(IntRange.Max)), maxProperty))
             {
                 position.x += position.width + spacing;
                 position.width = labelWidth;

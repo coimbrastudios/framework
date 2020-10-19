@@ -52,7 +52,6 @@ namespace Coimbra.Editor
             string suffix = $"* {interfaceType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
             GUIContent labelWithTooltip = new GUIContent($"{label.text}*", label.image, tooltip);
-
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
             position.height = EditorGUI.GetPropertyHeight(systemObject, true);
             EditorGUI.PropertyField(position, systemObject, HiddenLabel, true);

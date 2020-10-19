@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    [CustomPropertyDrawer(typeof(DisableAttribute), true)]
-    public class DisableDrawer : DecoratorDrawer
+    [CustomPropertyDrawer(typeof(DisableAttribute))]
+    [CustomPropertyDrawer(typeof(DisableOnEditModeAttribute))]
+    [CustomPropertyDrawer(typeof(DisableOnPlayModeAttribute))]
+    public sealed class DisableDrawer : DecoratorDrawer
     {
         public override float GetHeight()
         {
@@ -13,17 +15,34 @@ namespace Coimbra.Editor
 
         public override void OnGUI(Rect position)
         {
-            if (attribute is DisableOnEditModeAttribute)
+            switch (attribute)
             {
-                GUI.enabled = CSUtility.IsPlayMode;
-            }
-            else if (attribute is DisableOnPlayModeAttribute)
-            {
-                GUI.enabled = CSUtility.IsEditMode;
-            }
-            else
-            {
-                GUI.enabled = false;
+                case DisableOnEditModeAttribute _:
+                {
+                    if (CSUtility.IsEditMode)
+                    {
+                        GUI.enabled = false;
+                    }
+
+                    break;
+                }
+
+                case DisableOnPlayModeAttribute _:
+                {
+                    if (CSUtility.IsPlayMode)
+                    {
+                        GUI.enabled = false;
+                    }
+
+                    break;
+                }
+
+                default:
+                {
+                    GUI.enabled = false;
+
+                    break;
+                }
             }
         }
     }
