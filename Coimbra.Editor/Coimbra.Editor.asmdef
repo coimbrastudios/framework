@@ -2,7 +2,6 @@
     "name": "Coimbra.Editor",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
-        "GUID:ce33dd7f32f2e5e4da990e557881539b",
         "GUID:49818357e697641afb75d2f8acaf1861"
     ],
     "includePlatforms": [

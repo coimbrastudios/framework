@@ -24,7 +24,7 @@ namespace CodingSeb.ExpressionEvaluator
     /// <summary>
     /// This class allow to evaluate a string math or pseudo C# expression
     /// </summary>
-    public partial class ExpressionEvaluator
+    internal partial class ExpressionEvaluator
     {
         #region Regex declarations
 
@@ -878,6 +878,11 @@ namespace CodingSeb.ExpressionEvaluator
         /// If set, this object is used to use it's fields, properties and methods as global variables and functions
         /// </summary>
         public object Context { get; set; }
+        
+        /// <summary>
+        /// If set, this type is used to use it's fields, properties and methods as global variables and functions
+        /// </summary>
+        public Type ContextType { get; set; }
 
         private IDictionary<string, object> variables = new Dictionary<string, object>(StringComparer.Ordinal);
 
@@ -3833,7 +3838,7 @@ namespace CodingSeb.ExpressionEvaluator
 
     #region linked enums
 
-    public enum OptionOnNoReturnKeywordFoundInScriptAction
+    internal enum OptionOnNoReturnKeywordFoundInScriptAction
     {
         ReturnAutomaticallyLastEvaluatedExpression,
         ReturnNull,
@@ -3846,7 +3851,7 @@ namespace CodingSeb.ExpressionEvaluator
 
     #region Operators Management
 
-    public partial class ExpressionOperator : IEquatable<ExpressionOperator>
+    internal partial class ExpressionOperator : IEquatable<ExpressionOperator>
     {
         protected static uint indexer = 0;
 
@@ -3905,7 +3910,7 @@ namespace CodingSeb.ExpressionEvaluator
         }
     }
 
-    public static partial class OperatorsEvaluationsExtensions
+    internal static partial class OperatorsEvaluationsExtensions
     {
         public static IList<IDictionary<ExpressionOperator, Func<dynamic, dynamic, object>>> Copy(this IList<IDictionary<ExpressionOperator, Func<dynamic, dynamic, object>>> operatorsEvaluations)
         {
@@ -3985,19 +3990,19 @@ namespace CodingSeb.ExpressionEvaluator
 
     #endregion
 
-    public partial class ClassOrEnumType
+    internal partial class ClassOrEnumType
     {
         public Type Type { get; set; }
     }
 
-    public partial class StronglyTypedVariable
+    internal partial class StronglyTypedVariable
     {
         public Type Type { get; set; }
 
         public object Value { get; set; }
     }
 
-    public partial class SubExpression
+    internal partial class SubExpression
     {
         public string Expression { get; set; }
 
@@ -4007,12 +4012,12 @@ namespace CodingSeb.ExpressionEvaluator
         }
     }
 
-    public partial class BubbleExceptionContainer
+    internal partial class BubbleExceptionContainer
     {
         public Exception Exception { get; set; }
     }
 
-    public partial class ExpressionEvaluatorSyntaxErrorException : Exception
+    internal partial class ExpressionEvaluatorSyntaxErrorException : Exception
     {
         public ExpressionEvaluatorSyntaxErrorException()
         { }
@@ -4024,7 +4029,7 @@ namespace CodingSeb.ExpressionEvaluator
         { }
     }
 
-    public partial class ExpressionEvaluatorSecurityException : Exception
+    internal partial class ExpressionEvaluatorSecurityException : Exception
     {
         public ExpressionEvaluatorSecurityException()
         { }
@@ -4036,7 +4041,7 @@ namespace CodingSeb.ExpressionEvaluator
         { }
     }
 
-    public partial class VariableEvaluationEventArg : EventArgs
+    internal partial class VariableEvaluationEventArg : EventArgs
     {
         private readonly Func<string, Type[]> evaluateGenericTypes;
         private readonly string genericTypes;
@@ -4112,7 +4117,7 @@ namespace CodingSeb.ExpressionEvaluator
         }
     }
 
-    public partial class VariablePreEvaluationEventArg : VariableEvaluationEventArg
+    internal partial class VariablePreEvaluationEventArg : VariableEvaluationEventArg
     {
         public VariablePreEvaluationEventArg(string name, ExpressionEvaluator evaluator = null, object onInstance = null, string genericTypes = null, Func<string, Type[]> evaluateGenericTypes = null)
             : base(name, evaluator, onInstance, genericTypes, evaluateGenericTypes)
@@ -4124,7 +4129,7 @@ namespace CodingSeb.ExpressionEvaluator
         public bool CancelEvaluation { get; set; }
     }
 
-    public partial class FunctionEvaluationEventArg : EventArgs
+    internal partial class FunctionEvaluationEventArg : EventArgs
     {
         private readonly Func<string, object> evaluateFunc;
         private readonly Func<string, Type[]> evaluateGenericTypes;
@@ -4234,7 +4239,7 @@ namespace CodingSeb.ExpressionEvaluator
         }
     }
 
-    public partial class FunctionPreEvaluationEventArg : FunctionEvaluationEventArg
+    internal partial class FunctionPreEvaluationEventArg : FunctionEvaluationEventArg
     {
         public FunctionPreEvaluationEventArg(string name, Func<string, object> evaluateFunc, List<string> args = null, ExpressionEvaluator evaluator = null, object onInstance = null, string genericTypes = null, Func<string, Type[]> evaluateGenericTypes = null)
             : base(name, evaluateFunc, args, evaluator, onInstance, genericTypes, evaluateGenericTypes)

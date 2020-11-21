@@ -26,11 +26,12 @@ namespace Coimbra.Editor
             };
         }
 
-        internal static object Evaluate(string expression, object context, IDictionary<string, object> variables)
+        internal static object Evaluate(string expression, object context, Type type, IDictionary<string, object> variables)
         {
             try
             {
                 Instance.Context = context;
+                Instance.ContextType = type;
                 Instance.Variables = variables;
 
                 return Instance.Evaluate(expression);
@@ -41,7 +42,7 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static void InvokeAction(IReadOnlyList<object> scopes, string expression)
+        internal static void InvokeAction(IReadOnlyList<object> scopes, Type type, string expression)
         {
             string error = Validate(ref expression, out bool hadExpressionChar);
 
@@ -58,7 +59,7 @@ namespace Coimbra.Editor
                 {
                     for (int i = 0; i < scopes.Count; i++)
                     {
-                        Evaluate(expression, scopes[i], null);
+                        Evaluate(expression, scopes[i], type, null);
                     }
                 }
                 catch (Exception e)
@@ -98,7 +99,7 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static bool InvokeCondition(IReadOnlyList<object> scopes, string conditionExpression)
+        internal static bool InvokeCondition(IReadOnlyList<object> scopes, Type type, string conditionExpression)
         {
             string error = Validate(ref conditionExpression, out bool hadExpressionChar);
 
@@ -115,7 +116,7 @@ namespace Coimbra.Editor
                 {
                     for (int i = 0; i < scopes.Count; i++)
                     {
-                        if (!(bool)Evaluate(conditionExpression, scopes[i], null))
+                        if (!(bool)Evaluate(conditionExpression, scopes[i], type, null))
                         {
                             return false;
                         }

@@ -13,6 +13,8 @@ namespace Coimbra.Editor
         private static readonly Dictionary<Type, List<FieldInfo>> AllFieldInfosFromType = new Dictionary<Type, List<FieldInfo>>();
         private static readonly Dictionary<Type, List<PropertyInfo>> AllPropertyInfosFromType = new Dictionary<Type, List<PropertyInfo>>();
         private static readonly Dictionary<Type, PropertyInfo[]> DeclaredPropertyInfosFromType = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<Type, List<MethodInfo>> AllMethodInfosFromType = new Dictionary<Type, List<MethodInfo>>();
+        private static readonly Dictionary<Type, MethodInfo[]> DeclaredMethodInfosFromType = new Dictionary<Type, MethodInfo[]>();
 
         internal static IReadOnlyList<FieldInfo> GetAllFields(this Type type)
         {
@@ -70,6 +72,36 @@ namespace Coimbra.Editor
             while (current != null);
 
             AllPropertyInfosFromType.Add(type, results);
+
+            return results;
+        }
+
+        internal static IReadOnlyList<MethodInfo> GetAllMethods(this Type type)
+        {
+            if (AllMethodInfosFromType.TryGetValue(type, out List<MethodInfo> results))
+            {
+                return results;
+            }
+
+            results = new List<MethodInfo>();
+
+            Type current = type;
+
+            do
+            {
+                if (!DeclaredMethodInfosFromType.TryGetValue(current, out MethodInfo[] declared))
+                {
+                    declared = current.GetMethods(DeclaredBindingFlags | BindingFlags.InvokeMethod);
+                    DeclaredMethodInfosFromType.Add(current, declared);
+                }
+
+                results.AddRange(declared);
+
+                current = current.BaseType;
+            }
+            while (current != null);
+
+            AllMethodInfosFromType.Add(type, results);
 
             return results;
         }
