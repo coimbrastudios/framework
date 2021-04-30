@@ -18,9 +18,9 @@ namespace Coimbra
         [FormerlySerializedAs("m_MaxCapacity")] [Min(0)] [Tooltip("Max amount of items in the pool. If 0 it is treated as infinity capacity.")]
         [SerializeField] private int _maxCapacity;
 
+        private readonly object _lock = new object();
         private readonly Disposable<T>.DisposeHandler _disposeHandler;
         private readonly HashSet<T> _availableSet = new HashSet<T>();
-        private readonly object _lock = new object();
         private readonly Stack<T> _availableStack = new Stack<T>();
 
         /// <summary>
@@ -66,21 +66,21 @@ namespace Coimbra
         /// <param name="maxCapacity">If not null, it will override the current <see cref="MaxCapacity"/>.</param>
         public void Reset(int? preloadCount = null, int? maxCapacity = null)
         {
-            if (preloadCount.HasValue)
-            {
-                PreloadCount = preloadCount.Value;
-            }
-
-            if (maxCapacity.HasValue)
-            {
-                MaxCapacity = maxCapacity.Value;
-            }
-
-            int desiredCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
-            bool preload = false;
-
             lock (_lock)
             {
+                if (preloadCount.HasValue)
+                {
+                    PreloadCount = preloadCount.Value;
+                }
+
+                if (maxCapacity.HasValue)
+                {
+                    MaxCapacity = maxCapacity.Value;
+                }
+
+                int desiredCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
+                bool preload = false;
+
                 if (_availableStack.Count < desiredCount)
                 {
                     preload = true;
@@ -92,17 +92,18 @@ namespace Coimbra
                         Delete();
                     }
                 }
-            }
 
-            if (preload)
-            {
-                Preload(desiredCount);
+                if (preload)
+                {
+                    Preload(desiredCount);
+                }
             }
         }
 
         /// <summary>
         ///     Pick one item from the pool.
         /// </summary>
+        [NotNull]
         public T Get()
         {
             T item = null;
@@ -116,10 +117,7 @@ namespace Coimbra
                 }
             }
 
-            if (item == null)
-            {
-                item = OnCreate();
-            }
+            item ??= OnCreate();
 
             OnGet(item);
 
@@ -139,7 +137,7 @@ namespace Coimbra
         /// <summary>
         ///     Return the item to the pool.
         /// </summary>
-        public void Release([NotNull] T item)
+        public void Release([NotNull] in T item)
         {
             bool release = false;
 
@@ -171,6 +169,7 @@ namespace Coimbra
         /// <summary>
         ///     Called when creating a new item for the pool. It should never return null.
         /// </summary>
+        [NotNull]
         protected abstract T OnCreate();
 
         /// <summary>
@@ -194,13 +193,13 @@ namespace Coimbra
         /// <param name="desiredCount">If null, it will pick the pool's <see cref="PreloadCount"/>.</param>
         protected void Preload(int? desiredCount = null)
         {
-            if (desiredCount.HasValue == false)
-            {
-                desiredCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
-            }
-
             lock (_lock)
             {
+                if (desiredCount.HasValue == false)
+                {
+                    desiredCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
+                }
+
                 while (_availableStack.Count < desiredCount)
                 {
                     Create();

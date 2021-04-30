@@ -19,7 +19,7 @@ namespace Coimbra.Editor
             {
                 case DisableOnEditModeAttribute _:
                 {
-                    if (CSUtility.IsEditMode)
+                    if (CSFrameworkUtility.IsEditMode)
                     {
                         GUI.enabled = false;
                     }
@@ -29,7 +29,7 @@ namespace Coimbra.Editor
 
                 case DisableOnPlayModeAttribute _:
                 {
-                    if (CSUtility.IsPlayMode)
+                    if (CSFrameworkUtility.IsPlayMode)
                     {
                         GUI.enabled = false;
                     }

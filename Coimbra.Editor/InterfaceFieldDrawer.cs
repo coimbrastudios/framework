@@ -41,13 +41,6 @@ namespace Coimbra.Editor
             Type baseType = fieldInfo.FieldType.IsArray ? fieldInfo.FieldType.GetElementType() : fieldInfo.FieldType;
             Assert.IsNotNull(baseType);
 
-#if !UNITY_2020_1_OR_NEWER
-            while (baseType.BaseType != null && baseType.BaseType != typeof(object) && baseType.BaseType != typeof(ValueType))
-            {
-                baseType = baseType.BaseType;
-            }
-#endif
-
             Type interfaceType = baseType.GenericTypeArguments[0];
             string suffix = $"* {interfaceType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";

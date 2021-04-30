@@ -3,7 +3,7 @@ namespace Coimbra
     /// <summary>
     ///   User message types.
     /// </summary>
-    public enum MessageType
+    public enum MessageBoxType
     {
         /// <summary>
         ///   Neutral message.

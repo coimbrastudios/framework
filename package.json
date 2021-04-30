@@ -3,7 +3,7 @@
   "displayName": "CS Framework",
   "author": "Bruno Coimbra",
   "version": "1.0.0",
-  "unity": "2019.4",
+  "unity": "2020.3",
   "type": "tool",
   "dependencies": {
     "com.unity.settings-manager": "1.0.3"

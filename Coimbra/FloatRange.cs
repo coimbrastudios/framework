@@ -44,11 +44,6 @@ namespace Coimbra
         /// </summary>
         public float Random => UnityEngine.Random.Range(Min, Max);
 
-        /// <summary>
-        ///     The sum of <see cref="Min"/> and <see cref="Max"/>.
-        /// </summary>
-        public float Sum => Min + Max;
-
         [Pure]
         public static implicit operator Vector2(FloatRange value)
         {

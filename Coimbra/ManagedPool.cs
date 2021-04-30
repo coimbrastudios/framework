@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace Coimbra
 {
     /// <summary>
@@ -9,6 +11,7 @@ namespace Coimbra
         /// <summary>
         ///     Default shared pool instance.
         /// </summary>
+        [NotNull]
         public static readonly ManagedPool<T> Global = new ManagedPool<T>();
 
         protected override T OnCreate()

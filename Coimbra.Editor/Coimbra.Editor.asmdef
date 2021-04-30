@@ -1,5 +1,6 @@
 {
     "name": "Coimbra.Editor",
+    "rootNamespace": "",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:49818357e697641afb75d2f8acaf1861"

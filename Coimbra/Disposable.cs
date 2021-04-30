@@ -8,21 +8,22 @@ namespace Coimbra
     /// </summary>
     public readonly struct Disposable<T> : IDisposable
     {
-        public delegate void DisposeHandler([NotNull] T value);
+        public delegate void DisposeHandler([CanBeNull] in T value);
+
+        [CanBeNull]
+        public readonly T Value;
 
         private readonly DisposeHandler _onDispose;
 
-        public Disposable([NotNull] T value, DisposeHandler onDispose)
+        public Disposable([CanBeNull] in T value, [CanBeNull] DisposeHandler onDispose)
         {
             Value = value;
             _onDispose = onDispose;
         }
 
-        public T Value { get; }
-
         public void Dispose()
         {
-            _onDispose?.Invoke(Value);
+            _onDispose?.Invoke(in Value);
         }
     }
 }

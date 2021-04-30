@@ -13,12 +13,12 @@ namespace Coimbra
 
         public readonly string Message;
 
-        public readonly MessageType Type;
+        public readonly MessageBoxType Type;
 
-        public MessageBoxAttribute(string message, MessageType type)
+        public MessageBoxAttribute(string message, MessageBoxType type)
             : this(message, true, type) { }
 
-        public MessageBoxAttribute(string message, bool fillLabelArea = true, MessageType type = MessageType.None)
+        public MessageBoxAttribute(string message, bool fillLabelArea = true, MessageBoxType type = MessageBoxType.None)
         {
             FillLabelArea = fillLabelArea;
             Message = message;

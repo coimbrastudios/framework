@@ -1,12 +1,17 @@
 using System;
 using System.IO;
+using UnityEditor;
+using UnityEditor.SettingsManagement;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace UnityEditor.SettingsManagement
+namespace Coimbra.Editor
 {
+    /// <summary>
+    ///     Settings repository to use the new UserSettings folder.
+    /// </summary>
     [Serializable]
-    internal sealed class UserSettingsFolderRepository : ISettingsRepository
+    public sealed class UserSettingsFolderRepository : ISettingsRepository
     {
         [SerializeField] private string _name;
         [SerializeField] private string _path;
@@ -17,7 +22,7 @@ namespace UnityEditor.SettingsManagement
         private bool _initialized;
         private string _cachedJson;
 
-        internal UserSettingsFolderRepository(string package, string name)
+        public UserSettingsFolderRepository(string package, string name)
         {
             _name = name;
             _path = GetSettingsPath(package, name);

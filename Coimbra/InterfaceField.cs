@@ -9,11 +9,7 @@ namespace Coimbra
     /// </summary>
     /// <typeparam name="T">The interface type.</typeparam>
     [Serializable]
-#if !UNITY_2020_1_OR_NEWER
-    public class InterfaceField<T> : IEquatable<InterfaceField<T>>, IEquatable<T>
-#else
     public struct InterfaceField<T> : IEquatable<InterfaceField<T>>, IEquatable<T>
-#endif
         where T : class
     {
         [SerializeReference] private T _systemObject;
@@ -21,15 +17,7 @@ namespace Coimbra
 
         private T _value;
 
-#if !UNITY_2020_1_OR_NEWER
-        public InterfaceField()
-        {
-            _systemObject = null;
-            _unityObject = null;
-        }
-#endif
-
-        public InterfaceField(T value)
+        public InterfaceField([CanBeNull] T value)
             : this()
         {
             Value = value;
@@ -50,6 +38,7 @@ namespace Coimbra
         /// </summary>
         public bool IsUnityObject => _unityObject != null;
 
+        [CanBeNull]
         public T Value
         {
             get => _value;
@@ -70,14 +59,14 @@ namespace Coimbra
             }
         }
 
-        [Pure]
+        [CanBeNull] [Pure]
         public static implicit operator T(InterfaceField<T> target)
         {
             return target.Value;
         }
 
         [Pure]
-        public static implicit operator InterfaceField<T>(T target)
+        public static implicit operator InterfaceField<T>([CanBeNull] T target)
         {
             return new InterfaceField<T>(target);
         }

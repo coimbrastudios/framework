@@ -3,17 +3,14 @@
 namespace Coimbra
 {
     /// <summary>
-    ///     Create a reference from any value type.
+    ///     Create a reference from any type.
     /// </summary>
-    public sealed class ValueReference<T>
-        where T : struct
+    public sealed class Reference<T>
     {
+        [CanBeNull]
         public T Value;
 
-        public ValueReference()
-            : this(default) { }
-
-        public ValueReference(T value)
+        public Reference([CanBeNull] T value)
         {
             Value = value;
         }
