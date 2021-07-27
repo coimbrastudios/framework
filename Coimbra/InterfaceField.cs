@@ -15,8 +15,6 @@ namespace Coimbra
         [SerializeReference] private T _systemObject;
         [SerializeField] private UnityEngine.Object _unityObject;
 
-        private T _value;
-
         public InterfaceField([CanBeNull] T value)
             : this()
         {
@@ -41,12 +39,10 @@ namespace Coimbra
         [CanBeNull]
         public T Value
         {
-            get => _value;
+            get => _systemObject ?? _unityObject as T;
             set
             {
-                _value = value;
-
-                if (_value is UnityEngine.Object o)
+                if (value is UnityEngine.Object o)
                 {
                     _unityObject = o;
                     _systemObject = null;
@@ -104,12 +100,12 @@ namespace Coimbra
         {
             if (other is T t)
             {
-                return _value == t;
+                return Value == t;
             }
 
             if (other is InterfaceField<T> field)
             {
-                return _value == field.Value;
+                return Value == field.Value;
             }
 
             return false;
@@ -134,13 +130,13 @@ namespace Coimbra
         [Pure]
         public bool Equals(T other)
         {
-            return _value == other;
+            return Value == other;
         }
 
         [Pure]
         public bool Equals(InterfaceField<T> other)
         {
-            return _value == other.Value;
+            return Value == other.Value;
         }
     }
 }
