@@ -4,7 +4,7 @@ using System;
 namespace Coimbra
 {
     /// <summary>
-    ///     Create a disposable from any type.
+    /// Create a disposable from any type.
     /// </summary>
     public readonly struct Disposable<T> : IDisposable
     {

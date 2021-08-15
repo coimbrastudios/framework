@@ -1,7 +1,7 @@
 namespace Coimbra
 {
     /// <summary>
-    ///     Coimbra Studios general utilities.
+    /// Coimbra Studios general utilities.
     /// </summary>
     public static class CSFrameworkUtility
     {
@@ -11,7 +11,7 @@ namespace Coimbra
         internal const string UserPreferencesPath = "Preferences/CS Framework";
 
         /// <summary>
-        ///     Returns true if the application is currently in Edit Mode. Always return false in a build.
+        /// Returns true if the application is currently in Edit Mode. Always return false in a build.
         /// </summary>
         public static bool IsEditMode
         {
@@ -26,7 +26,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the application is currently in Play Mode. Always return true in a build.
+        /// Returns true if the application is currently in Play Mode. Always return true in a build.
         /// </summary>
         public static bool IsPlayMode
         {

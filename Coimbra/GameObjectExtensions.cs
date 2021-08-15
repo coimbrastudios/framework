@@ -10,15 +10,15 @@ namespace Coimbra
 
         public static void AddActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObjectEventListener, bool> callback)
         {
-            gameObject.GetOrAddEventListener().OnActiveStateChanged += callback;
+            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged += callback;
         }
 
         public static void AddDestroyEventListener(this GameObject gameObject, UnityAction<GameObjectEventListener, DestroyEventType> callback)
         {
-            gameObject.GetOrAddEventListener().OnDestroyEvent += callback;
+            gameObject.GetOrCreateCachedEventListener().OnDestroyEvent += callback;
         }
 
-        public static GameObjectEventListener GetOrAddEventListener(this GameObject gameObject)
+        public static GameObjectEventListener GetOrCreateCachedEventListener(this GameObject gameObject)
         {
             if (EventListenerFromGameObject.TryGetValue(gameObject, out GameObjectEventListener eventListener))
             {
@@ -38,12 +38,12 @@ namespace Coimbra
 
         public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObjectEventListener, bool> callback)
         {
-            gameObject.GetOrAddEventListener().OnActiveStateChanged -= callback;
+            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged -= callback;
         }
 
         public static void RemoveDestroyEventListener(this GameObject gameObject, UnityAction<GameObjectEventListener, DestroyEventType> callback)
         {
-            gameObject.GetOrAddEventListener().OnDestroyEvent -= callback;
+            gameObject.GetOrCreateCachedEventListener().OnDestroyEvent -= callback;
         }
 
         private static void HandleGameObjectDestroyEvent(GameObjectEventListener sender, DestroyEventType eventType)

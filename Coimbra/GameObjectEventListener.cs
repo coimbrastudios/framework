@@ -18,8 +18,10 @@ namespace Coimbra
             remove => _destroyEvent.RemoveListener(value);
         }
 
-        [SerializeField] private UnityEvent<GameObjectEventListener, bool> _activeStateChangeEvent = new UnityEvent<GameObjectEventListener, bool>();
-        [SerializeField] private UnityEvent<GameObjectEventListener, DestroyEventType> _destroyEvent = new UnityEvent<GameObjectEventListener, DestroyEventType>();
+        [SerializeField]
+        private UnityEvent<GameObjectEventListener, bool> _activeStateChangeEvent = new UnityEvent<GameObjectEventListener, bool>();
+        [SerializeField]
+        private UnityEvent<GameObjectEventListener, DestroyEventType> _destroyEvent = new UnityEvent<GameObjectEventListener, DestroyEventType>();
 
         private bool _isQuitting;
 

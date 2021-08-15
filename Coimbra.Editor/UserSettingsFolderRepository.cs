@@ -8,7 +8,7 @@ using UnityEngine.Assertions;
 namespace Coimbra.Editor
 {
     /// <summary>
-    ///     Settings repository to use the new UserSettings folder.
+    /// Settings repository to use the new UserSettings folder.
     /// </summary>
     [Serializable]
     public sealed class UserSettingsFolderRepository : ISettingsRepository

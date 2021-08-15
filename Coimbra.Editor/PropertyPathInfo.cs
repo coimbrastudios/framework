@@ -9,23 +9,23 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    ///     Reflection information for a given <a href="https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html">SerializedProperty</a>.
-    ///     To build one use <see cref="PropertyPathInfoExtensions.GetPropertyPathInfo(UnityEditor.SerializedProperty)"/>.
+    /// Reflection information for a given <a href="https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html">SerializedProperty</a>.
+    /// To build one use <see cref="PropertyPathInfoExtensions.GetPropertyPathInfo(UnityEditor.SerializedProperty)"/>.
     /// </summary>
     public sealed class PropertyPathInfo
     {
         /// <summary>
-        ///     Receives the old value and expects the new value.
+        /// Receives the old value and expects the new value.
         /// </summary>
         public delegate T SetValueHandler<T>(T oldValue);
 
         /// <summary>
-        ///     The field info for this property.
+        /// The field info for this property.
         /// </summary>
         public readonly FieldInfo FieldInfo;
 
         /// <summary>
-        ///     Null if not an array element.
+        /// Null if not an array element.
         /// </summary>
         public readonly int? Index;
 
@@ -42,7 +42,7 @@ namespace Coimbra.Editor
         private PropertyPathInfo Next { get; }
 
         /// <summary>
-        ///     Get the object that contains that field.
+        /// Get the object that contains that field.
         /// </summary>
         [CanBeNull] [Pure]
         public object GetScope([NotNull] Object context)
@@ -62,7 +62,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Get the object that contains that field for each context.
+        /// Get the object that contains that field for each context.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public object[] GetScopes([NotNull] Object[] context)
@@ -128,7 +128,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Get the field value.
+        /// Get the field value.
         /// </summary>
         [CanBeNull] [Pure]
         public object GetValue([NotNull] Object context)
@@ -149,7 +149,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Get the field value for each context.
+        /// Get the field value for each context.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
         public object[] GetValues([NotNull] Object[] context)
@@ -213,7 +213,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Set the field value.
+        /// Set the field value.
         /// </summary>
         public void SetValue<T>([NotNull] Object context, [CanBeNull] T value)
         {
@@ -276,7 +276,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Set the field value for each context.
+        /// Set the field value for each context.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValues<T>([NotNull] Object[] targets, [CanBeNull] T value)

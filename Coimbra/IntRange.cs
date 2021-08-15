@@ -6,15 +6,23 @@ using UnityEngine.Serialization;
 namespace Coimbra
 {
     /// <summary>
-    ///     Stores a range between 2 ints.
+    /// Stores a range between 2 ints.
     /// </summary>
     [Serializable]
     public struct IntRange : IEquatable<IntRange>
     {
-        [FormerlySerializedAs("x")] [FormerlySerializedAs("m_X")] [FormerlySerializedAs("m_Min")] [Tooltip("The smallest value on the range.")]
-        [SerializeField] private int _min;
-        [FormerlySerializedAs("y")] [FormerlySerializedAs("m_Y")] [FormerlySerializedAs("m_Max")] [Tooltip("The biggest value on the range.")]
-        [SerializeField] private int _max;
+        [FormerlySerializedAs("x")]
+        [FormerlySerializedAs("m_X")]
+        [FormerlySerializedAs("m_Min")]
+        [Tooltip("The smallest value on the range.")]
+        [SerializeField]
+        private int _min;
+        [FormerlySerializedAs("y")]
+        [FormerlySerializedAs("m_Y")]
+        [FormerlySerializedAs("m_Max")]
+        [Tooltip("The biggest value on the range.")]
+        [SerializeField]
+        private int _max;
 
         /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
         /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
@@ -25,27 +33,27 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     The diff between <see cref="Max"/> and <see cref="Min"/>.
+        /// The diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
         public int Lenght => Max - Min;
 
         /// <summary>
-        ///     The biggest value on the range.
+        /// The biggest value on the range.
         /// </summary>
         public int Max => _max;
 
         /// <summary>
-        ///     The smallest value on the range.
+        /// The smallest value on the range.
         /// </summary>
         public int Min => _min;
 
         /// <summary>
-        ///     Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
+        /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
         /// </summary>
         public int RandomExclusive => UnityEngine.Random.Range(Min, Max);
 
         /// <summary>
-        ///     Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
+        /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
         public int RandomInclusive => UnityEngine.Random.Range(Min, Max + 1);
 
@@ -86,7 +94,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [exclusive].
+        /// Returns true if the value is between min [inclusive] and max [exclusive].
         /// </summary>
         [Pure]
         public bool ContainsExclusive(int value)
@@ -95,7 +103,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [exclusive].
+        /// Returns true if the value is between min [inclusive] and max [exclusive].
         /// </summary>
         [Pure]
         public bool ContainsExclusive(float value)
@@ -104,7 +112,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [inclusive].
+        /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
         public bool ContainsInclusive(int value)
@@ -113,7 +121,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [inclusive].
+        /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
         public bool ContainsInclusive(float value)
@@ -158,7 +166,8 @@ namespace Coimbra
             return (Min.GetHashCode() + Max.GetHashCode()) * 37;
         }
 
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public override string ToString()
         {
             return $"[{Min}, {Max}]";

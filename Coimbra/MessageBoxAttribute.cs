@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    ///     Display a message in the inspector.
+    /// Display a message in the inspector.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class MessageBoxAttribute : PropertyAttribute

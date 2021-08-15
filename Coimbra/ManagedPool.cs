@@ -1,15 +1,17 @@
 using JetBrains.Annotations;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
     /// <summary>
-    ///     Generic way to quickly start pooling your non-Unity managed objects.
+    /// Generic way to quickly start pooling your managed objects.
     /// </summary>
+    [Preserve]
     public sealed class ManagedPool<T> : ManagedPoolBase<T>
         where T : class, new()
     {
         /// <summary>
-        ///     Default shared pool instance.
+        /// Default shared pool instance.
         /// </summary>
         [NotNull]
         public static readonly ManagedPool<T> Global = new ManagedPool<T>();

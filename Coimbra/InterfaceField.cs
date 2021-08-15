@@ -5,15 +5,17 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    ///     Unified way to expose an interface in the inspector.
+    /// Unified way to expose an interface in the inspector.
     /// </summary>
     /// <typeparam name="T">The interface type.</typeparam>
     [Serializable]
     public struct InterfaceField<T> : IEquatable<InterfaceField<T>>, IEquatable<T>
         where T : class
     {
-        [SerializeReference] private T _systemObject;
-        [SerializeField] private UnityEngine.Object _unityObject;
+        [SerializeReference]
+        private T _systemObject;
+        [SerializeField]
+        private UnityEngine.Object _unityObject;
 
         public InterfaceField([CanBeNull] T value)
             : this()
@@ -22,17 +24,17 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     True if the <see cref="Value"/> is not null.
+        /// True if the <see cref="Value"/> is not null.
         /// </summary>
         public bool HasValue => _systemObject != null || _unityObject != null;
 
         /// <summary>
-        ///     Is the <see cref="Value"/> a non-<a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
+        /// Is the <see cref="Value"/> a non-<a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
         /// </summary>
         public bool IsSystemObject => _systemObject != null;
 
         /// <summary>
-        ///     Is the <see cref="Value"/> an <a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
+        /// Is the <see cref="Value"/> an <a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
         /// </summary>
         public bool IsUnityObject => _unityObject != null;
 
@@ -55,7 +57,8 @@ namespace Coimbra
             }
         }
 
-        [CanBeNull] [Pure]
+        [Pure]
+        [CanBeNull]
         public static implicit operator T(InterfaceField<T> target)
         {
             return target.Value;
@@ -111,7 +114,8 @@ namespace Coimbra
             return false;
         }
 
-        [CanBeNull] [Pure]
+        [Pure]
+        [CanBeNull]
         public override string ToString()
         {
             if (_systemObject != null)

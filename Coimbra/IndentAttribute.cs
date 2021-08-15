@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    ///     Indent the field on the inspector.
+    /// Indent the field on the inspector.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public sealed class IndentAttribute : PropertyAttribute

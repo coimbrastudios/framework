@@ -6,15 +6,23 @@ using UnityEngine.Serialization;
 namespace Coimbra
 {
     /// <summary>
-    ///     Stores a range between 2 floats.
+    /// Stores a range between 2 floats.
     /// </summary>
     [Serializable]
     public struct FloatRange : IEquatable<FloatRange>
     {
-        [FormerlySerializedAs("x")] [FormerlySerializedAs("m_X")] [FormerlySerializedAs("m_Min")] [Tooltip("The smallest value on the range.")]
-        [SerializeField] private float _min;
-        [FormerlySerializedAs("y")] [FormerlySerializedAs("m_Y")] [FormerlySerializedAs("m_Max")] [Tooltip("The biggest value on the range.")]
-        [SerializeField] private float _max;
+        [FormerlySerializedAs("x")]
+        [FormerlySerializedAs("m_X")]
+        [FormerlySerializedAs("m_Min")]
+        [Tooltip("The smallest value on the range.")]
+        [SerializeField]
+        private float _min;
+        [FormerlySerializedAs("y")]
+        [FormerlySerializedAs("m_Y")]
+        [FormerlySerializedAs("m_Max")]
+        [Tooltip("The biggest value on the range.")]
+        [SerializeField]
+        private float _max;
 
         /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
         /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
@@ -25,22 +33,22 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     The diff between <see cref="Max"/> and <see cref="Min"/>.
+        /// The diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
         public float Lenght => Max - Min;
 
         /// <summary>
-        ///     The biggest value on the range.
+        /// The biggest value on the range.
         /// </summary>
         public float Max => _max;
 
         /// <summary>
-        ///     The smallest value on the range.
+        /// The smallest value on the range.
         /// </summary>
         public float Min => _min;
 
         /// <summary>
-        ///     Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
+        /// Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
         public float Random => UnityEngine.Random.Range(Min, Max);
 
@@ -69,7 +77,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [inclusive].
+        /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
         public bool Contains(int value)
@@ -78,7 +86,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Returns true if the value is between min [inclusive] and max [inclusive].
+        /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
         public bool Contains(float value)
@@ -123,7 +131,8 @@ namespace Coimbra
             return (Min.GetHashCode() + Max.GetHashCode()) * 37;
         }
 
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public override string ToString()
         {
             return $"[{Min:F}, {Max:F}]";

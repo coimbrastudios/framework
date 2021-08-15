@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    ///     Extensions to make easier to use the <see cref="PropertyPathInfo"/>.
+    /// Extensions to make easier to use the <see cref="PropertyPathInfo"/>.
     /// </summary>
     public static class PropertyPathInfoExtensions
     {
@@ -30,7 +30,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        ///     Creates or gets a cached <see cref="PropertyPathInfo"/>.
+        /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
         /// </summary>
         public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
         {
@@ -40,8 +40,12 @@ namespace Coimbra.Editor
             }
 
             Type rootTargetType = property.serializedObject.targetObject.GetType();
-            List<string> splitPropertyPath = new List<string>(property.propertyPath.Split('.'));
-            propertyPathInfo = GetPropertyPathInfoRecursive(rootTargetType, splitPropertyPath);
+
+            using Disposable<List<string>> splitPropertyPath = ManagedPool<List<string>>.Global.GetDisposable();
+            splitPropertyPath.Value.Clear();
+            splitPropertyPath.Value.AddRange(property.propertyPath.Split('.'));
+
+            propertyPathInfo = GetPropertyPathInfoRecursive(rootTargetType, splitPropertyPath.Value);
             PropertyPathInfoMap.Add(property, propertyPathInfo);
 
             return propertyPathInfo;

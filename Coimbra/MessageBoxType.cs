@@ -1,24 +1,24 @@
 namespace Coimbra
 {
     /// <summary>
-    ///   User message types.
+    /// User message types.
     /// </summary>
     public enum MessageBoxType
     {
         /// <summary>
-        ///   Neutral message.
+        /// Neutral message.
         /// </summary>
         None,
         /// <summary>
-        ///   Info message.
+        /// Info message.
         /// </summary>
         Info,
         /// <summary>
-        ///   Warning message.
+        /// Warning message.
         /// </summary>
         Warning,
         /// <summary>
-        ///   Error message.
+        /// Error message.
         /// </summary>
         Error,
     }

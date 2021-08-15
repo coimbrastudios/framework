@@ -1,7 +1,7 @@
 namespace Coimbra
 {
     /// <summary>
-    ///     Display a message in the inspector while in play mode.
+    /// Display a message in the inspector while in play mode.
     /// </summary>
     public sealed class MessageBoxOnPlayModeAttribute : MessageBoxAttribute
     {

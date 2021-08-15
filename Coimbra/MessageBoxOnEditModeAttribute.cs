@@ -1,7 +1,7 @@
 namespace Coimbra
 {
     /// <summary>
-    ///     Display a message in the inspector while in edit mode.
+    /// Display a message in the inspector while in edit mode.
     /// </summary>
     public sealed class MessageBoxOnEditModeAttribute : MessageBoxAttribute
     {

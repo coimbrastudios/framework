@@ -2,21 +2,29 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 using UnityEngine.Serialization;
 
 namespace Coimbra
 {
     /// <summary>
-    ///     Inherit from this class to create your own pools for non-Unity managed objects.
+    /// Inherit from this class to create your own pools for managed objects.
     /// </summary>
+    [Preserve]
     [Serializable]
     public abstract class ManagedPoolBase<T>
         where T : class
     {
-        [FormerlySerializedAs("m_PreloadCount")] [Min(0)] [Tooltip("Amount of items available from the beginning.")]
-        [SerializeField] private int _preloadCount;
-        [FormerlySerializedAs("m_MaxCapacity")] [Min(0)] [Tooltip("Max amount of items in the pool. If 0 it is treated as infinity capacity.")]
-        [SerializeField] private int _maxCapacity;
+        [FormerlySerializedAs("m_PreloadCount")]
+        [Tooltip("Amount of items available from the beginning.")]
+        [SerializeField]
+        [Min(0)]
+        private int _preloadCount;
+        [FormerlySerializedAs("m_MaxCapacity")]
+        [Tooltip("Max amount of items in the pool. If 0 it is treated as infinity capacity.")]
+        [SerializeField]
+        [Min(0)]
+        private int _maxCapacity;
 
         private readonly object _lock = new object();
         private readonly Disposable<T>.DisposeHandler _disposeHandler;
@@ -24,7 +32,7 @@ namespace Coimbra
         private readonly Stack<T> _availableStack = new Stack<T>();
 
         /// <summary>
-        ///     If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
+        /// If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
         /// </summary>
         protected ManagedPoolBase()
         {
@@ -32,7 +40,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
+        /// If not called on the inherited type the <see cref="GetDisposable"/> method won't work properly.
         /// </summary>
         protected ManagedPoolBase(int preloadCount, int maxCapacity)
             : this()
@@ -42,7 +50,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Max amount of items in the pool. If 0 it is treated as infinity capacity.
+        /// Max amount of items in the pool. If 0 it is treated as infinity capacity.
         /// </summary>
         public int MaxCapacity
         {
@@ -51,7 +59,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Amount of items available from the beginning.
+        /// Amount of items available from the beginning.
         /// </summary>
         public int PreloadCount
         {
@@ -60,7 +68,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Reset the pool to its initial state.
+        /// Reset the pool to its initial state.
         /// </summary>
         /// <param name="preloadCount">If not null. it will override the current <see cref="PreloadCount"/>.</param>
         /// <param name="maxCapacity">If not null, it will override the current <see cref="MaxCapacity"/>.</param>
@@ -101,7 +109,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Pick one item from the pool.
+        /// Pick one item from the pool.
         /// </summary>
         [NotNull]
         public T Get()
@@ -125,7 +133,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Pick one item from the pool using a <see cref="Disposable{T}"/>.
+        /// Pick one item from the pool using a <see cref="Disposable{T}"/>.
         /// </summary>
         public Disposable<T> GetDisposable()
         {
@@ -135,7 +143,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Return the item to the pool.
+        /// Return the item to the pool.
         /// </summary>
         public void Release([NotNull] in T item)
         {
@@ -167,28 +175,28 @@ namespace Coimbra
         }
 
         /// <summary>
-        ///     Called when creating a new item for the pool. It should never return null.
+        /// Called when creating a new item for the pool. It should never return null.
         /// </summary>
         [NotNull]
         protected abstract T OnCreate();
 
         /// <summary>
-        ///     Called when deleting an item due the pool being full.
+        /// Called when deleting an item due the pool being full.
         /// </summary>
         protected abstract void OnDelete([NotNull] T item);
 
         /// <summary>
-        ///     Called when picking an item from the pool.
+        /// Called when picking an item from the pool.
         /// </summary>
         protected abstract void OnGet([NotNull] T item);
 
         /// <summary>
-        ///     Called when returning an item from the pool.
+        /// Called when returning an item from the pool.
         /// </summary>
         protected abstract void OnRelease([NotNull] T item);
 
         /// <summary>
-        ///     Fill the pool with items.
+        /// Fill the pool with items.
         /// </summary>
         /// <param name="desiredCount">If null, it will pick the pool's <see cref="PreloadCount"/>.</param>
         protected void Preload(int? desiredCount = null)

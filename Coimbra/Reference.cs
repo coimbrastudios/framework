@@ -1,10 +1,12 @@
 ﻿using JetBrains.Annotations;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
     /// <summary>
-    ///     Create a reference from any type.
+    /// Create a reference from any type.
     /// </summary>
+    [Preserve]
     public sealed class Reference<T>
     {
         [CanBeNull]
@@ -15,7 +17,8 @@ namespace Coimbra
             Value = value;
         }
 
-        [CanBeNull] [Pure]
+        [CanBeNull]
+        [Pure]
         public override string ToString()
         {
             return Value.ToString();
