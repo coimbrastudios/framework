@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -12,25 +13,24 @@ namespace Coimbra
     [Preserve]
     public sealed class ServiceLocator
     {
-        public delegate void ValueChangeEventHandler<in T>([CanBeNull] T oldValue, [CanBeNull] T newValue)
-            where T : class;
-
-        private static class ServiceLocatorT<T>
-            where T : class
-        {
-            internal static readonly Dictionary<ServiceLocator, Func<T>> CreateCallbacks = new Dictionary<ServiceLocator, Func<T>>(1);
-            internal static readonly Dictionary<ServiceLocator, ValueChangeEventHandler<T>> ValueChangedCallbacks = new Dictionary<ServiceLocator, ValueChangeEventHandler<T>>(1);
-        }
+        public delegate void ValueChangeEventHandler([CanBeNull] object oldValue, [CanBeNull] object newValue);
 
         private sealed class Service
         {
-            internal bool HasCreateCallback;
-
             internal bool AutoResetCreateCallback;
 
             internal object Value;
 
-            internal void HandleValueChanged(object oldValue, object newValue)
+            internal Func<object> CreateCallback;
+
+            internal ValueChangeEventHandler ValueChangedCallback;
+
+            public Service()
+            {
+                ValueChangedCallback = HandleValueChanged;
+            }
+
+            private void HandleValueChanged(object oldValue, object newValue)
             {
                 {
                     if (newValue is GameObject gameObject)
@@ -69,15 +69,12 @@ namespace Coimbra
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void AddValueChangedListener<T>([NotNull] ValueChangeEventHandler<T> callback)
+        public void AddValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
             where T : class
         {
-            if (!_services.TryGetValue(typeof(T), out _))
-            {
-                Initialize<T>(out _);
-            }
+            Initialize<T>(out Service service);
 
-            ServiceLocatorT<T>.ValueChangedCallbacks[this] += callback;
+            service.ValueChangedCallback += callback;
         }
 
         /// <summary>
@@ -90,27 +87,24 @@ namespace Coimbra
         public T Get<T>()
             where T : class
         {
-            if (!_services.TryGetValue(typeof(T), out Service service))
+            if (Initialize<T>(out Service service))
             {
-                Initialize<T>(out service);
-
                 return null;
             }
 
-            if (!service.HasCreateCallback || service.Value != null)
+            if (service.CreateCallback == null || service.Value != null)
             {
                 return (T)service.Value;
             }
 
-            service.Value = ServiceLocatorT<T>.CreateCallbacks[this].Invoke();
+            service.Value = service.CreateCallback.Invoke();
 
             if (service.AutoResetCreateCallback)
             {
-                service.HasCreateCallback = false;
-                ServiceLocatorT<T>.CreateCallbacks[this] = null;
+                service.CreateCallback = null;
             }
 
-            ServiceLocatorT<T>.ValueChangedCallbacks[this](null, (T)service.Value);
+            service.ValueChangedCallback(null, (T)service.Value);
 
             return (T)service.Value;
         }
@@ -133,7 +127,7 @@ namespace Coimbra
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
         public bool HasCreateCallback([NotNull] Type type)
         {
-            return _services.TryGetValue(type, out Service service) && service is { HasCreateCallback: true };
+            return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
 
         /// <summary>
@@ -162,12 +156,12 @@ namespace Coimbra
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void RemoveValueChangedListener<T>([NotNull] ValueChangeEventHandler<T> callback)
+        public void RemoveValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
             where T : class
         {
-            if (_services.TryGetValue(typeof(T), out _))
+            if (_services.TryGetValue(typeof(T), out Service service))
             {
-                ServiceLocatorT<T>.ValueChangedCallbacks[this] -= callback;
+                service.ValueChangedCallback -= callback;
             }
         }
 
@@ -179,14 +173,11 @@ namespace Coimbra
         public void Set<T>([CanBeNull] T value)
             where T : class
         {
-            if (!_services.TryGetValue(typeof(T), out Service service))
-            {
-                Initialize<T>(out service);
-            }
+            Initialize<T>(out Service service);
 
             T oldValue = (T)service.Value;
             service.Value = value;
-            ServiceLocatorT<T>.ValueChangedCallbacks[this](oldValue, value);
+            service.ValueChangedCallback(oldValue, value);
         }
 
         /// <summary>
@@ -196,14 +187,10 @@ namespace Coimbra
         public void SetCreateCallback<T>([CanBeNull] Func<T> createCallback, bool autoReset)
             where T : class
         {
-            if (!_services.TryGetValue(typeof(T), out Service service))
-            {
-                Initialize<T>(out service);
-            }
+            Initialize<T>(out Service service);
 
             service.AutoResetCreateCallback = autoReset;
-            service.HasCreateCallback = createCallback != null;
-            ServiceLocatorT<T>.CreateCallbacks[this] = createCallback;
+            service.CreateCallback = createCallback;
         }
 
         /// <summary>
@@ -221,13 +208,19 @@ namespace Coimbra
             return value != null;
         }
 
-        private void Initialize<T>(out Service service)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Initialize<T>(out Service service)
             where T : class
         {
+            if (_services.TryGetValue(typeof(T), out service))
+            {
+                return false;
+            }
+
             service = new Service();
             _services[typeof(T)] = service;
-            ServiceLocatorT<T>.CreateCallbacks[this] = null;
-            ServiceLocatorT<T>.ValueChangedCallbacks[this] = service.HandleValueChanged;
+
+            return true;
         }
     }
 }

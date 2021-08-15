@@ -57,11 +57,11 @@ namespace Coimbra.Tests.Editor
                 Value = b,
             };
 
-            static void serviceValueChangedHandler(DummyService oldValue, DummyService newValue)
+            static void serviceValueChangedHandler(object oldValue, object newValue)
             {
-                if (oldValue != null && newValue != null)
+                if (oldValue is DummyService oldService && newValue is DummyService newService)
                 {
-                    newValue.Value = oldValue.Value;
+                    newService.Value = oldService.Value;
                 }
             }
 
