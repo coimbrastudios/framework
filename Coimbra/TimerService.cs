@@ -167,12 +167,7 @@ namespace Coimbra
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
-            if (ServiceLocator.Global.IsCreated<ITimerService>() || ServiceLocator.Global.HasCreateCallback<ITimerService>())
-            {
-                return;
-            }
-
-            ServiceLocator.Global.SetCreateCallback(Create, true);
+            ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
 
         private static ITimerService Create()

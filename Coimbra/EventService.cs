@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Coimbra
 {
@@ -171,6 +172,17 @@ namespace Coimbra
         public void Dispose()
         {
             RemoveAllListeners(_serviceKey);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            ServiceLocator.SetDefaultCreateCallback(Create, false);
+        }
+
+        private static IEventService Create()
+        {
+            return new EventService();
         }
     }
 }

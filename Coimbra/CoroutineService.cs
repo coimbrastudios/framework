@@ -25,12 +25,7 @@ namespace Coimbra
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
-            if (ServiceLocator.Global.IsCreated<ICoroutineService>() || ServiceLocator.Global.HasCreateCallback<ICoroutineService>())
-            {
-                return;
-            }
-
-            ServiceLocator.Global.SetCreateCallback(Create, true);
+            ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
 
         private static ICoroutineService Create()

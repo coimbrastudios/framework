@@ -17,7 +17,7 @@ namespace Coimbra
 
         private sealed class Service
         {
-            internal bool AutoResetCreateCallback;
+            internal bool ResetCreateCallbackOnSet;
 
             internal object Value;
 
@@ -62,7 +62,30 @@ namespace Coimbra
         [NotNull]
         public static readonly ServiceLocator Global = new ServiceLocator();
 
+        private static readonly Dictionary<Type, Func<object>> DefaultCreateCallbacks = new Dictionary<Type, Func<object>>();
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
+
+        /// <summary>
+        /// Sets the default callback for when a service needs to be created.
+        /// </summary>
+        /// <typeparam name="T">The service type.</typeparam>
+        public static void SetDefaultCreateCallback<T>([CanBeNull] Func<T> createCallback, bool overrideExisting)
+            where T : class
+        {
+            if (!overrideExisting && DefaultCreateCallbacks.ContainsKey(typeof(T)))
+            {
+                return;
+            }
+
+            if (createCallback != null)
+            {
+                DefaultCreateCallbacks[typeof(T)] = createCallback;
+            }
+            else
+            {
+                DefaultCreateCallbacks.Remove(typeof(T));
+            }
+        }
 
         /// <summary>
         /// Adds a listener for when a service instance changes.
@@ -72,7 +95,7 @@ namespace Coimbra
         public void AddValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
             where T : class
         {
-            Initialize<T>(out Service service);
+            Initialize(typeof(T), out Service service);
 
             service.ValueChangedCallback += callback;
         }
@@ -87,7 +110,7 @@ namespace Coimbra
         public T Get<T>()
             where T : class
         {
-            if (Initialize<T>(out Service service))
+            if (Initialize(typeof(T), out Service service))
             {
                 return null;
             }
@@ -99,7 +122,7 @@ namespace Coimbra
 
             service.Value = service.CreateCallback.Invoke();
 
-            if (service.AutoResetCreateCallback)
+            if (service.ResetCreateCallbackOnSet)
             {
                 service.CreateCallback = null;
             }
@@ -173,10 +196,16 @@ namespace Coimbra
         public void Set<T>([CanBeNull] T value)
             where T : class
         {
-            Initialize<T>(out Service service);
+            Initialize(typeof(T), out Service service);
 
             T oldValue = (T)service.Value;
             service.Value = value;
+
+            if (service.ResetCreateCallbackOnSet)
+            {
+                service.CreateCallback = null;
+            }
+
             service.ValueChangedCallback(oldValue, value);
         }
 
@@ -184,13 +213,13 @@ namespace Coimbra
         /// Sets the callback for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        public void SetCreateCallback<T>([CanBeNull] Func<T> createCallback, bool autoReset)
+        public void SetCreateCallback<T>([CanBeNull] Func<T> createCallback, bool resetOnSet)
             where T : class
         {
-            Initialize<T>(out Service service);
+            Initialize(typeof(T), out Service service);
 
-            service.AutoResetCreateCallback = autoReset;
             service.CreateCallback = createCallback;
+            service.ResetCreateCallbackOnSet = resetOnSet;
         }
 
         /// <summary>
@@ -209,16 +238,16 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Initialize<T>(out Service service)
-            where T : class
+        private bool Initialize(Type type, out Service service)
         {
-            if (_services.TryGetValue(typeof(T), out service))
+            if (_services.TryGetValue(type, out service))
             {
                 return false;
             }
 
             service = new Service();
-            _services[typeof(T)] = service;
+            _services[type] = service;
+            DefaultCreateCallbacks.TryGetValue(type, out service.CreateCallback);
 
             return true;
         }

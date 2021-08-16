@@ -90,12 +90,7 @@ namespace Coimbra
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
-            if (ServiceLocator.Global.IsCreated<IApplicationService>() || ServiceLocator.Global.HasCreateCallback<IApplicationService>())
-            {
-                return;
-            }
-
-            ServiceLocator.Global.SetCreateCallback(Create, true);
+            ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
 
         private static IApplicationService Create()
