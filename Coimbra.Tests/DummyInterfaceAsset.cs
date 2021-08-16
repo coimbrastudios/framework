@@ -4,7 +4,7 @@ namespace Coimbra.Tests
 {
     internal class DummyAsset : ScriptableObject, IDummyInterface
     {
-        [SerializeField] private InterfaceField<IDummyInterface> _interfaceField;
+        [SerializeField] private ManagedField<IDummyInterface> _interfaceField;
         [SerializeField] private int _integer;
         [SerializeField] private string _string;
         [SerializeField] private Vector3Int _vector;
@@ -22,7 +22,7 @@ namespace Coimbra.Tests
         [SerializeField] private DummyClass[] _classArray;
         [SerializeField] private Texture[] _textureArray;
 
-        public InterfaceField<IDummyInterface> InterfaceField
+        public ManagedField<IDummyInterface> InterfaceField
         {
             get => _interfaceField;
             set => _interfaceField = value;

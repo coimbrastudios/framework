@@ -6,8 +6,8 @@ using UnityEngine.Assertions;
 
 namespace Coimbra.Editor
 {
-    [CustomPropertyDrawer(typeof(InterfaceField<>), true)]
-    public sealed class InterfaceFieldDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ManagedField<>), true)]
+    public sealed class ManagedFieldDrawer : PropertyDrawer
     {
         private const string SystemObjectSerializedProperty = "_systemObject";
         private const string UnityObjectSerializedProperty = "_unityObject";
@@ -47,8 +47,8 @@ namespace Coimbra.Editor
             Type baseType = fieldInfo.FieldType.IsArray ? fieldInfo.FieldType.GetElementType() : fieldInfo.FieldType;
             Assert.IsNotNull(baseType);
 
-            Type interfaceType = baseType.GenericTypeArguments[0];
-            string suffix = $"* {interfaceType.FullName}";
+            Type managedType = baseType.GenericTypeArguments[0];
+            string suffix = $"* {managedType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
             GUIContent labelWithTooltip = new GUIContent($"{label.text}*", label.image, tooltip);
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
@@ -63,7 +63,7 @@ namespace Coimbra.Editor
                 float buttonWidth = EditorStyles.miniPullDown.CalcSize(ClearLabel).x;
                 Rect unityFieldPosition = position;
                 unityFieldPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                DrawUnityField(unityFieldPosition, interfaceType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
+                DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
 
                 Rect buttonPosition = position;
                 buttonPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
@@ -81,14 +81,28 @@ namespace Coimbra.Editor
 
                 if (string.IsNullOrWhiteSpace(typename))
                 {
-                    float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
-                    Rect unityFieldPosition = position;
-                    unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
-                    DrawUnityField(unityFieldPosition, interfaceType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
+                    if (managedType.IsInterface)
+                    {
+                        float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
+                        Rect unityFieldPosition = position;
+                        unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
+                        DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
 
-                    Rect systemDropdownPosition = position;
-                    systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
-                    DrawSystemDropdown(systemDropdownPosition, interfaceType, systemObject);
+                        Rect systemDropdownPosition = position;
+                        systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+                        DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
+                    }
+                    else
+                    {
+                        Rect valuePosition = position;
+                        valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+
+                        Rect systemDropdownPosition = position;
+                        systemDropdownPosition.x += EditorGUIUtility.labelWidth;
+                        systemDropdownPosition.width -= EditorGUIUtility.labelWidth;
+                        DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
+                    }
                 }
                 else
                 {
@@ -116,7 +130,7 @@ namespace Coimbra.Editor
             }
         }
 
-        private static void DrawSystemDropdown(Rect position, Type interfaceType, SerializedProperty systemObject)
+        private static void DrawSystemDropdown(Rect position, Type managedType, SerializedProperty systemObject)
         {
             if (!EditorGUI.DropdownButton(position, NewLabel, FocusType.Passive))
             {
@@ -140,7 +154,7 @@ namespace Coimbra.Editor
             {
                 foreach (Type type in assembly.GetTypes())
                 {
-                    if (type.IsAbstract || !interfaceType.IsAssignableFrom(type) || type.IsSubclassOf(typeof(UnityEngine.Object)))
+                    if (type.IsAbstract || !managedType.IsAssignableFrom(type) || type.IsSubclassOf(typeof(UnityEngine.Object)))
                     {
                         continue;
                     }
@@ -154,7 +168,7 @@ namespace Coimbra.Editor
 
             if (menu.GetItemCount() == 0)
             {
-                Debug.LogWarning($"No type that implements {interfaceType} was found! The type also needs to be a non-abstract type with parameterless constructor and can't be a subclass of UnityEngine.Object.");
+                Debug.LogWarning($"No type that implements {managedType} was found! The type also needs to be a non-abstract type with parameterless constructor and can't be a subclass of UnityEngine.Object.");
             }
             else
             {
@@ -162,7 +176,7 @@ namespace Coimbra.Editor
             }
         }
 
-        private static void DrawUnityField(Rect position, Type interfaceType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects)
+        private static void DrawUnityField(Rect position, Type managedType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects)
         {
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
@@ -173,13 +187,13 @@ namespace Coimbra.Editor
                 return;
             }
 
-            if (value != null && interfaceType.IsInstanceOfType(value) == false)
+            if (value != null && managedType.IsInstanceOfType(value) == false)
             {
-                value = value is GameObject gameObject ? gameObject.GetComponent(interfaceType) : null;
+                value = value is GameObject gameObject ? gameObject.GetComponent(managedType) : null;
 
                 if (value == null)
                 {
-                    Debug.LogError($"Neither the object or one of its components implement {interfaceType.FullName}!", value);
+                    Debug.LogError($"Neither the object or one of its components implement {managedType.FullName}!", value);
                 }
             }
 

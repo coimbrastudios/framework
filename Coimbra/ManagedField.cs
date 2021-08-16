@@ -5,11 +5,11 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    /// Unified way to expose an interface in the inspector.
+    /// Unified way to expose a managed field in the inspector.
     /// </summary>
-    /// <typeparam name="T">The interface type.</typeparam>
+    /// <typeparam name="T">The managed type.</typeparam>
     [Serializable]
-    public struct InterfaceField<T> : IEquatable<InterfaceField<T>>, IEquatable<T>
+    public struct ManagedField<T> : IEquatable<ManagedField<T>>, IEquatable<T>
         where T : class
     {
         [SerializeReference]
@@ -17,7 +17,7 @@ namespace Coimbra
         [SerializeField]
         private UnityEngine.Object _unityObject;
 
-        public InterfaceField([CanBeNull] T value)
+        public ManagedField([CanBeNull] T value)
             : this()
         {
             Value = value;
@@ -59,25 +59,25 @@ namespace Coimbra
 
         [Pure]
         [CanBeNull]
-        public static implicit operator T(InterfaceField<T> target)
+        public static implicit operator T(ManagedField<T> target)
         {
             return target.Value;
         }
 
         [Pure]
-        public static implicit operator InterfaceField<T>([CanBeNull] T target)
+        public static implicit operator ManagedField<T>([CanBeNull] T target)
         {
-            return new InterfaceField<T>(target);
+            return new ManagedField<T>(target);
         }
 
         [Pure]
-        public static bool operator ==(InterfaceField<T> x, InterfaceField<T> y)
+        public static bool operator ==(ManagedField<T> x, ManagedField<T> y)
         {
             return x.Equals(y);
         }
 
         [Pure]
-        public static bool operator !=(InterfaceField<T> x, InterfaceField<T> y)
+        public static bool operator !=(ManagedField<T> x, ManagedField<T> y)
         {
             return !x.Equals(y);
         }
@@ -106,7 +106,7 @@ namespace Coimbra
                 return Value == t;
             }
 
-            if (other is InterfaceField<T> field)
+            if (other is ManagedField<T> field)
             {
                 return Value == field.Value;
             }
@@ -138,7 +138,7 @@ namespace Coimbra
         }
 
         [Pure]
-        public bool Equals(InterfaceField<T> other)
+        public bool Equals(ManagedField<T> other)
         {
             return Value == other.Value;
         }

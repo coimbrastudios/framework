@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Coimbra.Tests.Editor
 {
     [TestFixture]
-    [TestOf(typeof(InterfaceField<>))]
-    internal sealed class InterfaceFieldTests
+    [TestOf(typeof(ManagedField<>))]
+    internal sealed class ManagedFieldTests
     {
         private static IDummyInterface[] _systemObjects =
         {
@@ -33,7 +33,7 @@ namespace Coimbra.Tests.Editor
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new InterfaceField<IDummyInterface>(dummy);
+            _asset.InterfaceField = new ManagedField<IDummyInterface>(dummy);
             Assert.That(_asset.InterfaceField.HasValue, Is.True);
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.True);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
@@ -50,7 +50,7 @@ namespace Coimbra.Tests.Editor
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new InterfaceField<IDummyInterface>(_asset);
+            _asset.InterfaceField = new ManagedField<IDummyInterface>(_asset);
             Assert.That(_asset.InterfaceField.HasValue, Is.True);
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.True);
@@ -67,7 +67,7 @@ namespace Coimbra.Tests.Editor
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new InterfaceField<IDummyInterface>(dummy);
+            _asset.InterfaceField = new ManagedField<IDummyInterface>(dummy);
             Assert.That(_asset.InterfaceField.HasValue, Is.True);
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.True);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
@@ -84,7 +84,7 @@ namespace Coimbra.Tests.Editor
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new InterfaceField<IDummyInterface>(_asset);
+            _asset.InterfaceField = new ManagedField<IDummyInterface>(_asset);
             Assert.That(_asset.InterfaceField.HasValue, Is.True);
             Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
             Assert.That(_asset.InterfaceField.IsUnityObject, Is.True);
