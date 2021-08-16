@@ -24,6 +24,14 @@ namespace Coimbra.Editor
                 return EditorGUI.GetPropertyHeight(unityObject, true);
             }
 
+            Type baseType = fieldInfo.FieldType.IsArray ? fieldInfo.FieldType.GetElementType() : fieldInfo.FieldType;
+            Assert.IsNotNull(baseType);
+
+            if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
+            {
+                return EditorGUI.GetPropertyHeight(unityObject, true);
+            }
+
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
 
             return string.IsNullOrWhiteSpace(systemObject.managedReferenceFullTypename) ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight(systemObject, true);
@@ -58,12 +66,16 @@ namespace Coimbra.Editor
 
             position.height = EditorGUI.GetPropertyHeight(unityObject, true);
 
-            if (unityObject.objectReferenceValue != null)
+            if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
+            {
+                DrawUnityField(position, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
+            }
+            else if (unityObject.objectReferenceValue != null)
             {
                 float buttonWidth = EditorStyles.miniPullDown.CalcSize(ClearLabel).x;
                 Rect unityFieldPosition = position;
                 unityFieldPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
+                DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
 
                 Rect buttonPosition = position;
                 buttonPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
@@ -86,7 +98,7 @@ namespace Coimbra.Editor
                         float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
                         Rect unityFieldPosition = position;
                         unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
-                        DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects);
+                        DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
 
                         Rect systemDropdownPosition = position;
                         systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
@@ -176,11 +188,11 @@ namespace Coimbra.Editor
             }
         }
 
-        private static void DrawUnityField(Rect position, Type managedType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects)
+        private static void DrawUnityField(Rect position, Type managedType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects, bool useManagedType)
         {
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
-            UnityEngine.Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, typeof(UnityEngine.Object), allowSceneObjects);
+            UnityEngine.Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, useManagedType ? managedType : typeof(UnityEngine.Object), allowSceneObjects);
 
             if (!changeCheckScope.changed)
             {
