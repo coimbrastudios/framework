@@ -152,7 +152,7 @@ namespace Coimbra.Editor
             void handleItemClicked(object parameter)
             {
                 systemObject.serializedObject.Update();
-                systemObject.managedReferenceValue = Activator.CreateInstance((Type)parameter);
+                systemObject.managedReferenceValue = Activator.CreateInstance((Type)parameter, true);
                 systemObject.isExpanded = true;
                 systemObject.serializedObject.ApplyModifiedProperties();
             }
@@ -171,7 +171,7 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    if (type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null)
+                    if (type.IsValueType || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) != null)
                     {
                         menu.AddItem(new GUIContent(type.FullName), false, handleItemClicked, type);
                     }
