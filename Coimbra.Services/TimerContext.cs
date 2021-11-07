@@ -2,12 +2,12 @@
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace Coimbra
+namespace Coimbra.Services
 {
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
     [Preserve]
-    internal sealed class TimerInstance : MonoBehaviour
+    internal sealed class TimerContext : MonoBehaviour
     {
         internal int CompletedLoops;
 

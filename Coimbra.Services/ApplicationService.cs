@@ -1,65 +1,29 @@
 ﻿using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Services
 {
     /// <summary>
-    /// Provides easy access to application-wise Unity callbacks.
+    /// Default implementation for <see cref="IApplicationService"/>.
     /// </summary>
-    public interface IApplicationService
-    {
-        delegate void FocusHandler(bool isFocused);
-
-        delegate void PauseHandler(bool isPaused);
-
-        delegate void QuitHandler();
-
-        /// <summary>
-        /// Works the same as <see cref="MonoBehaviour"/>.OnApplicationFocus.
-        /// </summary>
-        event FocusHandler OnFocus;
-
-        /// <summary>
-        /// Works the same as <see cref="MonoBehaviour"/>.OnApplicationPause.
-        /// </summary>
-        event PauseHandler OnPause;
-
-        /// <summary>
-        /// Works the same as <see cref="MonoBehaviour"/>.OnApplicationQuit.
-        /// </summary>
-        event QuitHandler OnQuit;
-
-        /// <summary>
-        /// Resets the OnFocus event.
-        /// </summary>
-        void ResetFocusEvent();
-
-        /// <summary>
-        /// Resets the OnPause event.
-        /// </summary>
-        void ResetPauseEvent();
-
-        /// <summary>
-        /// Resets the OnQuit event.
-        /// </summary>
-        void ResetQuitEvent();
-    }
-
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    internal sealed class ApplicationService : MonoBehaviour, IApplicationService
+    public class ApplicationService : MonoBehaviour, IApplicationService
     {
+        /// <inheritdoc cref="IApplicationService.OnFocus"/>>
         public event IApplicationService.FocusHandler OnFocus
         {
             add => _focusCallback += value;
             remove => _focusCallback -= value;
         }
 
+        /// <inheritdoc cref="IApplicationService.OnPause"/>>
         public event IApplicationService.PauseHandler OnPause
         {
             add => _pauseCallback += value;
             remove => _pauseCallback -= value;
         }
 
+        /// <inheritdoc cref="IApplicationService.OnQuit"/>>
         public event IApplicationService.QuitHandler OnQuit
         {
             add => _quitCallback += value;
@@ -67,21 +31,22 @@ namespace Coimbra
         }
 
         private IApplicationService.FocusHandler _focusCallback;
-
         private IApplicationService.PauseHandler _pauseCallback;
-
         private IApplicationService.QuitHandler _quitCallback;
 
+        /// <inheritdoc cref="IApplicationService.ResetFocusEvent"/>>
         public void ResetFocusEvent()
         {
             _focusCallback = null;
         }
 
+        /// <inheritdoc cref="IApplicationService.ResetPauseEvent"/>>
         public void ResetPauseEvent()
         {
             _pauseCallback = null;
         }
 
+        /// <inheritdoc cref="IApplicationService.ResetQuitEvent"/>>
         public void ResetQuitEvent()
         {
             _quitCallback = null;

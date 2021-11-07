@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 using UnityEngine;
+using UnityEngine.Scripting;
 using UnityEngine.Serialization;
 
 namespace Coimbra
@@ -8,6 +9,7 @@ namespace Coimbra
     /// <summary>
     /// Stores a range between 2 ints.
     /// </summary>
+    [Preserve]
     [Serializable]
     public struct IntRange : IEquatable<IntRange>
     {

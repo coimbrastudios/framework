@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
+    [Preserve]
     [AddComponentMenu(CSFrameworkUtility.AddComponentMenuPath + "Game Object Event Listener")]
     public sealed class GameObjectEventListener : MonoBehaviour
     {

@@ -41,7 +41,7 @@ namespace Coimbra.Editor
 
             Type rootTargetType = property.serializedObject.targetObject.GetType();
 
-            using Disposable<List<string>> splitPropertyPath = ManagedPool<List<string>>.Global.GetDisposable();
+            using Disposable<List<string>> splitPropertyPath = ManagedPool<List<string>>.Shared.GetDisposable();
             splitPropertyPath.Value.Clear();
             splitPropertyPath.Value.AddRange(property.propertyPath.Split('.'));
 

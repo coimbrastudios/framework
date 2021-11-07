@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
@@ -8,6 +9,7 @@ namespace Coimbra
     /// Unified way to expose a managed field in the inspector.
     /// </summary>
     /// <typeparam name="T">The managed type.</typeparam>
+    [Preserve]
     [Serializable]
     public struct ManagedField<T> : IEquatable<ManagedField<T>>, IEquatable<T>
         where T : class

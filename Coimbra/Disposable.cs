@@ -1,11 +1,13 @@
 using JetBrains.Annotations;
 using System;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
     /// <summary>
     /// Create a disposable from any type.
     /// </summary>
+    [Preserve]
     public readonly struct Disposable<T> : IDisposable
     {
         public delegate void DisposeHandler([CanBeNull] in T value);

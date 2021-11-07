@@ -60,7 +60,7 @@ namespace Coimbra
         /// Default shared service locator.
         /// </summary>
         [NotNull]
-        public static readonly ServiceLocator Global = new ServiceLocator();
+        public static readonly ServiceLocator Shared = new ServiceLocator();
 
         private static readonly Dictionary<Type, Func<object>> DefaultCreateCallbacks = new Dictionary<Type, Func<object>>();
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
@@ -110,10 +110,7 @@ namespace Coimbra
         public T Get<T>()
             where T : class
         {
-            if (Initialize(typeof(T), out Service service))
-            {
-                return null;
-            }
+            Initialize(typeof(T), out Service service);
 
             if (service.CreateCallback == null || service.Value != null)
             {
@@ -127,9 +124,10 @@ namespace Coimbra
                 service.CreateCallback = null;
             }
 
-            service.ValueChangedCallback(null, (T)service.Value);
+            T value = (T)service.Value;
+            service.ValueChangedCallback(null, value);
 
-            return (T)service.Value;
+            return value;
         }
 
         /// <summary>
@@ -198,7 +196,7 @@ namespace Coimbra
         {
             Initialize(typeof(T), out Service service);
 
-            T oldValue = (T)service.Value;
+            T oldValue = service.Value as T;
             service.Value = value;
 
             if (service.ResetCreateCallbackOnSet)
@@ -238,18 +236,16 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Initialize(Type type, out Service service)
+        private void Initialize(Type type, out Service service)
         {
             if (_services.TryGetValue(type, out service))
             {
-                return false;
+                return;
             }
 
             service = new Service();
             _services[type] = service;
             DefaultCreateCallbacks.TryGetValue(type, out service.CreateCallback);
-
-            return true;
         }
     }
 }

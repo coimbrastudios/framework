@@ -14,7 +14,7 @@ namespace Coimbra
         /// Default shared pool instance.
         /// </summary>
         [NotNull]
-        public static readonly ManagedPool<T> Global = new ManagedPool<T>();
+        public static readonly ManagedPool<T> Shared = new ManagedPool<T>();
 
         protected override T OnCreate()
         {

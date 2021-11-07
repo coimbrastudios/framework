@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Coimbra.Tests.Editor
+namespace Coimbra.Services.Tests.Editor
 {
     [TestFixture]
     [TestOf(typeof(EventService))]

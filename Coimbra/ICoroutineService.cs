@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
     /// <summary>
     /// Provides easy access to Unity's <see cref="Coroutine"/> system without requiring the object to be an <see cref="MonoBehaviour"/>.
     /// </summary>
+    [RequireImplementors]
     public interface ICoroutineService
     {
         /// <inheritdoc cref="MonoBehaviour.StartCoroutine(IEnumerator)"/>
@@ -16,24 +18,5 @@ namespace Coimbra
 
         /// <inheritdoc cref="MonoBehaviour.StopAllCoroutines()"/>
         void StopAllCoroutines();
-    }
-
-    [AddComponentMenu("")]
-    [DisallowMultipleComponent]
-    internal sealed class CoroutineService : MonoBehaviour, ICoroutineService
-    {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
-        {
-            ServiceLocator.SetDefaultCreateCallback(Create, false);
-        }
-
-        private static ICoroutineService Create()
-        {
-            GameObject gameObject = new GameObject(nameof(CoroutineService));
-            DontDestroyOnLoad(gameObject);
-
-            return gameObject.AddComponent<CoroutineService>();
-        }
     }
 }
