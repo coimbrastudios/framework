@@ -6,34 +6,39 @@ namespace Coimbra.Tests.Editor
     [TestOf(typeof(ServiceLocator))]
     internal sealed class ServiceLocatorTests
     {
-        private sealed class DummyService
+        private interface IDummyService
         {
-            public int Value;
+            int Value { get; set; }
+        }
+
+        private sealed class DummyService : IDummyService
+        {
+            public int Value { get; set; }
         }
 
         [TearDown]
         public void TearDown()
         {
-            ServiceLocator.Shared.Set<DummyService>(null);
+            ServiceLocator.Shared.Set<IDummyService>(null);
         }
 
         [Test]
         public void CreateCallbackWorks()
         {
-            bool hasService = ServiceLocator.Shared.TryGet(out DummyService service);
+            bool hasService = ServiceLocator.Shared.TryGet(out IDummyService service);
             Assert.That(hasService, Is.False);
             Assert.That(service, Is.Null);
 
-            ServiceLocator.Shared.SetCreateCallback(() => new DummyService(), true);
-            Assert.That(ServiceLocator.Shared.HasCreateCallback<DummyService>(), Is.True);
-            Assert.That(ServiceLocator.Shared.IsCreated<DummyService>(), Is.False);
+            ServiceLocator.Shared.SetCreateCallback<IDummyService>(() => new DummyService(), true);
+            Assert.That(ServiceLocator.Shared.HasCreateCallback<IDummyService>(), Is.True);
+            Assert.That(ServiceLocator.Shared.IsCreated<IDummyService>(), Is.False);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.True);
             Assert.That(service, Is.Not.Null);
-            Assert.That(ServiceLocator.Shared.HasCreateCallback<DummyService>(), Is.False);
+            Assert.That(ServiceLocator.Shared.HasCreateCallback<IDummyService>(), Is.False);
 
-            ServiceLocator.Shared.Set<DummyService>(null);
+            ServiceLocator.Shared.Set<IDummyService>(null);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.False);
@@ -43,29 +48,29 @@ namespace Coimbra.Tests.Editor
         [Test]
         public void ValueChangedEventWorks([Random(1, int.MaxValue, 1)] int a, [Random(int.MinValue, 0, 1)] int b)
         {
-            bool hasSingleton = ServiceLocator.Shared.TryGet(out DummyService singleton);
+            bool hasSingleton = ServiceLocator.Shared.TryGet(out IDummyService singleton);
             Assert.That(hasSingleton, Is.False);
             Assert.That(singleton, Is.Null);
 
-            DummyService serviceA = new DummyService
+            IDummyService serviceA = new DummyService
             {
                 Value = a,
             };
 
-            DummyService serviceB = new DummyService
+            IDummyService serviceB = new DummyService
             {
                 Value = b,
             };
 
             static void serviceValueChangedHandler(object oldValue, object newValue)
             {
-                if (oldValue is DummyService oldService && newValue is DummyService newService)
+                if (oldValue is IDummyService oldService && newValue is IDummyService newService)
                 {
                     newService.Value = oldService.Value;
                 }
             }
 
-            ServiceLocator.Shared.AddValueChangedListener<DummyService>(serviceValueChangedHandler);
+            ServiceLocator.Shared.AddValueChangedListener<IDummyService>(serviceValueChangedHandler);
             ServiceLocator.Shared.Set(serviceA);
 
             hasSingleton = ServiceLocator.Shared.TryGet(out singleton);
@@ -82,7 +87,7 @@ namespace Coimbra.Tests.Editor
             Assert.That(singleton, Is.Not.Null);
             Assert.That(singleton.Value, Is.EqualTo(a));
 
-            ServiceLocator.Shared.RemoveValueChangedListener<DummyService>(serviceValueChangedHandler);
+            ServiceLocator.Shared.RemoveValueChangedListener<IDummyService>(serviceValueChangedHandler);
 
             serviceB.Value = b;
             hasSingleton = ServiceLocator.Shared.TryGet(out singleton);

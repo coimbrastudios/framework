@@ -57,21 +57,42 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Default shared service locator.
+        /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
         /// </summary>
         [NotNull]
-        public static readonly ServiceLocator Shared = new ServiceLocator();
+        public static readonly ServiceLocator Shared = new ServiceLocator(false);
 
         private static readonly Dictionary<Type, Func<object>> DefaultCreateCallbacks = new Dictionary<Type, Func<object>>();
+
+        /// <summary>
+        /// If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.
+        /// </summary>
+        public readonly bool AllowFallbackToShared;
+
+        /// <summary>
+        /// If true, it will throw an <see cref="ArgumentOutOfRangeException"/> on any API used with non-interface type arguments.
+        /// </summary>
+        public readonly bool AllowInterfacesOnly;
+
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
+
+        /// <param name="allowFallbackToShared">If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.</param>
+        /// <param name="allowInterfacesOnly">If true, it will throw an <see cref="ArgumentOutOfRangeException"/> on any API used with non-interface type arguments.</param>
+        public ServiceLocator(bool allowFallbackToShared = true, bool allowInterfacesOnly = true)
+        {
+            AllowFallbackToShared = allowFallbackToShared;
+            AllowInterfacesOnly = allowInterfacesOnly;
+        }
 
         /// <summary>
         /// Sets the default callback for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        public static void SetDefaultCreateCallback<T>([CanBeNull] Func<T> createCallback, bool overrideExisting)
+        public static void SetDefaultCreateCallback<T>([CanBeNull] Func<T> createCallback, bool overrideExisting, bool allowInterfacesOnly = true)
             where T : class
         {
+            AssertTypeIsInterface(allowInterfacesOnly, typeof(T));
+
             if (!overrideExisting && DefaultCreateCallbacks.ContainsKey(typeof(T)))
             {
                 return;
@@ -112,20 +133,34 @@ namespace Coimbra
         {
             Initialize(typeof(T), out Service service);
 
-            if (service.CreateCallback == null || service.Value != null)
+            if (service.Value != null)
             {
                 return (T)service.Value;
             }
 
-            service.Value = service.CreateCallback.Invoke();
+            T value = null;
 
-            if (service.ResetCreateCallbackOnSet)
+            if (service.CreateCallback != null)
             {
-                service.CreateCallback = null;
+                service.Value = service.CreateCallback.Invoke();
+
+                if (service.ResetCreateCallbackOnSet)
+                {
+                    service.CreateCallback = null;
+                }
+
+                value = (T)service.Value;
             }
 
-            T value = (T)service.Value;
-            service.ValueChangedCallback(null, value);
+            if (AllowFallbackToShared && value == null)
+            {
+                value = Shared.Get<T>();
+            }
+
+            if (value != null)
+            {
+                service.ValueChangedCallback(null, value);
+            }
 
             return value;
         }
@@ -148,6 +183,8 @@ namespace Coimbra
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
         public bool HasCreateCallback([NotNull] Type type)
         {
+            AssertTypeIsInterface(type);
+
             return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
 
@@ -169,6 +206,8 @@ namespace Coimbra
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         public bool IsCreated([NotNull] Type type)
         {
+            AssertTypeIsInterface(type);
+
             return _services.TryGetValue(type, out Service service) && service is { Value: { } };
         }
 
@@ -180,6 +219,8 @@ namespace Coimbra
         public void RemoveValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
             where T : class
         {
+            AssertTypeIsInterface(typeof(T));
+
             if (_services.TryGetValue(typeof(T), out Service service))
             {
                 service.ValueChangedCallback -= callback;
@@ -236,8 +277,25 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Initialize(Type type, out Service service)
+        private static void AssertTypeIsInterface(bool assert, Type type, [CallerMemberName] string memberName = null)
         {
+            if (assert && !type.IsInterface)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} requires an interface as the type argument!");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AssertTypeIsInterface(Type type, [CallerMemberName] string memberName = null)
+        {
+            AssertTypeIsInterface(AllowInterfacesOnly, type, memberName);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null)
+        {
+            AssertTypeIsInterface(type, memberName);
+
             if (_services.TryGetValue(type, out service))
             {
                 return;
