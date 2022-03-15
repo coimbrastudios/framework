@@ -5,7 +5,6 @@ using UnityEngine.Scripting;
 namespace Coimbra.Services
 {
     [AddComponentMenu("")]
-    [DisallowMultipleComponent]
     [Preserve]
     internal sealed class TimerContext : MonoBehaviour
     {
@@ -13,9 +12,9 @@ namespace Coimbra.Services
 
         internal int TargetLoops;
 
-        internal int Version;
-
         internal Action Callback;
+
+        internal TimerHandle Handle;
 
         internal TimerService Service;
 
@@ -35,7 +34,7 @@ namespace Coimbra.Services
                 return;
             }
 
-            Service.StopTimer(this);
+            Service.StopTimer(ref Handle);
         }
 
         private void OnDisable()

@@ -14,18 +14,29 @@ namespace Coimbra.Services
         private sealed class TimerContextPool : ManagedPoolBase<TimerContext>
         {
             private readonly GameObject _gameObject;
+            private readonly TimerService _service;
 
-            public TimerContextPool(GameObject gameObject)
+            public TimerContextPool(GameObject gameObject, TimerService service)
             {
                 _gameObject = gameObject;
+                _service = service;
             }
 
             protected override TimerContext OnCreate()
             {
-                return _gameObject.AddComponent<TimerContext>();
+                TimerContext instance = _gameObject.AddComponent<TimerContext>();
+                instance.Service = _service;
+
+                return instance;
             }
 
-            protected override void OnDelete(TimerContext item) { }
+            protected override void OnDelete(TimerContext item)
+            {
+                if (item != null)
+                {
+                    Destroy(item);
+                }
+            }
 
             protected override void OnGet(TimerContext item)
             {
@@ -60,6 +71,7 @@ namespace Coimbra.Services
         {
             if (_instances.TryGetValue(timerHandle, out TimerContext context))
             {
+                _instances.Remove(timerHandle);
                 context.CancelInvoke();
             }
             else
@@ -67,13 +79,12 @@ namespace Coimbra.Services
                 context = Pool.Get();
             }
 
-            context.Version++;
+            timerHandle.Initialize(Guid.NewGuid());
+
             context.CompletedLoops = 0;
             context.TargetLoops = 1;
             context.Callback = callback;
-            context.Service = this;
-            timerHandle.Initialize(context.GetInstanceID(), context.Version);
-
+            context.Handle = timerHandle;
             _instances[timerHandle] = context;
             context.Invoke(nameof(TimerContext.Run), duration);
         }
@@ -83,6 +94,7 @@ namespace Coimbra.Services
         {
             if (_instances.TryGetValue(timerHandle, out TimerContext context))
             {
+                _instances.Remove(timerHandle);
                 context.CancelInvoke();
             }
             else
@@ -90,13 +102,12 @@ namespace Coimbra.Services
                 context = Pool.Get();
             }
 
-            context.Version++;
+            timerHandle.Initialize(Guid.NewGuid());
+
             context.CompletedLoops = 0;
             context.TargetLoops = loops;
             context.Callback = callback;
-            context.Service = this;
-            timerHandle.Initialize(context.GetInstanceID(), context.Version);
-
+            context.Handle = timerHandle;
             _instances[timerHandle] = context;
             context.InvokeRepeating(nameof(TimerContext.Run), delay, rate);
         }
@@ -106,8 +117,8 @@ namespace Coimbra.Services
         {
             if (_instances.TryGetValue(timerHandle, out TimerContext context))
             {
-                Pool.Release(context);
                 _instances.Remove(timerHandle);
+                Pool.Release(context);
             }
 
             timerHandle.Invalidate();
@@ -124,12 +135,6 @@ namespace Coimbra.Services
             _instances.Clear();
         }
 
-        internal void StopTimer(TimerContext context)
-        {
-            Pool.Release(context);
-            _instances.Remove(new TimerHandle(context.GetInstanceID(), context.Version));
-        }
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
@@ -140,7 +145,7 @@ namespace Coimbra.Services
         {
             GameObject gameObject = new GameObject(nameof(TimerService));
             TimerService service = gameObject.AddComponent<TimerService>();
-            service.Pool = new TimerContextPool(gameObject);
+            service.Pool = new TimerContextPool(gameObject, service);
             DontDestroyOnLoad(gameObject);
 
             return service;

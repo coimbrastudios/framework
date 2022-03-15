@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -8,22 +7,17 @@ namespace Coimbra
     [Serializable]
     public struct TimerHandle : IEquatable<TimerHandle>
     {
-        [field: SerializeField]
-        public int Id { get; private set; }
-
-        [field: SerializeField]
-        public int Version { get; private set; }
+        public Guid Guid { get; private set; }
 
         /// <summary>
         /// Expected to be called from within a <see cref="ITimerService"/>.
         /// </summary>
-        public TimerHandle(int id, int version = 1)
+        public TimerHandle(Guid guid)
         {
-            Id = id;
-            Version = version;
+            Guid = guid;
         }
 
-        public bool IsValid => Id != 0;
+        public bool IsValid => Guid != Guid.Empty;
 
         public static bool operator ==(TimerHandle left, TimerHandle right)
         {
@@ -42,21 +36,20 @@ namespace Coimbra
 
         public bool Equals(TimerHandle other)
         {
-            return Id == other.Id && Version == other.Version;
+            return Guid.Equals(other.Guid);
         }
 
         public override int GetHashCode()
         {
-            return IsValid ? Id ^ Version : Id.GetHashCode();
+            return Guid.GetHashCode();
         }
 
         /// <summary>
         /// Expected to be called from within a <see cref="ITimerService"/>.
         /// </summary>
-        public void Initialize(int id, int version)
+        public void Initialize(Guid guid)
         {
-            Id = id;
-            Version = version;
+            Guid = guid;
         }
 
         /// <summary>
@@ -64,7 +57,7 @@ namespace Coimbra
         /// </summary>
         public void Invalidate()
         {
-            Id = 0;
+            Guid = Guid.Empty;
         }
     }
 }
