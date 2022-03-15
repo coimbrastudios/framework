@@ -30,22 +30,19 @@ namespace Coimbra.Tests
         public IEnumerator TimersExecuteInOrder()
         {
             int id = 0;
-            TimerHandle timerHandle = new TimerHandle();
-            _timerService.StartTimer(ref timerHandle, delegate
+            _timerService.StartTimer(delegate
             {
                 Assert.That(id == 1);
                 id++;
             }, 0.1f);
 
-            timerHandle = new TimerHandle();
-            _timerService.StartTimer(ref timerHandle, delegate
+            _timerService.StartTimer(delegate
             {
                 Assert.That(id == 0);
                 id++;
             }, 0.05f);
 
-            timerHandle = new TimerHandle();
-            _timerService.StartTimer(ref timerHandle, delegate
+            _timerService.StartTimer(delegate
             {
                 Assert.That(id == 2);
                 id++;
@@ -60,8 +57,7 @@ namespace Coimbra.Tests
         public IEnumerator TimerLoopsCorrectly()
         {
             int id = 0;
-            TimerHandle timerHandle = new TimerHandle();
-            _timerService.StartTimer(ref timerHandle, delegate
+            TimerHandle timerHandle = _timerService.StartTimer(delegate
             {
                 id++;
             }, 0, 0.01f, 5);
@@ -69,27 +65,22 @@ namespace Coimbra.Tests
             yield return new WaitForSeconds(0.1f);
 
             Assert.That(id == 5);
-            Assert.That(!_timerService.IsTimerActive(ref timerHandle));
+            Assert.That(!_timerService.IsTimerActive(in timerHandle));
         }
 
         [UnityTest]
         public IEnumerator TimerStopsCorrectly()
         {
             int id = 0;
-            TimerHandle sourceTimerHandle = new TimerHandle();
-            TimerHandle targetTimerHandle = new TimerHandle();
-
-            _timerService.StartTimer(ref sourceTimerHandle, delegate
-            {
-                // ReSharper disable once AccessToModifiedClosure
-                _timerService.StopTimer(ref targetTimerHandle);
-            }, 0.05f);
-
-            _timerService.StartTimer(ref targetTimerHandle, delegate
+            TimerHandle targetTimerHandle = _timerService.StartTimer(delegate
             {
                 id++;
             }, 0.15f);
 
+            _timerService.StartTimer(delegate
+            {
+                _timerService.StopTimer(in targetTimerHandle);
+            }, 0.05f);
 
             yield return new WaitForSeconds(0.1f);
 

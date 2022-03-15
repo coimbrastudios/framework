@@ -4,7 +4,8 @@
 
 - Added IFixedUpdateService, ILateUpdateService, and IUpdateService to register on the respective Unity loop callback.
 - Added object.GetValid() and object.IsValid() APIs to make safer to work with abstractions and Unity Objects.
-- Changed TimerHandle to use System.Guid to better ensure uniqueness.
+- Changed ITimerService to not have ref params to simplify its usage.
+- Changed TimerHandle to use System.Guid to better ensure uniqueness and made it a readonly struct.
 - Fixed TimerService not working for concurrent timers and added test cases to ensure minimum stability.
 
 ## [1.1.0] - 2022-03-08

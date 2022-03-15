@@ -34,7 +34,7 @@ namespace Coimbra.Services
                 return;
             }
 
-            Service.StopTimer(ref Handle);
+            Service.StopTimer(in Handle);
         }
 
         private void OnDisable()

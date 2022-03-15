@@ -54,74 +54,51 @@ namespace Coimbra.Services
         private TimerContextPool Pool { get; set; }
 
         /// <inheritdoc cref="ITimerService.IsTimerActive"/>>
-        public bool IsTimerActive(ref TimerHandle timerHandle)
+        public bool IsTimerActive(in TimerHandle timerHandle)
         {
-            if (_instances.TryGetValue(timerHandle, out TimerContext context))
-            {
-                return context.enabled;
-            }
-
-            timerHandle.Invalidate();
-
-            return false;
+            return _instances.TryGetValue(timerHandle, out TimerContext context) && context.enabled;
         }
 
-        /// <inheritdoc cref="ITimerService.StartTimer(ref Coimbra.TimerHandle, System.Action, float)"/>>
-        public void StartTimer(ref TimerHandle timerHandle, Action callback, float duration)
+        /// <inheritdoc cref="ITimerService.StartTimer(System.Action, float)"/>>
+        public TimerHandle StartTimer(Action callback, float duration)
         {
-            if (_instances.TryGetValue(timerHandle, out TimerContext context))
-            {
-                _instances.Remove(timerHandle);
-                context.CancelInvoke();
-            }
-            else
-            {
-                context = Pool.Get();
-            }
-
-            timerHandle.Initialize(Guid.NewGuid());
-
+            TimerContext context = Pool.Get();
+            TimerHandle handle = new TimerHandle(Guid.NewGuid());
             context.CompletedLoops = 0;
             context.TargetLoops = 1;
             context.Callback = callback;
-            context.Handle = timerHandle;
-            _instances[timerHandle] = context;
+            context.Handle = handle;
+            _instances[handle] = context;
             context.Invoke(nameof(TimerContext.Run), duration);
+
+            return handle;
         }
 
-        /// <inheritdoc cref="ITimerService.StartTimer(ref Coimbra.TimerHandle, System.Action, float, float, int)"/>>
-        public void StartTimer(ref TimerHandle timerHandle, Action callback, float delay, float rate, int loops = 0)
+        /// <inheritdoc cref="ITimerService.StartTimer(System.Action, float, float, int)"/>>
+        public TimerHandle StartTimer(Action callback, float delay, float rate, int loops = 0)
         {
-            if (_instances.TryGetValue(timerHandle, out TimerContext context))
-            {
-                _instances.Remove(timerHandle);
-                context.CancelInvoke();
-            }
-            else
-            {
-                context = Pool.Get();
-            }
-
-            timerHandle.Initialize(Guid.NewGuid());
-
+            TimerContext context = Pool.Get();
+            TimerHandle handle = new TimerHandle(Guid.NewGuid());
             context.CompletedLoops = 0;
             context.TargetLoops = loops;
             context.Callback = callback;
-            context.Handle = timerHandle;
-            _instances[timerHandle] = context;
+            context.Handle = handle;
+            _instances[handle] = context;
             context.InvokeRepeating(nameof(TimerContext.Run), delay, rate);
+
+            return handle;
         }
 
         /// <inheritdoc cref="ITimerService.StopTimer"/>>
-        public void StopTimer(ref TimerHandle timerHandle)
+        public void StopTimer(in TimerHandle timerHandle)
         {
-            if (_instances.TryGetValue(timerHandle, out TimerContext context))
+            if (!_instances.TryGetValue(timerHandle, out TimerContext context))
             {
-                _instances.Remove(timerHandle);
-                Pool.Release(context);
+                return;
             }
 
-            timerHandle.Invalidate();
+            _instances.Remove(timerHandle);
+            Pool.Release(context);
         }
 
         /// <inheritdoc cref="ITimerService.StopAllTimers"/>>
