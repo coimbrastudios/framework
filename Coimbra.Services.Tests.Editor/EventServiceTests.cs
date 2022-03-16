@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 namespace Coimbra.Services.Tests.Editor
 {
     [TestFixture]
-    [TestOf(typeof(EventService))]
+    [TestOf(typeof(EventSystem))]
     public class EventServiceTests
     {
         public struct TestEvent { }
@@ -15,7 +15,7 @@ namespace Coimbra.Services.Tests.Editor
         public void AddListener_Single()
         {
             const string log = nameof(log);
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
                 Debug.Log(log);
@@ -31,7 +31,7 @@ namespace Coimbra.Services.Tests.Editor
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
                 Debug.Log(logA);
@@ -50,15 +50,8 @@ namespace Coimbra.Services.Tests.Editor
         [Test]
         public void RemoveListener_Empty()
         {
-            const string log = nameof(log);
-            IEventService eventService = new EventService();
-
-            static void callback(object sender, TestEvent testEvent)
-            {
-                Debug.Log(log);
-            }
-
-            eventService.RemoveListener<TestEvent>(callback);
+            IEventService eventService = new EventSystem();
+            eventService.RemoveListener(EventHandle.Create(typeof(TestEvent)));
             eventService.Invoke(this, new TestEvent());
             LogAssert.NoUnexpectedReceived();
         }
@@ -67,15 +60,15 @@ namespace Coimbra.Services.Tests.Editor
         public void RemoveListener_Single()
         {
             const string log = nameof(log);
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
 
             static void callback(object sender, TestEvent testEvent)
             {
                 Debug.Log(log);
             }
 
-            eventService.AddListener<TestEvent>(callback);
-            eventService.RemoveListener<TestEvent>(callback);
+            EventHandle handle = eventService.AddListener<TestEvent>(callback);
+            eventService.RemoveListener(handle);
             eventService.Invoke(this, new TestEvent());
             LogAssert.NoUnexpectedReceived();
         }
@@ -86,7 +79,7 @@ namespace Coimbra.Services.Tests.Editor
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
 
             static void callbackA(object sender, TestEvent testEvent)
             {
@@ -98,9 +91,9 @@ namespace Coimbra.Services.Tests.Editor
                 Debug.Log(logB);
             }
 
-            eventService.AddListener<TestEvent>(callbackA);
+            EventHandle handle = eventService.AddListener<TestEvent>(callbackA);
             eventService.AddListener<TestEvent>(callbackB);
-            eventService.RemoveListener<TestEvent>(callbackA);
+            eventService.RemoveListener(handle);
 
             LogAssert.Expect(LogType.Log, logB);
             eventService.Invoke(this, new TestEvent());
@@ -110,7 +103,7 @@ namespace Coimbra.Services.Tests.Editor
         [Test]
         public void RemoveAllListeners_Empty()
         {
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.RemoveAllListeners<TestEvent>();
             eventService.Invoke(this, new TestEvent());
             LogAssert.NoUnexpectedReceived();
@@ -122,7 +115,7 @@ namespace Coimbra.Services.Tests.Editor
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
 
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
@@ -143,7 +136,7 @@ namespace Coimbra.Services.Tests.Editor
         public void Invoke_ThrowsInvalidOperationException_AfterSetEventKey()
         {
             const string log = nameof(log);
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.SetEventKey<TestEvent>(new object());
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
@@ -163,7 +156,7 @@ namespace Coimbra.Services.Tests.Editor
         {
             const string log = nameof(log);
             object eventKey = new object();
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.SetEventKey<TestEvent>(eventKey);
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
@@ -181,7 +174,7 @@ namespace Coimbra.Services.Tests.Editor
         public void Invoke_AfterSetEventKey_AndResetEventKey()
         {
             const string log = nameof(log);
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             eventService.AddListener(delegate(object sender, TestEvent testEvent)
             {
                 Debug.Log(log);
@@ -200,7 +193,7 @@ namespace Coimbra.Services.Tests.Editor
         [Test]
         public void ResetEventKey_ThrowsInvalidOperationException_WithWrongKey()
         {
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             Assert.DoesNotThrow(delegate
             {
                 eventService.SetEventKey<TestEvent>(new object());
@@ -215,7 +208,7 @@ namespace Coimbra.Services.Tests.Editor
         [Test]
         public void SetEventKey_ThrowsInvalidOperationException_AfterSetEventKey()
         {
-            IEventService eventService = new EventService();
+            IEventService eventService = new EventSystem();
             Assert.DoesNotThrow(delegate
             {
                 eventService.SetEventKey<TestEvent>(new object());

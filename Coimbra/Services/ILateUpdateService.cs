@@ -14,9 +14,9 @@ namespace Coimbra
         void AddListener(ILateUpdateListener listener);
 
         /// <summary>
-        /// Clear all listeners from the LateUpdate;
+        /// Remove all listeners from the LateUpdate;
         /// </summary>
-        void ClearListeners();
+        void RemoveAllListeners();
 
         /// <summary>
         /// Remove a listener from the LateUpdate.

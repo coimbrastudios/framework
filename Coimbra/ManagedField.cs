@@ -43,7 +43,7 @@ namespace Coimbra
         [CanBeNull]
         public T Value
         {
-            get => _systemObject ?? _unityObject as T;
+            get => _systemObject ?? (_unityObject as T).GetValid();
             set
             {
                 if (value is UnityEngine.Object o)

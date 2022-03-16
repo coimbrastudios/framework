@@ -3,7 +3,7 @@ namespace Coimbra
     /// <summary>
     /// Coimbra Studios general utilities.
     /// </summary>
-    public static class CSFrameworkUtility
+    public static class FrameworkUtility
     {
         internal const string AddComponentMenuPath = "CS Framework/";
         internal const string PackageName = "com.coimbrastudios";

@@ -149,7 +149,7 @@ namespace Coimbra
                     service.CreateCallback = null;
                 }
 
-                value = (T)service.Value;
+                value = service.Value as T;
             }
 
             if (AllowFallbackToShared && value == null)
@@ -157,12 +157,15 @@ namespace Coimbra
                 value = Shared.Get<T>();
             }
 
-            if (value != null)
+            if (value == null)
             {
-                service.ValueChangedCallback(null, value);
+                return null;
             }
 
+            service.ValueChangedCallback(null, value);
+
             return value;
+
         }
 
         /// <summary>
@@ -238,14 +241,14 @@ namespace Coimbra
             Initialize(typeof(T), out Service service);
 
             T oldValue = service.Value as T;
-            service.Value = value;
+            service.Value = value.GetValid();
 
             if (service.ResetCreateCallbackOnSet)
             {
                 service.CreateCallback = null;
             }
 
-            service.ValueChangedCallback(oldValue, value);
+            service.ValueChangedCallback(oldValue.GetValid(), value);
         }
 
         /// <summary>

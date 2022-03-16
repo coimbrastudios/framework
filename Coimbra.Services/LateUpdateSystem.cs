@@ -4,10 +4,10 @@ using UnityEngine;
 namespace Coimbra.Services
 {
     /// <summary>
-    /// Default implementation for <see cref="IFixedUpdateService"/>.
+    /// Default implementation for <see cref="ILateUpdateService"/>.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class FixedUpdateService : UpdateServiceBase<IFixedUpdateListener>, IFixedUpdateService
+    public sealed class LateUpdateSystem : UpdateSystemBase<ILateUpdateListener>, ILateUpdateService
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
@@ -15,23 +15,27 @@ namespace Coimbra.Services
             ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
 
-        private static IFixedUpdateService Create()
+        private static ILateUpdateService Create()
         {
-            GameObject gameObject = new GameObject(nameof(FixedUpdateService));
+            GameObject gameObject = new GameObject(nameof(LateUpdateSystem))
+            {
+                hideFlags = HideFlags.NotEditable | HideFlags.DontSave,
+            };
+
             DontDestroyOnLoad(gameObject);
 
-            return gameObject.AddComponent<FixedUpdateService>();
+            return gameObject.AddComponent<LateUpdateSystem>();
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             float deltaTime = Time.deltaTime;
-            IReadOnlyList<IFixedUpdateListener> listeners = Listeners;
+            IReadOnlyList<ILateUpdateListener> listeners = Listeners;
             int listenersCount = listeners.Count;
 
             for (int i = 0; i < listenersCount; i++)
             {
-                listeners[i].OnFixedUpdate(deltaTime);
+                listeners[i].OnLateUpdate(deltaTime);
             }
         }
     }

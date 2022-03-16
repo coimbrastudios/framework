@@ -7,11 +7,16 @@ namespace Coimbra.Services
     /// Base implementation of the default implementations of update-based services.
     /// </summary>
     [AddComponentMenu("")]
-    public abstract class UpdateServiceBase<T> : MonoBehaviour
+    public abstract class UpdateSystemBase<T> : MonoBehaviour, ISerializationCallbackReceiver
         where T : class
     {
         private readonly HashSet<T> _listenersSet = new HashSet<T>();
         private readonly List<T> _listenersList = new List<T>();
+
+#if UNITY_EDITOR
+        [SerializeField]
+        private List<ManagedField<T>> _listeners = new List<ManagedField<T>>();
+#endif
 
         protected IReadOnlyList<T> Listeners => _listenersList;
 
@@ -27,9 +32,9 @@ namespace Coimbra.Services
         }
 
         /// <summary>
-        /// Add a listener to this service.
+        /// Remove all listeners from this service.
         /// </summary>
-        public void ClearListeners()
+        public void RemoveAllListeners()
         {
             _listenersSet.Clear();
             _listenersList.Clear();
@@ -44,6 +49,20 @@ namespace Coimbra.Services
             {
                 _listenersList.Remove(listener);
             }
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() { }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+#if UNITY_EDITOR
+            _listeners.Clear();
+
+            foreach (T listener in _listenersList)
+            {
+                _listeners.Add(listener);
+            }
+#endif
         }
     }
 }

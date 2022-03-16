@@ -12,8 +12,8 @@ namespace Coimbra.Editor
         {
             switch (attribute)
             {
-                case MessageBoxOnEditModeAttribute _ when !CSFrameworkUtility.IsEditMode:
-                case MessageBoxOnPlayModeAttribute _ when !CSFrameworkUtility.IsPlayMode:
+                case MessageBoxOnEditModeAttribute _ when !FrameworkUtility.IsEditMode:
+                case MessageBoxOnPlayModeAttribute _ when !FrameworkUtility.IsPlayMode:
                     return 0;
 
                 default:

@@ -7,7 +7,7 @@ namespace Coimbra.Services
     /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class CoroutineService : MonoBehaviour, ICoroutineService
+    public class CoroutineSystem : MonoBehaviour, ICoroutineService
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
@@ -17,10 +17,14 @@ namespace Coimbra.Services
 
         private static ICoroutineService Create()
         {
-            GameObject gameObject = new GameObject(nameof(CoroutineService));
+            GameObject gameObject = new GameObject(nameof(CoroutineSystem))
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+
             DontDestroyOnLoad(gameObject);
 
-            return gameObject.AddComponent<CoroutineService>();
+            return gameObject.AddComponent<CoroutineSystem>();
         }
     }
 }

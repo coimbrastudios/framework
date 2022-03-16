@@ -14,9 +14,9 @@ namespace Coimbra
         void AddListener(IFixedUpdateListener listener);
 
         /// <summary>
-        /// Clear all listeners from the FixedUpdate;
+        /// Remove all listeners from the FixedUpdate;
         /// </summary>
-        void ClearListeners();
+        void RemoveAllListeners();
 
         /// <summary>
         /// Remove a listener from the FixedUpdate.

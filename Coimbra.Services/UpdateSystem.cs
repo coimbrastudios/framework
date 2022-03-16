@@ -7,7 +7,7 @@ namespace Coimbra.Services
     /// Default implementation for <see cref="IUpdateService"/>.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class UpdateService : UpdateServiceBase<IUpdateListener>, IUpdateService
+    public sealed class UpdateSystem : UpdateSystemBase<IUpdateListener>, IUpdateService
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
@@ -17,10 +17,14 @@ namespace Coimbra.Services
 
         private static IUpdateService Create()
         {
-            GameObject gameObject = new GameObject(nameof(UpdateService));
+            GameObject gameObject = new GameObject(nameof(UpdateSystem))
+            {
+                hideFlags = HideFlags.NotEditable | HideFlags.DontSave,
+            };
+
             DontDestroyOnLoad(gameObject);
 
-            return gameObject.AddComponent<UpdateService>();
+            return gameObject.AddComponent<UpdateSystem>();
         }
 
         private void Update()

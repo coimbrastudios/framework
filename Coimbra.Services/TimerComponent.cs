@@ -6,21 +6,17 @@ namespace Coimbra.Services
 {
     [AddComponentMenu("")]
     [Preserve]
-    internal sealed class TimerContext : MonoBehaviour
+    internal sealed class TimerComponent : MonoBehaviour
     {
         internal int CompletedLoops;
-
         internal int TargetLoops;
-
-        internal Action Callback;
-
+        internal ITimerService Service;
         internal TimerHandle Handle;
-
-        internal TimerService Service;
+        internal Action Callback;
 
         internal void Run()
         {
-            Callback?.Invoke();
+            Callback.Invoke();
 
             if (TargetLoops <= 0)
             {

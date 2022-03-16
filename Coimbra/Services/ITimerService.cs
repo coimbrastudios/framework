@@ -34,14 +34,14 @@ namespace Coimbra
         TimerHandle StartTimer(Action callback, float delay, float rate, int loops = 0);
 
         /// <summary>
+        /// Stops all existing timers.
+        /// </summary>
+        void StopAllTimers();
+
+        /// <summary>
         /// Stops an existing timer if still valid.
         /// </summary>
         /// <param name="timerHandle">Ignored if not valid anymore.</param>
         void StopTimer(in TimerHandle timerHandle);
-
-        /// <summary>
-        /// Stops all existing timers.
-        /// </summary>
-        void StopAllTimers();
     }
 }

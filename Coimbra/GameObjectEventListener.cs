@@ -5,7 +5,7 @@ using UnityEngine.Scripting;
 namespace Coimbra
 {
     [Preserve]
-    [AddComponentMenu(CSFrameworkUtility.AddComponentMenuPath + "Game Object Event Listener")]
+    [AddComponentMenu(FrameworkUtility.AddComponentMenuPath + "Game Object Event Listener")]
     public sealed class GameObjectEventListener : MonoBehaviour
     {
         public event UnityAction<GameObjectEventListener, bool> OnActiveStateChanged

@@ -14,9 +14,9 @@ namespace Coimbra
         void AddListener(IUpdateListener listener);
 
         /// <summary>
-        /// Clear all listeners from the Update;
+        /// Remove all listeners from the Update;
         /// </summary>
-        void ClearListeners();
+        void RemoveAllListeners();
 
         /// <summary>
         /// Remove a listener from the Update.

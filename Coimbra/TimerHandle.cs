@@ -9,12 +9,17 @@ namespace Coimbra
     {
         public readonly Guid Guid;
 
-        public TimerHandle(Guid guid)
+        private TimerHandle(Guid guid)
         {
             Guid = guid;
         }
 
         public bool IsValid => Guid != Guid.Empty;
+
+        public static TimerHandle Create()
+        {
+            return new TimerHandle(Guid.NewGuid());
+        }
 
         public static bool operator ==(TimerHandle left, TimerHandle right)
         {
