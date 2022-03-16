@@ -6,7 +6,7 @@ namespace Coimbra
     /// Provides easy access to Unity's FixedUpdate callback without requiring the object to be an <see cref="UnityEngine.MonoBehaviour"/>.
     /// </summary>
     [RequireImplementors]
-    public interface IFixedUpdateService
+    public interface IFixedUpdateService : IService
     {
         /// <summary>
         /// Add a listener to the FixedUpdate.

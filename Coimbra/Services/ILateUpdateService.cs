@@ -6,7 +6,7 @@ namespace Coimbra
     /// Provides easy access to Unity's LateUpdate callback without requiring the object to be an <see cref="UnityEngine.MonoBehaviour"/>.
     /// </summary>
     [RequireImplementors]
-    public interface ILateUpdateService
+    public interface ILateUpdateService : IService
     {
         /// <summary>
         /// Add a listener to the LateUpdate.

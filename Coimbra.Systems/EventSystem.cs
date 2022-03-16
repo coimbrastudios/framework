@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
     /// Default implementation for <see cref="IEventService"/>.
@@ -72,6 +72,13 @@ namespace Coimbra.Services
         public bool CompareEventKey(Type eventType, object eventKey)
         {
             return _events.TryGetValue(eventType, out Event e) ? e.Key == eventKey : eventKey == null;
+        }
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            RemoveAllListeners(_serviceKey);
+            _events.Clear();
         }
 
         /// <inheritdoc cref="IEventService.HasAnyListeners{T}"/>.
@@ -230,12 +237,6 @@ namespace Coimbra.Services
             {
                 _events.Add(typeof(T), new Event(EventCallbacks<T>.RemoveHandler, eventKey));
             }
-        }
-
-        /// <inheritdoc cref="IDisposable.Dispose"/>
-        public void Dispose()
-        {
-            RemoveAllListeners(_serviceKey);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

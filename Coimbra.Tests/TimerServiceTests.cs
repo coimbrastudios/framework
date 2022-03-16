@@ -7,7 +7,7 @@ namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(ITimerService))]
-    internal sealed class TimerServiceTests
+    public class TimerServiceTests
     {
         private ITimerService _timerService;
 
@@ -21,9 +21,7 @@ namespace Coimbra.Tests
         [TearDown]
         public void TearDown()
         {
-            _timerService.StopAllTimers();
-            _timerService = null;
-            ServiceLocator.Shared.Set<ITimerService>(null);
+            ServiceLocator.Shared.Dispose();
         }
 
         [UnityTest]

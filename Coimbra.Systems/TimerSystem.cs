@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
     /// Default implementation for <see cref="ITimerService"/>.
@@ -52,6 +52,18 @@ namespace Coimbra.Services
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
 
         private TimerComponentPool Pool { get; set; }
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            StopAllTimers();
+            Pool.Reset();
+
+            if (gameObject != null)
+            {
+                Destroy(gameObject);
+            }
+        }
 
         /// <inheritdoc cref="ITimerService.IsTimerActive"/>>
         public bool IsTimerActive(in TimerHandle timerHandle)
@@ -132,7 +144,7 @@ namespace Coimbra.Services
         {
             GameObject gameObject = new GameObject(nameof(TimerSystem))
             {
-                hideFlags = HideFlags.NotEditable | HideFlags.DontSave,
+                hideFlags = HideFlags.NotEditable,
             };
 
             TimerSystem system = gameObject.AddComponent<TimerSystem>();

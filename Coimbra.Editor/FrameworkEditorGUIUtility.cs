@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Coimbra Studios general editor GUI utilities.
     /// </summary>
-    public static class CSFrameworkEditorGUIUtility
+    public static class FrameworkEditorGUIUtility
     {
         /// <summary>
         /// Draw a message box with the option to ignore the label area.
@@ -122,6 +123,7 @@ namespace Coimbra.Editor
         /// </summary>
         /// <param name="value">The input value.</param>
         /// <returns>The more human-readable string.</returns>
+        [SuppressMessage("ReSharper", "CognitiveComplexity")]
         public static string ToDisplayName(string value)
         {
             const char underscore = '_';

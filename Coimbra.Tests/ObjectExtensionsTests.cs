@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Coimbra.Tests.Editor
+namespace Coimbra.Tests
 {
     [TestFixture]
-    [TestOf(typeof(ObjectExtensions))]
-    internal sealed class ObjectExtensionsTests
+    [TestOf(typeof(ObjectUtility))]
+    public class ObjectExtensionsTests
     {
         [Test]
         public void GetValid_ReturnsValidSystemObject()

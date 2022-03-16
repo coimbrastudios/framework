@@ -6,7 +6,7 @@ namespace Coimbra
     /// Provides easy access to Unity's Update callback without requiring the object to be an <see cref="UnityEngine.MonoBehaviour"/>.
     /// </summary>
     [RequireImplementors]
-    public interface IUpdateService
+    public interface IUpdateService : IService
     {
         /// <summary>
         /// Add a listener to the Update.

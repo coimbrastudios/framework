@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     [AddComponentMenu("")]
     [Preserve]

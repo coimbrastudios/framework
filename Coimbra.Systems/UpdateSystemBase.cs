@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
     /// Base implementation of the default implementations of update-based services.
     /// </summary>
     [AddComponentMenu("")]
-    public abstract class UpdateSystemBase<T> : MonoBehaviour, ISerializationCallbackReceiver
+    public abstract class UpdateSystemBase<T> : MonoBehaviour, ISerializationCallbackReceiver, IDisposable
         where T : class
     {
         private readonly HashSet<T> _listenersSet = new HashSet<T>();
@@ -19,6 +20,18 @@ namespace Coimbra.Services
 #endif
 
         protected IReadOnlyList<T> Listeners => _listenersList;
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            _listenersSet.Clear();
+            _listenersList.Clear();
+
+            if (gameObject != null)
+            {
+                Destroy(gameObject);
+            }
+        }
 
         /// <summary>
         /// Add a listener to this service.

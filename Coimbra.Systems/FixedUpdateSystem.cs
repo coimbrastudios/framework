@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
     /// Default implementation for <see cref="IFixedUpdateService"/>.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class FixedUpdateSystem : UpdateSystemBase<IFixedUpdateListener>, IFixedUpdateService
+    public class FixedUpdateSystem : UpdateSystemBase<IFixedUpdateListener>, IFixedUpdateService
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
@@ -19,7 +19,7 @@ namespace Coimbra.Services
         {
             GameObject gameObject = new GameObject(nameof(FixedUpdateSystem))
             {
-                hideFlags = HideFlags.NotEditable | HideFlags.DontSave,
+                hideFlags = HideFlags.NotEditable,
             };
 
             DontDestroyOnLoad(gameObject);

@@ -8,7 +8,7 @@ namespace Coimbra
     /// Provides easy access to Unity's <see cref="MonoBehaviour.Invoke"/> and <see cref="MonoBehaviour.InvokeRepeating"/> system without requiring the object to be an <see cref="MonoBehaviour"/>.
     /// </summary>
     [RequireImplementors]
-    public interface ITimerService
+    public interface ITimerService : IService
     {
         /// <summary>
         /// Is the timer still valid and running?

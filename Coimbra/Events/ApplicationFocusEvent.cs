@@ -5,6 +5,11 @@ namespace Coimbra
     [Preserve]
     public struct ApplicationFocusEvent
     {
-        public bool IsFocused;
+        public readonly bool IsFocused;
+
+        public ApplicationFocusEvent(bool isFocused)
+        {
+            IsFocused = isFocused;
+        }
     }
 }

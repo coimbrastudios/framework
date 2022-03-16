@@ -6,7 +6,7 @@ namespace Coimbra.Tests.Editor
     [TestOf(typeof(ServiceLocator))]
     internal sealed class ServiceLocatorTests
     {
-        private interface IDummyService
+        private interface IDummyService : IService
         {
             int Value { get; set; }
         }
@@ -14,12 +14,14 @@ namespace Coimbra.Tests.Editor
         private sealed class DummyService : IDummyService
         {
             public int Value { get; set; }
+
+            public void Dispose() { }
         }
 
         [TearDown]
         public void TearDown()
         {
-            ServiceLocator.Shared.Set<IDummyService>(null);
+            ServiceLocator.Shared.Dispose();
         }
 
         [Test]
@@ -48,9 +50,9 @@ namespace Coimbra.Tests.Editor
         [Test]
         public void ValueChangedEventWorks([Random(1, int.MaxValue, 1)] int a, [Random(int.MinValue, 0, 1)] int b)
         {
-            bool hasSingleton = ServiceLocator.Shared.TryGet(out IDummyService singleton);
-            Assert.That(hasSingleton, Is.False);
-            Assert.That(singleton, Is.Null);
+            bool hasService = ServiceLocator.Shared.TryGet(out IDummyService service);
+            Assert.That(hasService, Is.False);
+            Assert.That(service, Is.Null);
 
             IDummyService serviceA = new DummyService
             {
@@ -73,36 +75,36 @@ namespace Coimbra.Tests.Editor
             ServiceLocator.Shared.AddValueChangedListener<IDummyService>(serviceValueChangedHandler);
             ServiceLocator.Shared.Set(serviceA);
 
-            hasSingleton = ServiceLocator.Shared.TryGet(out singleton);
-            Assert.That(hasSingleton, Is.True);
-            Assert.That(singleton, Is.EqualTo(serviceA));
-            Assert.That(singleton, Is.Not.Null);
-            Assert.That(singleton.Value, Is.EqualTo(a));
+            hasService = ServiceLocator.Shared.TryGet(out service);
+            Assert.That(hasService, Is.True);
+            Assert.That(service, Is.EqualTo(serviceA));
+            Assert.That(service, Is.Not.Null);
+            Assert.That(service.Value, Is.EqualTo(a));
 
             ServiceLocator.Shared.Set(serviceB);
 
-            hasSingleton = ServiceLocator.Shared.TryGet(out singleton);
-            Assert.That(hasSingleton, Is.True);
-            Assert.That(singleton, Is.EqualTo(serviceB));
-            Assert.That(singleton, Is.Not.Null);
-            Assert.That(singleton.Value, Is.EqualTo(a));
+            hasService = ServiceLocator.Shared.TryGet(out service);
+            Assert.That(hasService, Is.True);
+            Assert.That(service, Is.EqualTo(serviceB));
+            Assert.That(service, Is.Not.Null);
+            Assert.That(service.Value, Is.EqualTo(a));
 
             ServiceLocator.Shared.RemoveValueChangedListener<IDummyService>(serviceValueChangedHandler);
 
             serviceB.Value = b;
-            hasSingleton = ServiceLocator.Shared.TryGet(out singleton);
-            Assert.That(hasSingleton, Is.True);
-            Assert.That(singleton, Is.EqualTo(serviceB));
-            Assert.That(singleton, Is.Not.Null);
-            Assert.That(singleton.Value, Is.EqualTo(b));
+            hasService = ServiceLocator.Shared.TryGet(out service);
+            Assert.That(hasService, Is.True);
+            Assert.That(service, Is.EqualTo(serviceB));
+            Assert.That(service, Is.Not.Null);
+            Assert.That(service.Value, Is.EqualTo(b));
 
             ServiceLocator.Shared.Set(serviceA);
 
-            hasSingleton = ServiceLocator.Shared.TryGet(out singleton);
-            Assert.That(hasSingleton, Is.True);
-            Assert.That(singleton, Is.EqualTo(serviceA));
-            Assert.That(singleton, Is.Not.Null);
-            Assert.That(singleton.Value, Is.EqualTo(a));
+            hasService = ServiceLocator.Shared.TryGet(out service);
+            Assert.That(hasService, Is.True);
+            Assert.That(service, Is.EqualTo(serviceA));
+            Assert.That(service, Is.Not.Null);
+            Assert.That(service.Value, Is.EqualTo(a));
         }
     }
 }

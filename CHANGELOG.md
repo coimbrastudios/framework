@@ -2,12 +2,15 @@
 
 ## [2.0.0] - 2022-03-16
 
+- Added IService and enforce its usage in ServiceLocator APIs
 - Added IFixedUpdateService, ILateUpdateService, and IUpdateService to register on the respective Unity loop callback.
 - Added object.GetValid() and object.IsValid() APIs to make safer to work with abstractions and Unity Objects.
 - Added ApplicationFocusEvent, ApplicationPauseEvent, and ApplicationQuitEvent. They are meant to be listened through the EventService.
 - Added proper hide flags for all default implementations.
 - Added GetValid call for ManagedField.Value and ServiceLocator.Get APIs to make those compatible with `?.` operator.
 - Changed folder structure to group similar types together.
+- Changed all services to implement the Dispose method to allow per-service cleanup.
+- Fixed ServiceLocator not being compatible with Enter Play Mode Options.
 - Refactored IEventService and its default implementation:
   - Added HasAnyListeners and HasListener APIs.
   - Added Invoke API that accepts a type and constructs a default event data to be used.
@@ -20,6 +23,7 @@
   - Fixed TimerService not working for concurrent timers and added test cases to ensure minimum stability.
 - Removed IApplicationService and its default implementation.
 - Renamed all default implementations to `System` instead of `Service`.
+- Renamed Coimbra.Services to Coimbra.Systems.
 
 ## [1.1.0] - 2022-03-08
 

@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
     /// Default implementation for <see cref="ICoroutineService"/>.
@@ -9,6 +10,17 @@ namespace Coimbra.Services
     [DisallowMultipleComponent]
     public class CoroutineSystem : MonoBehaviour, ICoroutineService
     {
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            StopAllCoroutines();
+
+            if (gameObject != null)
+            {
+                Destroy(gameObject);
+            }
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
@@ -19,7 +31,7 @@ namespace Coimbra.Services
         {
             GameObject gameObject = new GameObject(nameof(CoroutineSystem))
             {
-                hideFlags = HideFlags.HideAndDontSave,
+                hideFlags = HideFlags.NotEditable,
             };
 
             DontDestroyOnLoad(gameObject);

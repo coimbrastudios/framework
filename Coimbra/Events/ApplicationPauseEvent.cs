@@ -5,6 +5,11 @@ namespace Coimbra
     [Preserve]
     public struct ApplicationPauseEvent
     {
-        public bool IsPaused;
+        public readonly bool IsPaused;
+
+        public ApplicationPauseEvent(bool isPaused)
+        {
+            IsPaused = isPaused;
+        }
     }
 }

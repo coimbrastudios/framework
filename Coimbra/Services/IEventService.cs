@@ -7,7 +7,7 @@ namespace Coimbra
     /// Event service that also has encapsulation for some of its methods.
     /// </summary>
     [RequireImplementors]
-    public interface IEventService : IDisposable
+    public interface IEventService : IService
     {
         /// <summary>
         /// Adds a listener to an event type.

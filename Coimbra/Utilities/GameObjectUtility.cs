@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 namespace Coimbra
 {
-    public static class GameObjectExtensions
+    public static class GameObjectUtility
     {
         private static readonly Dictionary<GameObject, GameObjectEventListener> EventListenerFromGameObject = new Dictionary<GameObject, GameObjectEventListener>();
 
@@ -39,6 +39,11 @@ namespace Coimbra
         public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObjectEventListener, bool> callback)
         {
             gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged -= callback;
+        }
+
+        public static void RemoveCachedEventListener(this GameObject gameObject)
+        {
+            EventListenerFromGameObject.Remove(gameObject);
         }
 
         public static void RemoveDestroyEventListener(this GameObject gameObject, UnityAction<GameObjectEventListener, DestroyEventType> callback)

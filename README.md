@@ -10,7 +10,7 @@ Package of general utilities to be used with Unity development.
 - Expose Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
 - Pooling: Use `ManagedPool` for pooling managed C# objects or create your own pool by inheriting from `ManagedPoolBase`.
 - Reference: Create a `Reference` for any type.
-- ObjectExtensions: Add GetValid() and IsValid() methods to object class to have a safe way to work with abstractions in Unity Objects.
+- Object Extensions: Add GetValid() and IsValid() methods to object class to have a safe way to work with abstractions in Unity Objects.
 - Service Locator: Implement the `ServiceLocator` pattern easily. And it comes with a few services already:
   - `CoroutineService`: Start or stop standard Unity coroutines from anywhere.
   - `EventService`: Register, listen and invoke strongly-typed events. Some events are also provided by default:

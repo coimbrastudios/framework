@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace Coimbra.Services
+namespace Coimbra.Systems
 {
     /// <summary>
-    /// Responsible for invoking the Unity's application callbacks.
+    /// Responsible for the application lifetime cycle and fires Unity's application callbacks.
     /// <seealso cref="ApplicationFocusEvent"/>
     /// <seealso cref="ApplicationPauseEvent"/>
     /// <seealso cref="ApplicationQuitEvent"/>
@@ -14,23 +14,21 @@ namespace Coimbra.Services
     {
         protected void OnApplicationFocus(bool hasFocus)
         {
-            ServiceLocator.Shared.Get<IEventService>()?.Invoke(this, new ApplicationFocusEvent
-            {
-                IsFocused = hasFocus,
-            }, null, true);
+            ServiceLocator.Shared.Get<IEventService>()?.Invoke(this, new ApplicationFocusEvent(hasFocus), null, true);
         }
 
         protected void OnApplicationPause(bool pauseStatus)
         {
-            ServiceLocator.Shared.Get<IEventService>()?.Invoke(this, new ApplicationPauseEvent
-            {
-                IsPaused = pauseStatus,
-            }, null, true);
+            ServiceLocator.Shared.Get<IEventService>()?.Invoke(this, new ApplicationPauseEvent(pauseStatus), null, true);
         }
 
         protected void OnApplicationQuit()
         {
             ServiceLocator.Shared.Get<IEventService>()?.Invoke(this, new ApplicationQuitEvent(), null, true);
+
+#if UNITY_EDITOR
+            ServiceLocator.Shared.Dispose();
+#endif
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -38,7 +36,7 @@ namespace Coimbra.Services
         {
             GameObject gameObject = new GameObject(nameof(ApplicationSystem), typeof(ApplicationSystem))
             {
-                hideFlags = HideFlags.HideAndDontSave,
+                hideFlags = HideFlags.NotEditable,
             };
 
             DontDestroyOnLoad(gameObject);

@@ -6,7 +6,7 @@ namespace Coimbra
     /// <summary>
     /// Extension methods for both Unity <see cref="Object"/> and C# <see cref="object"/> types.
     /// </summary>
-    public static class ObjectExtensions
+    public static class ObjectUtility
     {
         /// <summary>
         /// Get a valid object to be used with ?. and ?? operators.

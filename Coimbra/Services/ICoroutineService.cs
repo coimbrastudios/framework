@@ -8,7 +8,7 @@ namespace Coimbra
     /// Provides easy access to Unity's <see cref="Coroutine"/> system without requiring the object to be an <see cref="MonoBehaviour"/>.
     /// </summary>
     [RequireImplementors]
-    public interface ICoroutineService
+    public interface ICoroutineService : IService
     {
         /// <inheritdoc cref="MonoBehaviour.StartCoroutine(IEnumerator)"/>
         Coroutine StartCoroutine(IEnumerator routine);

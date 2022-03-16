@@ -52,6 +52,8 @@ namespace Coimbra
             {
                 _destroyEvent?.Invoke(this, _isQuitting ? DestroyEventType.ApplicationQuit : DestroyEventType.SceneChange);
             }
+
+            gameObject.RemoveCachedEventListener();
         }
     }
 }

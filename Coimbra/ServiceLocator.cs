@@ -11,17 +11,15 @@ namespace Coimbra
     /// A non-thread-safe service locator.
     /// </summary>
     [Preserve]
-    public sealed class ServiceLocator
+    public sealed class ServiceLocator : IDisposable
     {
-        public delegate void ValueChangeEventHandler([CanBeNull] object oldValue, [CanBeNull] object newValue);
-
         private sealed class Service
         {
             internal bool ResetCreateCallbackOnSet;
 
-            internal object Value;
+            internal IService Value;
 
-            internal Func<object> CreateCallback;
+            internal Func<IService> CreateCallback;
 
             internal ValueChangeEventHandler ValueChangedCallback;
 
@@ -30,31 +28,33 @@ namespace Coimbra
                 ValueChangedCallback = HandleValueChanged;
             }
 
-            private void HandleValueChanged(object oldValue, object newValue)
+            private void HandleValueChanged(IService oldValue, IService newValue)
             {
                 {
-                    if (newValue is GameObject gameObject)
+                    if (newValue is MonoBehaviour monoBehaviour)
                     {
-                        gameObject.AddDestroyEventListener(HandleGameObjectDestroy);
+                        monoBehaviour.gameObject.AddDestroyEventListener(HandleGameObjectDestroy);
                     }
                 }
 
                 {
-                    if (oldValue is GameObject gameObject && gameObject != null)
+                    if (oldValue is MonoBehaviour monoBehaviour)
                     {
-                        gameObject.RemoveDestroyEventListener(HandleGameObjectDestroy);
+                        monoBehaviour.gameObject.RemoveDestroyEventListener(HandleGameObjectDestroy);
                     }
                 }
             }
 
             private void HandleGameObjectDestroy(GameObjectEventListener sender, DestroyEventType destroyEventType)
             {
-                if (Value as GameObject == sender.gameObject)
+                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.gameObject)
                 {
                     Value = null;
                 }
             }
         }
+
+        public delegate void ValueChangeEventHandler([CanBeNull] IService oldValue, [CanBeNull] IService newValue);
 
         /// <summary>
         /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
@@ -62,7 +62,7 @@ namespace Coimbra
         [NotNull]
         public static readonly ServiceLocator Shared = new ServiceLocator(false);
 
-        private static readonly Dictionary<Type, Func<object>> DefaultCreateCallbacks = new Dictionary<Type, Func<object>>();
+        private static readonly Dictionary<Type, Func<IService>> DefaultCreateCallbacks = new Dictionary<Type, Func<IService>>();
 
         /// <summary>
         /// If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.
@@ -82,6 +82,7 @@ namespace Coimbra
         {
             AllowFallbackToShared = allowFallbackToShared;
             AllowInterfacesOnly = allowInterfacesOnly;
+            _services.Clear();
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace Coimbra
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         public static void SetDefaultCreateCallback<T>([CanBeNull] Func<T> createCallback, bool overrideExisting, bool allowInterfacesOnly = true)
-            where T : class
+            where T : class, IService
         {
             AssertTypeIsInterface(allowInterfacesOnly, typeof(T));
 
@@ -114,11 +115,25 @@ namespace Coimbra
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
         public void AddValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
-            where T : class
+            where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
             service.ValueChangedCallback += callback;
+        }
+
+        /// <inheritdoc cref="IDisposable.Dispose"/>
+        public void Dispose()
+        {
+            foreach (Service service in _services.Values)
+            {
+                service.Value.GetValid()?.Dispose();
+                service.Value = null;
+                service.ValueChangedCallback = null;
+                service.CreateCallback = null;
+            }
+
+            _services.Clear();
         }
 
         /// <summary>
@@ -129,7 +144,7 @@ namespace Coimbra
         [CanBeNull]
         [Pure]
         public T Get<T>()
-            where T : class
+            where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
@@ -165,7 +180,6 @@ namespace Coimbra
             service.ValueChangedCallback(null, value);
 
             return value;
-
         }
 
         /// <summary>
@@ -174,7 +188,7 @@ namespace Coimbra
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
         public bool HasCreateCallback<T>()
-            where T : class
+            where T : class, IService
         {
             return HasCreateCallback(typeof(T));
         }
@@ -197,7 +211,7 @@ namespace Coimbra
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         public bool IsCreated<T>()
-            where T : class
+            where T : class, IService
         {
             return IsCreated(typeof(T));
         }
@@ -220,7 +234,7 @@ namespace Coimbra
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
         public void RemoveValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
-            where T : class
+            where T : class, IService
         {
             AssertTypeIsInterface(typeof(T));
 
@@ -236,7 +250,7 @@ namespace Coimbra
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
         public void Set<T>([CanBeNull] T value)
-            where T : class
+            where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
@@ -256,7 +270,7 @@ namespace Coimbra
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         public void SetCreateCallback<T>([CanBeNull] Func<T> createCallback, bool resetOnSet)
-            where T : class
+            where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
@@ -272,7 +286,7 @@ namespace Coimbra
         /// <returns>False if the service does not exists.</returns>
         [Pure]
         public bool TryGet<T>([CanBeNull] out T value)
-            where T : class
+            where T : class, IService
         {
             value = Get<T>();
 
@@ -282,6 +296,11 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AssertTypeIsInterface(bool assert, Type type, [CallerMemberName] string memberName = null)
         {
+            if (type == typeof(IService))
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} can receive IService directly as the type argument!");
+            }
+
             if (assert && !type.IsInterface)
             {
                 throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} requires an interface as the type argument!");
