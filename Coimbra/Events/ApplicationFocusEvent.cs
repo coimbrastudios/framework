@@ -3,7 +3,7 @@
 namespace Coimbra
 {
     [Preserve]
-    public struct ApplicationFocusEvent
+    public readonly struct ApplicationFocusEvent
     {
         public readonly bool IsFocused;
 

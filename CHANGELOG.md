@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.0] - --
+
+- Added FixedUpdateEvent, LateUpdateEvent, and UpdateServiceEvent to listen to the respective Unity loop callback.
+- Added OwningLocator field to IService locator to be able to create services composed of multiple services easily.
+- Added overloads that accepts event data by reference in the IEventService to avoid large struct copies.
+- Added missing readonly keyword on built-in events.
+- Changed ServiceLocator to be Serializable to be able to see which ServiceLocator a MonoBehaviour system belongs to.
+- Deprecated IFixedUpdateService, ILateUpdateService, and IUpdateService in favor of new built-in events.
+
 ## [2.0.0] - 2022-03-16
 
 - Added IService and enforce its usage in ServiceLocator APIs

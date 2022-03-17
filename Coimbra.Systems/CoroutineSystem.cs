@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Coimbra.Systems
 {
@@ -8,17 +7,13 @@ namespace Coimbra.Systems
     /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class CoroutineSystem : MonoBehaviour, ICoroutineService
+    public class CoroutineSystem : MonoBehaviourServiceBase<ICoroutineService>, ICoroutineService
     {
-        /// <inheritdoc cref="IDisposable.Dispose"/>
-        public void Dispose()
+        /// <inheritdoc/>
+        protected override void OnDispose()
         {
+            base.OnDispose();
             StopAllCoroutines();
-
-            if (gameObject != null)
-            {
-                Destroy(gameObject);
-            }
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

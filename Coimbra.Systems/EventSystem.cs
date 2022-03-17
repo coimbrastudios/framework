@@ -26,7 +26,7 @@ namespace Coimbra.Systems
 
         private static class EventCallbacks<T>
         {
-            internal static readonly Dictionary<EventHandle, EventHandler<T>> Value = new Dictionary<EventHandle, EventHandler<T>>(1);
+            internal static readonly Dictionary<EventHandle, EventRefHandler<T>> Value = new Dictionary<EventHandle, EventRefHandler<T>>(1);
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
 
@@ -40,8 +40,25 @@ namespace Coimbra.Systems
             _serviceKey = serviceKey;
         }
 
-        /// <inheritdoc cref="IEventService.AddListener{T}"/>.
+        /// <inheritdoc cref="IService.OwningLocator"/>
+        public ServiceLocator OwningLocator { get; set; }
+
+        /// <inheritdoc cref="IEventService.AddListener{T}(EventHandler{T})"/>.
         public EventHandle AddListener<T>(EventHandler<T> eventCallback)
+        {
+            if (eventCallback == null)
+            {
+                return new EventHandle();
+            }
+
+            return AddListener(delegate(object sender, ref T e)
+            {
+                eventCallback.Invoke(sender, e);
+            });
+        }
+
+        /// <inheritdoc cref="IEventService.AddListener{T}(EventRefHandler{T})"/>.
+        public EventHandle AddListener<T>(EventRefHandler<T> eventCallback)
         {
             if (eventCallback == null)
             {
@@ -105,8 +122,14 @@ namespace Coimbra.Systems
             Invoke(eventSender, Activator.CreateInstance(eventType), eventKey, ignoreException);
         }
 
-        /// <inheritdoc cref="IEventService.Invoke{T}"/>.
+        /// <inheritdoc cref="IEventService.Invoke{T}(object, T, object, bool)"/>.
         public void Invoke<T>(object eventSender, T eventData, object eventKey = null, bool ignoreException = false)
+        {
+            Invoke(eventSender, ref eventData, eventKey, ignoreException);
+        }
+
+        /// <inheritdoc cref="IEventService.Invoke{T}(object, ref T, object, bool)"/>.
+        public void Invoke<T>(object eventSender, ref T eventData, object eventKey = null, bool ignoreException = false)
         {
             if (!_events.TryGetValue(typeof(T), out Event e))
             {
@@ -125,7 +148,7 @@ namespace Coimbra.Systems
 
             foreach (EventHandle handle in e.Handles)
             {
-                EventCallbacks<T>.Value[handle].Invoke(eventSender, eventData);
+                EventCallbacks<T>.Value[handle].Invoke(eventSender, ref eventData);
             }
         }
 

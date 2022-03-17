@@ -9,7 +9,7 @@ namespace Coimbra.Systems
     /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class TimerSystem : MonoBehaviour, ITimerService
+    public class TimerSystem : MonoBehaviourServiceBase<ITimerService>, ITimerService
     {
         private sealed class TimerComponentPool : ManagedPoolBase<TimerComponent>
         {
@@ -52,18 +52,6 @@ namespace Coimbra.Systems
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
 
         private TimerComponentPool Pool { get; set; }
-
-        /// <inheritdoc cref="IDisposable.Dispose"/>
-        public void Dispose()
-        {
-            StopAllTimers();
-            Pool.Reset();
-
-            if (gameObject != null)
-            {
-                Destroy(gameObject);
-            }
-        }
 
         /// <inheritdoc cref="ITimerService.IsTimerActive"/>>
         public bool IsTimerActive(in TimerHandle timerHandle)
@@ -132,6 +120,14 @@ namespace Coimbra.Systems
 
             _instances.Remove(timerHandle);
             Pool.Release(context);
+        }
+
+        /// <inheritdoc/>
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            StopAllTimers();
+            Pool.Reset();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

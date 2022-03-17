@@ -3,5 +3,5 @@
 namespace Coimbra
 {
     [Preserve]
-    public struct ApplicationQuitEvent { }
+    public readonly struct ApplicationQuitEvent { }
 }

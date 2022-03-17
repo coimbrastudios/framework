@@ -8,35 +8,33 @@ namespace Coimbra.Systems
     /// Base implementation of the default implementations of update-based services.
     /// </summary>
     [AddComponentMenu("")]
-    public abstract class UpdateSystemBase<T> : MonoBehaviour, ISerializationCallbackReceiver, IDisposable
-        where T : class
+    [Obsolete(nameof(UpdateSystemBase<TService, TListener>) + " has been deprecated. Any event implementation should go through the " + nameof(IEventService) + " instead.")]
+    public abstract class UpdateSystemBase<TService, TListener> : MonoBehaviourServiceBase<TService>, ISerializationCallbackReceiver
+        where TService : class, IService
+        where TListener : class
     {
-        private readonly HashSet<T> _listenersSet = new HashSet<T>();
-        private readonly List<T> _listenersList = new List<T>();
+        private readonly HashSet<TListener> _listenersSet = new HashSet<TListener>();
+        private readonly List<TListener> _listenersList = new List<TListener>();
 
 #if UNITY_EDITOR
         [SerializeField]
-        private List<ManagedField<T>> _listeners = new List<ManagedField<T>>();
+        private List<ManagedField<TListener>> _listeners = new List<ManagedField<TListener>>();
 #endif
 
-        protected IReadOnlyList<T> Listeners => _listenersList;
+        protected IReadOnlyList<TListener> Listeners => _listenersList;
 
-        /// <inheritdoc cref="IDisposable.Dispose"/>
-        public void Dispose()
+        /// <inheritdoc/>
+        protected override void OnDispose()
         {
+            base.OnDispose();
             _listenersSet.Clear();
             _listenersList.Clear();
-
-            if (gameObject != null)
-            {
-                Destroy(gameObject);
-            }
         }
 
         /// <summary>
         /// Add a listener to this service.
         /// </summary>
-        public void AddListener(T listener)
+        public void AddListener(TListener listener)
         {
             if (_listenersSet.Add(listener))
             {
@@ -56,7 +54,7 @@ namespace Coimbra.Systems
         /// <summary>
         /// Remove a listener from this service.
         /// </summary>
-        public void RemoveListener(T listener)
+        public void RemoveListener(TListener listener)
         {
             if (_listenersSet.Remove(listener))
             {
@@ -71,7 +69,7 @@ namespace Coimbra.Systems
 #if UNITY_EDITOR
             _listeners.Clear();
 
-            foreach (T listener in _listenersList)
+            foreach (TListener listener in _listenersList)
             {
                 _listeners.Add(listener);
             }

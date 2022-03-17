@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Coimbra.Systems
@@ -7,7 +8,8 @@ namespace Coimbra.Systems
     /// Default implementation for <see cref="ILateUpdateService"/>.
     /// </summary>
     [DisallowMultipleComponent]
-    public class LateUpdateSystem : UpdateSystemBase<ILateUpdateListener>, ILateUpdateService
+    [Obsolete(nameof(LateUpdateSystem) + " has been deprecated. Use " + nameof(LateUpdateEvent) + " through the " + nameof(IEventService) + " instead.")]
+    public class LateUpdateSystem : UpdateSystemBase<ILateUpdateService, ILateUpdateListener>, ILateUpdateService
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()

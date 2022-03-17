@@ -16,6 +16,8 @@ namespace Coimbra.Tests.Editor
             public int Value { get; set; }
 
             public void Dispose() { }
+
+            public ServiceLocator OwningLocator { get; set; }
         }
 
         [TearDown]
