@@ -1,6 +1,16 @@
 # Changelog
 
-## [2.1.0] - --
+## [2.2.0] - 2022-03-19
+
+- Added ScriptableSettings to allow easy sharing of ScriptableObject data with non-MonoBehaviour objects.
+- Added API documentation for GameObjectUtility.
+- Added support for PreloadedAsset inside the editor, including cleanup of missing/null references.
+- Added missing assert on non-generic APIs of ServiceLocator.
+- Changed GameObjectEventListener to be internal.
+- Changed GameObjects to send the GameObject instead of the GameObjectEventListener.
+- Fixed IApplicationService missing RequireImplementors attribute.
+
+## [2.1.0] - 2022-03-18
 
 - Added FixedUpdateEvent, LateUpdateEvent, and UpdateServiceEvent to listen to the respective Unity loop callback.
 - Added OwningLocator field to IService locator to be able to create services composed of multiple services easily.

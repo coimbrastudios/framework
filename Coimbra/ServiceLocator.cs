@@ -46,9 +46,9 @@ namespace Coimbra
                 }
             }
 
-            private void HandleGameObjectDestroy(GameObjectEventListener sender, DestroyEventType destroyEventType)
+            private void HandleGameObjectDestroy(GameObject sender, DestroyEventType destroyEventType)
             {
-                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.gameObject)
+                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender)
                 {
                     Value = null;
                 }
@@ -102,7 +102,7 @@ namespace Coimbra
         public static void SetDefaultCreateCallback<T>([CanBeNull] Func<T> createCallback, bool overrideExisting, bool allowInterfacesOnly = true)
             where T : class, IService
         {
-            AssertTypeIsInterface(allowInterfacesOnly, typeof(T));
+            CheckType(allowInterfacesOnly, typeof(T));
 
             if (!overrideExisting && DefaultCreateCallbacks.ContainsKey(typeof(T)))
             {
@@ -226,7 +226,8 @@ namespace Coimbra
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
         public bool HasCreateCallback([NotNull] Type type)
         {
-            AssertTypeIsInterface(type);
+            Debug.Assert(typeof(IService).IsAssignableFrom(type));
+            CheckType(type);
 
             return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
@@ -249,7 +250,8 @@ namespace Coimbra
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         public bool IsCreated([NotNull] Type type)
         {
-            AssertTypeIsInterface(type);
+            Debug.Assert(typeof(IService).IsAssignableFrom(type));
+            CheckType(type);
 
             return _services.TryGetValue(type, out Service service) && service is { Value: { } };
         }
@@ -262,7 +264,7 @@ namespace Coimbra
         public void RemoveValueChangedListener<T>([NotNull] ValueChangeEventHandler callback)
             where T : class, IService
         {
-            AssertTypeIsInterface(typeof(T));
+            CheckType(typeof(T));
 
             if (_services.TryGetValue(typeof(T), out Service service))
             {
@@ -331,29 +333,30 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AssertTypeIsInterface(bool assert, Type type, [CallerMemberName] string memberName = null)
+        private static void CheckType(bool allowInterfacesOnly, Type type, [CallerMemberName] string memberName = null)
         {
             if (type == typeof(IService))
             {
-                throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} can receive IService directly as the type argument!");
+                throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} should not receive IService directly as the type argument!");
             }
 
-            if (assert && !type.IsInterface)
+            if (allowInterfacesOnly && !type.IsInterface)
             {
-                throw new ArgumentOutOfRangeException($"{nameof(ServiceLocator)}.{memberName} requires an interface as the type argument!");
+                throw new ArgumentOutOfRangeException($"The target {nameof(ServiceLocator)}.{memberName} requires an interface as the type argument!");
             }
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AssertTypeIsInterface(Type type, [CallerMemberName] string memberName = null)
+        private void CheckType(Type type, [CallerMemberName] string memberName = null)
         {
-            AssertTypeIsInterface(AllowInterfacesOnly, type, memberName);
+            CheckType(AllowInterfacesOnly, type, memberName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null)
         {
-            AssertTypeIsInterface(type, memberName);
+            CheckType(type, memberName);
 
             if (_services.TryGetValue(type, out service))
             {

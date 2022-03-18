@@ -5,36 +5,23 @@ using UnityEngine.Scripting;
 namespace Coimbra
 {
     [Preserve]
-    [AddComponentMenu(FrameworkUtility.AddComponentMenuPath + "Game Object Event Listener")]
-    public sealed class GameObjectEventListener : MonoBehaviour
+    [AddComponentMenu("")]
+    internal sealed class GameObjectEventListener : MonoBehaviour
     {
-        public event UnityAction<GameObjectEventListener, bool> OnActiveStateChanged
-        {
-            add => _activeStateChangeEvent.AddListener(value);
-            remove => _activeStateChangeEvent.RemoveListener(value);
-        }
+        internal event UnityAction<GameObject, bool> OnActiveStateChanged;
 
-        public event UnityAction<GameObjectEventListener, DestroyEventType> OnDestroyEvent
-        {
-            add => _destroyEvent.AddListener(value);
-            remove => _destroyEvent.RemoveListener(value);
-        }
-
-        [SerializeField]
-        private UnityEvent<GameObjectEventListener, bool> _activeStateChangeEvent = new UnityEvent<GameObjectEventListener, bool>();
-        [SerializeField]
-        private UnityEvent<GameObjectEventListener, DestroyEventType> _destroyEvent = new UnityEvent<GameObjectEventListener, DestroyEventType>();
+        internal event UnityAction<GameObject, DestroyEventType> OnDestroyEvent;
 
         private bool _isQuitting;
 
         private void OnEnable()
         {
-            _activeStateChangeEvent?.Invoke(this, true);
+            OnActiveStateChanged?.Invoke(gameObject, true);
         }
 
         private void OnDisable()
         {
-            _activeStateChangeEvent?.Invoke(this, false);
+            OnActiveStateChanged?.Invoke(gameObject, false);
         }
 
         private void OnApplicationQuit()
@@ -46,11 +33,11 @@ namespace Coimbra
         {
             if (gameObject.scene.isLoaded)
             {
-                _destroyEvent?.Invoke(this, DestroyEventType.DestroyCall);
+                OnDestroyEvent?.Invoke(gameObject, DestroyEventType.DestroyCall);
             }
             else
             {
-                _destroyEvent?.Invoke(this, _isQuitting ? DestroyEventType.ApplicationQuit : DestroyEventType.SceneChange);
+                OnDestroyEvent?.Invoke(gameObject, _isQuitting ? DestroyEventType.ApplicationQuit : DestroyEventType.SceneChange);
             }
 
             gameObject.RemoveCachedEventListener();

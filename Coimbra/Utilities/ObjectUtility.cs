@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    /// Extension methods for both Unity <see cref="Object"/> and C# <see cref="object"/> types.
+    /// Utility methods for both Unity <see cref="Object"/> and C# <see cref="object"/> types.
     /// </summary>
     public static class ObjectUtility
     {
