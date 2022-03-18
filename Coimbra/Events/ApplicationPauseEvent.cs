@@ -3,7 +3,7 @@
 namespace Coimbra
 {
     [Preserve]
-    public struct ApplicationPauseEvent
+    public readonly struct ApplicationPauseEvent
     {
         public readonly bool IsPaused;
 

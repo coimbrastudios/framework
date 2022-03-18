@@ -17,6 +17,13 @@ namespace Coimbra
         EventHandle AddListener<T>(EventHandler<T> eventCallback);
 
         /// <summary>
+        /// Adds a listener to an event type.
+        /// </summary>
+        /// <param name="eventCallback">The callback to be added.</param>
+        /// <typeparam name="T">The event type.</typeparam>
+        EventHandle AddListener<T>(EventRefHandler<T> eventCallback);
+
+        /// <summary>
         /// Compares the event key for specified type.
         /// </summary>
         /// <param name="eventKey">The event key to compare to.</param>
@@ -73,6 +80,17 @@ namespace Coimbra
         /// <typeparam name="T">The event type.</typeparam>
         /// <exception cref="InvalidOperationException">If <see cref="ignoreException"/> is false and <see cref="eventKey"/> doesn't match the current event key.</exception>
         void Invoke<T>(object eventSender, T eventData, object eventKey = null, bool ignoreException = false);
+
+        /// <summary>
+        /// Invokes the specified event type for all its listeners.
+        /// </summary>
+        /// <param name="eventSender">The object invoking the event.</param>
+        /// <param name="eventData">The event data to be sent.</param>
+        /// <param name="eventKey">The encapsulation key for the event.</param>
+        /// <param name="ignoreException">If true, the method will fail silently if <see cref="eventKey"/> doesn't match the current event key.</param>
+        /// <typeparam name="T">The event type.</typeparam>
+        /// <exception cref="InvalidOperationException">If <see cref="ignoreException"/> is false and <see cref="eventKey"/> doesn't match the current event key.</exception>
+        void Invoke<T>(object eventSender, ref T eventData, object eventKey = null, bool ignoreException = false);
 
         /// <summary>
         /// Removes all listeners from all event types.

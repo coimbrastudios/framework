@@ -12,12 +12,17 @@ Package of general utilities to be used with Unity development.
 - Reference: Create a `Reference` for any type.
 - Object Extensions: Add GetValid() and IsValid() methods to object class to have a safe way to work with abstractions in Unity Objects.
 - Service Locator: Implement the `ServiceLocator` pattern easily. And it comes with a few services already:
-  - `CoroutineService`: Start or stop standard Unity coroutines from anywhere.
-  - `EventService`: Register, listen and invoke strongly-typed events. Some events are also provided by default:
-    - `ApplicationFocusEvent`: Register to Unity's ApplicationFocus callback;
-    - `ApplicationPauseEvent`: Register to Unity's ApplicationPause callback;
-    - `ApplicationQuitEvent`: Register to Unity's ApplicationQuit callback;
-  - `FixedUpdateService`: Register to Unity's FixedUpdate callback.
-  - `LateUpdateService`: Register to Unity's LateUpdate callback.
-  - `TimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
-  - `UpdateService`: Register to Unity's Update callback.
+  - `IApplicationService`: Responsible for the built-in events and compatibility with Enter Play Mode Options.
+  - `ICoroutineService`: Start or stop standard Unity coroutines from anywhere.
+  - `IEventService`: Listen and invoke strongly-typed events. Some events are also provided by default:
+    - `ApplicationFocusEvent`: Listen to Unity's ApplicationFocus callback;
+    - `ApplicationPauseEvent`: Listen to Unity's ApplicationPause callback;
+    - `ApplicationQuitEvent`: Listen to Unity's ApplicationQuit callback;
+    - `FixedUpdateEvent`: Listen to Unity's FixedUpdate callback;
+    - `LateUpdateEvent`: Listen to Unity's LateUpdate callback;
+    - `UpdateEvent`: Listen to Unity's Update callback;
+  - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
+
+## Dependencies
+
+- UniTask: https://github.com/Cysharp/UniTask

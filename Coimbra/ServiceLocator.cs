@@ -11,6 +11,7 @@ namespace Coimbra
     /// A non-thread-safe service locator.
     /// </summary>
     [Preserve]
+    [Serializable]
     public sealed class ServiceLocator : IDisposable
     {
         private sealed class Service
@@ -23,24 +24,24 @@ namespace Coimbra
 
             internal ValueChangeEventHandler ValueChangedCallback;
 
-            public Service()
+            internal Service()
             {
                 ValueChangedCallback = HandleValueChanged;
             }
 
-            private void HandleValueChanged(IService oldValue, IService newValue)
+            internal void HandleValueChanged(IService oldValue, IService newValue)
             {
                 {
                     if (newValue is MonoBehaviour monoBehaviour)
                     {
-                        monoBehaviour.gameObject.AddDestroyEventListener(HandleGameObjectDestroy);
+                        monoBehaviour.GetValid()?.gameObject.AddDestroyEventListener(HandleGameObjectDestroy);
                     }
                 }
 
                 {
                     if (oldValue is MonoBehaviour monoBehaviour)
                     {
-                        monoBehaviour.gameObject.RemoveDestroyEventListener(HandleGameObjectDestroy);
+                        monoBehaviour.GetValid()?.gameObject.RemoveDestroyEventListener(HandleGameObjectDestroy);
                     }
                 }
             }
@@ -56,11 +57,13 @@ namespace Coimbra
 
         public delegate void ValueChangeEventHandler([CanBeNull] IService oldValue, [CanBeNull] IService newValue);
 
+        public event Action<ServiceLocator> OnDispose;
+
         /// <summary>
         /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
         /// </summary>
         [NotNull]
-        public static readonly ServiceLocator Shared = new ServiceLocator(false);
+        public static readonly ServiceLocator Shared = new ServiceLocator(nameof(Shared), false);
 
         private static readonly Dictionary<Type, Func<IService>> DefaultCreateCallbacks = new Dictionary<Type, Func<IService>>();
 
@@ -76,14 +79,21 @@ namespace Coimbra
 
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
 
+        /// <param name="id">Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.</param>
         /// <param name="allowFallbackToShared">If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.</param>
         /// <param name="allowInterfacesOnly">If true, it will throw an <see cref="ArgumentOutOfRangeException"/> on any API used with non-interface type arguments.</param>
-        public ServiceLocator(bool allowFallbackToShared = true, bool allowInterfacesOnly = true)
+        public ServiceLocator(string id, bool allowFallbackToShared = true, bool allowInterfacesOnly = true)
         {
             AllowFallbackToShared = allowFallbackToShared;
             AllowInterfacesOnly = allowInterfacesOnly;
             _services.Clear();
         }
+
+        /// <summary>
+        /// Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.
+        /// </summary>
+        [field: SerializeField]
+        public string Id { get; private set; }
 
         /// <summary>
         /// Sets the default callback for when a service needs to be created.
@@ -125,11 +135,19 @@ namespace Coimbra
         /// <inheritdoc cref="IDisposable.Dispose"/>
         public void Dispose()
         {
+            OnDispose?.Invoke(this);
+
             foreach (Service service in _services.Values)
             {
+                service.ValueChangedCallback = service.HandleValueChanged;
                 service.Value.GetValid()?.Dispose();
+
+                if (service.Value.IsValid())
+                {
+                    service.Value.OwningLocator = null;
+                }
+
                 service.Value = null;
-                service.ValueChangedCallback = null;
                 service.CreateCallback = null;
             }
 
@@ -157,7 +175,7 @@ namespace Coimbra
 
             if (service.CreateCallback != null)
             {
-                service.Value = service.CreateCallback.Invoke();
+                service.Value = service.CreateCallback.Invoke().GetValid();
 
                 if (service.ResetCreateCallbackOnSet)
                 {
@@ -167,9 +185,17 @@ namespace Coimbra
                 value = service.Value as T;
             }
 
-            if (AllowFallbackToShared && value == null)
+            if (value != null)
+            {
+                value.OwningLocator = this;
+            }
+            else if (AllowFallbackToShared)
             {
                 value = Shared.Get<T>();
+            }
+            else
+            {
+                return null;
             }
 
             if (value == null)
@@ -249,12 +275,18 @@ namespace Coimbra
         /// </summary>
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
+        /// <exception cref="InvalidOperationException">If value already have an <see cref="IService.OwningLocator"/> set.</exception>
         public void Set<T>([CanBeNull] T value)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
-            T oldValue = service.Value as T;
+            if (value is { OwningLocator: { } } && value.OwningLocator != this)
+            {
+                throw new InvalidOperationException($"The same service can't belong to different {nameof(ServiceLocator)}s!");
+            }
+
+            T oldValue = (service.Value as T).GetValid();
             service.Value = value.GetValid();
 
             if (service.ResetCreateCallbackOnSet)
@@ -262,7 +294,12 @@ namespace Coimbra
                 service.CreateCallback = null;
             }
 
-            service.ValueChangedCallback(oldValue.GetValid(), value);
+            if (oldValue.IsValid())
+            {
+                oldValue.OwningLocator = null;
+            }
+
+            service.ValueChangedCallback(oldValue, value);
         }
 
         /// <summary>
