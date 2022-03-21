@@ -1,14 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Coimbra.Systems
+namespace Coimbra
 {
-    /// <summary>
-    /// Default implementation for <see cref="IApplicationService"/>.
-    /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class ApplicationSystem : MonoBehaviourServiceBase<IApplicationService>, IApplicationService
+    internal sealed class ApplicationSystem : MonoBehaviourServiceBase<IApplicationService>, IApplicationService
     {
         private readonly object _eventKey = new object();
         private IEventService _eventService;
@@ -30,44 +27,10 @@ namespace Coimbra.Systems
             SetEventService(newValue?.Get<IEventService>());
         }
 
-        protected void FixedUpdate()
-        {
-            Invoke(new FixedUpdateEvent(Time.deltaTime));
-        }
-
-        protected void Update()
-        {
-            Invoke(new UpdateEvent(Time.deltaTime));
-        }
-
-        protected void LateUpdate()
-        {
-            Invoke(new LateUpdateEvent(Time.deltaTime));
-        }
-
-        protected void OnApplicationFocus(bool hasFocus)
-        {
-            Invoke(new ApplicationFocusEvent(hasFocus));
-        }
-
-        protected void OnApplicationPause(bool pauseStatus)
-        {
-            Invoke(new ApplicationPauseEvent(pauseStatus));
-        }
-
-        protected void OnApplicationQuit()
-        {
-            Invoke(new ApplicationQuitEvent());
-#if UNITY_EDITOR
-            OwningLocator?.Dispose();
-#endif
-        }
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
             ServiceLocator.Shared.Set(Create());
-            ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
 
         private static IApplicationService Create()
@@ -80,6 +43,39 @@ namespace Coimbra.Systems
             DontDestroyOnLoad(gameObject);
 
             return gameObject.AddComponent<ApplicationSystem>();
+        }
+
+        private void FixedUpdate()
+        {
+            Invoke(new FixedUpdateEvent(Time.deltaTime));
+        }
+
+        private void Update()
+        {
+            Invoke(new UpdateEvent(Time.deltaTime));
+        }
+
+        private void LateUpdate()
+        {
+            Invoke(new LateUpdateEvent(Time.deltaTime));
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            Invoke(new ApplicationFocusEvent(hasFocus));
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            Invoke(new ApplicationPauseEvent(pauseStatus));
+        }
+
+        private void OnApplicationQuit()
+        {
+            Invoke(new ApplicationQuitEvent());
+#if UNITY_EDITOR
+            OwningLocator?.Dispose();
+#endif
         }
 
         private void HandleEventServiceChanged(IService oldValue, IService newValue)

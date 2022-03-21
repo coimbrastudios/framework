@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Systems
+namespace Coimbra
 {
     /// <summary>
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class TimerSystem : MonoBehaviourServiceBase<ITimerService>, ITimerService
+    internal sealed class TimerSystem : MonoBehaviourServiceBase<ITimerService>, ITimerService
     {
         private sealed class TimerComponentPool : ManagedPoolBase<TimerComponent>
         {
@@ -22,6 +22,7 @@ namespace Coimbra.Systems
                 _service = service;
             }
 
+            /// <inheritdoc/>
             protected override TimerComponent OnCreate()
             {
                 TimerComponent instance = _gameObject.AddComponent<TimerComponent>();
@@ -30,6 +31,7 @@ namespace Coimbra.Systems
                 return instance;
             }
 
+            /// <inheritdoc/>
             protected override void OnDelete(TimerComponent item)
             {
                 if (item != null)
@@ -38,11 +40,13 @@ namespace Coimbra.Systems
                 }
             }
 
+            /// <inheritdoc/>
             protected override void OnGet(TimerComponent item)
             {
                 item.enabled = true;
             }
 
+            /// <inheritdoc/>
             protected override void OnRelease(TimerComponent item)
             {
                 item.enabled = false;
@@ -53,13 +57,13 @@ namespace Coimbra.Systems
 
         private TimerComponentPool Pool { get; set; }
 
-        /// <inheritdoc cref="ITimerService.IsTimerActive"/>>
+        /// <inheritdoc/>
         public bool IsTimerActive(in TimerHandle timerHandle)
         {
             return _instances.TryGetValue(timerHandle, out TimerComponent context) && context.enabled;
         }
 
-        /// <inheritdoc cref="ITimerService.StartTimer(System.Action, float)"/>>
+        /// <inheritdoc/>
         public TimerHandle StartTimer(Action callback, float duration)
         {
             if (callback == null)
@@ -79,7 +83,7 @@ namespace Coimbra.Systems
             return handle;
         }
 
-        /// <inheritdoc cref="ITimerService.StartTimer(System.Action, float, float, int)"/>>
+        /// <inheritdoc/>
         public TimerHandle StartTimer(Action callback, float delay, float rate, int loops = 0)
         {
             if (callback == null)
@@ -99,7 +103,7 @@ namespace Coimbra.Systems
             return handle;
         }
 
-        /// <inheritdoc cref="ITimerService.StopAllTimers"/>>
+        /// <inheritdoc/>
         public void StopAllTimers()
         {
             foreach (KeyValuePair<TimerHandle, TimerComponent> pair in _instances)
@@ -110,7 +114,7 @@ namespace Coimbra.Systems
             _instances.Clear();
         }
 
-        /// <inheritdoc cref="ITimerService.StopTimer"/>>
+        /// <inheritdoc/>
         public void StopTimer(in TimerHandle timerHandle)
         {
             if (!_instances.TryGetValue(timerHandle, out TimerComponent context))

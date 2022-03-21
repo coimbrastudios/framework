@@ -6,7 +6,7 @@ namespace Coimbra
 {
     [Preserve]
     [AddComponentMenu("")]
-    internal sealed class GameObjectEventListener : MonoBehaviour
+    internal sealed class GameObjectEventListenerComponent : MonoBehaviour
     {
         internal event UnityAction<GameObject, bool> OnActiveStateChanged;
 

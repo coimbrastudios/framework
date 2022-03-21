@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.0] - --
+
+- Changed the ScriptableSettings APIs to require ScriptableSettings objects.
+- Fixed code stripping issues with the services.
+- Removed obsolete APIs:
+  - Removed IFixedUpdateService in favor of FixedUpdateEvent.
+  - Removed ILateUpdateService in favor of LateUpdateEvent.
+  - Removed IUpdateService in favor of UpdateEvent.
+- Removed Coimbra.Systems, moving all systems to Coimbra assembly as internal classes.
+
 ## [2.2.0] - 2022-03-19
 
 - Added ScriptableSettings to allow easy sharing of ScriptableObject data with non-MonoBehaviour objects.

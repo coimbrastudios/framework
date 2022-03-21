@@ -9,10 +9,10 @@ namespace Coimbra
     /// </summary>
     public static class GameObjectUtility
     {
-        private static readonly Dictionary<GameObject, GameObjectEventListener> EventListenerFromGameObject = new Dictionary<GameObject, GameObjectEventListener>();
+        private static readonly Dictionary<GameObject, GameObjectEventListenerComponent> EventListenerFromGameObject = new Dictionary<GameObject, GameObjectEventListenerComponent>();
 
         /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListener.OnActiveStateChanged"/> event.
+        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnActiveStateChanged"/> event.
         /// </summary>
         public static void AddActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
         {
@@ -20,7 +20,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListener.OnDestroyEvent"/> event.
+        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
         /// </summary>
         public static void AddDestroyEventListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
         {
@@ -28,7 +28,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListener.OnDestroyEvent"/> event.
+        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
         /// </summary>
         public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
         {
@@ -36,7 +36,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListener.OnDestroyEvent"/> event.
+        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
         /// </summary>
         public static void RemoveDestroyEventListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
         {
@@ -48,16 +48,16 @@ namespace Coimbra
             EventListenerFromGameObject.Remove(gameObject);
         }
 
-        private static GameObjectEventListener GetOrCreateCachedEventListener(this GameObject gameObject)
+        private static GameObjectEventListenerComponent GetOrCreateCachedEventListener(this GameObject gameObject)
         {
-            if (EventListenerFromGameObject.TryGetValue(gameObject, out GameObjectEventListener eventListener))
+            if (EventListenerFromGameObject.TryGetValue(gameObject, out GameObjectEventListenerComponent eventListener))
             {
                 return eventListener;
             }
 
             if (!gameObject.TryGetComponent(out eventListener))
             {
-                eventListener = gameObject.AddComponent<GameObjectEventListener>();
+                eventListener = gameObject.AddComponent<GameObjectEventListenerComponent>();
             }
 
             eventListener.OnDestroyEvent += HandleGameObjectDestroyEvent;

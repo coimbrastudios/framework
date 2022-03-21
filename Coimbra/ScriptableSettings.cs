@@ -7,42 +7,42 @@ namespace Coimbra
 {
     /// <summary>
     /// Class that allows easy access to a <see cref="ScriptableObject"/>.
-    /// <para>Inheriting from this class is not required but is recommended as it automates the process of adding the object into Preloaded Assets and (un)registering it in the shared lockup table.</para>
     /// </summary>
     public abstract class ScriptableSettings : ScriptableObject
     {
-        private static readonly Dictionary<Type, ScriptableObject> Values = new Dictionary<Type, ScriptableObject>();
+        private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
 
         /// <inheritdoc cref="Get"/>
         public static T Get<T>()
-            where T : ScriptableObject
+            where T : ScriptableSettings
         {
             return Get(typeof(T)) as T;
         }
 
         /// <inheritdoc cref="GetOrFind"/>
         public static T GetOrFind<T>()
-            where T : ScriptableObject
+            where T : ScriptableSettings
         {
             return GetOrFind(typeof(T)) as T;
         }
 
         /// <inheritdoc cref="Has"/>
         public static bool Has<T>()
+            where T : ScriptableSettings
         {
             return Has(typeof(T));
         }
 
         /// <inheritdoc cref="Set"/>
         public static void Set<T>(T value, bool ignoreWarning = false)
-            where T : ScriptableObject
+            where T : ScriptableSettings
         {
             Set(typeof(T), value, ignoreWarning);
         }
 
         /// <inheritdoc cref="TryGet"/>
         public static bool TryGet<T>(out T result)
-            where T : ScriptableObject
+            where T : ScriptableSettings
         {
             result = Get(typeof(T)) as T;
 
@@ -51,7 +51,7 @@ namespace Coimbra
 
         /// <inheritdoc cref="TryGetOrFind"/>
         public static bool TryGetOrFind<T>(out T result)
-            where T : ScriptableObject
+            where T : ScriptableSettings
         {
             result = GetOrFind(typeof(T)) as T;
 
@@ -63,11 +63,11 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <returns>The settings if set and still valid.</returns>
-        protected static ScriptableObject Get(Type type)
+        protected static ScriptableSettings Get(Type type)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
-            return Values.TryGetValue(type, out ScriptableObject value) && value.IsValid() ? value : null;
+            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
         }
 
         /// <summary>
@@ -75,11 +75,11 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
-        protected static ScriptableObject GetOrFind(Type type)
+        protected static ScriptableSettings GetOrFind(Type type)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
-            if (Values.TryGetValue(type, out ScriptableObject value) && value.IsValid())
+            if (Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
             {
                 return value;
             }
@@ -96,7 +96,7 @@ namespace Coimbra
                 Debug.LogWarning($"It was expected a single loaded object of type {type}, but it was found {rawValues.Length}!");
             }
 
-            ScriptableObject result = (ScriptableObject)rawValues[0];
+            ScriptableSettings result = (ScriptableSettings)rawValues[0];
             Values[type] = result;
 
             return result;
@@ -109,9 +109,9 @@ namespace Coimbra
         /// <returns>True if the settings is set and still valid.</returns>
         protected static bool Has(Type type)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
-            return Values.TryGetValue(type, out ScriptableObject value) && value.IsValid();
+            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
         }
 
         /// <summary>
@@ -120,15 +120,15 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
         /// <param name="ignoreWarning">If true, no warning wil be logged if trying to override a valid value.</param>
-        protected static void Set(Type type, ScriptableObject value, bool ignoreWarning = false)
+        protected static void Set(Type type, ScriptableSettings value, bool ignoreWarning = false)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
             value = value.GetValid();
 
-            if (!ignoreWarning && TryGet(type, out ScriptableObject currentValue) && value != currentValue)
+            if (!ignoreWarning && TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
             {
-                Debug.LogWarning($"Overriding value of {type} in {nameof(ScriptableSettings)}! Changing from {currentValue} to {value}.");
+                Debug.LogWarning($"Overriding value of {type} in {nameof(ScriptableSettings)}! Changing from \"{currentValue}\" to \"{value}\".");
             }
 
             if (value != null)
@@ -147,9 +147,9 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="result">The settings if set and still valid.</param>
         /// <returns>True if the settings is set and still valid.</returns>
-        protected static bool TryGet(Type type, out ScriptableObject result)
+        protected static bool TryGet(Type type, out ScriptableSettings result)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
             result = Get(type);
 
@@ -162,9 +162,9 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="result">The settings if set and still valid or if a new one could be found.</param>
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
-        protected static bool TryGetOrFind(Type type, out ScriptableObject result)
+        protected static bool TryGetOrFind(Type type, out ScriptableSettings result)
         {
-            Debug.Assert(typeof(ScriptableObject).IsAssignableFrom(type));
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
             result = GetOrFind(type);
 
@@ -195,11 +195,11 @@ namespace Coimbra
         {
             Type type = GetType();
 
-            if (TryGet(type, out ScriptableObject current))
+            if (TryGet(type, out ScriptableSettings current))
             {
                 if (current != this)
                 {
-                    Debug.LogWarning($"Skipping changing settings of type {type} from {current} to {this}!");
+                    Debug.LogWarning($"Skipping changing settings of type {type} from \"{current}\" to \"{this}\"!");
                 }
             }
             else
@@ -212,7 +212,7 @@ namespace Coimbra
         {
             Type type = GetType();
 
-            if (TryGet(type, out ScriptableObject current) && current == this)
+            if (TryGet(type, out ScriptableSettings current) && current == this)
             {
                 Set(type, null);
             }

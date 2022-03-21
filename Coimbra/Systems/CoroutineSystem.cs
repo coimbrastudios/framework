@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
 
-namespace Coimbra.Systems
+namespace Coimbra
 {
-    /// <summary>
-    /// Default implementation for <see cref="ICoroutineService"/>.
-    /// </summary>
     [AddComponentMenu("")]
     [DisallowMultipleComponent]
-    public class CoroutineSystem : MonoBehaviourServiceBase<ICoroutineService>, ICoroutineService
+    internal sealed class CoroutineSystem : MonoBehaviourServiceBase<ICoroutineService>, ICoroutineService
     {
         /// <inheritdoc/>
         protected override void OnDispose()

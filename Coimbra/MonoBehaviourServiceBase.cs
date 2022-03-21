@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Coimbra.Systems
+namespace Coimbra
 {
     public abstract class MonoBehaviourServiceBase<T> : MonoBehaviour, IService
         where T : class, IService
@@ -9,7 +9,7 @@ namespace Coimbra.Systems
         [SerializeReference]
         private ServiceLocator _owningLocator;
 
-        /// <inheritdoc cref="IService.OwningLocator"/>
+        /// <inheritdoc/>
         public ServiceLocator OwningLocator
         {
             get => _owningLocator;
@@ -26,7 +26,7 @@ namespace Coimbra.Systems
             }
         }
 
-        /// <inheritdoc cref="IDisposable.Dispose"/>
+        /// <inheritdoc/>
         public void Dispose()
         {
             OnDispose();
