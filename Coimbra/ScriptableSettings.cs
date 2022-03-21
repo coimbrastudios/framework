@@ -199,7 +199,7 @@ namespace Coimbra
             {
                 if (current != this)
                 {
-                    Debug.LogWarning($"Skipping setting settings {type} from {current} to {this}!");
+                    Debug.LogWarning($"Skipping changing settings of type {type} from {current} to {this}!");
                 }
             }
             else
