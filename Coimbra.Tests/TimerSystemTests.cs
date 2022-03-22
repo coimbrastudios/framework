@@ -6,22 +6,23 @@ using UnityEngine.TestTools;
 namespace Coimbra.Tests
 {
     [TestFixture]
-    [TestOf(typeof(ITimerService))]
-    public class TimerServiceTests
+    [TestOf(typeof(TimerSystem))]
+    public class TimerSystemTests
     {
         private ITimerService _timerService;
 
         [SetUp]
         public void SetUp()
         {
-            ServiceLocator.Shared.TryGet(out _timerService);
+            _timerService = TimerSystem.Create();
             Assert.IsNotNull(_timerService);
         }
 
         [TearDown]
         public void TearDown()
         {
-            ServiceLocator.Shared.Dispose();
+            _timerService.Dispose();
+            _timerService = null;
         }
 
         [UnityTest]

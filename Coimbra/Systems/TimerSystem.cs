@@ -134,13 +134,7 @@ namespace Coimbra
             Pool.Reset();
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
-        {
-            ServiceLocator.SetDefaultCreateCallback(Create, false);
-        }
-
-        private static ITimerService Create()
+        internal static ITimerService Create()
         {
             GameObject gameObject = new GameObject(nameof(TimerSystem))
             {
@@ -152,6 +146,12 @@ namespace Coimbra
             DontDestroyOnLoad(gameObject);
 
             return system;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            ServiceLocator.SetDefaultCreateCallback(Create, false);
         }
     }
 }

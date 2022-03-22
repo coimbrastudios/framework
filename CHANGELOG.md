@@ -1,6 +1,12 @@
 # Changelog
 
-## [3.0.0] - --
+## [3.0.1] - 2022-03-22
+
+- Added optional parameter to dispose the previously set system when setting a new one.
+- Fixed ServiceLocator not setting the OwningLocator properly.
+- Fixed EventSystem not allowing to remove listeners during the invoke process. The remove call will not take effect for the invoke currently running.
+
+## [3.0.0] - 2022-03-21
 
 - Changed the ScriptableSettings APIs to require ScriptableSettings objects.
 - Fixed code stripping issues with the services.

@@ -276,32 +276,48 @@ namespace Coimbra
         /// Sets a service instance.
         /// </summary>
         /// <param name="value">The service instance.</param>
+        /// <param name="disposePrevious">If true, the last set instance will have their <see cref="IDisposable.Dispose"/> method called.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <exception cref="InvalidOperationException">If value already have an <see cref="IService.OwningLocator"/> set.</exception>
-        public void Set<T>([CanBeNull] T value)
+        public void Set<T>([CanBeNull] T value, bool disposePrevious = false)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
-            if (value is { OwningLocator: { } } && value.OwningLocator != this)
+            if (value is { OwningLocator: { } })
             {
-                throw new InvalidOperationException($"The same service can't belong to different {nameof(ServiceLocator)}s!");
+                if (value.OwningLocator != this)
+                {
+                    throw new InvalidOperationException($"The same service can't belong to more than one {nameof(ServiceLocator)}!");
+                }
+
+                return;
             }
 
             T oldValue = (service.Value as T).GetValid();
             service.Value = value.GetValid();
 
-            if (service.ResetCreateCallbackOnSet)
+            if (service.ResetCreateCallbackOnSet && service.Value != null)
             {
                 service.CreateCallback = null;
             }
 
-            if (oldValue.IsValid())
+            if (oldValue != null)
             {
+                if (disposePrevious)
+                {
+                    oldValue.Dispose();
+                }
+
                 oldValue.OwningLocator = null;
             }
 
-            service.ValueChangedCallback(oldValue, value);
+            if (service.Value != null)
+            {
+                service.Value.OwningLocator = this;
+            }
+
+            service.ValueChangedCallback(oldValue, service.Value);
         }
 
         /// <summary>

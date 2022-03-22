@@ -143,10 +143,25 @@ namespace Coimbra
                 throw new InvalidOperationException();
             }
 
+            using Disposable<List<EventRefHandler<T>>> handlers = ManagedPool<List<EventRefHandler<T>>>.Shared.GetDisposable();
+            handlers.Value.Clear();
+
+            if (handlers.Value.Capacity < e.Handles.Count)
+            {
+                handlers.Value.Capacity = e.Handles.Count;
+            }
+
             foreach (EventHandle handle in e.Handles)
             {
-                EventCallbacks<T>.Value[handle].Invoke(eventSender, ref eventData);
+                handlers.Value.Add(EventCallbacks<T>.Value[handle]);
             }
+
+            foreach (EventRefHandler<T> handler in handlers.Value)
+            {
+                handler.Invoke(eventSender, ref eventData);
+            }
+
+            handlers.Value.Clear();
         }
 
         /// <inheritdoc/>
@@ -259,15 +274,15 @@ namespace Coimbra
             }
         }
 
+        internal static IEventService Create()
+        {
+            return new EventSystem();
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
             ServiceLocator.SetDefaultCreateCallback(Create, false);
-        }
-
-        private static IEventService Create()
-        {
-            return new EventSystem();
         }
     }
 }
