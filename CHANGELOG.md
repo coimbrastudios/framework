@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.0] - 2022-03-23
+
+- Added a new event for each PlayerLoopTiming available.
+- Added Clear overload for List<T> that also receives a new min capacity.
+- Added base IEvent interface to prepare for 2021 LTS update to use default interface methods.
+- Added base IPlayerLoopEvent interface to be the base of all PlayerLoop-related events.
+- Changed Disposable to be a ref struct.
+- Fixed ApplicationSystem being created before BeforeSceneLoad entry point.
+- Fixed major performance regression in EventSystem.
+
 ## [3.0.1] - 2022-03-22
 
 - Added optional parameter to dispose the previously set system when setting a new one.

@@ -21,11 +21,7 @@ namespace Coimbra
 
         private static ICoroutineService Create()
         {
-            GameObject gameObject = new GameObject(nameof(CoroutineSystem))
-            {
-                hideFlags = HideFlags.NotEditable,
-            };
-
+            GameObject gameObject = new GameObject(nameof(CoroutineSystem));
             DontDestroyOnLoad(gameObject);
 
             return gameObject.AddComponent<CoroutineSystem>();

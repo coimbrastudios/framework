@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Coimbra.Tests.Editor
+namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(ServiceLocator))]

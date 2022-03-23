@@ -12,7 +12,13 @@ namespace Coimbra
 
             internal readonly List<EventHandle> Handles = new List<EventHandle>();
 
+            internal readonly List<EventHandle> HandlesToAdd = new List<EventHandle>();
+
+            internal readonly HashSet<EventHandle> HandlesToRemove = new HashSet<EventHandle>();
+
             internal object Key;
+
+            internal bool IsInvoking;
 
             internal Event(RemoveHandler removeHandler, object key = null)
             {
@@ -68,10 +74,17 @@ namespace Coimbra
             if (!_events.TryGetValue(typeof(T), out Event e))
             {
                 e = new Event(EventCallbacks<T>.RemoveHandler);
+                e.Handles.Add(handle);
                 _events.Add(typeof(T), e);
             }
-
-            e.Handles.Add(handle);
+            else if (e.IsInvoking)
+            {
+                e.HandlesToAdd.Add(handle);
+            }
+            else
+            {
+                e.Handles.Add(handle);
+            }
 
             return handle;
         }
@@ -143,25 +156,32 @@ namespace Coimbra
                 throw new InvalidOperationException();
             }
 
-            using Disposable<List<EventRefHandler<T>>> handlers = ManagedPool<List<EventRefHandler<T>>>.Shared.GetDisposable();
-            handlers.Value.Clear();
-
-            if (handlers.Value.Capacity < e.Handles.Count)
-            {
-                handlers.Value.Capacity = e.Handles.Count;
-            }
+            e.IsInvoking = true;
 
             foreach (EventHandle handle in e.Handles)
             {
-                handlers.Value.Add(EventCallbacks<T>.Value[handle]);
+                if (!e.HandlesToRemove.Contains(handle))
+                {
+                    EventCallbacks<T>.Value[handle].Invoke(eventSender, ref eventData);
+                }
             }
 
-            foreach (EventRefHandler<T> handler in handlers.Value)
+            e.IsInvoking = false;
+
+            foreach (EventHandle handle in e.HandlesToRemove)
             {
-                handler.Invoke(eventSender, ref eventData);
+                e.Handles.Remove(handle);
+                e.RemoveHandler.Invoke(handle);
             }
 
-            handlers.Value.Clear();
+            e.HandlesToRemove.Clear();
+
+            foreach (EventHandle handle in e.HandlesToAdd)
+            {
+                e.Handles.Add(handle);
+            }
+
+            e.HandlesToAdd.Clear();
         }
 
         /// <inheritdoc/>
@@ -179,12 +199,19 @@ namespace Coimbra
 
             foreach (Event e in _events.Values)
             {
-                foreach (EventHandle handle in e.Handles)
+                if (e.IsInvoking)
                 {
-                    e.RemoveHandler.Invoke(handle);
+                    e.HandlesToRemove.UnionWith(e.Handles);
                 }
+                else
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        e.RemoveHandler.Invoke(handle);
+                    }
 
-                e.Handles.Clear();
+                    e.Handles.Clear();
+                }
             }
         }
 
@@ -212,23 +239,34 @@ namespace Coimbra
                 throw new InvalidOperationException();
             }
 
-            foreach (EventHandle handle in e.Handles)
+            if (e.IsInvoking)
             {
-                e.RemoveHandler.Invoke(handle);
+                e.HandlesToRemove.UnionWith(e.Handles);
             }
+            else
+            {
+                foreach (EventHandle handle in e.Handles)
+                {
+                    e.RemoveHandler.Invoke(handle);
+                }
 
-            e.Handles.Clear();
+                e.Handles.Clear();
+            }
         }
 
         /// <inheritdoc/>
         public void RemoveListener(in EventHandle eventHandle)
         {
-            if (!_events.TryGetValue(eventHandle.Type, out Event e))
+            if (!eventHandle.IsValid || !_events.TryGetValue(eventHandle.Type, out Event e))
             {
                 return;
             }
 
-            if (e.RemoveHandler.Invoke(eventHandle))
+            if (e.IsInvoking)
+            {
+                e.HandlesToRemove.Add(eventHandle);
+            }
+            else if (e.RemoveHandler.Invoke(eventHandle))
             {
                 e.Handles.Remove(eventHandle);
             }

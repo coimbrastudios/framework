@@ -7,6 +7,7 @@ namespace Coimbra
         where T : class, IService
     {
         [SerializeReference]
+        [Disable]
         private ServiceLocator _owningLocator;
 
         /// <inheritdoc/>

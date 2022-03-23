@@ -1,12 +1,9 @@
-﻿using UnityEngine.Scripting;
-
-namespace Coimbra
+﻿namespace Coimbra
 {
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationFocus.html">OnApplicationFocus</a>.
     /// </summary>
-    [Preserve]
-    public readonly struct ApplicationFocusEvent
+    public readonly struct ApplicationFocusEvent : IEvent
     {
         /// <summary>
         /// True if currently focused.

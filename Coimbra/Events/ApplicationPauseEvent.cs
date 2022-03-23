@@ -1,12 +1,9 @@
-﻿using UnityEngine.Scripting;
-
-namespace Coimbra
+﻿namespace Coimbra
 {
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</a>.
     /// </summary>
-    [Preserve]
-    public readonly struct ApplicationPauseEvent
+    public readonly struct ApplicationPauseEvent : IEvent
     {
         /// <summary>
         /// True if currently paused.

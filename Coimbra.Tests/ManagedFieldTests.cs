@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Coimbra.Tests.Editor
+namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(ManagedField<>))]

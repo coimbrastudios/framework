@@ -136,11 +136,7 @@ namespace Coimbra
 
         internal static ITimerService Create()
         {
-            GameObject gameObject = new GameObject(nameof(TimerSystem))
-            {
-                hideFlags = HideFlags.NotEditable,
-            };
-
+            GameObject gameObject = new GameObject(nameof(TimerSystem));
             TimerSystem system = gameObject.AddComponent<TimerSystem>();
             system.Pool = new TimerComponentPool(gameObject, system);
             DontDestroyOnLoad(gameObject);

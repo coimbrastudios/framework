@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using System;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -8,7 +7,7 @@ namespace Coimbra
     /// Create a disposable from any type.
     /// </summary>
     [Preserve]
-    public readonly struct Disposable<T> : IDisposable
+    public readonly ref struct Disposable<T>
     {
         public delegate void DisposeHandler([CanBeNull] in T value);
 

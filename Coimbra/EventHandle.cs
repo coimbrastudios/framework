@@ -3,6 +3,9 @@ using UnityEngine.Scripting;
 
 namespace Coimbra
 {
+    /// <summary>
+    /// Handle for an event from <see cref="IEventService"/>.
+    /// </summary>
     [Preserve]
     [Serializable]
     public readonly struct EventHandle : IEquatable<EventHandle>

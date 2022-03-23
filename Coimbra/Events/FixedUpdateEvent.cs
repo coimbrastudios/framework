@@ -1,17 +1,12 @@
-﻿using UnityEngine.Scripting;
-
-namespace Coimbra
+﻿namespace Coimbra
 {
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">FixedUpdate</a>.
     /// </summary>
-    [Preserve]
-    public readonly struct FixedUpdateEvent
+    public readonly struct FixedUpdateEvent : IPlayerLoopEvent
     {
-        /// <summary>
-        /// Cached value for <see cref="UnityEngine.Time.deltaTime"/>.
-        /// </summary>
-        public readonly float DeltaTime;
+        /// <inheritdoc/>
+        public float DeltaTime { get; }
 
         public FixedUpdateEvent(float deltaTime)
         {

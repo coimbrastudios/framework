@@ -360,7 +360,6 @@ namespace Coimbra
             {
                 throw new ArgumentOutOfRangeException($"The target {nameof(ServiceLocator)}.{memberName} requires an interface as the type argument!");
             }
-
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
