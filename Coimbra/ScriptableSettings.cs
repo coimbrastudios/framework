@@ -6,11 +6,14 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Class that allows easy access to a <see cref="ScriptableObject"/>.
+    /// Class that allows easy access to a <see cref="ScriptableObject"/> and also enables automatic preloading for it.
     /// </summary>
     public abstract class ScriptableSettings : ScriptableObject
     {
         private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+
+        [field: SerializeField]
+        public bool Preload { get; protected set; } = true;
 
         /// <inheritdoc cref="Get"/>
         public static T Get<T>()
@@ -171,24 +174,42 @@ namespace Coimbra
             return result != null;
         }
 
-        protected virtual void Awake()
+        protected virtual void Reset()
         {
 #if UNITY_EDITOR
-            using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
-            pooledList.Value.Clear();
-            pooledList.Value.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
-
-            if (pooledList.Value.Contains(this))
+            if (Preload)
             {
-                pooledList.Value.Clear();
-
-                return;
+                EnsurePreload(false);
             }
-
-            pooledList.Value.Add(this);
-            UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
-            pooledList.Value.Clear();
 #endif
+        }
+
+        protected virtual void OnValidate()
+        {
+#if UNITY_EDITOR
+            if (Preload)
+            {
+                EnsurePreload(true);
+            }
+            else
+            {
+                using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
+                pooledList.Value.Clear();
+                pooledList.Value.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
+
+                if (!pooledList.Value.Remove(this))
+                {
+                    pooledList.Value.Clear();
+
+                    return;
+                }
+
+                while (pooledList.Value.Remove(this)) { }
+
+                UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
+                pooledList.Value.Clear();
+#endif
+            }
         }
 
         protected virtual void OnEnable()
@@ -199,7 +220,7 @@ namespace Coimbra
             {
                 if (current != this)
                 {
-                    Debug.LogWarning($"Skipping changing settings of type {type} from \"{current}\" to \"{this}\"!");
+                    Debug.LogWarning($"Skipping changing settings of type {type} from \"{current}\" to \"{this}\"!", this);
                 }
             }
             else
@@ -225,6 +246,29 @@ namespace Coimbra
         {
             Values.Clear();
             UnityEditor.PlayerSettings.GetPreloadedAssets();
+        }
+
+        private void EnsurePreload(bool withWarning)
+        {
+            using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
+            pooledList.Value.Clear();
+            pooledList.Value.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
+
+            if (pooledList.Value.Contains(this))
+            {
+                pooledList.Value.Clear();
+
+                return;
+            }
+
+            if (withWarning)
+            {
+                Debug.LogWarning($"Fixing \"{this}\" not being added to the preloaded assets.", this);
+            }
+
+            pooledList.Value.Add(this);
+            UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
+            pooledList.Value.Clear();
         }
 #endif
     }
