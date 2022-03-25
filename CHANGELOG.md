@@ -1,5 +1,10 @@
 # Changelog
 
+## [..] - --
+
+- Added call to Dispose inside OnDestroy in MonoBehaviourServiceBase.
+- Changed MonoBehaviourServiceBase to allow multiple on the same GameObject.
+
 ## [4.0.0] - 2022-03-25
 
 - Added overload for IEventService.AddListener that accepts a list to add the generated event handle.

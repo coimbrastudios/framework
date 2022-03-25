@@ -3,12 +3,15 @@ using UnityEngine;
 
 namespace Coimbra
 {
+    [DisallowMultipleComponent]
     public abstract class MonoBehaviourServiceBase<T> : MonoBehaviour, IService
         where T : class, IService
     {
         [SerializeReference]
         [Disable]
         private ServiceLocator _owningLocator;
+
+        private bool _isDisposed;
 
         static MonoBehaviourServiceBase()
         {
@@ -48,6 +51,13 @@ namespace Coimbra
         /// <inheritdoc/>
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _isDisposed = true;
+
             OnDispose();
 
             _owningLocator?.Set<T>(null);
@@ -56,6 +66,11 @@ namespace Coimbra
             {
                 Destroy(gameObject);
             }
+        }
+
+        protected virtual void OnDestroy()
+        {
+            Dispose();
         }
 
         /// <summary>

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Coimbra
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace Coimbra
             get
             {
 #if UNITY_EDITOR
-                return !UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode;
+                return !Application.isPlaying;
 #else
                 return false;
 #endif
@@ -33,7 +35,7 @@ namespace Coimbra
             get
             {
 #if UNITY_EDITOR
-                return UnityEditor.EditorApplication.isPlaying;
+                return Application.isPlaying;
 #else
                 return true;
 #endif

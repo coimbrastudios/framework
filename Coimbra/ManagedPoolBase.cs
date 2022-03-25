@@ -15,12 +15,10 @@ namespace Coimbra
     public abstract class ManagedPoolBase<T>
         where T : class
     {
-        [FormerlySerializedAs("m_PreloadCount")]
         [Tooltip("Amount of items available from the beginning.")]
         [SerializeField]
         [Min(0)]
         private int _preloadCount;
-        [FormerlySerializedAs("m_MaxCapacity")]
         [Tooltip("Max amount of items in the pool. If 0 it is treated as infinity capacity.")]
         [SerializeField]
         [Min(0)]
