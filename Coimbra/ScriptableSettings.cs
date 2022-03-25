@@ -210,8 +210,8 @@ namespace Coimbra
 
                 UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
                 pooledList.Value.Clear();
-#endif
             }
+#endif
         }
 
         protected virtual void OnEnable()

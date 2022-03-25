@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.0.0] - --
+## [4.0.0] - 2022-03-25
 
 - Added overload for IEventService.AddListener that accepts a list to add the generated event handle.
 - Added RequireDerived attribute to ScriptableSettings.
@@ -19,6 +19,7 @@
 - Fixed id not being set when constructing a ServiceLocator.
 - Fixed possible stack overflow in case of invoking an event inside its own invoke.
 - Fixed indirectly disposing a Shared service when allowing fallback to Shared and calling ServiceLocator.Set.
+- Fixed build errors on ScriptableSettings.
 - Removed overload for IEventService.AddListener that accepts non-by-ref methods.
 - Removed support for non-interface services.
 - Removed SetDefaultCreateCallback API as its usage was unclear and caused confusion.
