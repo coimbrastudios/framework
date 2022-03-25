@@ -6,6 +6,8 @@
 - Added RequireDerived attribute to ScriptableSettings.
 - Added API to get the current create callback in ServiceLocator.
 - Added TryGetValid API for the object extensions.
+- Changed IEventService APIs to return a bool indicating if they actually worked.
+- Changed EventRefHandler to EventListenerHandler.
 - Changed overload for IEventService.Invoke that auto-creates a new instance to use generics instead of System.Type.
 - Changed all methods in IEventService to require an IEvent.
 - Changed GameObject DestroyEvent to Destroyed.

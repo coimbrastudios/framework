@@ -10,6 +10,24 @@ namespace Coimbra
         [Disable]
         private ServiceLocator _owningLocator;
 
+        static MonoBehaviourServiceBase()
+        {
+            if (!typeof(T).IsInterface)
+            {
+                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires an interface type argument!");
+            }
+
+            if (typeof(T) == typeof(IService))
+            {
+                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
+            }
+
+            if (!typeof(IService).IsAssignableFrom(typeof(T)))
+            {
+                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
+            }
+        }
+
         /// <inheritdoc/>
         public ServiceLocator OwningLocator
         {

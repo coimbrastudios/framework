@@ -11,7 +11,7 @@ namespace Coimbra
     {
         /// <summary>
         /// The <see cref="ServiceLocator"/> that owns this service.
-        /// <para></para><see cref="set_OwningLocator"/> is for internal use only.
+        /// <para></para><see cref="set_OwningLocator"/> is for protected and internal use only.
         /// </summary>
         ServiceLocator OwningLocator { get; set; }
     }
