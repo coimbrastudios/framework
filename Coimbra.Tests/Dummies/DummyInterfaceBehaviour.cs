@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Coimbra.Tests
 {
-    internal class DummyBehaviour : MonoBehaviour, IDummyInterface
+    public class DummyBehaviour : MonoBehaviour, IDummyInterface
     {
         [SerializeField] private ManagedField<IDummyInterface> _interfaceField;
         [SerializeField] private int _integer;

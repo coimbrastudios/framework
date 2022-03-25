@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Coimbra.Tests
 {
-    internal interface IDummyInterface
+    public interface IDummyInterface
     {
         DummyAsset Asset { get; set; }
 

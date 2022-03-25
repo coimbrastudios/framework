@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Coimbra.Tests
 {
-    internal class DummyAsset : ScriptableObject, IDummyInterface
+    public class DummyAsset : ScriptableObject, IDummyInterface
     {
         [SerializeField] private ManagedField<IDummyInterface> _interfaceField;
         [SerializeField] private int _integer;

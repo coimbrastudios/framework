@@ -9,7 +9,7 @@ namespace Coimbra
     [DisallowMultipleComponent]
     internal sealed class ApplicationSystem : MonoBehaviourServiceBase<IApplicationService>, IApplicationService
     {
-        private readonly object _eventKey = new object();
+        private readonly EventKey _eventKey = new EventKey(EventKeyRestrictions.DisallowInvoke);
         private IEventService _eventService;
 
         /// <inheritdoc/>
@@ -42,58 +42,6 @@ namespace Coimbra
             DontDestroyOnLoad(gameObject);
 
             return gameObject.AddComponent<ApplicationSystem>();
-        }
-
-        private void Start()
-        {
-            CancellationToken token = gameObject.GetCancellationTokenOnDestroy();
-            InvokeFixedUpdateEvents().AttachExternalCancellation(token);
-            InvokeMainUpdateEvents().AttachExternalCancellation(token);
-        }
-
-        private void FixedUpdate()
-        {
-            Invoke(new FixedUpdateEvent(Time.deltaTime));
-        }
-
-        private void Update()
-        {
-            Invoke(new UpdateEvent(Time.deltaTime));
-        }
-
-        private void LateUpdate()
-        {
-            Invoke(new LateUpdateEvent(Time.deltaTime));
-        }
-
-        private void OnApplicationFocus(bool hasFocus)
-        {
-            Invoke(new ApplicationFocusEvent(hasFocus));
-        }
-
-        private void OnApplicationPause(bool pauseStatus)
-        {
-            Invoke(new ApplicationPauseEvent(pauseStatus));
-        }
-
-        private void OnApplicationQuit()
-        {
-            Invoke(new ApplicationQuitEvent());
-#if UNITY_EDITOR
-            OwningLocator?.Dispose();
-#endif
-        }
-
-        private void HandleEventServiceChanged(IService oldValue, IService newValue)
-        {
-            SetEventService(newValue as IEventService);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Invoke<T>(T e)
-            where T : IEvent
-        {
-            _eventService?.Invoke(this, ref e, _eventKey);
         }
 
         private async UniTask InvokeFixedUpdateEvents()
@@ -158,7 +106,7 @@ namespace Coimbra
 
                 await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate);
 
-                Invoke(new FistPostLateUpdateEvent(deltaTime));
+                Invoke(new FirstPostLateUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
 
@@ -179,11 +127,56 @@ namespace Coimbra
             }
         }
 
+        private void Start()
+        {
+            CancellationToken token = gameObject.GetCancellationTokenOnDestroy();
+            InvokeFixedUpdateEvents().AttachExternalCancellation(token);
+            InvokeMainUpdateEvents().AttachExternalCancellation(token);
+        }
+
+        private void FixedUpdate()
+        {
+            Invoke(new FixedUpdateEvent(Time.deltaTime));
+        }
+
+        private void Update()
+        {
+            Invoke(new UpdateEvent(Time.deltaTime));
+        }
+
+        private void LateUpdate()
+        {
+            Invoke(new LateUpdateEvent(Time.deltaTime));
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            Invoke(new ApplicationFocusEvent(hasFocus));
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            Invoke(new ApplicationPauseEvent(pauseStatus));
+        }
+
+        private void OnApplicationQuit()
+        {
+            Invoke(new ApplicationQuitEvent());
+#if UNITY_EDITOR
+            OwningLocator?.Dispose();
+#endif
+        }
+
+        private void HandleEventServiceChanged(IService oldValue, IService newValue)
+        {
+            SetEventService(newValue as IEventService);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ResetEventKey<T>()
+        private void Invoke<T>(T e)
             where T : IEvent
         {
-            _eventService.ResetEventKey<T>(_eventKey);
+            _eventService?.Invoke(this, ref e, _eventKey);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -195,15 +188,7 @@ namespace Coimbra
 
         private void SetEventService(IEventService service)
         {
-            if (_eventService != null)
-            {
-                ResetEventKey<ApplicationFocusEvent>();
-                ResetEventKey<ApplicationPauseEvent>();
-                ResetEventKey<ApplicationQuitEvent>();
-                ResetEventKey<FixedUpdateEvent>();
-                ResetEventKey<LateUpdateEvent>();
-                ResetEventKey<UpdateEvent>();
-            }
+            _eventService?.ResetAllEventKeys(_eventKey);
 
             _eventService = service;
 
@@ -218,6 +203,22 @@ namespace Coimbra
             SetEventKey<FixedUpdateEvent>();
             SetEventKey<LateUpdateEvent>();
             SetEventKey<UpdateEvent>();
+            SetEventKey<FirstEarlyUpdateEvent>();
+            SetEventKey<FirstFixedUpdateEvent>();
+            SetEventKey<FirstInitializationEvent>();
+            SetEventKey<FirstPostLateUpdateEvent>();
+            SetEventKey<FirstPreUpdateEvent>();
+            SetEventKey<FirstUpdateEvent>();
+            SetEventKey<LastEarlyUpdateEvent>();
+            SetEventKey<LastFixedUpdateEvent>();
+            SetEventKey<LastInitializationEvent>();
+            SetEventKey<LastPostLateUpdateEvent>();
+            SetEventKey<LastPreUpdateEvent>();
+            SetEventKey<LastUpdateEvent>();
+            SetEventKey<PostLateUpdateEvent>();
+            SetEventKey<PostTimeUpdateEvent>();
+            SetEventKey<PreLateUpdateEvent>();
+            SetEventKey<PreTimeUpdateEvent>();
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(ServiceLocator))]
-    internal sealed class ServiceLocatorTests
+    public class ServiceLocatorTests
     {
         private interface IDummyService : IService
         {

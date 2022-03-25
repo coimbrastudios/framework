@@ -5,7 +5,7 @@ namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(ManagedField<>))]
-    internal sealed class ManagedFieldTests
+    public class ManagedFieldTests
     {
         private static IDummyInterface[] _systemObjects =
         {

@@ -34,7 +34,7 @@ namespace Coimbra
         /// <param name="eventKey">The event key to compare to.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the current event key matches the <see cref="eventKey"/> parameter.</returns>
-        bool CompareEventKey<T>(object eventKey)
+        bool CompareEventKey<T>(EventKey eventKey)
             where T : IEvent;
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Coimbra
         /// <param name="eventType">The event type.</param>
         /// <param name="eventKey">The event key to compare to.</param>
         /// <returns>True if the current event key matches the <see cref="eventKey"/> parameter.</returns>
-        bool CompareEventKey(Type eventType, object eventKey);
+        bool CompareEventKey(Type eventType, EventKey eventKey);
 
         /// <summary>
         /// Checks if an event type contains any listeners.
@@ -74,7 +74,7 @@ namespace Coimbra
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type to be constructed and sent.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(object eventSender, object eventKey = null)
+        bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent, new();
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Coimbra
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(object eventSender, T eventData, object eventKey = null)
+        bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>
@@ -96,15 +96,8 @@ namespace Coimbra
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(object eventSender, ref T eventData, object eventKey = null)
+        bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
             where T : IEvent;
-
-        /// <summary>
-        /// Removes all listeners from all event types.
-        /// </summary>
-        /// <param name="serviceKey">The encapsulation key for the service.</param>
-        /// <returns>True if removed any listener.</returns>
-        bool RemoveAllListeners(object serviceKey = null);
 
         /// <summary>
         /// Removes all listeners from an event type.
@@ -112,7 +105,7 @@ namespace Coimbra
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if removed any listener for the specified event type.</returns>
-        bool RemoveAllListeners<T>(object eventKey = null)
+        bool RemoveAllListeners<T>(EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>
@@ -121,7 +114,20 @@ namespace Coimbra
         /// <param name="eventType">The event type.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <returns>True if removed any listener for the specified event type.</returns>
-        bool RemoveAllListeners(Type eventType, object eventKey = null);
+        bool RemoveAllListeners(Type eventType, EventKey eventKey = null);
+
+        /// <summary>
+        /// Removes all listeners from all event types with the matching event key.
+        /// </summary>
+        /// <param name="eventKey">The encapsulation key to compare to.</param>
+        /// <returns>True if removed any listener.</returns>
+        bool RemoveAllListenersWithKey(EventKey eventKey);
+
+        /// <summary>
+        /// Removes all listeners from all event types that don't have the <see cref="EventKeyRestrictions.DisallowRemoveAll"/> restriction.
+        /// </summary>
+        /// <returns>True if removed any listener.</returns>
+        bool RemoveAllListenersWithoutRestriction();
 
         /// <summary>
         /// Removes a listener from an event with its handle.
@@ -131,11 +137,17 @@ namespace Coimbra
         bool RemoveListener(in EventHandle eventHandle);
 
         /// <summary>
+        /// Resets the encapsulation key for all event types with the matching key.
+        /// </summary>
+        /// <param name="eventKey">The encapsulation key to compare to.</param>
+        bool ResetAllEventKeys(EventKey eventKey);
+
+        /// <summary>
         /// Resets the encapsulation key for an event type;
         /// </summary>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
-        bool ResetEventKey<T>(object eventKey)
+        bool ResetEventKey<T>(EventKey eventKey)
             where T : IEvent;
 
         /// <summary>
@@ -143,14 +155,14 @@ namespace Coimbra
         /// </summary>
         /// <param name="eventType">The event type.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
-        bool ResetEventKey(Type eventType, object eventKey);
+        bool ResetEventKey(Type eventType, EventKey eventKey);
 
         /// <summary>
         /// Sets the encapsulation key for an event type;
         /// </summary>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
-        bool SetEventKey<T>(object eventKey)
+        bool SetEventKey<T>(EventKey eventKey)
             where T : IEvent;
     }
 }

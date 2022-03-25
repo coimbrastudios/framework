@@ -190,7 +190,7 @@ namespace Coimbra.Tests
         public void Invoke_LogsError_AfterSetEventKey()
         {
             const string log = nameof(log);
-            _eventService.SetEventKey<TestEvent>(new object());
+            _eventService.SetEventKey<TestEvent>(new EventKey());
             _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
@@ -205,7 +205,7 @@ namespace Coimbra.Tests
         public void Invoke_AfterSetEventKey_WithCorrectKey()
         {
             const string log = nameof(log);
-            object eventKey = new object();
+            EventKey eventKey = new EventKey();
             _eventService.SetEventKey<TestEvent>(eventKey);
             _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
@@ -229,7 +229,7 @@ namespace Coimbra.Tests
             });
 
             LogAssert.Expect(LogType.Log, log);
-            object eventKey = new object();
+            EventKey eventKey = new EventKey();
             _eventService.SetEventKey<TestEvent>(eventKey);
             _eventService.ResetEventKey<TestEvent>(eventKey);
             Assert.DoesNotThrow(delegate
@@ -243,11 +243,11 @@ namespace Coimbra.Tests
         {
             Assert.DoesNotThrow(delegate
             {
-                _eventService.SetEventKey<TestEvent>(new object());
+                _eventService.SetEventKey<TestEvent>(new EventKey());
             });
 
             LogAssert.Expect(LogType.Error, new Regex(".*"));
-            _eventService.ResetEventKey<TestEvent>(new object());
+            _eventService.ResetEventKey<TestEvent>(new EventKey());
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -256,11 +256,11 @@ namespace Coimbra.Tests
         {
             Assert.DoesNotThrow(delegate
             {
-                _eventService.SetEventKey<TestEvent>(new object());
+                _eventService.SetEventKey<TestEvent>(new EventKey());
             });
 
             LogAssert.Expect(LogType.Error, new Regex(".*"));
-            _eventService.SetEventKey<TestEvent>(new object());
+            _eventService.SetEventKey<TestEvent>(new EventKey());
             LogAssert.NoUnexpectedReceived();
         }
     }

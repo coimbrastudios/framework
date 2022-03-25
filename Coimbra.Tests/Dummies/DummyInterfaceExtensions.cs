@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Coimbra.Tests
 {
-    internal static class DummyInterfaceExtensions
+    public static class DummyInterfaceExtensions
     {
         public static void Initialize<T>(this T target, DummyAsset[] assets, DummyBehaviour[] behaviours, int[] integers, string[] strings, Texture[] textures, Vector3Int[] vectors)
             where T : IDummyInterface

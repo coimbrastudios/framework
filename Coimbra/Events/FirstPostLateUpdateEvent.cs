@@ -3,12 +3,12 @@
     /// <summary>
     /// Invoked during <see cref="UnityEngine.PlayerLoop.PreLateUpdate"/>.
     /// </summary>
-    public readonly struct FistPostLateUpdateEvent : IPlayerLoopEvent
+    public readonly struct FirstPostLateUpdateEvent : IPlayerLoopEvent
     {
         /// <inheritdoc/>
         public float DeltaTime { get; }
 
-        public FistPostLateUpdateEvent(float deltaTime)
+        public FirstPostLateUpdateEvent(float deltaTime)
         {
             DeltaTime = deltaTime;
         }

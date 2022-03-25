@@ -19,11 +19,11 @@ namespace Coimbra
 
             internal readonly HashSet<EventHandle> HandlesToRemove = new HashSet<EventHandle>();
 
-            internal object Key;
-
             internal bool IsInvoking;
 
-            internal Event(RemoveHandler removeHandler, object key = null)
+            internal EventKey Key;
+
+            internal Event(RemoveHandler removeHandler, EventKey key = null)
             {
                 RemoveHandler = removeHandler;
                 Key = key;
@@ -39,13 +39,7 @@ namespace Coimbra
         private delegate bool RemoveHandler(EventHandle key);
 
         private const string InvalidEventKeyMessageFormat = "The event key \"{0}\" doesn't match the current set key \"{1}\" for type \"{2}\"";
-        private readonly object _serviceKey;
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
-
-        private EventSystem(object serviceKey = null)
-        {
-            _serviceKey = serviceKey;
-        }
 
         /// <inheritdoc/>
         public ServiceLocator OwningLocator { get; set; }
@@ -99,14 +93,14 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool CompareEventKey<T>(object eventKey)
+        public bool CompareEventKey<T>(EventKey eventKey)
             where T : IEvent
         {
             return CompareEventKey(typeof(T), eventKey);
         }
 
         /// <inheritdoc/>
-        public bool CompareEventKey(Type eventType, object eventKey)
+        public bool CompareEventKey(Type eventType, EventKey eventKey)
         {
             CheckType(eventType);
 
@@ -116,7 +110,26 @@ namespace Coimbra
         /// <inheritdoc/>
         public void Dispose()
         {
-            RemoveAllListeners(_serviceKey);
+            foreach (Event e in _events.Values)
+            {
+                if (e.IsInvoking)
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        e.HandlesToRemove.Add(handle);
+                    }
+                }
+                else
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        e.RemoveHandler.Invoke(handle);
+                    }
+
+                    e.Handles.Clear();
+                }
+            }
+
             _events.Clear();
         }
 
@@ -142,7 +155,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, object eventKey = null)
+        public bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent, new()
         {
             T eventData = new T();
@@ -151,14 +164,14 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, T eventData, object eventKey = null)
+        public bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
             where T : IEvent
         {
             return Invoke(eventSender, ref eventData, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, ref T eventData, object eventKey = null)
+        public bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
             where T : IEvent
         {
             CheckType(typeof(T));
@@ -168,7 +181,7 @@ namespace Coimbra
                 return false;
             }
 
-            if (e.Key != null && e.Key != eventKey)
+            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKeyRestrictions.DisallowInvoke) != 0)
             {
                 Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(T));
 
@@ -213,49 +226,14 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool RemoveAllListeners(object serviceKey = null)
-        {
-            if (_serviceKey != null && _serviceKey != serviceKey)
-            {
-                Debug.LogError($"The service key \"{serviceKey}\" doesn't match the current set key \"{_serviceKey}\"");
-
-                return false;
-            }
-
-            bool result = false;
-
-            foreach (Event e in _events.Values)
-            {
-                if (e.IsInvoking)
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.HandlesToRemove.Add(handle);
-                    }
-                }
-                else
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.RemoveHandler.Invoke(handle);
-                    }
-
-                    e.Handles.Clear();
-                }
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc/>
-        public bool RemoveAllListeners<T>(object eventKey = null)
+        public bool RemoveAllListeners<T>(EventKey eventKey = null)
             where T : IEvent
         {
             return RemoveAllListeners(typeof(T), eventKey);
         }
 
         /// <inheritdoc/>
-        public bool RemoveAllListeners(Type eventType, object eventKey = null)
+        public bool RemoveAllListeners(Type eventType, EventKey eventKey = null)
         {
             CheckType(eventType);
 
@@ -264,7 +242,7 @@ namespace Coimbra
                 return false;
             }
 
-            if (e.Key != null && e.Key != eventKey)
+            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKeyRestrictions.DisallowRemoveAll) != 0)
             {
                 Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, eventType);
 
@@ -294,6 +272,72 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
+        public bool RemoveAllListenersWithKey(EventKey eventKey)
+        {
+            bool result = false;
+
+            foreach (Event e in _events.Values)
+            {
+                if (e.Key != eventKey)
+                {
+                    continue;
+                }
+
+                if (e.IsInvoking)
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        result |= e.HandlesToRemove.Add(handle);
+                    }
+                }
+                else
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        result |= e.RemoveHandler.Invoke(handle);
+                    }
+
+                    e.Handles.Clear();
+                }
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public bool RemoveAllListenersWithoutRestriction()
+        {
+            bool result = false;
+
+            foreach (Event e in _events.Values)
+            {
+                if (e.Key != null && (e.Key.Restrictions & EventKeyRestrictions.DisallowRemoveAll) != 0)
+                {
+                    continue;
+                }
+
+                if (e.IsInvoking)
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        result |= e.HandlesToRemove.Add(handle);
+                    }
+                }
+                else
+                {
+                    foreach (EventHandle handle in e.Handles)
+                    {
+                        result |= e.RemoveHandler.Invoke(handle);
+                    }
+
+                    e.Handles.Clear();
+                }
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc/>
         public bool RemoveListener(in EventHandle eventHandle)
         {
             if (!eventHandle.IsValid || !_events.TryGetValue(eventHandle.Type, out Event e))
@@ -310,14 +354,33 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool ResetEventKey<T>(object eventKey)
+        public bool ResetAllEventKeys(EventKey eventKey)
+        {
+            bool result = false;
+
+            foreach (Event e in _events.Values)
+            {
+                if (e.Key != eventKey)
+                {
+                    continue;
+                }
+
+                e.Key = null;
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public bool ResetEventKey<T>(EventKey eventKey)
             where T : IEvent
         {
             return ResetEventKey(typeof(T), eventKey);
         }
 
         /// <inheritdoc/>
-        public bool ResetEventKey(Type eventType, object eventKey)
+        public bool ResetEventKey(Type eventType, EventKey eventKey)
         {
             CheckType(eventType);
 
@@ -339,7 +402,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool SetEventKey<T>(object eventKey)
+        public bool SetEventKey<T>(EventKey eventKey)
             where T : IEvent
         {
             CheckType(typeof(T));

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Coimbra.Tests
 {
     [Serializable]
-    internal class DummyClass : IDummyInterface
+    public class DummyClass : IDummyInterface
     {
         [SerializeField] private int _integer;
         [SerializeField] private string _string;

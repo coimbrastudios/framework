@@ -6,11 +6,16 @@
 - Added RequireDerived attribute to ScriptableSettings.
 - Added API to get the current create callback in ServiceLocator.
 - Added TryGetValid API for the object extensions.
+- Added RemoveAllListenersWithKey, RemoveAllListenersWithoutRestriction and ResetAllEventKeys APIs.
+- Added API to reset the key from multiple events with the same key.
+- Changed how the event keys work, adding the `EventKey` and `EventKeyRestrictions` types.
 - Changed IEventService APIs to return a bool indicating if they actually worked.
 - Changed EventRefHandler to EventListenerHandler.
 - Changed overload for IEventService.Invoke that auto-creates a new instance to use generics instead of System.Type.
 - Changed all methods in IEventService to require an IEvent.
 - Changed GameObject DestroyEvent to Destroyed.
+- Changed IEventService to no longer have a service key, removing also the only API that used it.
+- Fixed typo in Fi**r**stPostLateUpdateEvent.
 - Fixed id not being set when constructing a ServiceLocator.
 - Fixed possible stack overflow in case of invoking an event inside its own invoke.
 - Fixed indirectly disposing a Shared service when allowing fallback to Shared and calling ServiceLocator.Set.
