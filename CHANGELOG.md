@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0] - --
+
+- Added overload for IEventService.AddListener that accepts a list to add the generated event handle.
+- Added RequireDerived attribute to ScriptableSettings.
+- Added API to get the current create callback in ServiceLocator.
+- Added TryGetValid API for the object extensions.
+- Changed overload for IEventService.Invoke that auto-creates a new instance to use generics instead of System.Type.
+- Changed all methods in IEventService to require an IEvent.
+- Changed GameObject DestroyEvent to Destroyed.
+- Fixed id not being set when constructing a ServiceLocator.
+- Fixed possible stack overflow in case of invoking an event inside its own invoke.
+- Fixed indirectly disposing a Shared service when allowing fallback to Shared and calling ServiceLocator.Set.
+- Removed overload for IEventService.AddListener that accepts non-by-ref methods.
+- Removed support for non-interface services.
+- Removed SetDefaultCreateCallback API as its usage was unclear and caused confusion.
+
 ## [3.1.1] - 2022-03-24
 
 - Added option make ScriptableSettings non-preloaded.

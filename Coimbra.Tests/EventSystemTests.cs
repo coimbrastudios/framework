@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -10,7 +10,7 @@ namespace Coimbra.Tests
     [TestOf(typeof(EventSystem))]
     public class EventSystemTests
     {
-        private struct TestEvent { }
+        private struct TestEvent : IEvent { }
 
         private IEventService _eventService;
 
@@ -32,7 +32,7 @@ namespace Coimbra.Tests
         public void AddListener_Single()
         {
             const string log = nameof(log);
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
             });
@@ -46,12 +46,12 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logA);
             });
 
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logB);
             });
@@ -70,25 +70,25 @@ namespace Coimbra.Tests
             EventHandle handle3 = new EventHandle();
             EventHandle handle4 = new EventHandle();
 
-            void callback1(object sender, TestEvent testEvent)
+            void callback1(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(nameof(callback1));
                 _eventService.RemoveListener(handle1);
             }
 
-            void callback2(object sender, TestEvent testEvent)
+            void callback2(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(nameof(callback2));
                 _eventService.RemoveListener(handle2);
             }
 
-            void callback3(object sender, TestEvent testEvent)
+            void callback3(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(nameof(callback3));
                 _eventService.RemoveListener(handle3);
             }
 
-            void callback4(object sender, TestEvent testEvent)
+            void callback4(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(nameof(callback4));
                 _eventService.RemoveListener(handle4);
@@ -122,7 +122,7 @@ namespace Coimbra.Tests
         {
             const string log = nameof(log);
 
-            static void callback(object sender, TestEvent testEvent)
+            static void callback(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
             }
@@ -139,12 +139,12 @@ namespace Coimbra.Tests
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            static void callbackA(object sender, TestEvent testEvent)
+            static void callbackA(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logA);
             }
 
-            static void callbackB(object sender, TestEvent testEvent)
+            static void callbackB(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logB);
             }
@@ -171,12 +171,12 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logA);
             });
 
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(logB);
             });
@@ -187,20 +187,17 @@ namespace Coimbra.Tests
         }
 
         [Test]
-        public void Invoke_ThrowsInvalidOperationException_AfterSetEventKey()
+        public void Invoke_LogsError_AfterSetEventKey()
         {
             const string log = nameof(log);
             _eventService.SetEventKey<TestEvent>(new object());
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
             });
 
-            Assert.Throws<InvalidOperationException>(delegate
-            {
-                _eventService.Invoke(this, new TestEvent());
-            });
-
+            LogAssert.Expect(LogType.Error, new Regex(".*"));
+            _eventService.Invoke(this, new TestEvent());
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -210,7 +207,7 @@ namespace Coimbra.Tests
             const string log = nameof(log);
             object eventKey = new object();
             _eventService.SetEventKey<TestEvent>(eventKey);
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
             });
@@ -226,7 +223,7 @@ namespace Coimbra.Tests
         public void Invoke_AfterSetEventKey_AndResetEventKey()
         {
             const string log = nameof(log);
-            _eventService.AddListener(delegate(object sender, TestEvent testEvent)
+            _eventService.AddListener(delegate(object sender, ref TestEvent testEvent)
             {
                 Debug.Log(log);
             });
@@ -242,31 +239,29 @@ namespace Coimbra.Tests
         }
 
         [Test]
-        public void ResetEventKey_ThrowsInvalidOperationException_WithWrongKey()
+        public void ResetEventKey_LogsError_WithWrongKey()
         {
             Assert.DoesNotThrow(delegate
             {
                 _eventService.SetEventKey<TestEvent>(new object());
             });
 
-            Assert.Throws<InvalidOperationException>(delegate
-            {
-                _eventService.ResetEventKey<TestEvent>(new object());
-            });
+            LogAssert.Expect(LogType.Error, new Regex(".*"));
+            _eventService.ResetEventKey<TestEvent>(new object());
+            LogAssert.NoUnexpectedReceived();
         }
 
         [Test]
-        public void SetEventKey_ThrowsInvalidOperationException_AfterSetEventKey()
+        public void SetEventKey_LogsError_AfterSetEventKey()
         {
             Assert.DoesNotThrow(delegate
             {
                 _eventService.SetEventKey<TestEvent>(new object());
             });
 
-            Assert.Throws<InvalidOperationException>(delegate
-            {
-                _eventService.SetEventKey<TestEvent>(new object());
-            });
+            LogAssert.Expect(LogType.Error, new Regex(".*"));
+            _eventService.SetEventKey<TestEvent>(new object());
+            LogAssert.NoUnexpectedReceived();
         }
     }
 }

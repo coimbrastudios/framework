@@ -10,7 +10,7 @@ namespace Coimbra
     {
         internal event UnityAction<GameObject, bool> OnActiveStateChanged;
 
-        internal event UnityAction<GameObject, DestroyEventType> OnDestroyEvent;
+        internal event UnityAction<GameObject, DestroyEventType> OnDestroyed;
 
         private bool _isQuitting;
 
@@ -33,13 +33,15 @@ namespace Coimbra
         {
             if (gameObject.scene.isLoaded)
             {
-                OnDestroyEvent?.Invoke(gameObject, DestroyEventType.DestroyCall);
+                OnDestroyed?.Invoke(gameObject, DestroyEventType.DestroyCall);
             }
             else
             {
-                OnDestroyEvent?.Invoke(gameObject, _isQuitting ? DestroyEventType.ApplicationQuit : DestroyEventType.SceneChange);
+                OnDestroyed?.Invoke(gameObject, _isQuitting ? DestroyEventType.ApplicationQuit : DestroyEventType.SceneChange);
             }
 
+            OnActiveStateChanged = null;
+            OnDestroyed = null;
             gameObject.RemoveCachedEventListener();
         }
     }

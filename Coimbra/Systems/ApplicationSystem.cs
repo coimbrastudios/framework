@@ -32,6 +32,7 @@ namespace Coimbra
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {
+            ServiceLocator.Shared.SetCreateCallback(Create, false);
             ServiceLocator.Shared.Set(Create());
         }
 
@@ -90,6 +91,7 @@ namespace Coimbra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Invoke<T>(T e)
+            where T : IEvent
         {
             _eventService?.Invoke(this, ref e, _eventKey);
         }
@@ -179,12 +181,14 @@ namespace Coimbra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ResetEventKey<T>()
+            where T : IEvent
         {
             _eventService.ResetEventKey<T>(_eventKey);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetEventKey<T>()
+            where T : IEvent
         {
             _eventService.SetEventKey<T>(_eventKey);
         }

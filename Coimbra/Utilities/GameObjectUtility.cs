@@ -20,15 +20,15 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
+        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
         /// </summary>
-        public static void AddDestroyEventListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
+        public static void AddDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
         {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyEvent += callback;
+            gameObject.GetOrCreateCachedEventListener().OnDestroyed += callback;
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
+        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
         /// </summary>
         public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
         {
@@ -36,11 +36,11 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyEvent"/> event.
+        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
         /// </summary>
-        public static void RemoveDestroyEventListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
+        public static void RemoveDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
         {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyEvent -= callback;
+            gameObject.GetOrCreateCachedEventListener().OnDestroyed -= callback;
         }
 
         internal static void RemoveCachedEventListener(this GameObject gameObject)
@@ -60,13 +60,13 @@ namespace Coimbra
                 eventListener = gameObject.AddComponent<GameObjectEventListenerComponent>();
             }
 
-            eventListener.OnDestroyEvent += HandleGameObjectDestroyEvent;
+            eventListener.OnDestroyed += HandleGameObjectDestroyed;
             EventListenerFromGameObject.Add(gameObject, eventListener);
 
             return eventListener;
         }
 
-        private static void HandleGameObjectDestroyEvent(GameObject sender, DestroyEventType eventType)
+        private static void HandleGameObjectDestroyed(GameObject sender, DestroyEventType eventType)
         {
             EventListenerFromGameObject.Remove(sender);
         }

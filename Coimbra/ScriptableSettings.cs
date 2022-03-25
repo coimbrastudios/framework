@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
 
 namespace Coimbra
@@ -8,6 +9,7 @@ namespace Coimbra
     /// <summary>
     /// Class that allows easy access to a <see cref="ScriptableObject"/> and also enables automatic preloading for it.
     /// </summary>
+    [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {
         private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
