@@ -2,8 +2,10 @@
 
 ## [..] - --
 
+- Added EventRef and APIs on IEvenService to use it.
 - Added call to Dispose inside OnDestroy in MonoBehaviourServiceBase.
 - Changed MonoBehaviourServiceBase to allow multiple on the same GameObject.
+- Changed EventListenerHandler to use the new EventRef type.
 
 ## [4.0.0] - 2022-03-25
 

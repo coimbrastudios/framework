@@ -3,5 +3,6 @@
     /// <summary>
     /// Generic delegate for listening events from the <see cref="IEventService"/>.
     /// </summary>
-    public delegate void EventListenerHandler<T>(object sender, ref T e);
+    public delegate void EventListenerHandler<T>(ref EventRef<T> e)
+        where T : IEvent;
 }

@@ -12,6 +12,7 @@ namespace Coimbra
         private delegate bool RemoveHandler(EventHandle key);
 
         private static class EventCallbacks<T>
+            where T : IEvent
         {
             internal static readonly Dictionary<EventHandle, EventListenerHandler<T>> Value = new Dictionary<EventHandle, EventListenerHandler<T>>(1);
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
@@ -21,7 +22,6 @@ namespace Coimbra
         {
             internal readonly RemoveHandler RemoveHandler;
             internal readonly List<EventHandle> Handles = new List<EventHandle>();
-            internal readonly List<EventHandle> HandlesToAdd = new List<EventHandle>();
             internal readonly HashSet<EventHandle> HandlesToRemove = new HashSet<EventHandle>();
             internal bool IsInvoking;
             internal EventKey Key;
@@ -43,39 +43,14 @@ namespace Coimbra
         public EventHandle AddListener<T>(EventListenerHandler<T> eventCallback)
             where T : IEvent
         {
-            CheckType(typeof(T));
-
-            if (eventCallback == null)
-            {
-                return new EventHandle();
-            }
-
-            EventHandle handle = EventHandle.Create(typeof(T));
-            EventCallbacks<T>.Value.Add(handle, eventCallback);
-
-            if (!_events.TryGetValue(typeof(T), out Event e))
-            {
-                e = new Event(EventCallbacks<T>.RemoveHandler);
-                e.Handles.Add(handle);
-                _events.Add(typeof(T), e);
-            }
-            else if (e.IsInvoking)
-            {
-                e.HandlesToAdd.Add(handle);
-            }
-            else
-            {
-                e.Handles.Add(handle);
-            }
-
-            return handle;
+            return AddListener(ref eventCallback);
         }
 
         /// <inheritdoc/>
         public bool AddListener<T>(EventListenerHandler<T> eventCallback, List<EventHandle> appendList)
             where T : IEvent
         {
-            EventHandle eventHandle = AddListener(eventCallback);
+            EventHandle eventHandle = AddListener(ref eventCallback);
 
             if (!eventHandle.IsValid)
             {
@@ -153,20 +128,38 @@ namespace Coimbra
         public bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent, new()
         {
-            T eventData = new T();
+            EventRef<T> eventRef = new EventRef<T>(eventSender);
 
-            return Invoke(eventSender, ref eventData, eventKey);
+            return Invoke(ref eventRef, eventKey);
         }
 
         /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
             where T : IEvent
         {
-            return Invoke(eventSender, ref eventData, eventKey);
+            EventRef<T> eventRef = new EventRef<T>(eventSender, ref eventData);
+
+            return Invoke(ref eventRef, eventKey);
         }
 
         /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
+            where T : IEvent
+        {
+            EventRef<T> eventRef = new EventRef<T>(eventSender, ref eventData);
+
+            return Invoke(ref eventRef, eventKey);
+        }
+
+        /// <inheritdoc/>
+        public bool Invoke<T>(EventRef<T> eventRef, EventKey eventKey = null)
+            where T : IEvent
+        {
+            return Invoke(ref eventRef, eventKey);
+        }
+
+        /// <inheritdoc/>
+        public bool Invoke<T>(ref EventRef<T> eventRef, EventKey eventKey = null)
             where T : IEvent
         {
             CheckType(typeof(T));
@@ -192,12 +185,16 @@ namespace Coimbra
 
             e.IsInvoking = true;
 
-            foreach (EventHandle handle in e.Handles)
+            for (int i = 0, count = e.Handles.Count; i < count; i++)
             {
-                if (!e.HandlesToRemove.Contains(handle))
+                eventRef.Handle = e.Handles[i];
+
+                if (e.HandlesToRemove.Contains(eventRef.Handle))
                 {
-                    EventCallbacks<T>.Value[handle].Invoke(eventSender, ref eventData);
+                    continue;
                 }
+
+                EventCallbacks<T>.Value[eventRef.Handle].Invoke(ref eventRef);
             }
 
             e.IsInvoking = false;
@@ -209,13 +206,6 @@ namespace Coimbra
             }
 
             e.HandlesToRemove.Clear();
-
-            foreach (EventHandle handle in e.HandlesToAdd)
-            {
-                e.Handles.Add(handle);
-            }
-
-            e.HandlesToAdd.Clear();
 
             return true;
         }
@@ -445,6 +435,31 @@ namespace Coimbra
             {
                 throw new ArgumentOutOfRangeException($"\"{nameof(IEventService)}.{memberName}\" requires a type that implements \"{typeof(IEvent)}\"!");
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private EventHandle AddListener<T>(ref EventListenerHandler<T> eventCallback)
+            where T:IEvent
+        {
+            CheckType(typeof(T));
+
+            if (eventCallback == null)
+            {
+                return default;
+            }
+
+            EventHandle handle = EventHandle.Create(typeof(T));
+            EventCallbacks<T>.Value.Add(handle, eventCallback);
+
+            if (!_events.TryGetValue(typeof(T), out Event e))
+            {
+                e = new Event(EventCallbacks<T>.RemoveHandler);
+                _events.Add(typeof(T), e);
+            }
+
+            e.Handles.Add(handle);
+
+            return handle;
         }
     }
 }

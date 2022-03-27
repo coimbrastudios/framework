@@ -100,6 +100,26 @@ namespace Coimbra
             where T : IEvent;
 
         /// <summary>
+        /// Invokes the specified event type for all its listeners.
+        /// </summary>
+        /// <param name="eventRef">The event reference being invoked.</param>
+        /// <param name="eventKey">The encapsulation key for the event.</param>
+        /// <typeparam name="T">The event type.</typeparam>
+        /// <returns>True if the event was actually invoked.</returns>
+        bool Invoke<T>(EventRef<T> eventRef, EventKey eventKey = null)
+            where T : IEvent;
+
+        /// <summary>
+        /// Invokes the specified event type for all its listeners.
+        /// </summary>
+        /// <param name="eventRef">The event reference being invoked.</param>
+        /// <param name="eventKey">The encapsulation key for the event.</param>
+        /// <typeparam name="T">The event type.</typeparam>
+        /// <returns>True if the event was actually invoked.</returns>
+        bool Invoke<T>(ref EventRef<T> eventRef, EventKey eventKey = null)
+            where T : IEvent;
+
+        /// <summary>
         /// Removes all listeners from an event type.
         /// </summary>
         /// <param name="eventKey">The encapsulation key for the event.</param>
