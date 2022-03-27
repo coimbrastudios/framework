@@ -1,9 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Coimbra
 {
-    public interface IPoolingService
+    /// <summary>
+    /// Pooling service for <see cref="GameObject"/>.
+    /// </summary>
+    [RequireImplementors]
+    public interface IPoolingService : IService
     {
         /// <summary>
         /// Registers the specified pool on this service.

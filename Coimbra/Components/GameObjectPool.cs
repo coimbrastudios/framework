@@ -462,8 +462,11 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObjectBehaviour Instantiate(Transform parent, bool instantiateInWorldSpace)
         {
+            _prefab.Pool = this;
+
             GameObjectBehaviour instance = Instantiate(_prefab, parent, instantiateInWorldSpace);
             Instantiate(instance);
+            _prefab.Pool = null;
 
             return instance;
         }
@@ -471,8 +474,11 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObjectBehaviour Instantiate(Vector3 position, Quaternion rotation, Transform parent)
         {
+            _prefab.Pool = this;
+
             GameObjectBehaviour instance = Instantiate(_prefab, position, rotation, parent);
             Instantiate(instance);
+            _prefab.Pool = null;
 
             return instance;
         }

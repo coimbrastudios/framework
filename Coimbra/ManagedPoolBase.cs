@@ -7,7 +7,7 @@ using UnityEngine.Scripting;
 namespace Coimbra
 {
     /// <summary>
-    /// Inherit from this class to create your own pools for managed objects.
+    /// Inherit from this class to create your own pools for managed objects. For pooling <see cref="GameObject"/> see <see cref="IPoolingService"/>.
     /// </summary>
     [Preserve]
     [Serializable]
