@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Coimbra
 {
@@ -9,66 +8,49 @@ namespace Coimbra
     /// </summary>
     public static class GameObjectUtility
     {
-        private static readonly Dictionary<GameObject, GameObjectEventListenerComponent> EventListenerFromGameObject = new Dictionary<GameObject, GameObjectEventListenerComponent>();
+        private static readonly Dictionary<GameObject, GameObjectBehaviour> Behaviours = new Dictionary<GameObject, GameObjectBehaviour>();
 
         /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnActiveStateChanged"/> event.
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
         /// </summary>
-        public static void AddActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
+        public static GameObjectBehaviour GetOrCreateBehaviour(this Component component)
         {
-            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged += callback;
-        }
-
-        /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
-        /// </summary>
-        public static void AddDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
-        {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyed += callback;
+            return GetOrCreateBehaviour(component.gameObject);
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
         /// </summary>
-        public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
+        public static GameObjectBehaviour GetOrCreateBehaviour(this GameObject gameObject)
         {
-            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged -= callback;
-        }
-
-        /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
-        /// </summary>
-        public static void RemoveDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
-        {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyed -= callback;
-        }
-
-        internal static void RemoveCachedEventListener(this GameObject gameObject)
-        {
-            EventListenerFromGameObject.Remove(gameObject);
-        }
-
-        private static GameObjectEventListenerComponent GetOrCreateCachedEventListener(this GameObject gameObject)
-        {
-            if (EventListenerFromGameObject.TryGetValue(gameObject, out GameObjectEventListenerComponent eventListener))
+            if (Behaviours.TryGetValue(gameObject, out GameObjectBehaviour behaviour))
             {
-                return eventListener;
+                return behaviour;
             }
 
-            if (!gameObject.TryGetComponent(out eventListener))
+            if (!gameObject.TryGetComponent(out behaviour))
             {
-                eventListener = gameObject.AddComponent<GameObjectEventListenerComponent>();
+                behaviour = gameObject.AddComponent<GameObjectBehaviour>();
             }
 
-            eventListener.OnDestroyed += HandleGameObjectDestroyed;
-            EventListenerFromGameObject.Add(gameObject, eventListener);
+            behaviour.Instantiate();
 
-            return eventListener;
+            return behaviour;
         }
 
-        private static void HandleGameObjectDestroyed(GameObject sender, DestroyEventType eventType)
+        internal static void AddCachedBehaviour(this GameObject gameObject, GameObjectBehaviour behaviour)
         {
-            EventListenerFromGameObject.Remove(sender);
+            Behaviours.Add(gameObject, behaviour);
+        }
+
+        internal static void RemoveCachedBehaviour(this GameObject gameObject)
+        {
+            Behaviours.Remove(gameObject);
+        }
+
+        private static void HandleGameObjectDestroyed(GameObject sender, DestroyReason reason)
+        {
+            Behaviours.Remove(sender);
         }
     }
 }

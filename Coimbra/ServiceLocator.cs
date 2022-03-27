@@ -16,6 +16,11 @@ namespace Coimbra
     [Serializable]
     public sealed class ServiceLocator : IDisposable
     {
+        /// <summary>
+        /// Delegate for listener for service instance changes.
+        /// </summary>
+        public delegate void ServiceChangeHandler([CanBeNull] IService previous, [CanBeNull] IService current);
+
         private sealed class Service
         {
             internal bool ResetCreateCallbackOnSet;
@@ -24,31 +29,31 @@ namespace Coimbra
 
             internal Func<IService> CreateCallback;
 
-            internal ValueChangeHandler<IService> ValueChangedCallback;
+            internal ServiceChangeHandler ValueChangedCallback;
 
             internal Service()
             {
                 ValueChangedCallback = HandleValueChanged;
             }
 
-            internal void HandleValueChanged(IService oldValue, IService newValue)
+            internal void HandleValueChanged(IService previous, IService current)
             {
                 {
-                    if (newValue is MonoBehaviour monoBehaviour)
+                    if (current is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.GetValid()?.gameObject.AddDestroyedListener(HandleGameObjectDestroy);
+                        monoBehaviour.GetOrCreateBehaviour().OnDestroyed += HandleGameObjectDestroy;
                     }
                 }
 
                 {
-                    if (oldValue is MonoBehaviour monoBehaviour)
+                    if (previous is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.GetValid()?.gameObject.RemoveDestroyedListener(HandleGameObjectDestroy);
+                        monoBehaviour.GetOrCreateBehaviour().OnDestroyed -= HandleGameObjectDestroy;
                     }
                 }
             }
 
-            private void HandleGameObjectDestroy(GameObject sender, DestroyEventType destroyEventType)
+            private void HandleGameObjectDestroy(GameObject sender, DestroyReason destroyReason)
             {
                 if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender)
                 {
@@ -96,7 +101,7 @@ namespace Coimbra
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void AddValueChangedListener<T>([NotNull] ValueChangeHandler<IService> callback)
+        public void AddValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -266,7 +271,7 @@ namespace Coimbra
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void RemoveValueChangedListener<T>([NotNull] ValueChangeHandler<IService> callback)
+        public void RemoveValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
             where T : class, IService
         {
             CheckType(typeof(T));

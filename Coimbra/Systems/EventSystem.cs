@@ -185,7 +185,10 @@ namespace Coimbra
 
             e.IsInvoking = true;
 
-            for (int i = 0, count = e.Handles.Count; i < count; i++)
+            for (int i = 0,
+                     count = e.Handles.Count;
+                 i < count;
+                 i++)
             {
                 eventRef.Handle = e.Handles[i];
 
@@ -439,7 +442,7 @@ namespace Coimbra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private EventHandle AddListener<T>(ref EventListenerHandler<T> eventCallback)
-            where T:IEvent
+            where T : IEvent
         {
             CheckType(typeof(T));
 
