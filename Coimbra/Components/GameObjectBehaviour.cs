@@ -19,7 +19,7 @@ namespace Coimbra
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> destroy.
         /// </summary>
-        public delegate void DestroyHandler(GameObject sender, DestroyReason type);
+        public delegate void DestroyHandler(GameObject sender, DestroyReason reason);
 
         /// <summary>
         /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
@@ -109,13 +109,17 @@ namespace Coimbra
                 OnObjectDestroy();
             }
 
-            if (CachedGameObject.scene.isLoaded)
+            if (_isQuitting)
+            {
+                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.ApplicationQuit);
+            }
+            else if (CachedGameObject.scene.isLoaded)
             {
                 OnDestroyed?.Invoke(CachedGameObject, DestroyReason.ExplicitCall);
             }
             else
             {
-                OnDestroyed?.Invoke(CachedGameObject, _isQuitting ? DestroyReason.ApplicationQuit : DestroyReason.SceneChange);
+                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.SceneChange);
             }
 
             OnActiveStateChanged = null;

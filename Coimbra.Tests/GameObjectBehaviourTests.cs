@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -71,19 +72,20 @@ namespace Coimbra.Tests
             Assert.That(instance.IsPooled);
         }
 
-        [Test]
-        public void GivenPrefabWithoutBehaviour_AndGetOrCreateBehaviour_ThenBehaviourIsValid() { }
+        [UnityTest]
+        public IEnumerator GivenActiveInstance_WhenDestroyedByDestroyCall_ThenResultIsExplicitCall()
+        {
+            const string logFormat = "OnDestroyed.reason = {0}";
+            GameObjectBehaviour instance = new GameObject().AddComponent<GameObjectBehaviour>();
+            instance.OnDestroyed += delegate(GameObject sender, DestroyReason reason)
+            {
+                Debug.LogFormat(logFormat, reason);
+            };
 
-        [Test]
-        public void GivenActivePrefab_WhenDestroyedByApplicationQuit_ThenResultIsApplicationQuit() { }
+            LogAssert.Expect(LogType.Log, string.Format(logFormat, DestroyReason.ExplicitCall));
+            Object.Destroy(instance.gameObject);
 
-        [Test]
-        public void GivenActivePrefab_WhenDestroyedBySceneChange_ThenResultIsSceneChange() { }
-
-        [Test]
-        public void GivenActivePrefab_WhenDestroyedByDestroyCall_ThenResultIsExplicitCall() { }
-
-        [Test]
-        public void GivenInactivePrefab_WhenDestroyedByInternalDestroy_ThenResultIsExplicitCall() { }
+            yield return null;
+        }
     }
 }
