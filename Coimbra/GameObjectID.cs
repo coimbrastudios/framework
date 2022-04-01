@@ -12,7 +12,7 @@ namespace Coimbra
     {
         public readonly int Id;
 
-        private GameObjectID(int id)
+        public GameObjectID(int id)
         {
             Id = id;
         }

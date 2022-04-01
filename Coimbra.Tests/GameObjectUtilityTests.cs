@@ -12,8 +12,8 @@ namespace Coimbra.Tests
         {
             GameObject gameObject = new GameObject();
             GameObjectBehaviour behaviour = gameObject.GetOrCreateBehaviour();
-            Assert.That(behaviour != null);
-            Assert.That(behaviour.gameObject == gameObject);
+            Assert.That(behaviour, Is.Not.Null);
+            Assert.That(behaviour.gameObject, Is.EqualTo(gameObject));
         }
 
         [Test]
@@ -21,8 +21,8 @@ namespace Coimbra.Tests
         {
             GameObject gameObject = new GameObject("Test", typeof(GameObjectBehaviour));
             GameObjectBehaviour behaviour = gameObject.GetOrCreateBehaviour();
-            Assert.That(behaviour.gameObject == gameObject);
-            Assert.That(gameObject.GetComponents<GameObjectBehaviour>().Length == 1);
+            Assert.That(behaviour.gameObject, Is.EqualTo(gameObject));
+            Assert.That(gameObject.GetComponents<GameObjectBehaviour>().Length, Is.EqualTo(1));
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace Coimbra.Tests
         {
             GameObject gameObject = new GameObject("Test", typeof(GameObjectBehaviour));
             Transform transform = gameObject.transform;
-            Assert.That(gameObject.GetOrCreateBehaviour() == transform.GetOrCreateBehaviour());
+            Assert.That(gameObject.GetOrCreateBehaviour(), Is.EqualTo(transform.GetOrCreateBehaviour()));
         }
     }
 }

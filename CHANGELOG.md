@@ -1,10 +1,11 @@
 # Changelog
 
-## [..] - --
+## [5.0.0] - --
 
 - Added EventRef and APIs on IEvenService to use it.
 - Added call to Dispose inside OnDestroy in MonoBehaviourServiceBase.
 - Added GameObjectBehaviour class that works similar to extending GameObject class itself.
+- Added GameObjectPool and IPoolingService for pooling of GameObjects.
 - Changed MonoBehaviourServiceBase to allow multiple on the same GameObject.
 - Changed EventListenerHandler to use the new EventRef type.
 - Changed GameObjectEventListenerComponent functionality to the new GameObjectBehaviour class.

@@ -1,15 +1,18 @@
-﻿using JetBrains.Annotations;
+﻿using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Scripting;
 
 namespace Coimbra
 {
     [PublicAPI]
     [Preserve]
-    [AddComponentMenu(FrameworkUtility.AddComponentMenuPath + "GameObject Pool")]
+    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Pool")]
     public sealed class GameObjectPool : MonoBehaviour
     {
         /// <summary>
@@ -48,10 +51,6 @@ namespace Coimbra
             /// Pool is completely loaded and ready to be used.
             /// </summary>
             Loaded,
-            /// <summary>
-            /// Pool is unloading its instances.
-            /// </summary>
-            Unloading,
         }
 
         /// <summary>
@@ -75,11 +74,13 @@ namespace Coimbra
         public event StateChangeHandler OnStateChanged;
 
         [SerializeField]
+        [Disable]
         [Tooltip("The current pool state.")]
         private State _currentState;
         [SerializeField]
+        [DisableOnPlayMode]
         [Tooltip("The prefab that this pool is using.")]
-        private GameObjectBehaviour _prefab;
+        private AssetReferenceT<GameObject> _prefabReference;
         [SerializeField]
         [Tooltip("If true, instantiate will be used when spawn fails.")]
         private bool _canInstantiateOnSpawn = true;
@@ -87,22 +88,33 @@ namespace Coimbra
         [Tooltip("If true, new instances will receive a more descriptive name. (Editor Only)")]
         private bool _changeNameOnInstantiate = true;
         [SerializeField]
+        [Tooltip("Should all preloaded instances start deactivated?")]
+        private bool _deactivatePreloadedInstances = true;
+        [SerializeField]
         [Tooltip("If true, parent will not change automatically when despawned. Changing to false affects performance.")]
         private bool _keepParentOnDespawn = true;
         [SerializeField]
-        [Tooltip("Amount of instances available from the beginning.")]
         [Min(0)]
+        [Tooltip("Amount of instances available from the beginning. This is clamped between 0 and the current Max Capacity.")]
         private int _preloadCount = 1;
         [SerializeField]
-        [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity.")]
         [Min(0)]
+        [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity, else it will also clamp the current Preload Count.")]
+        [DisableOnPlayMode]
         private int _maxCapacity = 1;
         [SerializeField]
+        [DisableOnPlayMode]
         [Tooltip("The transform to be used as the container.")]
         private Transform _containerTransform;
 
+        private GameObjectBehaviour _prefab;
         private HashSet<GameObjectID> _availableInstancesIds;
         private Stack<GameObjectBehaviour> _availableInstances;
+
+        /// <summary>
+        /// The amount of instances currently available.
+        /// </summary>
+        public int AvailableInstancesCount => _availableInstances?.Count ?? 0;
 
         /// <summary>
         /// The current pool state.
@@ -128,6 +140,15 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Should all preloaded instances start deactivated?
+        /// </summary>
+        public bool DeactivatePreloadedInstances
+        {
+            get => _deactivatePreloadedInstances;
+            set => _deactivatePreloadedInstances = value;
+        }
+
+        /// <summary>
         /// If true, parent will not change automatically when despawned. Changing to false affects performance.
         /// </summary>
         public bool KeepParentOnDespawn
@@ -137,25 +158,32 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Amount of instances available from the beginning.
+        /// Amount of instances available from the beginning. This is clamped between 0 and the current <see cref="MaxCapacity"/>.
         /// </summary>
         public int PreloadCount
         {
             get => _preloadCount;
-            set => _preloadCount = Mathf.Max(0, value);
+            set => _preloadCount = _maxCapacity == 0 ? Mathf.Max(value, 0) : Mathf.Clamp(value, 0, _maxCapacity);
         }
 
         /// <summary>
-        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity.
+        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity, else it will also clamp the current <see cref="PreloadCount"/>.
         /// </summary>
         public int MaxCapacity
         {
             get => _maxCapacity;
             set
             {
-                _maxCapacity = Mathf.Max(0, value);
+                _maxCapacity = Mathf.Max(value, 0);
 
                 if (_maxCapacity == 0)
+                {
+                    return;
+                }
+
+                _preloadCount = Mathf.Clamp(_preloadCount, 0, _maxCapacity);
+
+                if (_availableInstances == null)
                 {
                     return;
                 }
@@ -178,18 +206,18 @@ namespace Coimbra
         /// <summary>
         /// The prefab that this pool is using.
         /// </summary>
-        public GameObjectBehaviour Prefab
+        public AssetReferenceT<GameObject> PrefabReference
         {
-            get => _prefab;
+            get => _prefabReference;
             set
             {
-                if (_currentState == State.Loading || _currentState == State.Loaded)
+                if (_currentState != State.Unloaded)
                 {
                     Debug.LogError($"Can't change the prefab of a {nameof(GameObjectPool)} currently in use!", gameObject);
                 }
                 else
                 {
-                    _prefab = value;
+                    _prefabReference = value;
                 }
             }
         }
@@ -237,10 +265,9 @@ namespace Coimbra
             if (_currentState == State.Unloaded)
             {
                 GameObject o = gameObject;
-                Debug.LogWarning($"{o} will use destroy instead of despawn for all objects because it is unloaded!", o);
-                instance.Destroy();
+                Debug.LogWarning($"{o} is useless while unloaded!", o);
 
-                return DespawnResult.Destroyed;
+                return DespawnResult.Aborted;
             }
 
             GameObjectID id = instance;
@@ -270,24 +297,55 @@ namespace Coimbra
             return DespawnResult.Destroyed;
         }
 
-        public void Unload()
+        /// <summary>
+        /// Unloads this pool, destroying all the current available instances in the process.
+        /// </summary>
+        /// <returns>True if was able to unload the pool.</returns>
+        public bool Unload()
         {
-            for (int i = 0,
-                     count = _availableInstances.Count;
-                 i < count;
-                 i++)
+            if (_currentState == State.Unloaded)
             {
-                _availableInstances.Pop().GetValid()?.Destroy();
+                GameObject o = gameObject;
+                Debug.LogWarning($"Pool {o} is unloaded already!", o);
+
+                return false;
             }
 
-            _availableInstances = null;
+            _prefabReference.ReleaseAsset();
+
+            if (_availableInstances != null)
+            {
+                for (int i = 0,
+                         count = _availableInstances.Count;
+                     i < count;
+                     i++)
+                {
+                    _availableInstances.Pop().GetValid()?.Destroy();
+                }
+
+                _availableInstances = null;
+            }
+
             _availableInstancesIds = null;
-            OnStateChanged?.Invoke(this, State.Loaded, State.Unloaded);
+            ChangeCurrentState(State.Unloaded);
+
+            return true;
         }
 
-        public void Load()
+        /// <summary>
+        /// Loads this pool, instancing the amount of preloaded instances in the process.
+        /// </summary>
+        public async UniTask Load()
         {
-            if (_prefab == null)
+            if (_currentState != State.Unloaded)
+            {
+                GameObject o = gameObject;
+                Debug.LogWarning($"Pool {o} is {_currentState} already!", o);
+
+                return;
+            }
+
+            if (_prefabReference == null)
             {
                 GameObject o = gameObject;
                 Debug.LogError($"{o} requires a non-null prefab to load!", o);
@@ -295,19 +353,55 @@ namespace Coimbra
                 return;
             }
 
-            int instantiateCount = _maxCapacity == 0 ? _preloadCount : Mathf.Min(_preloadCount, _maxCapacity);
-            _availableInstances = new Stack<GameObjectBehaviour>(instantiateCount);
-            _availableInstancesIds = new HashSet<GameObjectID>();
+            ChangeCurrentState(State.Loading);
 
-            for (int i = 0; i < instantiateCount; i++)
+            try
             {
-                GameObjectBehaviour instance = Instantiate(_containerTransform, false);
-                instance.CachedGameObject.SetActive(false);
-                _availableInstances.Push(instance);
-                _availableInstancesIds.Add(instance);
-            }
+                GameObject prefab = await _prefabReference.LoadAssetAsync().Task;
+                _prefab = prefab.GetOrCreateBehaviour();
 
-            OnStateChanged?.Invoke(this, State.Unloaded, State.Loaded);
+                GameObjectPool pool = _prefab.Pool;
+                _prefab.Pool = this;
+
+                {
+                    bool isActive = prefab.activeSelf;
+
+                    if (_deactivatePreloadedInstances)
+                    {
+                        prefab.SetActive(false);
+                    }
+
+                    Queue<Task<GameObject>> tasks = new Queue<Task<GameObject>>(_preloadCount);
+                    _availableInstances = new Stack<GameObjectBehaviour>(_preloadCount);
+                    _availableInstancesIds = new HashSet<GameObjectID>();
+
+                    for (int i = 0; i < _preloadCount; i++)
+                    {
+                        tasks.Enqueue(Addressables.InstantiateAsync(_prefabReference, _containerTransform).Task);
+                    }
+
+                    for (int i = 0; i < _preloadCount; i++)
+                    {
+                        GameObject instance = await tasks.Dequeue();
+                        GameObjectBehaviour behaviour = instance.GetOrCreateBehaviour();
+                        Instantiate(behaviour);
+                        _availableInstances.Push(behaviour);
+                        _availableInstancesIds.Add(behaviour);
+                    }
+
+                    if (_deactivatePreloadedInstances)
+                    {
+                        prefab.SetActive(isActive);
+                    }
+                }
+
+                _prefab.Pool = pool;
+                ChangeCurrentState(State.Loaded);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         /// <summary>
@@ -321,15 +415,7 @@ namespace Coimbra
             if (_currentState == State.Unloaded)
             {
                 GameObject o = gameObject;
-
-                if (_canInstantiateOnSpawn)
-                {
-                    Debug.LogWarning($"{o} will use instantiate instead of a valid instance while unloaded!", o);
-
-                    return Instantiate(parent, spawnInWorldSpace);
-                }
-
-                Debug.LogWarning($"{o} will return null instead of a valid instance while unloaded!", o);
+                Debug.LogWarning($"{o} is useless while unloaded!", o);
 
                 return null;
             }
@@ -373,15 +459,7 @@ namespace Coimbra
             if (_currentState == State.Unloaded)
             {
                 GameObject o = gameObject;
-
-                if (_canInstantiateOnSpawn)
-                {
-                    Debug.LogWarning($"{o} will use instantiate instead of a valid instance while unloaded!", o);
-
-                    return Instantiate(position, rotation, parent);
-                }
-
-                Debug.LogWarning($"{o} will return null instead of a valid instance while unloaded!", o);
+                Debug.LogWarning($"{o} is useless while unloaded!", o);
 
                 return null;
             }
@@ -446,27 +524,43 @@ namespace Coimbra
             _containerTransform = transform;
         }
 
+        private void OnValidate()
+        {
+            PreloadCount = _preloadCount;
+            MaxCapacity = _maxCapacity;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ChangeCurrentState(State target)
+        {
+            State previous = _currentState;
+            _currentState = target;
+            OnStateChanged?.Invoke(this, previous, _currentState);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Instantiate(GameObjectBehaviour instance)
         {
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
             {
-                instance.CachedGameObject.name = $"{_prefab.name} ({Guid.NewGuid()})";
+                instance.CachedGameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
             }
 #endif
-            instance.Instantiate();
+            instance.Initialize();
             OnObjectInstantiated?.Invoke(this, instance);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObjectBehaviour Instantiate(Transform parent, bool instantiateInWorldSpace)
         {
+            GameObjectPool pool = _prefab.Pool;
             _prefab.Pool = this;
 
             GameObjectBehaviour instance = Instantiate(_prefab, parent, instantiateInWorldSpace);
+            _prefab.Pool = pool;
+
             Instantiate(instance);
-            _prefab.Pool = null;
 
             return instance;
         }
@@ -474,11 +568,13 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObjectBehaviour Instantiate(Vector3 position, Quaternion rotation, Transform parent)
         {
+            GameObjectPool pool = _prefab.Pool;
             _prefab.Pool = this;
 
             GameObjectBehaviour instance = Instantiate(_prefab, position, rotation, parent);
+            _prefab.Pool = pool;
+
             Instantiate(instance);
-            _prefab.Pool = null;
 
             return instance;
         }

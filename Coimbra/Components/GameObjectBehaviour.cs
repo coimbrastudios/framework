@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -8,18 +9,18 @@ namespace Coimbra
     [PublicAPI]
     [Preserve]
     [DisallowMultipleComponent]
-    [AddComponentMenu(FrameworkUtility.AddComponentMenuPath + "GameObject Behaviour")]
+    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Behaviour")]
     public class GameObjectBehaviour : MonoBehaviour
     {
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> active state changes.
         /// </summary>
-        public delegate void ActiveStateHandler(GameObject sender, bool state);
+        public delegate void ActiveStateHandler(GameObjectBehaviour sender, bool state);
 
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> destroy.
         /// </summary>
-        public delegate void DestroyHandler(GameObject sender, DestroyReason reason);
+        public delegate void DestroyHandler(GameObjectBehaviour sender, DestroyReason reason);
 
         /// <summary>
         /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
@@ -33,7 +34,7 @@ namespace Coimbra
 
         private bool _isAwaken;
         private bool _isDestroyed;
-        private bool _isInstantiated;
+        private bool _isInitialized;
         private bool _isQuitting;
 
         /// <summary>
@@ -73,12 +74,60 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnObjectInstantiate"/> instead.
+        /// Destroys the <see cref="GameObject"/> that this behaviour belongs to.
+        /// </summary>
+        public void Destroy()
+        {
+            if (_isDestroyed)
+            {
+                return;
+            }
+
+            _isDestroyed = true;
+            Despawn();
+            OnObjectDestroy();
+
+            if (!_isAwaken)
+            {
+                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
+                GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
+            }
+
+            if (!Addressables.ReleaseInstance(CachedGameObject))
+            {
+                Destroy(CachedGameObject);
+            }
+
+            CachedGameObject = null;
+            CachedTransform = null;
+            Pool = null;
+        }
+
+        /// <summary>
+        /// Initializes this behaviour.
+        /// </summary>
+        public void Initialize()
+        {
+            if (_isInitialized)
+            {
+                return;
+            }
+
+            _isInitialized = true;
+            IsPooled = Pool != null;
+            CachedGameObject = gameObject;
+            CachedTransform = transform;
+            GameObjectUtility.AddCachedBehaviour(this);
+            OnObjectInitialize();
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnObjectInitialize"/> instead.
         /// </summary>
         protected void Awake()
         {
             _isAwaken = true;
-            Instantiate();
+            Initialize();
         }
 
         /// <summary>
@@ -86,7 +135,7 @@ namespace Coimbra
         /// </summary>
         protected void OnEnable()
         {
-            OnActiveStateChanged?.Invoke(CachedGameObject, true);
+            OnActiveStateChanged?.Invoke(this, true);
         }
 
         /// <summary>
@@ -94,7 +143,7 @@ namespace Coimbra
         /// </summary>
         protected void OnDisable()
         {
-            OnActiveStateChanged?.Invoke(CachedGameObject, false);
+            OnActiveStateChanged?.Invoke(this, false);
         }
 
         /// <summary>
@@ -103,6 +152,8 @@ namespace Coimbra
         protected void OnDestroy()
         {
             _isDestroyed = true;
+            CachedGameObject = gameObject;
+            CachedTransform = transform;
 
             if (!IsPooled)
             {
@@ -111,20 +162,20 @@ namespace Coimbra
 
             if (_isQuitting)
             {
-                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.ApplicationQuit);
+                OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
             }
             else if (CachedGameObject.scene.isLoaded)
             {
-                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.ExplicitCall);
+                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
             }
             else
             {
-                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.SceneChange);
+                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
             }
 
             OnActiveStateChanged = null;
             OnDestroyed = null;
-            CachedGameObject.RemoveCachedBehaviour();
+            GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
         }
 
         /// <summary>
@@ -151,7 +202,7 @@ namespace Coimbra
         /// <summary>
         /// Use this for one-time initializations instead of Awake or Start callbacks. This method is called even if the object starts inactive.
         /// </summary>
-        protected virtual void OnObjectInstantiate() { }
+        protected virtual void OnObjectInitialize() { }
 
         /// <summary>
         /// Called each time this object is spawned. Will be called even if the object was active already, but will be called after OnEnable if was inactive.
@@ -176,46 +227,6 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Destroy()
-        {
-            if (_isDestroyed)
-            {
-                return;
-            }
-
-            _isDestroyed = true;
-            Despawn();
-            OnObjectDestroy();
-
-            if (!_isAwaken)
-            {
-                OnDestroyed?.Invoke(CachedGameObject, DestroyReason.ExplicitCall);
-                CachedGameObject.RemoveCachedBehaviour();
-            }
-
-            Destroy(CachedGameObject);
-            CachedGameObject = null;
-            CachedTransform = null;
-            Pool = null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Instantiate()
-        {
-            if (_isInstantiated)
-            {
-                return;
-            }
-
-            _isInstantiated = true;
-            IsPooled = Pool != null;
-            CachedGameObject = gameObject;
-            CachedTransform = transform;
-            CachedGameObject.AddCachedBehaviour(this);
-            OnObjectInstantiate();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool Spawn()
         {
             if (IsSpawned)
@@ -223,7 +234,7 @@ namespace Coimbra
                 return false;
             }
 
-            Instantiate();
+            Initialize();
             IsSpawned = true;
             OnObjectSpawn();
 

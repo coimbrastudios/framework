@@ -53,9 +53,9 @@ namespace Coimbra
                 }
             }
 
-            private void HandleGameObjectDestroy(GameObject sender, DestroyReason destroyReason)
+            private void HandleGameObjectDestroy(GameObjectBehaviour sender, DestroyReason destroyReason)
             {
-                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender)
+                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.CachedGameObject)
                 {
                     Value = null;
                 }

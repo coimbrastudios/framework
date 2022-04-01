@@ -8,7 +8,7 @@ namespace Coimbra
     /// </summary>
     public static class GameObjectUtility
     {
-        private static readonly Dictionary<GameObject, GameObjectBehaviour> Behaviours = new Dictionary<GameObject, GameObjectBehaviour>();
+        private static readonly Dictionary<GameObjectID, GameObjectBehaviour> Behaviours = new Dictionary<GameObjectID, GameObjectBehaviour>();
 
         /// <summary>
         /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
@@ -33,24 +33,19 @@ namespace Coimbra
                 behaviour = gameObject.AddComponent<GameObjectBehaviour>();
             }
 
-            behaviour.Instantiate();
+            behaviour.Initialize();
 
             return behaviour;
         }
 
-        internal static void AddCachedBehaviour(this GameObject gameObject, GameObjectBehaviour behaviour)
+        internal static void AddCachedBehaviour(GameObjectBehaviour behaviour)
         {
-            Behaviours.Add(gameObject, behaviour);
+            Behaviours.Add(behaviour.CachedGameObject, behaviour);
         }
 
-        internal static void RemoveCachedBehaviour(this GameObject gameObject)
+        internal static void RemoveCachedBehaviour(GameObjectID id)
         {
-            Behaviours.Remove(gameObject);
-        }
-
-        private static void HandleGameObjectDestroyed(GameObject sender, DestroyReason reason)
-        {
-            Behaviours.Remove(sender);
+            Behaviours.Remove(id);
         }
     }
 }

@@ -7,8 +7,9 @@ namespace Coimbra
     /// </summary>
     public static class FrameworkUtility
     {
-        internal const string AddComponentMenuPath = "Coimbra/";
+        internal const string GeneralMenuPath = "Coimbra/";
         internal const string PackageName = "com.coimbrastudios.core";
+        internal const string ProjectAssetsFolderPath = "Assets/com.coimbrastudios.core";
         internal const string ProjectSettingsPath = "Project/Coimbra";
         internal const string UserPreferencesPath = "Preferences/Coimbra";
 

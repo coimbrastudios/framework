@@ -10,6 +10,8 @@ namespace Coimbra
     [RequireImplementors]
     public interface IPoolingService : IService
     {
+        IReadOnlyList<GameObjectPool> PoolsLoading { get; }
+
         /// <summary>
         /// Registers the specified pool on this service.
         /// </summary>
@@ -63,21 +65,21 @@ namespace Coimbra
         GameObject Spawn(GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        GameObject Spawn(GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null);
+        GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null);
+        GameObject Spawn(GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
         T Spawn<T>(T prefab, Transform parent = null, bool spawnInWorldSpace = false)
             where T : GameObjectBehaviour;
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        T Spawn<T>(T prefab, Vector3 position, Vector3 rotation, Transform parent = null)
+        T Spawn<T>(T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
             where T : GameObjectBehaviour;
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        T Spawn<T>(T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
+        T Spawn<T>(T prefab, Vector3 position, Vector3 rotation, Transform parent = null)
             where T : GameObjectBehaviour;
     }
 }
