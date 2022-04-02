@@ -7,7 +7,6 @@ namespace Coimbra
     /// Handle for an event from <see cref="IEventService"/>.
     /// </summary>
     [Preserve]
-    [Serializable]
     public readonly struct EventHandle : IEquatable<EventHandle>
     {
         public readonly Guid Guid;

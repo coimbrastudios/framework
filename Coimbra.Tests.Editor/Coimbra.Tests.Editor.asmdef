@@ -1,15 +1,20 @@
 {
-    "name": "Coimbra.Tests",
+    "name": "Coimbra.Tests.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
         "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:69448af7b92c7f342b298e06a37122aa",
+        "GUID:536993f12b814234a8f1d38fa0a1f35c",
+        "GUID:f0c774e7dbab37641808f75bcc438e4a",
         "GUID:84651a3751eca9349aac36a66bba901b",
-        "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:27619889b8ba8c24980f49ee34dbb44a"
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

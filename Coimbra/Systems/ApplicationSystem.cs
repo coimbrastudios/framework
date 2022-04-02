@@ -5,19 +5,36 @@ using UnityEngine;
 
 namespace Coimbra
 {
+    /// <summary>
+    /// Default implementation for <see cref="IApplicationService"/>.
+    /// </summary>
     [AddComponentMenu("")]
-    [DisallowMultipleComponent]
-    internal sealed class ApplicationSystem : MonoBehaviourServiceBase<IApplicationService>, IApplicationService
+    public sealed class ApplicationSystem : ServiceBase<IApplicationService>, IApplicationService
     {
         private readonly EventKey _eventKey = new EventKey(EventKeyRestrictions.DisallowInvoke);
         private IEventService _eventService;
 
-        /// <inheritdoc/>
-        protected override void OnDispose()
+        /// <summary>
+        /// Create a new <see cref="IApplicationService"/>.
+        /// </summary>
+        public static IApplicationService Create()
         {
-            base.OnDispose();
+            return new GameObject(nameof(ApplicationSystem)).GetOrCreateBehaviour<ApplicationSystem>();
+        }
+
+        /// <inheritdoc/>
+        protected override void OnObjectDespawn()
+        {
             SetEventService(null);
-            OwningLocator = null;
+            base.OnObjectDespawn();
+        }
+
+        /// <inheritdoc/>
+        protected override void OnObjectInitialize()
+        {
+            base.OnObjectInitialize();
+            DontDestroyOnLoad(CachedGameObject);
+            OnDestroyed += HandleDestroyed;
         }
 
         /// <inheritdoc/>
@@ -29,19 +46,16 @@ namespace Coimbra
             SetEventService(newValue?.Get<IEventService>());
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Initialize()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
-            ServiceLocator.Shared.Set(Create());
         }
 
-        private static IApplicationService Create()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void HandleBeforeSceneLoad()
         {
-            GameObject gameObject = new GameObject(nameof(ApplicationSystem));
-            DontDestroyOnLoad(gameObject);
-
-            return gameObject.AddComponent<ApplicationSystem>();
+            ServiceLocator.Shared.Get<IApplicationService>();
         }
 
         private async UniTask InvokeFixedUpdateEvents()
@@ -129,7 +143,7 @@ namespace Coimbra
 
         private void Start()
         {
-            CancellationToken token = gameObject.GetCancellationTokenOnDestroy();
+            CancellationToken token = CachedGameObject.GetCancellationTokenOnDestroy();
             InvokeFixedUpdateEvents().AttachExternalCancellation(token);
             InvokeMainUpdateEvents().AttachExternalCancellation(token);
         }
@@ -159,8 +173,13 @@ namespace Coimbra
             Invoke(new ApplicationPauseEvent(pauseStatus));
         }
 
-        private void OnApplicationQuit()
+        private void HandleDestroyed(GameObjectBehaviour sender, DestroyReason reason)
         {
+            if (reason != DestroyReason.ApplicationQuit)
+            {
+                return;
+            }
+
             Invoke(new ApplicationQuitEvent());
 #if UNITY_EDITOR
             OwningLocator?.Dispose();

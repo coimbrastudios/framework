@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace Coimbra
 {
@@ -9,66 +10,95 @@ namespace Coimbra
     /// </summary>
     public static class GameObjectUtility
     {
-        private static readonly Dictionary<GameObject, GameObjectEventListenerComponent> EventListenerFromGameObject = new Dictionary<GameObject, GameObjectEventListenerComponent>();
+        private const string DontDestroyOnLoadScene = "DontDestroyOnLoad";
+        private static readonly Dictionary<GameObjectID, GameObjectBehaviour> Behaviours = new Dictionary<GameObjectID, GameObjectBehaviour>();
 
         /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnActiveStateChanged"/> event.
+        /// Check if object is currently persistent.
         /// </summary>
-        public static void AddActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPersistent(this GameObjectBehaviour behaviour)
         {
-            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged += callback;
-        }
-
-        /// <summary>
-        /// Add listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
-        /// </summary>
-        public static void AddDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
-        {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyed += callback;
+            return IsPersistent(behaviour.CachedGameObject);
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
+        /// Check if object is currently persistent.
         /// </summary>
-        public static void RemoveActiveStateChangedListener(this GameObject gameObject, UnityAction<GameObject, bool> callback)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPersistent(this GameObject gameObject)
         {
-            gameObject.GetOrCreateCachedEventListener().OnActiveStateChanged -= callback;
+            Scene scene = gameObject.scene;
+
+            return scene.buildIndex == -1 && scene.name == DontDestroyOnLoadScene;
         }
 
         /// <summary>
-        /// Remove listener to the <see cref="GameObjectEventListenerComponent.OnDestroyed"/> event.
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
         /// </summary>
-        public static void RemoveDestroyedListener(this GameObject gameObject, UnityAction<GameObject, DestroyEventType> callback)
+        public static GameObjectBehaviour GetOrCreateBehaviour(this Component component)
         {
-            gameObject.GetOrCreateCachedEventListener().OnDestroyed -= callback;
+            return GetOrCreateBehaviour<GameObjectBehaviour>(component.gameObject);
         }
 
-        internal static void RemoveCachedEventListener(this GameObject gameObject)
+        /// <summary>
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
+        /// </summary>
+        public static T GetOrCreateBehaviour<T>(this Component component)
+            where T : GameObjectBehaviour
         {
-            EventListenerFromGameObject.Remove(gameObject);
+            return GetOrCreateBehaviour<T>(component.gameObject);
         }
 
-        private static GameObjectEventListenerComponent GetOrCreateCachedEventListener(this GameObject gameObject)
+        /// <summary>
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
+        /// </summary>
+        public static GameObjectBehaviour GetOrCreateBehaviour(this GameObject gameObject)
         {
-            if (EventListenerFromGameObject.TryGetValue(gameObject, out GameObjectEventListenerComponent eventListener))
+            if (Behaviours.TryGetValue(gameObject, out GameObjectBehaviour behaviour))
             {
-                return eventListener;
+                return behaviour;
             }
 
-            if (!gameObject.TryGetComponent(out eventListener))
+            if (!gameObject.TryGetComponent(out behaviour))
             {
-                eventListener = gameObject.AddComponent<GameObjectEventListenerComponent>();
+                behaviour = gameObject.AddComponent<GameObjectBehaviour>();
             }
 
-            eventListener.OnDestroyed += HandleGameObjectDestroyed;
-            EventListenerFromGameObject.Add(gameObject, eventListener);
+            behaviour.Initialize();
 
-            return eventListener;
+            return behaviour;
         }
 
-        private static void HandleGameObjectDestroyed(GameObject sender, DestroyEventType eventType)
+        /// <summary>
+        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
+        /// </summary>
+        public static T GetOrCreateBehaviour<T>(this GameObject gameObject)
+            where T : GameObjectBehaviour
         {
-            EventListenerFromGameObject.Remove(sender);
+            if (Behaviours.TryGetValue(gameObject, out GameObjectBehaviour behaviour))
+            {
+                return (T)behaviour;
+            }
+
+            if (!gameObject.TryGetComponent(out behaviour))
+            {
+                behaviour = gameObject.AddComponent<T>();
+            }
+
+            behaviour.Initialize();
+
+            return (T)behaviour;
+        }
+
+        internal static void AddCachedBehaviour(GameObjectBehaviour behaviour)
+        {
+            Behaviours.Add(behaviour.CachedGameObject, behaviour);
+        }
+
+        internal static void RemoveCachedBehaviour(GameObjectID id)
+        {
+            Behaviours.Remove(id);
         }
     }
 }

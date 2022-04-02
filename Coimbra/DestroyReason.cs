@@ -1,16 +1,14 @@
-﻿using UnityEngine;
-
-namespace Coimbra
+﻿namespace Coimbra
 {
     /// <summary>
     /// Defines the reason why the OnDestroy callback is being called.
     /// </summary>
-    public enum DestroyEventType
+    public enum DestroyReason
     {
         /// <summary>
-        /// Instigated by a <see cref="Object.Destroy(Object)"/> or <see cref="Object.DestroyImmediate(Object)"/> call (or one of its overloads).
+        /// Instigated by an user code explicitly.
         /// </summary>
-        DestroyCall,
+        ExplicitCall,
         /// <summary>
         /// Instigated by a scene change when the object was not flagged to don't destroy on load.
         /// </summary>

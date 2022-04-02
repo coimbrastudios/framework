@@ -7,7 +7,10 @@ using Debug = UnityEngine.Debug;
 
 namespace Coimbra
 {
-    internal sealed class EventSystem : IEventService
+    /// <summary>
+    /// Default implementation for <see cref="IEventService"/>.
+    /// </summary>
+    public sealed class EventSystem : IEventService
     {
         private delegate bool RemoveHandler(EventHandle key);
 
@@ -38,6 +41,14 @@ namespace Coimbra
 
         /// <inheritdoc/>
         public ServiceLocator OwningLocator { get; set; }
+
+        /// <summary>
+        /// Create a new <see cref="IEventService"/>.
+        /// </summary>
+        public static IEventService Create()
+        {
+            return new EventSystem();
+        }
 
         /// <inheritdoc/>
         public EventHandle AddListener<T>(EventListenerHandler<T> eventCallback)
@@ -185,7 +196,10 @@ namespace Coimbra
 
             e.IsInvoking = true;
 
-            for (int i = 0, count = e.Handles.Count; i < count; i++)
+            for (int i = 0,
+                     count = e.Handles.Count;
+                 i < count;
+                 i++)
             {
                 eventRef.Handle = e.Handles[i];
 
@@ -411,13 +425,8 @@ namespace Coimbra
             return true;
         }
 
-        internal static IEventService Create()
-        {
-            return new EventSystem();
-        }
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
+        private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
         }
@@ -439,7 +448,7 @@ namespace Coimbra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private EventHandle AddListener<T>(ref EventListenerHandler<T> eventCallback)
-            where T:IEvent
+            where T : IEvent
         {
             CheckType(typeof(T));
 

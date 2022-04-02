@@ -4,7 +4,7 @@ using UnityEngine.Scripting;
 namespace Coimbra
 {
     /// <summary>
-    /// Generic way to quickly start pooling your managed objects.
+    /// Generic way to quickly start pooling your managed objects. For pooling <see cref="UnityEngine.GameObject"/> see <see cref="IPoolingService"/>.
     /// </summary>
     [Preserve]
     public sealed class ManagedPool<T> : ManagedPoolBase<T>

@@ -2,29 +2,38 @@
 
 namespace Coimbra
 {
+    /// <summary>
+    /// Default implementation for <see cref="ICoroutineService"/>.
+    /// </summary>
     [AddComponentMenu("")]
-    [DisallowMultipleComponent]
-    internal sealed class CoroutineSystem : MonoBehaviourServiceBase<ICoroutineService>, ICoroutineService
+    public sealed class CoroutineSystem : ServiceBase<ICoroutineService>, ICoroutineService
     {
-        /// <inheritdoc/>
-        protected override void OnDispose()
+        /// <summary>
+        /// Create a new <see cref="ICoroutineService"/>.
+        /// </summary>
+        public static ICoroutineService Create()
         {
-            base.OnDispose();
+            return new GameObject(nameof(CoroutineSystem)).GetOrCreateBehaviour<CoroutineSystem>();
+        }
+
+        /// <inheritdoc/>
+        protected override void OnObjectDespawn()
+        {
             StopAllCoroutines();
+            base.OnObjectDespawn();
+        }
+
+        /// <inheritdoc/>
+        protected override void OnObjectInitialize()
+        {
+            base.OnObjectInitialize();
+            DontDestroyOnLoad(CachedGameObject);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
+        private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
-        }
-
-        private static ICoroutineService Create()
-        {
-            GameObject gameObject = new GameObject(nameof(CoroutineSystem));
-            DontDestroyOnLoad(gameObject);
-
-            return gameObject.AddComponent<CoroutineSystem>();
         }
     }
 }

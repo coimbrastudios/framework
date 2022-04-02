@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
-using UnityEngine.Serialization;
 
 namespace Coimbra
 {
     /// <summary>
-    /// Inherit from this class to create your own pools for managed objects.
+    /// Inherit from this class to create your own pools for managed objects. For pooling <see cref="GameObject"/> see <see cref="IPoolingService"/>.
     /// </summary>
     [Preserve]
     [Serializable]
