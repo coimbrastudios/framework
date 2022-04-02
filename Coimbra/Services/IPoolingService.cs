@@ -49,8 +49,9 @@ namespace Coimbra
         /// Unregisters the specified pool from this service.
         /// </summary>
         /// <param name="pool">The pool to be unregistered.</param>
+        /// <param name="unload">If true, it will also call <see cref="GameObjectPool.Unload"/>.</param>
         /// <returns>True if the pool was unregistered</returns>
-        bool RemovePool(GameObjectPool pool);
+        bool RemovePool(GameObjectPool pool, bool unload);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
         GameObject Spawn(GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false);

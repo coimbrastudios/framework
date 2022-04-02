@@ -34,7 +34,6 @@ namespace Coimbra
         public bool AddPool(GameObjectPool pool)
         {
             if (pool == null
-             || pool.CurrentState != GameObjectPool.State.Unloaded
              || pool.PrefabReference == null
              || _poolsPrefabs.Contains(pool.PrefabReference.RuntimeKey)
              || !_pools.Add(pool))
@@ -46,7 +45,11 @@ namespace Coimbra
             pool.OnStateChanged += HandlePoolStateChanged;
             _poolsPrefabs.Add(pool.PrefabReference.RuntimeKey);
             _poolsLoading.Add(pool);
-            pool.LoadAsync().Forget();
+
+            if (pool.CurrentState == GameObjectPool.State.Unloaded)
+            {
+                pool.LoadAsync().Forget();
+            }
 
             return true;
         }
@@ -115,7 +118,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public bool RemovePool(GameObjectPool pool)
+        public bool RemovePool(GameObjectPool pool, bool unload)
         {
             if (pool == null || !_pools.Remove(pool))
             {
@@ -130,7 +133,11 @@ namespace Coimbra
             _poolsPrefabs.Remove(pool.PrefabReference.RuntimeKey);
             pool.OnStateChanged -= HandlePoolStateChanged;
             pool.OnDestroyed -= HandlePoolDestroyed;
-            pool.Unload();
+
+            if (unload)
+            {
+                pool.Unload();
+            }
 
             return true;
         }
@@ -259,7 +266,7 @@ namespace Coimbra
 
         private void HandlePoolDestroyed(GameObjectBehaviour sender, DestroyReason reason)
         {
-            RemovePool((GameObjectPool)sender);
+            RemovePool((GameObjectPool)sender, false);
         }
 
         private void HandlePoolStateChanged(GameObjectPool pool, GameObjectPool.State previous, GameObjectPool.State current)
@@ -269,7 +276,7 @@ namespace Coimbra
                 case GameObjectPool.State.Unloaded:
                 {
                     _poolsLoading.Remove(pool);
-                    RemovePool(pool);
+                    RemovePool(pool, false);
 
                     break;
                 }

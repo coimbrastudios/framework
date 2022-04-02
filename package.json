@@ -2,7 +2,7 @@
   "name": "com.coimbrastudios.core",
   "displayName": "CS Framework",
   "author": "Bruno Coimbra",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "unity": "2020.3",
   "type": "tool",
   "dependencies": {

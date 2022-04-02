@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.1.0] - --
+
+- Added documentation for public editor APIs.
+- Added parameter to RemovePool to ask if the pool being removed should be unloaded too.
+- Changed AddPool to allow non-unloaded pools, loading it in the process if needed.
+
 ## [5.0.0] - 2022-04-02
 
 - Added EventRef and APIs on IEvenService to use it.

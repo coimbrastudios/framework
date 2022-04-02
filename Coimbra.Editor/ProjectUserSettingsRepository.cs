@@ -11,18 +11,21 @@ namespace Coimbra.Editor
     /// Settings repository to use the new UserSettings folder.
     /// </summary>
     [Serializable]
-    public sealed class UserSettingsFolderRepository : ISettingsRepository
+    public sealed class ProjectUserSettingsRepository : ISettingsRepository
     {
-        [SerializeField] private string _name;
-        [SerializeField] private string _path;
-        [SerializeField] private SettingsDictionary _dictionary = new SettingsDictionary();
+        [SerializeField]
+        private string _name;
+        [SerializeField]
+        private string _path;
+        [SerializeField]
+        private SettingsDictionary _dictionary = new SettingsDictionary();
 
         private const bool PrettyPrintJson = true;
         private const string SettingsDirectory = "UserSettings/Packages";
         private bool _initialized;
         private string _cachedJson;
 
-        public UserSettingsFolderRepository(string package, string name)
+        public ProjectUserSettingsRepository(string package, string name)
         {
             _name = name;
             _path = GetSettingsPath(package, name);
@@ -89,11 +92,13 @@ namespace Coimbra.Editor
 
             try
             {
-                if (!areJsonsEqual)
+                if (areJsonsEqual)
                 {
-                    File.WriteAllText(path, newSettingsJson);
-                    _cachedJson = newSettingsJson;
+                    return;
                 }
+
+                File.WriteAllText(path, newSettingsJson);
+                _cachedJson = newSettingsJson;
             }
             catch (UnauthorizedAccessException)
             {
@@ -116,17 +121,15 @@ namespace Coimbra.Editor
 
             _initialized = true;
 
-            if (File.Exists(path))
+            if (!File.Exists(path))
             {
-                _dictionary = null;
-                _cachedJson = File.ReadAllText(path);
-                EditorJsonUtility.FromJsonOverwrite(_cachedJson, this);
-
-                if (_dictionary == null)
-                {
-                    _dictionary = new SettingsDictionary();
-                }
+                return;
             }
+
+            _dictionary = null;
+            _cachedJson = File.ReadAllText(path);
+            EditorJsonUtility.FromJsonOverwrite(_cachedJson, this);
+            _dictionary ??= new SettingsDictionary();
         }
     }
 }

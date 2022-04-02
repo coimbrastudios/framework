@@ -3,11 +3,15 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Drawer for <see cref="MessageBoxAttribute"/>, <see cref="MessageBoxOnEditModeAttribute"/>, and <see cref="MessageBoxOnPlayModeAttribute"/>.
+    /// </summary>
     [CustomPropertyDrawer(typeof(MessageBoxAttribute))]
     [CustomPropertyDrawer(typeof(MessageBoxOnEditModeAttribute))]
     [CustomPropertyDrawer(typeof(MessageBoxOnPlayModeAttribute))]
     public sealed class MessageBoxDrawer : DecoratorDrawer
     {
+        /// <inheritdoc/>
         public override float GetHeight()
         {
             switch (attribute)
@@ -25,6 +29,7 @@ namespace Coimbra.Editor
             }
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(Rect position)
         {
             if (position.height == 0)

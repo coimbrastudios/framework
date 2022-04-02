@@ -6,6 +6,9 @@ using UnityEngine.Assertions;
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Drawer for <see cref="ManagedField{T}"/>.
+    /// </summary>
     [CustomPropertyDrawer(typeof(ManagedField<>), true)]
     public sealed class ManagedFieldDrawer : PropertyDrawer
     {
@@ -15,6 +18,7 @@ namespace Coimbra.Editor
         private static readonly GUIContent EmptyLabel = new GUIContent(" ");
         private static readonly GUIContent NewLabel = new GUIContent("New");
 
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
@@ -37,12 +41,16 @@ namespace Coimbra.Editor
             return string.IsNullOrWhiteSpace(systemObject.managedReferenceFullTypename) ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight(systemObject, true);
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            OnGUI(position, property, label, true);
+            DrawGUI(position, property, label, true);
         }
 
-        public void OnGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
+        /// <summary>
+        /// Draws a <see cref="ManagedField{T}"/>. Optionally also allow scene objects to be selected.
+        /// </summary>
+        public void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
             object[] tooltipAttributeArray = fieldInfo.GetCustomAttributes(typeof(TooltipAttribute), true);
 

@@ -163,7 +163,6 @@ namespace Coimbra.Editor
             property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, onSetValue);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Type GetCollectionType(this Type type)
         {
             Type value = type.GetElementType();
@@ -178,7 +177,6 @@ namespace Coimbra.Editor
             return arguments.Length > 0 ? arguments[0] : type;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static FieldInfo GetField(Type type, string field)
         {
             if (type == typeof(Vector2Int) || type == typeof(Vector3Int))

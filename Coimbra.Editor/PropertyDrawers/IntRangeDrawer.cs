@@ -3,46 +3,52 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Drawer for <see cref="IntRange"/>.
+    /// </summary>
     [CustomPropertyDrawer(typeof(IntRange))]
     public sealed class IntRangeDrawer : PropertyDrawer
     {
         private const string MaxSerializedProperty = "_max";
         private const string MinSerializedProperty = "_min";
 
+        /// <summary>
+        /// Draws a <see cref="IntRange"/>. Optionally also makes it a delayed field.
+        /// </summary>
+        public static void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool delayed)
+        {
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+
+            position.height = EditorGUIUtility.singleLineHeight;
+
+            Rect labelPosition = position;
+            labelPosition.width = EditorGUIUtility.labelWidth;
+            EditorGUI.LabelField(labelPosition, propertyScope.content);
+
+            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            {
+                position.x += labelPosition.width;
+                position.width -= labelPosition.width;
+
+                SerializedProperty minProperty = property.FindPropertyRelative(MinSerializedProperty);
+                SerializedProperty maxProperty = property.FindPropertyRelative(MaxSerializedProperty);
+                DrawGUI(position, minProperty, maxProperty, delayed);
+            }
+        }
+
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUIUtility.singleLineHeight;
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            OnGUI(position, property, label, false);
+            DrawGUI(position, property, label, false);
         }
 
-        public void OnGUI(Rect position, SerializedProperty property, GUIContent label, bool delayed)
-        {
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property))
-            {
-                position.height = EditorGUIUtility.singleLineHeight;
-
-                Rect labelPosition = position;
-                labelPosition.width = EditorGUIUtility.labelWidth;
-                EditorGUI.LabelField(labelPosition, propertyScope.content);
-
-                using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
-                {
-                    position.x += labelPosition.width;
-                    position.width -= labelPosition.width;
-
-                    SerializedProperty minProperty = property.FindPropertyRelative(MinSerializedProperty);
-                    SerializedProperty maxProperty = property.FindPropertyRelative(MaxSerializedProperty);
-
-                    DrawGUI(position, minProperty, maxProperty, delayed);
-                }
-            }
-        }
-
-        private void DrawGUI(Rect position, SerializedProperty minProperty, SerializedProperty maxProperty, bool delayed)
+        private static void DrawGUI(Rect position, SerializedProperty minProperty, SerializedProperty maxProperty, bool delayed)
         {
             position.height = EditorGUIUtility.singleLineHeight;
 

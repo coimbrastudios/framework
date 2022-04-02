@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 
@@ -41,6 +40,41 @@ namespace Coimbra.Editor
 
         private PropertyPathInfo Next { get; }
 
+        public override string ToString()
+        {
+            if (_propertyPath != null)
+            {
+                return _propertyPath;
+            }
+
+            StringBuilder builder = new StringBuilder();
+            PropertyPathInfo current = this;
+
+            do
+            {
+                builder.Append($"{current.FieldInfo.Name}");
+
+                if (current.Index.HasValue)
+                {
+                    builder.Append($"[{current.Index}]");
+                }
+
+                current = current.Next;
+
+                if (current == null)
+                {
+                    break;
+                }
+
+                builder.Append(".");
+            }
+            while (true);
+
+            _propertyPath = builder.ToString();
+
+            return _propertyPath;
+        }
+
         /// <summary>
         /// Get the object that contains that field.
         /// </summary>
@@ -53,7 +87,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetScope"/>
-        [CanBeNull] [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [CanBeNull]
         public T GetScope<T>([NotNull] Object context)
         {
             object value = GetScope(context);
@@ -64,7 +98,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the object that contains that field for each context.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
+        [NotNull] [Pure]
         public object[] GetScopes([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -78,7 +112,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
+        [NotNull] [Pure]
         public T[] GetScopes<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];
@@ -92,7 +126,6 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetScopes([NotNull] Object[] context, [NotNull] List<object> append)
         {
             int capacity = append.Count + context.Length;
@@ -110,7 +143,6 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetScopes<T>([NotNull] Object[] context, [NotNull] List<T> append)
         {
             int capacity = append.Count + context.Length;
@@ -140,7 +172,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValue"/>
-        [CanBeNull] [MethodImpl(MethodImplOptions.AggressiveInlining)] [Pure]
+        [CanBeNull] [Pure]
         public T GetValue<T>([NotNull] Object context)
         {
             object value = GetValue(context);
@@ -151,7 +183,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the field value for each context.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
+        [NotNull] [Pure]
         public object[] GetValues([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -165,7 +197,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] [NotNull] [Pure]
+        [NotNull] [Pure]
         public T[] GetValues<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];
@@ -179,7 +211,6 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetValues([NotNull] Object[] context, [NotNull] List<object> append)
         {
             int capacity = append.Count + context.Length;
@@ -196,7 +227,6 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetValues<T>([NotNull] Object[] context, [NotNull] List<T> append)
         {
             int capacity = append.Count + context.Length;
@@ -267,7 +297,6 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="SetValue{T}(Object,T)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValue<T>([NotNull] Object target, [NotNull] SetValueHandler<T> callback)
         {
             T oldValue = GetValue<T>(target);
@@ -278,7 +307,6 @@ namespace Coimbra.Editor
         /// <summary>
         /// Set the field value for each context.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValues<T>([NotNull] Object[] targets, [CanBeNull] T value)
         {
             foreach (Object target in targets)
@@ -288,48 +316,12 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="SetValues{T}(Object[],T)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValues<T>([NotNull] Object[] targets, [NotNull] SetValueHandler<T> callback)
         {
             foreach (Object target in targets)
             {
                 SetValue(target, callback);
             }
-        }
-
-        public override string ToString()
-        {
-            if (_propertyPath != null)
-            {
-                return _propertyPath;
-            }
-
-            StringBuilder builder = new StringBuilder();
-            PropertyPathInfo current = this;
-
-            do
-            {
-                builder.Append($"{current.FieldInfo.Name}");
-
-                if (current.Index.HasValue)
-                {
-                    builder.Append($"[{current.Index}]");
-                }
-
-                current = current.Next;
-
-                if (current == null)
-                {
-                    break;
-                }
-
-                builder.Append(".");
-            }
-            while (true);
-
-            _propertyPath = builder.ToString();
-
-            return _propertyPath;
         }
 
         private static object GetScopeInternal(ref PropertyPathInfo propertyPathInfo, object context)

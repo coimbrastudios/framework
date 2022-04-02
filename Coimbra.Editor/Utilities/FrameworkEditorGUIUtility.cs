@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -123,7 +122,6 @@ namespace Coimbra.Editor
         /// </summary>
         /// <param name="value">The input value.</param>
         /// <returns>The more human-readable string.</returns>
-        [SuppressMessage("ReSharper", "CognitiveComplexity")]
         public static string ToDisplayName(string value)
         {
             const char underscore = '_';
