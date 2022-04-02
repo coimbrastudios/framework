@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using Coimbra.Settings;
+using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,7 +8,11 @@ using UnityEngine.AddressableAssets;
 
 namespace Coimbra
 {
-    internal sealed class PoolingSystem : IPoolingService
+    /// <summary>
+    /// Default implementation for <see cref="IPoolingService"/>.
+    /// </summary>
+    [AddComponentMenu("")]
+    public sealed class PoolingSystem : ServiceBase<IPoolingService>, IPoolingService
     {
         private readonly List<GameObjectPool> _poolsLoading = new List<GameObjectPool>();
         private readonly HashSet<object> _poolsPrefabs = new HashSet<object>();
@@ -14,13 +20,18 @@ namespace Coimbra
         private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
 
         /// <inheritdoc/>
-        public ServiceLocator OwningLocator { get; set; }
-
-        /// <inheritdoc/>
         public IReadOnlyList<GameObjectPool> PoolsLoading => _poolsLoading;
 
+        /// <summary>
+        /// Create a new <see cref="IPoolingService"/>.
+        /// </summary>
+        public static IPoolingService Create()
+        {
+            return new GameObject(nameof(PoolingSystem)).GetOrCreateBehaviour<PoolingSystem>();
+        }
+
         /// <inheritdoc/>
-        public bool AddPool(GameObjectPool pool, bool isPersistent)
+        public bool AddPool(GameObjectPool pool)
         {
             if (pool == null
              || pool.CurrentState != GameObjectPool.State.Unloaded
@@ -31,10 +42,11 @@ namespace Coimbra
                 return false;
             }
 
+            pool.OnDestroyed += HandlePoolDestroyed;
             pool.OnStateChanged += HandlePoolStateChanged;
             _poolsPrefabs.Add(pool.PrefabReference.RuntimeKey);
             _poolsLoading.Add(pool);
-            pool.Load();
+            pool.LoadAsync().Forget();
 
             return true;
         }
@@ -64,7 +76,7 @@ namespace Coimbra
             }
             else if (!Addressables.ReleaseInstance(instance))
             {
-                Object.Destroy(instance);
+                Destroy(instance);
             }
 
             return GameObjectPool.DespawnResult.Destroyed;
@@ -86,12 +98,6 @@ namespace Coimbra
             instance.Destroy();
 
             return GameObjectPool.DespawnResult.Destroyed;
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            // TODO
         }
 
         /// <inheritdoc/>
@@ -123,17 +129,10 @@ namespace Coimbra
 
             _poolsPrefabs.Remove(pool.PrefabReference.RuntimeKey);
             pool.OnStateChanged -= HandlePoolStateChanged;
+            pool.OnDestroyed -= HandlePoolDestroyed;
             pool.Unload();
 
             return true;
-        }
-
-        /// <inheritdoc/>
-        public bool SetPoolPersistent(GameObjectPool pool, bool isPersistent)
-        {
-            // TODO
-
-            return false;
         }
 
         /// <inheritdoc/>
@@ -144,7 +143,7 @@ namespace Coimbra
                 return pool.Spawn(parent, spawnInWorldSpace);
             }
 
-            GameObject instance = Object.Instantiate(prefab, parent, spawnInWorldSpace);
+            GameObject instance = Instantiate(prefab, parent, spawnInWorldSpace);
 
             if (instance.TryGetComponent(out GameObjectBehaviour behaviour))
             {
@@ -162,7 +161,7 @@ namespace Coimbra
                 return pool.Spawn(position, rotation, parent);
             }
 
-            GameObject instance = Object.Instantiate(prefab, position, rotation, parent);
+            GameObject instance = Instantiate(prefab, position, rotation, parent);
 
             if (instance.TryGetComponent(out GameObjectBehaviour behaviour))
             {
@@ -187,7 +186,7 @@ namespace Coimbra
                 return pool.Spawn(parent, spawnInWorldSpace) as T;
             }
 
-            return Object.Instantiate(prefab, parent, spawnInWorldSpace).GetOrCreateBehaviour() as T;
+            return Instantiate(prefab, parent, spawnInWorldSpace).GetOrCreateBehaviour<T>();
         }
 
         /// <inheritdoc/>
@@ -199,7 +198,7 @@ namespace Coimbra
                 return pool.Spawn(position, rotation, parent) as T;
             }
 
-            return Object.Instantiate(prefab, position, rotation, parent).GetOrCreateBehaviour() as T;
+            return Instantiate(prefab, position, rotation, parent).GetOrCreateBehaviour<T>();
         }
 
         /// <inheritdoc/>
@@ -207,6 +206,60 @@ namespace Coimbra
             where T : GameObjectBehaviour
         {
             return Spawn(prefab, position, Quaternion.Euler(rotation), parent);
+        }
+
+        /// <inheritdoc/>
+        protected override void OnObjectDespawn()
+        {
+            _poolFromPrefab.Clear();
+            _poolsLoading.Clear();
+            _poolsPrefabs.Clear();
+
+            foreach (GameObjectPool pool in _pools)
+            {
+                pool.OnDestroyed -= HandlePoolDestroyed;
+                pool.OnStateChanged -= HandlePoolStateChanged;
+                pool.Unload();
+            }
+
+            _pools.Clear();
+            base.OnObjectDespawn();
+        }
+
+        protected override void OnObjectSpawn()
+        {
+            base.OnObjectSpawn();
+            DontDestroyOnLoad(CachedGameObject);
+
+            if (!ScriptableSettings.TryGetOrFind(out PoolingSettings poolingSettings))
+            {
+                return;
+            }
+
+            foreach (LazyLoadReference<GameObjectPool> pool in poolingSettings.DefaultPersistentPools)
+            {
+                if (pool.isSet && !pool.isBroken)
+                {
+                    AddPool(Instantiate(pool.asset, CachedTransform));
+                }
+            }
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void HandleSubsystemRegistration()
+        {
+            ServiceLocator.Shared.SetCreateCallback(Create, false);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void HandleBeforeSceneLoad()
+        {
+            ServiceLocator.Shared.Get<IPoolingService>();
+        }
+
+        private void HandlePoolDestroyed(GameObjectBehaviour sender, DestroyReason reason)
+        {
+            RemovePool((GameObjectPool)sender);
         }
 
         private void HandlePoolStateChanged(GameObjectPool pool, GameObjectPool.State previous, GameObjectPool.State current)

@@ -7,7 +7,10 @@ using Debug = UnityEngine.Debug;
 
 namespace Coimbra
 {
-    internal sealed class EventSystem : IEventService
+    /// <summary>
+    /// Default implementation for <see cref="IEventService"/>.
+    /// </summary>
+    public sealed class EventSystem : IEventService
     {
         private delegate bool RemoveHandler(EventHandle key);
 
@@ -38,6 +41,14 @@ namespace Coimbra
 
         /// <inheritdoc/>
         public ServiceLocator OwningLocator { get; set; }
+
+        /// <summary>
+        /// Create a new <see cref="IEventService"/>.
+        /// </summary>
+        public static IEventService Create()
+        {
+            return new EventSystem();
+        }
 
         /// <inheritdoc/>
         public EventHandle AddListener<T>(EventListenerHandler<T> eventCallback)
@@ -414,13 +425,8 @@ namespace Coimbra
             return true;
         }
 
-        internal static IEventService Create()
-        {
-            return new EventSystem();
-        }
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
+        private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
         }

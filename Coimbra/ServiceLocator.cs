@@ -137,7 +137,6 @@ namespace Coimbra
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The service instance.</returns>
         [CanBeNull]
-        [Pure]
         public T Get<T>()
             where T : class, IService
         {
@@ -225,6 +224,7 @@ namespace Coimbra
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
+        [Pure]
         public bool HasCreateCallback<T>()
             where T : class, IService
         {
@@ -236,6 +236,7 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The service type.</param>
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
+        [Pure]
         public bool HasCreateCallback([NotNull] Type type)
         {
             CheckType(type);
@@ -248,6 +249,7 @@ namespace Coimbra
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        [Pure]
         public bool IsCreated<T>()
             where T : class, IService
         {
@@ -259,6 +261,7 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The service type.</param>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        [Pure]
         public bool IsCreated([NotNull] Type type)
         {
             CheckType(type);
@@ -348,7 +351,6 @@ namespace Coimbra
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service does not exists.</returns>
-        [Pure]
         public bool TryGet<T>([CanBeNull] out T value)
             where T : class, IService
         {

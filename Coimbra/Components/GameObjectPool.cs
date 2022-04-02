@@ -13,7 +13,7 @@ namespace Coimbra
     [PublicAPI]
     [Preserve]
     [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Pool")]
-    public sealed class GameObjectPool : MonoBehaviour
+    public sealed class GameObjectPool : GameObjectBehaviour
     {
         /// <summary>
         /// Results available when trying to despawn an object.
@@ -82,6 +82,10 @@ namespace Coimbra
         [Tooltip("The prefab that this pool is using.")]
         private AssetReferenceT<GameObject> _prefabReference;
         [SerializeField]
+        [DisableOnPlayMode]
+        [Tooltip("If true, this pool will automatically load.")]
+        private bool _autoLoad;
+        [SerializeField]
         [Tooltip("If true, instantiate will be used when spawn fails.")]
         private bool _canInstantiateOnSpawn = true;
         [SerializeField]
@@ -98,9 +102,9 @@ namespace Coimbra
         [Tooltip("Amount of instances available from the beginning. This is clamped between 0 and the current Max Capacity.")]
         private int _preloadCount = 1;
         [SerializeField]
+        [DisableOnPlayMode]
         [Min(0)]
         [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity, else it will also clamp the current Preload Count.")]
-        [DisableOnPlayMode]
         private int _maxCapacity = 1;
         [SerializeField]
         [DisableOnPlayMode]
@@ -120,6 +124,23 @@ namespace Coimbra
         /// The current pool state.
         /// </summary>
         public State CurrentState => _currentState;
+
+        /// <summary>
+        /// If true, this pool will automatically load.
+        /// </summary>
+        public bool AutoLoad
+        {
+            get => _autoLoad;
+            set
+            {
+                _autoLoad = value;
+
+                if (_autoLoad && _currentState == State.Unloaded && IsSpawned)
+                {
+                    LoadAsync().Forget();
+                }
+            }
+        }
 
         /// <summary>
         /// If true, instantiate will be used when spawn fails.
@@ -213,7 +234,7 @@ namespace Coimbra
             {
                 if (_currentState != State.Unloaded)
                 {
-                    Debug.LogError($"Can't change the prefab of a {nameof(GameObjectPool)} currently in use!", gameObject);
+                    Debug.LogError($"Can't change the prefab of a {nameof(GameObjectPool)} currently in use!", CachedGameObject);
                 }
                 else
                 {
@@ -250,105 +271,20 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Despawns the specified instance.
-        /// </summary>
-        /// <param name="instance">The instance to despawn.</param>
-        /// <returns>The result of the call.</returns>
-        public DespawnResult Despawn(GameObject instance)
-        {
-            return Despawn(instance.GetOrCreateBehaviour());
-        }
-
-        /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        public DespawnResult Despawn(GameObjectBehaviour instance)
-        {
-            if (_currentState == State.Unloaded)
-            {
-                GameObject o = gameObject;
-                Debug.LogWarning($"{o} is useless while unloaded!", o);
-
-                return DespawnResult.Aborted;
-            }
-
-            GameObjectID id = instance;
-
-            if (_availableInstancesIds.Contains(id))
-            {
-                return DespawnResult.Aborted;
-            }
-
-            instance.Despawn();
-
-            if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity)
-            {
-                if (!_keepParentOnDespawn)
-                {
-                    instance.transform.SetParent(_containerTransform, false);
-                }
-
-                _availableInstances.Push(instance);
-                _availableInstancesIds.Add(id);
-
-                return DespawnResult.Despawned;
-            }
-
-            instance.Destroy();
-
-            return DespawnResult.Destroyed;
-        }
-
-        /// <summary>
-        /// Unloads this pool, destroying all the current available instances in the process.
-        /// </summary>
-        /// <returns>True if was able to unload the pool.</returns>
-        public bool Unload()
-        {
-            if (_currentState == State.Unloaded)
-            {
-                GameObject o = gameObject;
-                Debug.LogWarning($"Pool {o} is unloaded already!", o);
-
-                return false;
-            }
-
-            _prefabReference.ReleaseAsset();
-
-            if (_availableInstances != null)
-            {
-                for (int i = 0,
-                         count = _availableInstances.Count;
-                     i < count;
-                     i++)
-                {
-                    _availableInstances.Pop().GetValid()?.Destroy();
-                }
-
-                _availableInstances = null;
-            }
-
-            _availableInstancesIds = null;
-            ChangeCurrentState(State.Unloaded);
-
-            return true;
-        }
-
-        /// <summary>
         /// Loads this pool, instancing the amount of preloaded instances in the process.
         /// </summary>
-        public async UniTask Load()
+        public async UniTask LoadAsync()
         {
             if (_currentState != State.Unloaded)
             {
-                GameObject o = gameObject;
-                Debug.LogWarning($"Pool {o} is {_currentState} already!", o);
+                Debug.LogWarning($"Pool {CachedGameObject} is {_currentState} already!", CachedGameObject);
 
                 return;
             }
 
             if (_prefabReference == null)
             {
-                GameObject o = gameObject;
-                Debug.LogError($"{o} requires a non-null prefab to load!", o);
+                Debug.LogError($"{CachedGameObject} requires a non-null prefab to load!", CachedGameObject);
 
                 return;
             }
@@ -377,7 +313,7 @@ namespace Coimbra
 
                     for (int i = 0; i < _preloadCount; i++)
                     {
-                        tasks.Enqueue(Addressables.InstantiateAsync(_prefabReference, _containerTransform).Task);
+                        tasks.Enqueue(_prefabReference.InstantiateAsync(_containerTransform).Task);
                     }
 
                     for (int i = 0; i < _preloadCount; i++)
@@ -398,10 +334,91 @@ namespace Coimbra
                 _prefab.Pool = pool;
                 ChangeCurrentState(State.Loaded);
             }
-            catch
+            catch (Exception e)
             {
-                // ignored
+                Debug.Log(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Despawns the specified instance.
+        /// </summary>
+        /// <param name="instance">The instance to despawn.</param>
+        /// <returns>The result of the call.</returns>
+        public DespawnResult Despawn(GameObject instance)
+        {
+            return Despawn(instance.GetOrCreateBehaviour());
+        }
+
+        /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
+        public DespawnResult Despawn(GameObjectBehaviour instance)
+        {
+            if (_currentState == State.Unloaded)
+            {
+                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
+
+                return DespawnResult.Aborted;
+            }
+
+            GameObjectID id = instance;
+
+            if (_availableInstancesIds.Contains(id))
+            {
+                return DespawnResult.Aborted;
+            }
+
+            if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity)
+            {
+                instance.Despawn();
+
+                if (!_keepParentOnDespawn)
+                {
+                    instance.CachedTransform.SetParent(_containerTransform, false);
+                }
+
+                _availableInstances.Push(instance);
+                _availableInstancesIds.Add(id);
+
+                return DespawnResult.Despawned;
+            }
+
+            instance.Destroy();
+
+            return DespawnResult.Destroyed;
+        }
+
+        /// <summary>
+        /// Unloads this pool, destroying all the current available instances in the process.
+        /// </summary>
+        /// <returns>True if was able to unload the pool.</returns>
+        public bool Unload()
+        {
+            if (_currentState == State.Unloaded)
+            {
+                Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
+
+                return false;
+            }
+
+            _prefabReference.ReleaseAsset();
+
+            if (_availableInstances != null)
+            {
+                for (int i = 0,
+                         count = _availableInstances.Count;
+                     i < count;
+                     i++)
+                {
+                    _availableInstances.Pop().GetValid()?.Destroy();
+                }
+
+                _availableInstances = null;
+            }
+
+            _availableInstancesIds = null;
+            ChangeCurrentState(State.Unloaded);
+
+            return true;
         }
 
         /// <summary>
@@ -414,8 +431,7 @@ namespace Coimbra
         {
             if (_currentState == State.Unloaded)
             {
-                GameObject o = gameObject;
-                Debug.LogWarning($"{o} is useless while unloaded!", o);
+                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
 
                 return null;
             }
@@ -458,8 +474,7 @@ namespace Coimbra
         {
             if (_currentState == State.Unloaded)
             {
-                GameObject o = gameObject;
-                Debug.LogWarning($"{o} is useless while unloaded!", o);
+                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
 
                 return null;
             }
@@ -498,29 +513,29 @@ namespace Coimbra
             return Spawn(position, Quaternion.Euler(rotation), parent);
         }
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
-        public T Spawn<T>(Transform parent = null, bool spawnInWorldSpace = false)
-            where T : GameObjectBehaviour
+        protected override void OnObjectSpawn()
         {
-            return Spawn(parent, spawnInWorldSpace) as T;
+            base.OnObjectSpawn();
+
+            if (_autoLoad)
+            {
+                LoadAsync().Forget();
+            }
         }
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        public T Spawn<T>(Vector3 position, Quaternion rotation, Transform parent = null)
-            where T : GameObjectBehaviour
+        protected override void OnObjectDespawn()
         {
-            return Spawn(position, rotation, parent) as T;
-        }
+            if (_currentState != State.Unloaded)
+            {
+                Unload();
+            }
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        public T Spawn<T>(Vector3 position, Vector3 rotation, Transform parent = null)
-            where T : GameObjectBehaviour
-        {
-            return Spawn(position, Quaternion.Euler(rotation), parent) as T;
+            base.OnObjectDespawn();
         }
 
         private void Reset()
         {
+            _autoLoad = true;
             _containerTransform = transform;
         }
 

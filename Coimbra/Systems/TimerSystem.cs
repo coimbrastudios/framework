@@ -8,8 +8,7 @@ namespace Coimbra
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    [DisallowMultipleComponent]
-    internal sealed class TimerSystem : MonoBehaviourServiceBase<ITimerService>, ITimerService
+    public sealed class TimerSystem : ServiceBase<ITimerService>, ITimerService
     {
         private sealed class TimerComponentPool : ManagedPoolBase<TimerComponent>
         {
@@ -54,8 +53,15 @@ namespace Coimbra
         }
 
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
+        private TimerComponentPool _timerComponentPool;
 
-        private TimerComponentPool Pool { get; set; }
+        /// <summary>
+        /// Create a new <see cref="ITimerService"/>.
+        /// </summary>
+        public static ITimerService Create()
+        {
+            return new GameObject(nameof(TimerSystem)).GetOrCreateBehaviour<TimerSystem>();
+        }
 
         /// <inheritdoc/>
         public bool IsTimerActive(in TimerHandle timerHandle)
@@ -71,7 +77,7 @@ namespace Coimbra
                 return new TimerHandle();
             }
 
-            TimerComponent component = Pool.Get();
+            TimerComponent component = _timerComponentPool.Get();
             TimerHandle handle = TimerHandle.Create();
             component.CompletedLoops = 0;
             component.TargetLoops = 1;
@@ -91,7 +97,7 @@ namespace Coimbra
                 return new TimerHandle();
             }
 
-            TimerComponent component = Pool.Get();
+            TimerComponent component = _timerComponentPool.Get();
             TimerHandle handle = TimerHandle.Create();
             component.CompletedLoops = 0;
             component.TargetLoops = loops;
@@ -108,7 +114,7 @@ namespace Coimbra
         {
             foreach (KeyValuePair<TimerHandle, TimerComponent> pair in _instances)
             {
-                Pool.Release(pair.Value);
+                _timerComponentPool.Release(pair.Value);
             }
 
             _instances.Clear();
@@ -123,29 +129,33 @@ namespace Coimbra
             }
 
             _instances.Remove(timerHandle);
-            Pool.Release(context);
+            _timerComponentPool.Release(context);
         }
 
         /// <inheritdoc/>
-        protected override void OnDispose()
+        protected override void OnObjectDespawn()
         {
-            base.OnDispose();
             StopAllTimers();
-            Pool.Reset();
+            _timerComponentPool.Reset();
+            base.OnObjectDespawn();
         }
 
-        internal static ITimerService Create()
+        protected override void OnObjectDestroy()
         {
-            GameObject gameObject = new GameObject(nameof(TimerSystem));
-            TimerSystem system = gameObject.AddComponent<TimerSystem>();
-            system.Pool = new TimerComponentPool(gameObject, system);
-            DontDestroyOnLoad(gameObject);
+            _timerComponentPool = null;
+            base.OnObjectDestroy();
+        }
 
-            return system;
+        /// <inheritdoc/>
+        protected override void OnObjectInitialize()
+        {
+            base.OnObjectInitialize();
+            _timerComponentPool = new TimerComponentPool(CachedGameObject, this);
+            DontDestroyOnLoad(CachedGameObject);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
+        private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
         }

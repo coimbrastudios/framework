@@ -4,30 +4,28 @@ using UnityEngine;
 namespace Coimbra
 {
     [DisallowMultipleComponent]
-    public abstract class MonoBehaviourServiceBase<T> : MonoBehaviour, IService
+    public abstract class ServiceBase<T> : GameObjectBehaviour, IService
         where T : class, IService
     {
         [SerializeReference]
         [Disable]
         private ServiceLocator _owningLocator;
 
-        private bool _isDisposed;
-
-        static MonoBehaviourServiceBase()
+        static ServiceBase()
         {
             if (!typeof(T).IsInterface)
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires an interface type argument!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires an interface type argument!");
             }
 
             if (typeof(T) == typeof(IService))
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
             }
 
             if (!typeof(IService).IsAssignableFrom(typeof(T)))
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(MonoBehaviourServiceBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
             }
         }
 
@@ -51,32 +49,8 @@ namespace Coimbra
         /// <inheritdoc/>
         public void Dispose()
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            _isDisposed = true;
-
-            OnDispose();
-
-            _owningLocator?.Set<T>(null);
-
-            if (gameObject != null)
-            {
-                Destroy(gameObject);
-            }
+            Destroy();
         }
-
-        protected virtual void OnDestroy()
-        {
-            Dispose();
-        }
-
-        /// <summary>
-        /// Called on beginning of <see cref="Dispose"/> before attempting to destroy the gameObject
-        /// </summary>
-        protected virtual void OnDispose() { }
 
         /// <summary>
         /// Will be called after the <see cref="OwningLocator"/> has been set and only if the value actually changed.
@@ -84,5 +58,13 @@ namespace Coimbra
         /// <param name="oldValue">The value before.</param>
         /// <param name="newValue">The value after. Is the same as the current <see cref="OwningLocator"/>.</param>
         protected virtual void OnOwningLocatorChanged(ServiceLocator oldValue, ServiceLocator newValue) { }
+
+        /// <inheritdoc/>
+        protected override void OnObjectDespawn()
+        {
+            _owningLocator?.Set<T>(null);
+            OwningLocator = null;
+            base.OnObjectDespawn();
+        }
     }
 }

@@ -16,9 +16,8 @@ namespace Coimbra
         /// Registers the specified pool on this service.
         /// </summary>
         /// <param name="pool">The pool to be registered.</param>
-        /// <param name="isPersistent">Should the pool persist through scene changes?</param>
         /// <returns>True if the pool was registered.</returns>
-        bool AddPool(GameObjectPool pool, bool isPersistent);
+        bool AddPool(GameObjectPool pool);
 
         /// <summary>
         /// Checks if a pool is registered on this service.
@@ -53,14 +52,6 @@ namespace Coimbra
         /// <returns>True if the pool was unregistered</returns>
         bool RemovePool(GameObjectPool pool);
 
-        /// <summary>
-        /// Sets if the specified pool persist through scene changes.
-        /// </summary>
-        /// <param name="pool"></param>
-        /// <param name="isPersistent">Should the pool persist through scene changes?</param>
-        /// <returns>True if the operation succeed.</returns>
-        bool SetPoolPersistent(GameObjectPool pool, bool isPersistent);
-
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
         GameObject Spawn(GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false);
 
@@ -70,15 +61,15 @@ namespace Coimbra
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
         GameObject Spawn(GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null);
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
+        /// <inheritdoc cref="Spawn(GameObject, Transform, bool)"/>
         T Spawn<T>(T prefab, Transform parent = null, bool spawnInWorldSpace = false)
             where T : GameObjectBehaviour;
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
+        /// <inheritdoc cref="Spawn(GameObject, Vector3, Quaternion, Transform)"/>
         T Spawn<T>(T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
             where T : GameObjectBehaviour;
 
-        /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
+        /// <inheritdoc cref="Spawn(GameObject, Vector3, Quaternion, Transform)"/>
         T Spawn<T>(T prefab, Vector3 position, Vector3 rotation, Transform parent = null)
             where T : GameObjectBehaviour;
     }

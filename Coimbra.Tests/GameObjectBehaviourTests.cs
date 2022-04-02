@@ -68,7 +68,6 @@ namespace Coimbra.Tests
             prefab.Pool = new GameObject().AddComponent<GameObjectPool>();
 
             GameObjectBehaviour instance = Object.Instantiate(prefab);
-            instance.Initialize();
             Assert.That(instance.IsPooled, Is.True);
         }
 

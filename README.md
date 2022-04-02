@@ -6,6 +6,7 @@ Package of general utilities to be used with Unity development.
 
 - Field Attributes: `Disable`, `Indent`, or add a `MessageBox` to a serialized field.
 - GameObject Behaviour: Create a behaviour to control a GameObject as if were extending the GameObject class itself.
+- GameObject Extensions: Check if a GameObject `IsPersistent` and `GetOrCreateBehaviour` easily.
 - GameObject Pools: Specialized pooling implementation for GameObjects.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.

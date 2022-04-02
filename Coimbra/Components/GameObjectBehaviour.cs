@@ -32,7 +32,6 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroyed;
 
-        private bool _isAwaken;
         private bool _isDestroyed;
         private bool _isInitialized;
         private bool _isQuitting;
@@ -50,15 +49,11 @@ namespace Coimbra
         /// <summary>
         /// Indicates if the object belongs to a pool as <see cref="Pool"/> can already be null due a scene change.
         /// </summary>
-        [field: SerializeField]
-        [field: Disable]
         public bool IsPooled { get; private set; }
 
         /// <summary>
         /// Indicates if the object is currently spawned or should be treated as non-spawned.
         /// </summary>
-        [field: SerializeField]
-        [field: Disable]
         public bool IsSpawned { get; private set; }
 
         /// <summary>
@@ -78,29 +73,7 @@ namespace Coimbra
         /// </summary>
         public void Destroy()
         {
-            if (_isDestroyed)
-            {
-                return;
-            }
-
-            _isDestroyed = true;
-            Despawn();
-            OnObjectDestroy();
-
-            if (!_isAwaken)
-            {
-                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
-                GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
-            }
-
-            if (!Addressables.ReleaseInstance(CachedGameObject))
-            {
-                Destroy(CachedGameObject);
-            }
-
-            CachedGameObject = null;
-            CachedTransform = null;
-            Pool = null;
+            Destroy(true);
         }
 
         /// <summary>
@@ -119,6 +92,11 @@ namespace Coimbra
             CachedTransform = transform;
             GameObjectUtility.AddCachedBehaviour(this);
             OnObjectInitialize();
+
+            if (!IsPooled)
+            {
+                Spawn();
+            }
         }
 
         /// <summary>
@@ -126,7 +104,6 @@ namespace Coimbra
         /// </summary>
         protected void Awake()
         {
-            _isAwaken = true;
             Initialize();
         }
 
@@ -151,31 +128,9 @@ namespace Coimbra
         /// </summary>
         protected void OnDestroy()
         {
-            _isDestroyed = true;
             CachedGameObject = gameObject;
             CachedTransform = transform;
-
-            if (!IsPooled)
-            {
-                OnObjectDestroy();
-            }
-
-            if (_isQuitting)
-            {
-                OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
-            }
-            else if (CachedGameObject.scene.isLoaded)
-            {
-                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
-            }
-            else
-            {
-                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
-            }
-
-            OnActiveStateChanged = null;
-            OnDestroyed = null;
-            GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
+            Destroy(false);
         }
 
         /// <summary>
@@ -213,32 +168,67 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool Despawn()
+        internal void Despawn()
         {
             if (!IsSpawned)
             {
-                return false;
+                return;
             }
 
             IsSpawned = false;
             OnObjectDespawn();
-
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool Spawn()
+        internal void Spawn()
         {
             if (IsSpawned)
             {
-                return false;
+                return;
             }
 
-            Initialize();
             IsSpawned = true;
             OnObjectSpawn();
+        }
 
-            return true;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Destroy(bool callDestroy)
+        {
+            if (_isDestroyed)
+            {
+                return;
+            }
+
+            _isDestroyed = true;
+            Despawn();
+            OnObjectDestroy();
+
+            if (_isQuitting)
+            {
+                OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
+            }
+            else if (CachedGameObject.scene.isLoaded)
+            {
+                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
+            }
+            else
+            {
+                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
+            }
+
+            Addressables.ReleaseInstance(CachedGameObject);
+
+            if (callDestroy)
+            {
+                Object.Destroy(CachedGameObject);
+            }
+
+            OnActiveStateChanged = null;
+            OnDestroyed = null;
+            GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
+            CachedGameObject = null;
+            CachedTransform = null;
+            Pool = null;
         }
     }
 }

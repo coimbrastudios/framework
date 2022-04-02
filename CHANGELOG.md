@@ -1,14 +1,17 @@
 # Changelog
 
-## [5.0.0] - --
+## [5.0.0] - 2022-04-02
 
 - Added EventRef and APIs on IEvenService to use it.
 - Added call to Dispose inside OnDestroy in MonoBehaviourServiceBase.
 - Added GameObjectBehaviour class that works similar to extending GameObject class itself.
 - Added GameObjectPool and IPoolingService for pooling of GameObjects.
-- Changed MonoBehaviourServiceBase to allow multiple on the same GameObject.
+- Added IsPersistent API for GameObjects.
+- Changed ScriptableSettings.Set to receive a bool parameter to define if an existing value can be overriden.
+- Changed MonoBehaviourServiceBase to ServiceBase.
 - Changed EventListenerHandler to use the new EventRef type.
 - Changed GameObjectEventListenerComponent functionality to the new GameObjectBehaviour class.
+- Changed back the default services implementations (Systems) to be public.
 
 ## [4.0.0] - 2022-03-25
 

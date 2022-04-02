@@ -39,8 +39,8 @@ namespace Coimbra.Tests
         [TearDown]
         public void TearDown()
         {
-            Addressables.ReleaseInstance(_pool.gameObject);
-            Addressables.ReleaseInstance(_poolWithInactivePrefab.gameObject);
+            _pool.Destroy();
+            _poolWithInactivePrefab.Destroy();
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Coimbra.Tests
                 Debug.Log(current);
             };
 
-            _pool.Load();
+            _pool.LoadAsync().Forget();
             Assert.That(_pool.CurrentState, Is.EqualTo(GameObjectPool.State.Loading));
             LogAssert.Expect(LogType.Log, GameObjectPool.State.Loading.ToString());
         }
@@ -79,7 +79,7 @@ namespace Coimbra.Tests
                 Debug.Log(current);
             };
 
-            _pool.Load();
+            _pool.LoadAsync().Forget();
 
             Assert.That(_pool.CurrentState, Is.EqualTo(GameObjectPool.State.Loading));
 
@@ -96,7 +96,7 @@ namespace Coimbra.Tests
                 Debug.Log(current);
             };
 
-            _pool.Load();
+            _pool.LoadAsync().Forget();
             Assert.That(_pool.Unload(), Is.True);
             Assert.That(_pool.CurrentState, Is.EqualTo(GameObjectPool.State.Unloaded));
             LogAssert.Expect(LogType.Log, GameObjectPool.State.Unloaded.ToString());
@@ -106,7 +106,7 @@ namespace Coimbra.Tests
         [Timeout(Timeout)]
         public IEnumerator GivenLoadedPool_WhenUnload_ThenStateIsUnloaded()
         {
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             Assert.That(_pool.CurrentState, Is.EqualTo(GameObjectPool.State.Loaded));
             Assert.That(_pool.Unload(), Is.True);
@@ -117,10 +117,10 @@ namespace Coimbra.Tests
         [Timeout(Timeout)]
         public IEnumerator GivenLoadedPool_WhenUnload_AndLoad_ThenStateIsLoadedEventually()
         {
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             _pool.Unload();
-            _pool.Load();
+            _pool.LoadAsync().Forget();
 
             Assert.That(_pool.CurrentState, Is.EqualTo(GameObjectPool.State.Loading));
 
@@ -136,7 +136,7 @@ namespace Coimbra.Tests
             _pool.OnObjectInstantiated += delegate(GameObjectPool pool, GameObjectBehaviour instance)
             {
                 Debug.Log(pool);
-                Assert.That(instance.IsSpawned, Is.False);
+                Assert.That(instance.IsSpawned, Is.False, nameof(instance.IsSpawned));
                 AssertInstanceIsValid(pool, instance);
             };
 
@@ -145,7 +145,7 @@ namespace Coimbra.Tests
                 LogAssert.Expect(LogType.Log, _pool.ToString());
             }
 
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
         }
 
         [UnityTest]
@@ -157,7 +157,7 @@ namespace Coimbra.Tests
             _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, GameObjectBehaviour instance)
             {
                 Debug.Log(pool);
-                Assert.That(instance.IsSpawned, Is.False);
+                Assert.That(instance.IsSpawned, Is.False, nameof(instance.IsSpawned));
                 AssertInstanceIsValid(pool, instance);
             };
 
@@ -166,7 +166,7 @@ namespace Coimbra.Tests
                 LogAssert.Expect(LogType.Log, _poolWithInactivePrefab.ToString());
             }
 
-            yield return _poolWithInactivePrefab.Load().ToCoroutine();
+            yield return _poolWithInactivePrefab.LoadAsync().ToCoroutine();
         }
 
         [UnityTest]
@@ -176,7 +176,7 @@ namespace Coimbra.Tests
             _poolWithInactivePrefab.MaxCapacity = 1;
             _poolWithInactivePrefab.PreloadCount = 1;
 
-            yield return _poolWithInactivePrefab.Load().ToCoroutine();
+            yield return _poolWithInactivePrefab.LoadAsync().ToCoroutine();
 
             GameObjectBehaviour instance = _poolWithInactivePrefab.Spawn();
             Assert.That(instance.IsSpawned, Is.True);
@@ -189,7 +189,7 @@ namespace Coimbra.Tests
             _pool.MaxCapacity = 1;
             _pool.PreloadCount = 1;
 
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             GameObjectBehaviour instance = _pool.Spawn();
             Assert.That(_pool.Despawn(instance), Is.EqualTo(GameObjectPool.DespawnResult.Despawned));
@@ -203,7 +203,7 @@ namespace Coimbra.Tests
             _pool.PreloadCount = 1;
             _pool.MaxCapacity = 1;
 
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             GameObject instance = new GameObject();
             Assert.That(_pool.Despawn(instance), Is.EqualTo(GameObjectPool.DespawnResult.Destroyed));
@@ -220,7 +220,7 @@ namespace Coimbra.Tests
             _pool.PreloadCount = 1;
             _pool.MaxCapacity = 1;
 
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             GameObjectBehaviour instanceA = _pool.Spawn();
             _pool.Despawn(instanceA);
@@ -244,7 +244,7 @@ namespace Coimbra.Tests
                 };
             };
 
-            yield return _poolWithInactivePrefab.Load().ToCoroutine();
+            yield return _poolWithInactivePrefab.LoadAsync().ToCoroutine();
 
             _poolWithInactivePrefab.Unload();
             LogAssert.Expect(LogType.Log, DestroyReason.ExplicitCall.ToString());
@@ -271,7 +271,7 @@ namespace Coimbra.Tests
             _pool.MaxCapacity = 5;
             _pool.PreloadCount = 5;
 
-            yield return _pool.Load().ToCoroutine();
+            yield return _pool.LoadAsync().ToCoroutine();
 
             Assert.That(_pool.AvailableInstancesCount, Is.EqualTo(5));
             _pool.MaxCapacity = 1;
@@ -280,10 +280,10 @@ namespace Coimbra.Tests
 
         private static void AssertInstanceIsValid(GameObjectPool pool, GameObjectBehaviour instance)
         {
-            Assert.That(instance.Pool, Is.EqualTo(pool));
-            Assert.That(instance.CachedTransform, Is.EqualTo(instance.transform));
-            Assert.That(instance.CachedGameObject, Is.EqualTo(instance.gameObject));
-            Assert.That(instance.IsPooled, Is.True);
+            Assert.That(instance.Pool, Is.EqualTo(pool), nameof(instance.Pool));
+            Assert.That(instance.CachedTransform, Is.EqualTo(instance.transform), nameof(instance.CachedTransform));
+            Assert.That(instance.CachedGameObject, Is.EqualTo(instance.gameObject), nameof(instance.CachedGameObject));
+            Assert.That(instance.IsPooled, Is.True, nameof(instance.IsPooled));
         }
 #endif
     }

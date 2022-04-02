@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -14,7 +15,12 @@ namespace Coimbra
     {
         private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
 
+        /// <summary>
+        /// Should this setting be included in the preloaded assets?
+        /// </summary>
         [field: SerializeField]
+        [field: Tooltip("Should this setting be included in the preloaded assets?")]
+        [PublicAPI]
         public bool Preload { get; protected set; } = true;
 
         /// <inheritdoc cref="Get"/>
@@ -39,10 +45,10 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="Set"/>
-        public static void Set<T>(T value, bool ignoreWarning = false)
+        public static void Set<T>(T value, bool forceSet)
             where T : ScriptableSettings
         {
-            Set(typeof(T), value, ignoreWarning);
+            Set(typeof(T), value, forceSet);
         }
 
         /// <inheritdoc cref="TryGet"/>
@@ -120,20 +126,31 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Sets the value for the specified type. By default, it also logs a warning if trying to override a valid value.
+        /// Sets the value for the specified type.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
-        /// <param name="ignoreWarning">If true, no warning wil be logged if trying to override a valid value.</param>
-        protected static void Set(Type type, ScriptableSettings value, bool ignoreWarning = false)
+        /// <param name="forceSet">If false, it will not change the value if previously set.</param>
+        protected static void Set(Type type, ScriptableSettings value, bool forceSet)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
             value = value.GetValid();
 
-            if (!ignoreWarning && TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
+            if (TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
             {
-                Debug.LogWarning($"Overriding value of {type} in {nameof(ScriptableSettings)}! Changing from \"{currentValue}\" to \"{value}\".");
+                if (forceSet)
+                {
+                    Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
+                    Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                }
+                else
+                {
+                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{currentValue}\"!", currentValue);
+                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
+
+                    return;
+                }
             }
 
             if (value != null)
@@ -217,18 +234,7 @@ namespace Coimbra
         protected virtual void OnEnable()
         {
             Type type = GetType();
-
-            if (TryGet(type, out ScriptableSettings current))
-            {
-                if (current != this)
-                {
-                    Debug.LogWarning($"Skipping changing settings of type {type} from \"{current}\" to \"{this}\"!", this);
-                }
-            }
-            else
-            {
-                Set(type, this);
-            }
+            Set(type, this, false);
         }
 
         protected virtual void OnDisable()
@@ -237,7 +243,7 @@ namespace Coimbra
 
             if (TryGet(type, out ScriptableSettings current) && current == this)
             {
-                Set(type, null);
+                Set(type, null, true);
             }
         }
 
