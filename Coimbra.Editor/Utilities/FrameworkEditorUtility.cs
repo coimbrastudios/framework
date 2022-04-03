@@ -143,6 +143,7 @@ namespace Coimbra.Editor
                     {
                         SessionState.SetString(PlayModeStartSceneKey, AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
                         EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorBuildSettings.scenes[StartupSceneIndex.value].path);
+                        Debug.LogWarning($"Editor Startup Scene: \"{EditorSceneManager.playModeStartScene}\"");
                     }
 
                     break;
@@ -150,11 +151,6 @@ namespace Coimbra.Editor
 
                 case PlayModeStateChange.EnteredPlayMode:
                 {
-                    if (EditorSceneManager.playModeStartScene != null)
-                    {
-                        Debug.LogWarning($"Startup Scene: {EditorSceneManager.playModeStartScene}");
-                    }
-
                     const string invalid = "<null>";
                     string playModeStartScene = SessionState.GetString(PlayModeStartSceneKey, invalid);
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.1.1] - --
+
+- Fixed unloading of pools that are not fully loaded being inefficient.
+
 ## [5.1.0] - 2022-04-03
 
 - Added documentation for public editor APIs.

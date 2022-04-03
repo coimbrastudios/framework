@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Scripting;
@@ -294,6 +293,12 @@ namespace Coimbra
             try
             {
                 GameObject prefab = await _prefabReference.LoadAssetAsync().Task;
+
+                if (!_prefabReference.IsValid())
+                {
+                    return;
+                }
+
                 _prefab = prefab.GetOrCreateBehaviour();
 
                 GameObjectPool pool = _prefab.Pool;
@@ -307,18 +312,22 @@ namespace Coimbra
                         prefab.SetActive(false);
                     }
 
-                    Queue<Task<GameObject>> tasks = new Queue<Task<GameObject>>(_preloadCount);
-                    _availableInstances = new Stack<GameObjectBehaviour>(_preloadCount);
+                    int savedPreloadCount = _preloadCount;
+                    _availableInstances = new Stack<GameObjectBehaviour>(savedPreloadCount);
                     _availableInstancesIds = new HashSet<GameObjectID>();
 
-                    for (int i = 0; i < _preloadCount; i++)
+                    for (int i = 0; i < savedPreloadCount; i++)
                     {
-                        tasks.Enqueue(_prefabReference.InstantiateAsync(_containerTransform).Task);
-                    }
+                        GameObject instance = await _prefabReference.InstantiateAsync(_containerTransform).Task;
 
-                    for (int i = 0; i < _preloadCount; i++)
-                    {
-                        GameObject instance = await tasks.Dequeue();
+                        if (!_prefabReference.IsValid())
+                        {
+                            Addressables.ReleaseInstance(instance);
+                            Destroy(instance);
+
+                            return;
+                        }
+
                         GameObjectBehaviour behaviour = instance.GetOrCreateBehaviour();
                         Instantiate(behaviour);
                         _availableInstances.Push(behaviour);
@@ -336,7 +345,7 @@ namespace Coimbra
             }
             catch (Exception e)
             {
-                Debug.Log(e.Message);
+                Debug.LogException(e, CachedGameObject);
             }
         }
 
@@ -385,40 +394,6 @@ namespace Coimbra
             instance.Destroy();
 
             return DespawnResult.Destroyed;
-        }
-
-        /// <summary>
-        /// Unloads this pool, destroying all the current available instances in the process.
-        /// </summary>
-        /// <returns>True if was able to unload the pool.</returns>
-        public bool Unload()
-        {
-            if (_currentState == State.Unloaded)
-            {
-                Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
-
-                return false;
-            }
-
-            _prefabReference.ReleaseAsset();
-
-            if (_availableInstances != null)
-            {
-                for (int i = 0,
-                         count = _availableInstances.Count;
-                     i < count;
-                     i++)
-                {
-                    _availableInstances.Pop().GetValid()?.Destroy();
-                }
-
-                _availableInstances = null;
-            }
-
-            _availableInstancesIds = null;
-            ChangeCurrentState(State.Unloaded);
-
-            return true;
         }
 
         /// <summary>
@@ -511,6 +486,40 @@ namespace Coimbra
         public GameObjectBehaviour Spawn(Vector3 position, Vector3 rotation, Transform parent = null)
         {
             return Spawn(position, Quaternion.Euler(rotation), parent);
+        }
+
+        /// <summary>
+        /// Unloads this pool, destroying all the current available instances in the process.
+        /// </summary>
+        /// <returns>True if was able to unload the pool.</returns>
+        public bool Unload()
+        {
+            if (_currentState == State.Unloaded)
+            {
+                Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
+
+                return false;
+            }
+
+            _prefabReference.ReleaseAsset();
+
+            if (_availableInstances != null)
+            {
+                for (int i = 0,
+                         count = _availableInstances.Count;
+                     i < count;
+                     i++)
+                {
+                    _availableInstances.Pop().GetValid()?.Destroy();
+                }
+
+                _availableInstances = null;
+            }
+
+            _availableInstancesIds = null;
+            ChangeCurrentState(State.Unloaded);
+
+            return true;
         }
 
         protected override void OnObjectSpawn()
