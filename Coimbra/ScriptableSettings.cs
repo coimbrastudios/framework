@@ -141,8 +141,11 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
-                    Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                    if (!FrameworkUtility.IsReloadingScripts)
+                    {
+                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
+                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                    }
                 }
                 else
                 {

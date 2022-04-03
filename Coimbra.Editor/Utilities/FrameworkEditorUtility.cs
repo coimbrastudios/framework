@@ -1,14 +1,92 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEditor.SettingsManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Coimbra.Editor
 {
-    internal sealed class FrameworkEditorUtility : AssetPostprocessor
+    /// <summary>
+    /// General editor utilities.
+    /// </summary>
+    [InitializeOnLoad]
+    public sealed class FrameworkEditorUtility : AssetPostprocessor
     {
-        internal static void CreateAssetWithFolderHierarchy(Object asset, string path)
+        private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
+        private const string ClearConsoleOnReloadItem = FrameworkUtility.PreferencesMenuPath + "Clear Console On Reload";
+        private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
+        private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
+        private const string EditorStartupSceneCategory = "Editor Startup Scene";
+
+        [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
+        private static readonly ProjectSetting<int> StartupSceneIndex = new ProjectSetting<int>("General.EditorStartupSceneIndex", -1);
+
+        static FrameworkEditorUtility()
+        {
+            AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
+            AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
+            EditorApplication.playModeStateChanged -= ConfigureStartupScene;
+            EditorApplication.playModeStateChanged += ConfigureStartupScene;
+            EditorApplication.delayCall += UpdateCheckedItems;
+        }
+
+        /// <summary>
+        /// Asserts that all types that inherits from a serializable type are also serializable.
+        /// </summary>
+        [MenuItem(FrameworkUtility.ToolsMenuPath + "Assert Serializable Types")]
+        public static void AssertSerializableTypes()
+        {
+            foreach (Type serializableType in TypeCache.GetTypesWithAttribute<SerializableAttribute>())
+            {
+                if ((serializableType.Attributes & TypeAttributes.Serializable) == 0)
+                {
+                    continue;
+                }
+
+                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(serializableType))
+                {
+                    bool condition = (derivedType.Attributes & TypeAttributes.Serializable) != 0;
+                    string message = $"{derivedType.FullName} is not serializable and inherits from {serializableType.FullName} that is serializable!";
+                    Debug.Assert(condition, message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Requests a script reload.
+        /// </summary>
+        [MenuItem(FrameworkUtility.ToolsMenuPath + "Reload Scripts")]
+        public static void ReloadScripts()
+        {
+            EditorUtility.RequestScriptReload();
+        }
+
+        /// <summary>
+        /// Toggles the option set for clearing the console on script reloads.
+        /// </summary>
+        [MenuItem(ClearConsoleOnReloadItem)]
+        public static void ToggleClearConsoleOnReload()
+        {
+            bool value = !EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
+            EditorPrefs.SetBool(ClearConsoleOnReloadKey, value);
+            Menu.SetChecked(ClearConsoleOnReloadItem, value);
+        }
+
+        /// <summary>
+        /// Clears the console windows.
+        /// </summary>
+        public static void ClearConsoleWindow()
+        {
+            UnityInternals.ClearLogEntries();
+        }
+
+        /// <summary>
+        /// Create an asset alongside its folder hierarchy if needed.
+        /// </summary>
+        public static void CreateAssetWithFolderHierarchy(UnityEngine.Object asset, string path)
         {
             string[] folders = path.Split('/');
             string current = folders[0];
@@ -28,36 +106,72 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        internal static void DeleteDirectory(string directoryPath, bool onlyIfEmpty, bool recursiveDelete)
+        /// <summary>
+        /// Updates currently checked menu items for this class.
+        /// </summary>
+        public static void UpdateCheckedItems()
         {
-            if (!Directory.Exists(directoryPath))
+            bool value = EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
+            Menu.SetChecked(ClearConsoleOnReloadItem, value);
+            FrameworkUtility.IsReloadingScripts = false;
+        }
+
+        private static void HandleBeforeAssemblyReload()
+        {
+            if (EditorPrefs.GetBool(ClearConsoleOnReloadKey, false))
+            {
+                ClearConsoleWindow();
+            }
+
+            FrameworkUtility.IsReloadingScripts = true;
+        }
+
+        private static void ConfigureStartupScene(PlayModeStateChange state)
+        {
+            if (StartupSceneIndex.value < 0 || StartupSceneIndex.value >= SceneManager.sceneCountInBuildSettings)
             {
                 return;
             }
 
-            bool isEmpty = !Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories).Any()
-                        && !Directory.EnumerateDirectories(directoryPath, "*", SearchOption.AllDirectories).Any();
-
-            if (onlyIfEmpty && !isEmpty)
+            switch (state)
             {
-                return;
-            }
+                case PlayModeStateChange.ExitingEditMode:
+                {
+                    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
-            string relativePath = directoryPath.Replace("\\", "/").Replace(Application.dataPath, "Assets");
+                    if (currentSceneIndex >= 0 && currentSceneIndex != StartupSceneIndex.value)
+                    {
+                        SessionState.SetString(PlayModeStartSceneKey, AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
+                        EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorBuildSettings.scenes[StartupSceneIndex.value].path);
+                    }
 
-            if (AssetDatabase.IsValidFolder(relativePath))
-            {
-                AssetDatabase.DeleteAsset(relativePath);
-            }
-            else
-            {
-                Directory.Delete(directoryPath, recursiveDelete);
+                    break;
+                }
+
+                case PlayModeStateChange.EnteredPlayMode:
+                {
+                    if (EditorSceneManager.playModeStartScene != null)
+                    {
+                        Debug.LogWarning($"Startup Scene: {EditorSceneManager.playModeStartScene}");
+                    }
+
+                    const string invalid = "<null>";
+                    string playModeStartScene = SessionState.GetString(PlayModeStartSceneKey, invalid);
+
+                    if (playModeStartScene != invalid)
+                    {
+                        EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(playModeStartScene);
+                        SessionState.EraseString(PlayModeStartSceneKey);
+                    }
+
+                    break;
+                }
             }
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
+            using Disposable<List<UnityEngine.Object>> pooledList = ManagedPool<List<UnityEngine.Object>>.Shared.GetDisposable();
             pooledList.Value.Clear();
             pooledList.Value.AddRange(PlayerSettings.GetPreloadedAssets());
 

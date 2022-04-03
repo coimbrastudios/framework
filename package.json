@@ -1,13 +1,13 @@
 {
   "name": "com.coimbrastudios.core",
-  "displayName": "CS Framework",
+  "displayName": "Coimbra Framework",
   "author": "Bruno Coimbra",
   "version": "5.1.0",
   "unity": "2020.3",
   "type": "tool",
   "dependencies": {
     "com.unity.addressables": "1.18.19",
-    "com.unity.settings-manager": "1.0.3"
+    "com.unity.settings-manager": "2.0.1"
   },
   "description": "Package of general utilities to be used with Unity development."
 }

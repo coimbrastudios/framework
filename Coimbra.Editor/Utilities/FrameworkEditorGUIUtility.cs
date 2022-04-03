@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Coimbra Studios general editor GUI utilities.
+    /// General editor GUI utilities.
     /// </summary>
     public static class FrameworkEditorGUIUtility
     {

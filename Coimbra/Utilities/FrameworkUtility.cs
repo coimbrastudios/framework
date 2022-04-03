@@ -3,15 +3,19 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    /// Coimbra Studios general utilities.
+    /// General utilities.
     /// </summary>
     public static class FrameworkUtility
     {
+        internal const string EditorUserPreferencesPath = UserPreferencesPath + "/Editor";
         internal const string GeneralMenuPath = "Coimbra/";
         internal const string PackageName = "com.coimbrastudios.core";
+        internal const string PreferencesMenuPath = ToolsMenuPath + "Preferences/";
         internal const string ProjectAssetsFolderPath = "Assets/com.coimbrastudios.core";
-        internal const string ProjectSettingsPath = "Project/Coimbra";
-        internal const string UserPreferencesPath = "Preferences/Coimbra";
+        internal const string ProjectSettingsPath = "Project/Coimbra Framework";
+        internal const string ProjectUserPreferencesPath = UserPreferencesPath + "/Project";
+        internal const string ToolsMenuPath = "Tools/Coimbra Framework/";
+        internal const string UserPreferencesPath = "Preferences/Coimbra Framework";
 
         /// <summary>
         /// Returns true if the application is currently in Edit Mode. Always return false in a build.
@@ -27,6 +31,11 @@ namespace Coimbra
 #endif
             }
         }
+
+        /// <summary>
+        /// Are scripts currently reloading?
+        /// </summary>
+        public static bool IsReloadingScripts { get; internal set; }
 
         /// <summary>
         /// Returns true if the application is currently in Play Mode. Always return true in a build.

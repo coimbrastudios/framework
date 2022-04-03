@@ -4,6 +4,8 @@ Package of general utilities to be used with Unity development.
 
 ## List of Content
 
+- Editor Startup Scene: Add easy way to always load a specific scene when going to play inside the editor.
+- Editor Tools: Add some general utilities under `Tools/Coimbra Framework` menu.
 - Field Attributes: `Disable`, `Indent`, or add a `MessageBox` to a serialized field.
 - GameObject Behaviour: Create a behaviour to control a GameObject as if were extending the GameObject class itself.
 - GameObject Extensions: Check if a GameObject `IsPersistent` and `GetOrCreateBehaviour` easily.
