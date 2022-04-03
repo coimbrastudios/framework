@@ -6,9 +6,9 @@
 - Added `Editor Startup Scene` feature through the project settings window.
 - Added parameter to RemovePool to ask if the pool being removed should be unloaded too.
 - Added FrameworkUtility.IsReloadingScripts to allow runtime code to check for that safely.
-- Added menu item `Tools/Coimbra/Assert Serializable Types`.
-- Added menu item `Tools/Coimbra/Reload Scripts`.
-- Added menu item `Tools/Coimbra/Preferences/Clear Console On Reload`.
+- Added menu item `Tools/Coimbra Framework/Assert Serializable Types`.
+- Added menu item `Tools/Coimbra Framework/Reload Scripts`.
+- Added menu item `Tools/Coimbra Framework/Preferences/Clear Console On Reload`.
 - Added FrameworkEditorUtility.ClearConsoleWindow API.
 - Changed `Settings Manager` dependency version to 2.0.1.
 - Changed package display name to `Coimbra Framework`.
