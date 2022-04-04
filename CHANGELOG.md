@@ -2,8 +2,8 @@
 
 ## [6.0.0] - --
 
-- Changed `ManagedPool.Shared` to a new class `SharedPool`.
-- Changed `ManagedPoolBase` to `ManagedPool`, alongside any API breaking changes.
+- Changed `ManagedPool<T>.Shared` to a new class `SharedManagedPool`.
+- Changed `ManagedPoolBase<T>` to `ManagedPool<T>`, alongside many API breaking changes.
 - Fixed unloading of pools that are not fully loaded being inefficient.
 
 ## [5.1.0] - 2022-04-03

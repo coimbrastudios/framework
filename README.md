@@ -14,7 +14,7 @@ Package of general utilities to be used with Unity development.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
 - List Extensions: Add `Clear()` overload that accepts a new min capacity, useful when combined with `ManagedPool` API.
 - Object Extensions: Add `GetValid()`, `IsValid()` and `TryGetValid()` methods to object class to have a safe way to work with abstractions in Unity Objects.
-- Object Pooling: Use `ManagedPool` or `SharedPool` for pooling any managed objects.
+- Object Pooling: Use `ManagedPool` or `SharedManagedPool` for pooling any managed objects.
 - References: Create a `Reference` for any value or even another reference.
 - Service Locator: Implement the `ServiceLocator` pattern easily. And it comes with a few services already:
   - `IApplicationService`: Responsible for the built-in events and compatibility with Enter Play Mode Options.

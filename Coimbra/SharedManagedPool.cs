@@ -8,7 +8,7 @@ namespace Coimbra
     /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor.
     /// </summary>
     [Preserve]
-    public static class SharedPool
+    public static class SharedManagedPool
     {
         [Preserve]
         internal static class Instance<T>
