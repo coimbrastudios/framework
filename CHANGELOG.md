@@ -1,6 +1,6 @@
 # Changelog
 
-## [6.0.0] - --
+## [6.0.0] - 2022-04-04
 
 - Changed `ManagedPool<T>.Shared` to a new class `SharedManagedPool`.
 - Changed `ManagedPoolBase<T>` to `ManagedPool<T>`, alongside many API breaking changes.
