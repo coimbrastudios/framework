@@ -10,50 +10,8 @@ namespace Coimbra
     [AddComponentMenu("")]
     public sealed class TimerSystem : ServiceBase<ITimerService>, ITimerService
     {
-        private sealed class TimerComponentPool : ManagedPoolBase<TimerComponent>
-        {
-            private readonly GameObject _gameObject;
-            private readonly ITimerService _service;
-
-            public TimerComponentPool(GameObject gameObject, ITimerService service)
-            {
-                _gameObject = gameObject;
-                _service = service;
-            }
-
-            /// <inheritdoc/>
-            protected override TimerComponent OnCreate()
-            {
-                TimerComponent instance = _gameObject.AddComponent<TimerComponent>();
-                instance.Service = _service;
-
-                return instance;
-            }
-
-            /// <inheritdoc/>
-            protected override void OnDelete(TimerComponent item)
-            {
-                if (item != null)
-                {
-                    Destroy(item);
-                }
-            }
-
-            /// <inheritdoc/>
-            protected override void OnGet(TimerComponent item)
-            {
-                item.enabled = true;
-            }
-
-            /// <inheritdoc/>
-            protected override void OnRelease(TimerComponent item)
-            {
-                item.enabled = false;
-            }
-        }
-
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
-        private TimerComponentPool _timerComponentPool;
+        private ManagedPool<TimerComponent> _timerComponentPool;
 
         /// <summary>
         /// Create a new <see cref="ITimerService"/>.
@@ -77,7 +35,7 @@ namespace Coimbra
                 return new TimerHandle();
             }
 
-            TimerComponent component = _timerComponentPool.Get();
+            TimerComponent component = _timerComponentPool.Pop();
             TimerHandle handle = TimerHandle.Create();
             component.CompletedLoops = 0;
             component.TargetLoops = 1;
@@ -97,7 +55,7 @@ namespace Coimbra
                 return new TimerHandle();
             }
 
-            TimerComponent component = _timerComponentPool.Get();
+            TimerComponent component = _timerComponentPool.Pop();
             TimerHandle handle = TimerHandle.Create();
             component.CompletedLoops = 0;
             component.TargetLoops = loops;
@@ -114,7 +72,7 @@ namespace Coimbra
         {
             foreach (KeyValuePair<TimerHandle, TimerComponent> pair in _instances)
             {
-                _timerComponentPool.Release(pair.Value);
+                _timerComponentPool.Push(pair.Value);
             }
 
             _instances.Clear();
@@ -129,14 +87,14 @@ namespace Coimbra
             }
 
             _instances.Remove(timerHandle);
-            _timerComponentPool.Release(context);
+            _timerComponentPool.Push(context);
         }
 
         /// <inheritdoc/>
         protected override void OnObjectDespawn()
         {
             StopAllTimers();
-            _timerComponentPool.Reset();
+            _timerComponentPool.Initialize();
             base.OnObjectDespawn();
         }
 
@@ -150,7 +108,37 @@ namespace Coimbra
         protected override void OnObjectInitialize()
         {
             base.OnObjectInitialize();
-            _timerComponentPool = new TimerComponentPool(CachedGameObject, this);
+
+            _timerComponentPool = new ManagedPool<TimerComponent>(delegate
+            {
+                TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
+                instance.Service = this;
+
+                return instance;
+            });
+
+            static void onDelete(TimerComponent component)
+            {
+                if (component != null)
+                {
+                    Destroy(component);
+                }
+            }
+
+            static void onPop(TimerComponent component)
+            {
+                component.enabled = true;
+            }
+
+            static void onPush(TimerComponent component)
+            {
+                component.enabled = false;
+            }
+
+            _timerComponentPool.OnDelete += onDelete;
+            _timerComponentPool.OnPop += onPop;
+            _timerComponentPool.OnPush += onPush;
+
             DontDestroyOnLoad(CachedGameObject);
         }
 

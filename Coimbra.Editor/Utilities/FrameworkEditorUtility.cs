@@ -167,26 +167,28 @@ namespace Coimbra.Editor
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            using Disposable<List<UnityEngine.Object>> pooledList = ManagedPool<List<UnityEngine.Object>>.Shared.GetDisposable();
-            pooledList.Value.Clear();
-            pooledList.Value.AddRange(PlayerSettings.GetPreloadedAssets());
-
-            int count = pooledList.Value.Count;
-
-            for (int i = count - 1; i >= 0; i--)
+            using (SharedPool.Pop(out List<UnityEngine.Object> pooledList))
             {
-                if (pooledList.Value[i] == null)
+                pooledList.Clear();
+                pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
+
+                int count = pooledList.Count;
+
+                for (int i = count - 1; i >= 0; i--)
                 {
-                    pooledList.Value.RemoveAt(i);
+                    if (pooledList[i] == null)
+                    {
+                        pooledList.RemoveAt(i);
+                    }
                 }
-            }
 
-            if (count != pooledList.Value.Count)
-            {
-                PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
-            }
+                if (count != pooledList.Count)
+                {
+                    PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
+                }
 
-            pooledList.Value.Clear();
+                pooledList.Clear();
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿#if !UNITY_2021_2_OR_NEWER
+using JetBrains.Annotations;
+#endif
 using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEditor.SettingsManagement;

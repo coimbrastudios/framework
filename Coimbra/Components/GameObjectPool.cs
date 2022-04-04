@@ -98,12 +98,12 @@ namespace Coimbra
         private bool _keepParentOnDespawn = true;
         [SerializeField]
         [Min(0)]
-        [Tooltip("Amount of instances available from the beginning. This is clamped between 0 and the current Max Capacity.")]
+        [Tooltip("Amount of instances available from the beginning.")]
         private int _preloadCount = 1;
         [SerializeField]
         [DisableOnPlayMode]
         [Min(0)]
-        [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity, else it will also clamp the current Preload Count.")]
+        [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity.")]
         private int _maxCapacity = 1;
         [SerializeField]
         [DisableOnPlayMode]
@@ -178,16 +178,16 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Amount of instances available from the beginning. This is clamped between 0 and the current <see cref="MaxCapacity"/>.
+        /// Amount of instances available from the beginning.
         /// </summary>
         public int PreloadCount
         {
             get => _preloadCount;
-            set => _preloadCount = _maxCapacity == 0 ? Mathf.Max(value, 0) : Mathf.Clamp(value, 0, _maxCapacity);
+            set => _preloadCount = Mathf.Max(value, 0);
         }
 
         /// <summary>
-        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity, else it will also clamp the current <see cref="PreloadCount"/>.
+        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity.
         /// </summary>
         public int MaxCapacity
         {
@@ -196,14 +196,7 @@ namespace Coimbra
             {
                 _maxCapacity = Mathf.Max(value, 0);
 
-                if (_maxCapacity == 0)
-                {
-                    return;
-                }
-
-                _preloadCount = Mathf.Clamp(_preloadCount, 0, _maxCapacity);
-
-                if (_availableInstances == null)
+                if (_maxCapacity == 0 || _availableInstances == null)
                 {
                     return;
                 }
@@ -312,11 +305,11 @@ namespace Coimbra
                         prefab.SetActive(false);
                     }
 
-                    int savedPreloadCount = _preloadCount;
-                    _availableInstances = new Stack<GameObjectBehaviour>(savedPreloadCount);
+                    int targetCount = _maxCapacity > 0 ? Mathf.Min(_preloadCount, _maxCapacity) : _preloadCount;
+                    _availableInstances = new Stack<GameObjectBehaviour>(targetCount);
                     _availableInstancesIds = new HashSet<GameObjectID>();
 
-                    for (int i = 0; i < savedPreloadCount; i++)
+                    for (int i = 0; i < targetCount; i++)
                     {
                         GameObject instance = await _prefabReference.InstantiateAsync(_containerTransform).Task;
 
@@ -546,12 +539,6 @@ namespace Coimbra
         {
             _autoLoad = true;
             _containerTransform = transform;
-        }
-
-        private void OnValidate()
-        {
-            PreloadCount = _preloadCount;
-            MaxCapacity = _maxCapacity;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

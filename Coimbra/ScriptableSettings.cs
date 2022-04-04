@@ -215,21 +215,23 @@ namespace Coimbra
             }
             else
             {
-                using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
-                pooledList.Value.Clear();
-                pooledList.Value.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
-
-                if (!pooledList.Value.Remove(this))
+                using (SharedPool.Pop(out List<Object> pooledList))
                 {
-                    pooledList.Value.Clear();
+                    pooledList.Clear();
+                    pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
 
-                    return;
+                    if (!pooledList.Remove(this))
+                    {
+                        pooledList.Clear();
+
+                        return;
+                    }
+
+                    while (pooledList.Remove(this)) { }
+
+                    UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
+                    pooledList.Clear();
                 }
-
-                while (pooledList.Value.Remove(this)) { }
-
-                UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
-                pooledList.Value.Clear();
             }
 #endif
         }
@@ -261,25 +263,27 @@ namespace Coimbra
 
         private void EnsurePreload(bool withWarning)
         {
-            using Disposable<List<Object>> pooledList = ManagedPool<List<Object>>.Shared.GetDisposable();
-            pooledList.Value.Clear();
-            pooledList.Value.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
-
-            if (pooledList.Value.Contains(this))
+            using (SharedPool.Pop(out List<Object> pooledList))
             {
-                pooledList.Value.Clear();
+                pooledList.Clear();
+                pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
 
-                return;
+                if (pooledList.Contains(this))
+                {
+                    pooledList.Clear();
+
+                    return;
+                }
+
+                if (withWarning)
+                {
+                    Debug.LogWarning($"Fixing \"{this}\" not being added to the preloaded assets.", this);
+                }
+
+                pooledList.Add(this);
+                UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
+                pooledList.Clear();
             }
-
-            if (withWarning)
-            {
-                Debug.LogWarning($"Fixing \"{this}\" not being added to the preloaded assets.", this);
-            }
-
-            pooledList.Value.Add(this);
-            UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.Value.ToArray());
-            pooledList.Value.Clear();
         }
 #endif
     }

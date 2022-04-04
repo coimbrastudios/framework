@@ -9,7 +9,7 @@ namespace Coimbra.Editor
 {
     /// <summary>
     /// Reflection information for a given <a href="https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html">SerializedProperty</a>.
-    /// To build one use <see cref="PropertyPathInfoExtensions.GetPropertyPathInfo(UnityEditor.SerializedProperty)"/>.
+    /// To build one use <see cref="PropertyPathInfoUtility.GetPropertyPathInfo(UnityEditor.SerializedProperty)"/>.
     /// </summary>
     public sealed class PropertyPathInfo
     {
