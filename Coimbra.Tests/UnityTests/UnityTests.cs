@@ -8,7 +8,7 @@ namespace Coimbra.Tests.UnityTests
     public class UnityTests
     {
         [Test]
-        public void AssumesAwakeIsCalledWithoutDelay_WhenAdding()
+        public void GivenAddComponent_ThenAwakeIsCalledWithoutDelay()
         {
             LogAssert.Expect(LogType.Log, LogBehaviour.AwakeLog);
             LogAssert.Expect(LogType.Log, LogBehaviour.EnableLog);
@@ -19,11 +19,11 @@ namespace Coimbra.Tests.UnityTests
         }
 
         [Test]
-        public void AssumesAwakeIsCalledWithoutDelay_WhenConstructing()
+        public void GivenNewGameObject_ThenAwakeIsCalledWithoutDelay()
         {
             LogAssert.Expect(LogType.Log, LogBehaviour.AwakeLog);
             LogAssert.Expect(LogType.Log, LogBehaviour.EnableLog);
-            GameObject gameObject = new GameObject(nameof(AssumesAwakeIsCalledWithoutDelay_WhenConstructing), typeof(LogBehaviour));
+            GameObject gameObject = new GameObject(nameof(GivenNewGameObject_ThenAwakeIsCalledWithoutDelay), typeof(LogBehaviour));
             LogAssert.NoUnexpectedReceived();
             Object.Destroy(gameObject);
         }

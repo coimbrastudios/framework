@@ -6,7 +6,9 @@ namespace Coimbra.Tests.UnityTests
     {
         public const string AwakeLog = nameof(Awake);
 
-        public const string EnableLog = nameof(EnableLog);
+        public const string EnableLog = nameof(OnEnable);
+
+        public const string StartLog = nameof(Start);
 
         private void Awake()
         {
@@ -16,6 +18,11 @@ namespace Coimbra.Tests.UnityTests
         private void OnEnable()
         {
             Debug.Log(EnableLog);
+        }
+
+        private void Start()
+        {
+            Debug.Log(StartLog);
         }
     }
 }

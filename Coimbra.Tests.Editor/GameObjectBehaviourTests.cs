@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Coimbra.Tests.Editor
     public class GameObjectBehaviourTests
     {
         [UnityTest]
-        [Timeout(10)]
+        [Timeout(1000)]
         public IEnumerator GivenActiveInstance_WhenDestroyedByExitPlayMode_ThenResultIsApplicationQuit()
         {
             yield return new EnterPlayMode();
@@ -32,11 +33,11 @@ namespace Coimbra.Tests.Editor
         }
 
         [UnityTest]
-        [Timeout(10)]
+        [Timeout(1000)]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
         public IEnumerator GivenActiveInstance_WhenDestroyedBySceneChange_ThenResultIsSceneChange()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");
-
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
