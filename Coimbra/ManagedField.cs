@@ -144,5 +144,12 @@ namespace Coimbra
         {
             return Value == other.Value;
         }
+
+        public bool TryGetValue(out T value)
+        {
+            value = _systemObject ?? (_unityObject as T).GetValid();
+
+            return value != null;
+        }
     }
 }
