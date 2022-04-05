@@ -17,7 +17,7 @@ namespace Coimbra
         private static class EventCallbacks<T>
             where T : IEvent
         {
-            internal static readonly Dictionary<EventHandle, EventListenerHandler<T>> Value = new Dictionary<EventHandle, EventListenerHandler<T>>(1);
+            internal static readonly Dictionary<EventHandle, EventRef<T>.Handler> Value = new Dictionary<EventHandle, EventRef<T>.Handler>(1);
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
 
@@ -51,14 +51,14 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public EventHandle AddListener<T>(EventListenerHandler<T> eventCallback)
+        public EventHandle AddListener<T>(EventRef<T>.Handler eventCallback)
             where T : IEvent
         {
             return AddListener(ref eventCallback);
         }
 
         /// <inheritdoc/>
-        public bool AddListener<T>(EventListenerHandler<T> eventCallback, List<EventHandle> appendList)
+        public bool AddListener<T>(EventRef<T>.Handler eventCallback, List<EventHandle> appendList)
             where T : IEvent
         {
             EventHandle eventHandle = AddListener(ref eventCallback);
@@ -180,7 +180,7 @@ namespace Coimbra
                 return false;
             }
 
-            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKeyRestrictions.DisallowInvoke) != 0)
+            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowInvoke) != 0)
             {
                 Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(T));
 
@@ -241,7 +241,7 @@ namespace Coimbra
                 return false;
             }
 
-            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKeyRestrictions.DisallowRemoveAll) != 0)
+            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) != 0)
             {
                 Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, eventType);
 
@@ -310,7 +310,7 @@ namespace Coimbra
 
             foreach (Event e in _events.Values)
             {
-                if (e.Key != null && (e.Key.Restrictions & EventKeyRestrictions.DisallowRemoveAll) != 0)
+                if (e.Key != null && (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) != 0)
                 {
                     continue;
                 }
@@ -447,7 +447,7 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private EventHandle AddListener<T>(ref EventListenerHandler<T> eventCallback)
+        private EventHandle AddListener<T>(ref EventRef<T>.Handler eventCallback)
             where T : IEvent
         {
             CheckType(typeof(T));

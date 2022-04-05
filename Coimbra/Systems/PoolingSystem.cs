@@ -151,11 +151,7 @@ namespace Coimbra
             }
 
             GameObject instance = Instantiate(prefab, parent, spawnInWorldSpace);
-
-            if (instance.TryGetComponent(out GameObjectBehaviour behaviour))
-            {
-                behaviour.Initialize();
-            }
+            instance.TryGetBehaviour(out _);
 
             return instance;
         }
@@ -169,11 +165,7 @@ namespace Coimbra
             }
 
             GameObject instance = Instantiate(prefab, position, rotation, parent);
-
-            if (instance.TryGetComponent(out GameObjectBehaviour behaviour))
-            {
-                behaviour.Initialize();
-            }
+            instance.TryGetBehaviour(out _);
 
             return instance;
         }
@@ -193,7 +185,10 @@ namespace Coimbra
                 return pool.Spawn(parent, spawnInWorldSpace) as T;
             }
 
-            return Instantiate(prefab, parent, spawnInWorldSpace).GetOrCreateBehaviour<T>();
+            T instance = Instantiate(prefab, parent, spawnInWorldSpace);
+            instance.Initialize();
+
+            return instance;
         }
 
         /// <inheritdoc/>
@@ -205,7 +200,10 @@ namespace Coimbra
                 return pool.Spawn(position, rotation, parent) as T;
             }
 
-            return Instantiate(prefab, position, rotation, parent).GetOrCreateBehaviour<T>();
+            T instance = Instantiate(prefab, position, rotation, parent);
+            instance.Initialize();
+
+            return instance;
         }
 
         /// <inheritdoc/>

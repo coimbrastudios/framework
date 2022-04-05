@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.0.0] - --
+
+- Added `CreateBehaviour` and `TryGetBehaviour` APIs on `GameObjectUtility`.
+- Changed `EventListenerHandler<T>` to `EventRef<T>.Handler`.
+- Changed `EventKeyRestrictions` to `EventKey.RestrictionOptions`.
+- Removed already unused `IFixedUpdateListener`, `ILateUpdateListener` and `IUpdateListener`.
+
 ## [6.0.0] - 2022-04-04
 
 - Changed `ManagedPool<T>.Shared` to a new class `SharedManagedPool`.

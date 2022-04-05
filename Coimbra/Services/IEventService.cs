@@ -15,7 +15,7 @@ namespace Coimbra
         /// </summary>
         /// <param name="eventCallback">The callback to be added.</param>
         /// <typeparam name="T">The event type.</typeparam>
-        EventHandle AddListener<T>(EventListenerHandler<T> eventCallback)
+        EventHandle AddListener<T>(EventRef<T>.Handler eventCallback)
             where T : IEvent;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Coimbra
         /// <param name="appendList">List to add the event handle if generated a valid one.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if a valid <see cref="EventHandle"/> was generated.</returns>
-        bool AddListener<T>(EventListenerHandler<T> eventCallback, List<EventHandle> appendList)
+        bool AddListener<T>(EventRef<T>.Handler eventCallback, List<EventHandle> appendList)
             where T : IEvent;
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Coimbra
         bool RemoveAllListenersWithKey(EventKey eventKey);
 
         /// <summary>
-        /// Removes all listeners from all event types that don't have the <see cref="EventKeyRestrictions.DisallowRemoveAll"/> restriction.
+        /// Removes all listeners from all event types that don't have the <see cref="EventKey.RestrictionOptions.DisallowRemoveAll"/> restriction.
         /// </summary>
         /// <returns>True if removed any listener.</returns>
         bool RemoveAllListenersWithoutRestriction();

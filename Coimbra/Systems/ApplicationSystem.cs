@@ -11,7 +11,7 @@ namespace Coimbra
     [AddComponentMenu("")]
     public sealed class ApplicationSystem : ServiceBase<IApplicationService>, IApplicationService
     {
-        private readonly EventKey _eventKey = new EventKey(EventKeyRestrictions.DisallowInvoke);
+        private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
         private IEventService _eventService;
 
         /// <summary>

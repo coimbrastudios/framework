@@ -30,7 +30,7 @@ namespace Coimbra.Tests
         {
             GameObject gameObject = new GameObject("Test", typeof(GameObjectBehaviour));
             Transform transform = gameObject.transform;
-            Assert.That(gameObject.GetOrCreateBehaviour(), Is.EqualTo(transform.GetOrCreateBehaviour()));
+            Assert.That(gameObject.GetOrCreateBehaviour(), Is.EqualTo(transform.gameObject.GetOrCreateBehaviour()));
         }
     }
 }

@@ -8,6 +8,11 @@
         where T : IEvent
     {
         /// <summary>
+        /// Generic delegate for listening events from the <see cref="IEventService"/>.
+        /// </summary>
+        public delegate void Handler(ref EventRef<T> e);
+
+        /// <summary>
         /// The one that invoked the event.
         /// </summary>
         public readonly object Sender;
