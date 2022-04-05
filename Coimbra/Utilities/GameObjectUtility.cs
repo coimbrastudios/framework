@@ -122,7 +122,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void AddCachedBehaviour(GameObjectBehaviour behaviour)
         {
-            Behaviours.Add(behaviour.CachedGameObject, behaviour);
+            Behaviours.Add(behaviour.GameObjectID, behaviour);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

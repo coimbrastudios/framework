@@ -17,19 +17,9 @@ namespace Coimbra
             Id = id;
         }
 
-        public static implicit operator GameObjectID(Component component)
-        {
-            return new GameObjectID(component.gameObject.GetInstanceID());
-        }
-
         public static implicit operator GameObjectID(GameObject gameObject)
         {
             return new GameObjectID(gameObject.GetInstanceID());
-        }
-
-        public static implicit operator GameObjectID(GameObjectBehaviour behaviour)
-        {
-            return new GameObjectID(behaviour.CachedGameObject.GetInstanceID());
         }
 
         public static bool operator ==(GameObjectID left, GameObjectID right)

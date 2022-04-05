@@ -35,6 +35,12 @@ namespace Coimbra
         private bool _isDestroyed;
         private bool _isInitialized;
         private bool _isQuitting;
+        private GameObjectID? _gameObjectID;
+
+        /// <summary>
+        /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
+        /// </summary>
+        public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = gameObject).Value;
 
         /// <summary>
         /// Cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
@@ -90,13 +96,9 @@ namespace Coimbra
             IsPooled = Pool != null;
             CachedGameObject = gameObject;
             CachedTransform = transform;
+            _gameObjectID = CachedGameObject;
             GameObjectUtility.AddCachedBehaviour(this);
             OnObjectInitialize();
-
-            if (!IsPooled)
-            {
-                Spawn();
-            }
         }
 
         /// <summary>
@@ -142,7 +144,8 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Called each time this object is despawned. Will be called even if the object was inactive already, but will be called before OnDisable if was active.
+        /// Called each time this object is despawned.
+        /// <para>By default it deactivates the <see cref="GameObject"/>, so consider calling the base method at the end.</para>
         /// </summary>
         protected virtual void OnObjectDespawn()
         {
@@ -151,24 +154,39 @@ namespace Coimbra
 
         /// <summary>
         /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
+        /// <para>By default it calls <see cref="Despawn"/>, so consider calling the base method at the begin.</para>
         /// </summary>
-        protected virtual void OnObjectDestroy() { }
+        protected virtual void OnObjectDestroy()
+        {
+            Despawn();
+        }
 
         /// <summary>
-        /// Use this for one-time initializations instead of Awake or Start callbacks. This method is called even if the object starts inactive.
+        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
         /// </summary>
-        protected virtual void OnObjectInitialize() { }
+        /// <para>By default it calls <see cref="Spawn"/> if non-pooled or if pooled but already spawned, so consider calling the base method at the end.</para>
+        protected virtual void OnObjectInitialize()
+        {
+            if (!IsPooled || !Pool.Contains(GameObjectID))
+            {
+                Spawn();
+            }
+        }
 
         /// <summary>
-        /// Called each time this object is spawned. Will be called even if the object was active already, but will be called after OnEnable if was inactive.
+        /// Called each time this object is spawned.
         /// </summary>
+        /// <para>By default it activates the <see cref="GameObject"/>, so consider calling the base method at the begin.</para>
         protected virtual void OnObjectSpawn()
         {
             CachedGameObject.SetActive(true);
         }
 
+        /// <summary>
+        /// Wrapper for <see cref="OnObjectDespawn"/> that checks and toggles the <see cref="IsSpawned"/> flag.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Despawn()
+        protected internal void Despawn()
         {
             if (!IsSpawned)
             {
@@ -179,8 +197,11 @@ namespace Coimbra
             OnObjectDespawn();
         }
 
+        /// <summary>
+        /// Wrapper for <see cref="OnObjectSpawn"/> that checks and toggles the <see cref="IsSpawned"/> flag.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Spawn()
+        protected internal void Spawn()
         {
             if (IsSpawned)
             {
@@ -200,7 +221,6 @@ namespace Coimbra
             }
 
             _isDestroyed = true;
-            Despawn();
             OnObjectDestroy();
 
             if (_isQuitting)
@@ -225,7 +245,7 @@ namespace Coimbra
 
             OnActiveStateChanged = null;
             OnDestroyed = null;
-            GameObjectUtility.RemoveCachedBehaviour(CachedGameObject);
+            GameObjectUtility.RemoveCachedBehaviour(GameObjectID);
             CachedGameObject = null;
             CachedTransform = null;
             Pool = null;

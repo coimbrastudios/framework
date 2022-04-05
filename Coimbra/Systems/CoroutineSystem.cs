@@ -26,8 +26,8 @@ namespace Coimbra
         /// <inheritdoc/>
         protected override void OnObjectInitialize()
         {
-            base.OnObjectInitialize();
             DontDestroyOnLoad(CachedGameObject);
+            base.OnObjectInitialize();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

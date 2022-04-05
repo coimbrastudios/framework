@@ -5,6 +5,9 @@
 - Added `CreateBehaviour` and `TryGetBehaviour` APIs on `GameObjectUtility`.
 - Changed `EventListenerHandler<T>` to `EventRef<T>.Handler`.
 - Changed `EventKeyRestrictions` to `EventKey.RestrictionOptions`.
+- Changed `Despawn` being optional to be called during `Destroy`.
+- Changed `Spawn` to be optional to be called during `Initialize`.
+- Changed `Despawn` and `Spawn` to be protected too.
 - Removed already unused `IFixedUpdateListener`, `ILateUpdateListener` and `IUpdateListener`.
 
 ## [6.0.0] - 2022-04-04

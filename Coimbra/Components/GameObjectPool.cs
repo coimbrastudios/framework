@@ -210,7 +210,7 @@ namespace Coimbra
                         continue;
                     }
 
-                    _availableInstancesIds.Remove(instance);
+                    _availableInstancesIds.Remove(instance.GameObjectID);
                     instance.Destroy();
                 }
             }
@@ -321,10 +321,10 @@ namespace Coimbra
                             return;
                         }
 
-                        GameObjectBehaviour behaviour = instance.GetOrCreateBehaviour();
-                        Instantiate(behaviour);
+                        instance.TryGetComponent(out GameObjectBehaviour behaviour);
+                        _availableInstancesIds.Add(behaviour.GameObjectID);
                         _availableInstances.Push(behaviour);
-                        _availableInstancesIds.Add(behaviour);
+                        Instantiate(behaviour);
                     }
 
                     if (_deactivatePreloadedInstances)
@@ -342,11 +342,18 @@ namespace Coimbra
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains(GameObjectID instance)
+        {
+            return _availableInstancesIds?.Contains(instance) ?? false;
+        }
+
         /// <summary>
         /// Despawns the specified instance.
         /// </summary>
         /// <param name="instance">The instance to despawn.</param>
         /// <returns>The result of the call.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DespawnResult Despawn(GameObject instance)
         {
             return Despawn(instance.GetOrCreateBehaviour());
@@ -362,9 +369,7 @@ namespace Coimbra
                 return DespawnResult.Aborted;
             }
 
-            GameObjectID id = instance;
-
-            if (_availableInstancesIds.Contains(id))
+            if (_availableInstancesIds.Contains(instance.GameObjectID))
             {
                 return DespawnResult.Aborted;
             }
@@ -379,7 +384,7 @@ namespace Coimbra
                 }
 
                 _availableInstances.Push(instance);
-                _availableInstancesIds.Add(id);
+                _availableInstancesIds.Add(instance.GameObjectID);
 
                 return DespawnResult.Despawned;
             }
@@ -413,7 +418,7 @@ namespace Coimbra
                     continue;
                 }
 
-                _availableInstancesIds.Remove(instance);
+                _availableInstancesIds.Remove(instance.GameObjectID);
                 instance.CachedTransform.SetParent(parent, spawnInWorldSpace);
                 instance.Spawn();
 
@@ -422,10 +427,7 @@ namespace Coimbra
 
             if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity || _canInstantiateOnSpawn)
             {
-                GameObjectBehaviour instance = Instantiate(parent, spawnInWorldSpace);
-                instance.Spawn();
-
-                return instance;
+                return Instantiate(parent, spawnInWorldSpace);
             }
 
             return null;
@@ -456,7 +458,7 @@ namespace Coimbra
                     continue;
                 }
 
-                _availableInstancesIds.Remove(instance);
+                _availableInstancesIds.Remove(instance.GameObjectID);
                 instance.CachedTransform.parent = parent;
                 instance.CachedTransform.SetPositionAndRotation(position, rotation);
                 instance.Spawn();
@@ -466,16 +468,14 @@ namespace Coimbra
 
             if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity || _canInstantiateOnSpawn)
             {
-                GameObjectBehaviour instance = Instantiate(position, rotation, parent);
-                instance.Spawn();
-
-                return instance;
+                return Instantiate(position, rotation, parent);
             }
 
             return null;
         }
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GameObjectBehaviour Spawn(Vector3 position, Vector3 rotation, Transform parent = null)
         {
             return Spawn(position, Quaternion.Euler(rotation), parent);
@@ -555,7 +555,7 @@ namespace Coimbra
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
             {
-                instance.CachedGameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
+                instance.gameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
             }
 #endif
             instance.Initialize();

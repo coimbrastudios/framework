@@ -100,15 +100,13 @@ namespace Coimbra
 
         protected override void OnObjectDestroy()
         {
-            _timerComponentPool = null;
             base.OnObjectDestroy();
+            _timerComponentPool = null;
         }
 
         /// <inheritdoc/>
         protected override void OnObjectInitialize()
         {
-            base.OnObjectInitialize();
-
             _timerComponentPool = new ManagedPool<TimerComponent>(delegate
             {
                 TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
@@ -140,6 +138,7 @@ namespace Coimbra
             _timerComponentPool.OnPush += onPush;
 
             DontDestroyOnLoad(CachedGameObject);
+            base.OnObjectInitialize();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

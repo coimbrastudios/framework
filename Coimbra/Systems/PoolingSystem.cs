@@ -180,7 +180,7 @@ namespace Coimbra
         public T Spawn<T>([NotNull] T prefab, Transform parent = null, bool spawnInWorldSpace = false)
             where T : GameObjectBehaviour
         {
-            if (_poolFromPrefab.TryGetValue(prefab, out GameObjectPool pool))
+            if (_poolFromPrefab.TryGetValue(prefab.GameObjectID, out GameObjectPool pool))
             {
                 return pool.Spawn(parent, spawnInWorldSpace) as T;
             }
@@ -195,7 +195,7 @@ namespace Coimbra
         public T Spawn<T>([NotNull] T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
             where T : GameObjectBehaviour
         {
-            if (_poolFromPrefab.TryGetValue(prefab, out GameObjectPool pool))
+            if (_poolFromPrefab.TryGetValue(prefab.GameObjectID, out GameObjectPool pool))
             {
                 return pool.Spawn(position, rotation, parent) as T;
             }

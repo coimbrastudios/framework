@@ -32,9 +32,9 @@ namespace Coimbra
         /// <inheritdoc/>
         protected override void OnObjectInitialize()
         {
-            base.OnObjectInitialize();
             DontDestroyOnLoad(CachedGameObject);
             OnDestroyed += HandleDestroyed;
+            base.OnObjectInitialize();
         }
 
         /// <inheritdoc/>
