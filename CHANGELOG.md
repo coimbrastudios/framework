@@ -1,13 +1,20 @@
 # Changelog
 
-## [7.0.0] - --
+## [7.0.0] - 2022-04-05
 
-- Added `CreateBehaviour` and `TryGetBehaviour` APIs on `GameObjectUtility`.
+- Added `SceneChangedEvent` that is also fired by `IApplicationService`.
+- Added `IsQuitting` on `IApplicationService`.
+- Added support for in-scene deactivated `Actor` initialization.
+- Changed `ServiceBase<>` to `ServiceActorBase<>`.
+- Changed `Spawn` APIs to return an `Actor` instead of `GameObject`.
+- Changed `GameObjectBehaviour` to `Actor` to make its intention more clear.
+- Changed `GameObjectUtility` APIs to match the new `Actor` naming.
 - Changed `EventListenerHandler<T>` to `EventRef<T>.Handler`.
 - Changed `EventKeyRestrictions` to `EventKey.RestrictionOptions`.
 - Changed `Despawn` being optional to be called during `Destroy`.
 - Changed `Spawn` to be optional to be called during `Initialize`.
-- Changed `Despawn` and `Spawn` to be protected too.
+- Changed `Despawn` and `Spawn` to be protected and to not call `SetActive` anymore.
+- Fixed unnecessary logging on `ScriptableSettings` when quitting.
 - Removed already unused `IFixedUpdateListener`, `ILateUpdateListener` and `IUpdateListener`.
 
 ## [6.0.0] - 2022-04-04

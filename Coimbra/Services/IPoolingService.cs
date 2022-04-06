@@ -30,7 +30,7 @@ namespace Coimbra
         GameObjectPool.DespawnResult Despawn(GameObject instance);
 
         /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        GameObjectPool.DespawnResult Despawn(GameObjectBehaviour instance);
+        GameObjectPool.DespawnResult Despawn(Actor instance);
 
         /// <summary>
         /// Gets all pools currently registered on this service.
@@ -54,24 +54,24 @@ namespace Coimbra
         bool RemovePool(GameObjectPool pool, bool unload);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>
-        GameObject Spawn(GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false);
+        Actor Spawn(GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null);
+        Actor Spawn(GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
-        GameObject Spawn(GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null);
+        Actor Spawn(GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null);
 
         /// <inheritdoc cref="Spawn(GameObject, Transform, bool)"/>
         T Spawn<T>(T prefab, Transform parent = null, bool spawnInWorldSpace = false)
-            where T : GameObjectBehaviour;
+            where T : Actor;
 
         /// <inheritdoc cref="Spawn(GameObject, Vector3, Quaternion, Transform)"/>
         T Spawn<T>(T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
-            where T : GameObjectBehaviour;
+            where T : Actor;
 
         /// <inheritdoc cref="Spawn(GameObject, Vector3, Quaternion, Transform)"/>
         T Spawn<T>(T prefab, Vector3 position, Vector3 rotation, Transform parent = null)
-            where T : GameObjectBehaviour;
+            where T : Actor;
     }
 }

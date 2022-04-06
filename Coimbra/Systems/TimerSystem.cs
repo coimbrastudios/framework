@@ -8,17 +8,19 @@ namespace Coimbra
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class TimerSystem : ServiceBase<ITimerService>, ITimerService
+    public sealed class TimerSystem : ServiceActorBase<ITimerService>, ITimerService
     {
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
         private ManagedPool<TimerComponent> _timerComponentPool;
+
+        private TimerSystem() { }
 
         /// <summary>
         /// Create a new <see cref="ITimerService"/>.
         /// </summary>
         public static ITimerService Create()
         {
-            return new GameObject(nameof(TimerSystem)).GetOrCreateBehaviour<TimerSystem>();
+            return new GameObject(nameof(TimerSystem)).AddComponent<TimerSystem>();
         }
 
         /// <inheritdoc/>

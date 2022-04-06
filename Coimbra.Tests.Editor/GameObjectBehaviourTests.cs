@@ -10,7 +10,7 @@ using UnityEngine.TestTools;
 namespace Coimbra.Tests.Editor
 {
     [TestFixture]
-    [TestOf(typeof(GameObjectBehaviour))]
+    [TestOf(typeof(Actor))]
     public class GameObjectBehaviourTests
     {
         [UnityTest]
@@ -20,8 +20,8 @@ namespace Coimbra.Tests.Editor
             yield return new EnterPlayMode();
 
             const string logFormat = "OnDestroyed.reason = {0}";
-            GameObjectBehaviour instance = new GameObject().AddComponent<GameObjectBehaviour>();
-            instance.OnDestroyed += delegate(GameObjectBehaviour sender, DestroyReason reason)
+            Actor instance = new GameObject().AddComponent<Actor>();
+            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };
@@ -49,8 +49,8 @@ namespace Coimbra.Tests.Editor
             yield return new EnterPlayMode();
 
             const string logFormat = "OnDestroyed.reason = {0}";
-            GameObjectBehaviour instance = new GameObject().AddComponent<GameObjectBehaviour>();
-            instance.OnDestroyed += delegate(GameObjectBehaviour sender, DestroyReason reason)
+            Actor instance = new GameObject().AddComponent<Actor>();
+            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };

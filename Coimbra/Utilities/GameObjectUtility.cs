@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using JetBrains.Annotations;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,15 +12,88 @@ namespace Coimbra
     public static class GameObjectUtility
     {
         private const string DontDestroyOnLoadScene = "DontDestroyOnLoad";
-        private static readonly Dictionary<GameObjectID, GameObjectBehaviour> Behaviours = new Dictionary<GameObjectID, GameObjectBehaviour>();
+        private static readonly List<Actor> PendingActors = new List<Actor>();
+        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
         /// <summary>
-        /// Check if object is currently persistent.
+        /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
+        /// </summary>
+        [CanBeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TActor As<TActor>(this GameObject gameObject)
+            where TActor : Actor
+        {
+            return AsActor(gameObject) as TActor;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Actor"/> representing a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
+        /// </summary>
+        [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Actor AsActor(this GameObject gameObject)
+        {
+            if (CachedActors.TryGetValue(gameObject, out Actor actor))
+            {
+                return actor;
+            }
+
+            if (!gameObject.TryGetComponent(out actor))
+            {
+                actor = gameObject.AddComponent<Actor>();
+            }
+
+            actor.Initialize();
+
+            return actor;
+        }
+
+        /// <summary>
+        /// Initializes all pending actors in the scene.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsPersistent(this GameObjectBehaviour behaviour)
+        public static void InitializePendingActors()
         {
-            return IsPersistent(behaviour.CachedGameObject);
+            for (int i = PendingActors.Count - 1; i >= 0; i--)
+            {
+                Actor actor = PendingActors[i];
+
+                if (actor != null)
+                {
+                    actor.Initialize();
+                }
+
+                PendingActors.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the <see cref="Actor"/> representing a <see cref="GameObject"/> if of the specified type.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Is<TActor>(this GameObject gameObject)
+            where TActor : Actor
+        {
+            return AsActor(gameObject) is TActor;
+        }
+
+        /// <summary>
+        /// Checks if the <see cref="Actor"/> representing a <see cref="GameObject"/> if of the specified type, returning it if true.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Is<TActor>(this GameObject gameObject, [CanBeNull] out TActor result)
+            where TActor : Actor
+        {
+            if (AsActor(gameObject) is TActor actor)
+            {
+                result = actor;
+
+                return true;
+            }
+
+            result = null;
+
+            return false;
         }
 
         /// <summary>
@@ -33,102 +107,22 @@ namespace Coimbra
             return scene.buildIndex == -1 && scene.name == DontDestroyOnLoadScene;
         }
 
-        /// <summary>
-        /// Creates and initializes a new default <see cref="GameObjectBehaviour"/>.
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GameObjectBehaviour CreateBehaviour(this GameObject gameObject)
+        internal static void AddCachedActor(Actor actor)
         {
-            GameObjectBehaviour behaviour = gameObject.AddComponent<GameObjectBehaviour>();
-            behaviour.Initialize();
-
-            return behaviour;
-        }
-
-        /// <summary>
-        /// Creates and initializes a new <see cref="GameObjectBehaviour"/> of the specified type.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T CreateBehaviour<T>(this GameObject gameObject)
-            where T : GameObjectBehaviour
-        {
-            T behaviour = gameObject.AddComponent<T>();
-            behaviour.Initialize();
-
-            return behaviour;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new default one if missing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GameObjectBehaviour GetOrCreateBehaviour(this GameObject gameObject)
-        {
-            return TryGetBehaviour(gameObject, out GameObjectBehaviour behaviour) ? behaviour : CreateBehaviour(gameObject);
-        }
-
-        /// <summary>
-        /// Gets the <see cref="GameObjectBehaviour"/> or creates a new one of the specified type if missing.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetOrCreateBehaviour<T>(this GameObject gameObject)
-            where T : GameObjectBehaviour
-        {
-            return TryGetBehaviour(gameObject, out GameObjectBehaviour behaviour) ? behaviour as T : CreateBehaviour<T>(gameObject);
-        }
-
-        /// <summary>
-        /// Tries to get an existing <see cref="GameObjectBehaviour"/>.
-        /// </summary>
-        /// <returns>True if found a <see cref="GameObjectBehaviour"/>.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetBehaviour(this GameObject gameObject, out GameObjectBehaviour behaviour)
-        {
-            if (Behaviours.TryGetValue(gameObject, out behaviour))
-            {
-                return true;
-            }
-
-            if (!gameObject.TryGetComponent(out behaviour))
-            {
-                return false;
-            }
-
-            behaviour.Initialize();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Tries to get an existing <see cref="GameObjectBehaviour"/>.
-        /// </summary>
-        /// <returns>True if found a <see cref="GameObjectBehaviour"/>, event if of the wrong type.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetBehaviour<T>(this GameObject gameObject, out T behaviour)
-            where T : GameObjectBehaviour
-        {
-            if (TryGetBehaviour(gameObject, out GameObjectBehaviour value))
-            {
-                behaviour = value as T;
-
-                return true;
-            }
-
-            behaviour = null;
-
-            return false;
+            CachedActors.Add(actor.GameObjectID, actor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void AddCachedBehaviour(GameObjectBehaviour behaviour)
+        internal static void AddPendingActor(Actor actor)
         {
-            Behaviours.Add(behaviour.GameObjectID, behaviour);
+            PendingActors.Add(actor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void RemoveCachedBehaviour(GameObjectID id)
+        internal static void RemoveCachedActor(GameObjectID id)
         {
-            Behaviours.Remove(id);
+            CachedActors.Remove(id);
         }
     }
 }

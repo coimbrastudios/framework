@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Coimbra
 {
@@ -9,31 +10,35 @@ namespace Coimbra
     /// Default implementation for <see cref="IApplicationService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class ApplicationSystem : ServiceBase<IApplicationService>, IApplicationService
+    public sealed class ApplicationSystem : ServiceActorBase<IApplicationService>, IApplicationService
     {
         private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
         private IEventService _eventService;
+
+        private ApplicationSystem() { }
 
         /// <summary>
         /// Create a new <see cref="IApplicationService"/>.
         /// </summary>
         public static IApplicationService Create()
         {
-            return new GameObject(nameof(ApplicationSystem)).GetOrCreateBehaviour<ApplicationSystem>();
+            return new GameObject(nameof(ApplicationSystem)).AddComponent<ApplicationSystem>();
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectDespawn()
+        protected override void OnObjectDestroy()
         {
+            base.OnObjectDestroy();
             SetEventService(null);
-            base.OnObjectDespawn();
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
         }
 
         /// <inheritdoc/>
         protected override void OnObjectInitialize()
         {
-            DontDestroyOnLoad(CachedGameObject);
+            SceneManager.sceneLoaded += HandleSceneLoaded;
             OnDestroyed += HandleDestroyed;
+            DontDestroyOnLoad(CachedGameObject);
             base.OnObjectInitialize();
         }
 
@@ -146,6 +151,7 @@ namespace Coimbra
             CancellationToken token = CachedGameObject.GetCancellationTokenOnDestroy();
             InvokeFixedUpdateEvents().AttachExternalCancellation(token);
             InvokeMainUpdateEvents().AttachExternalCancellation(token);
+            GameObjectUtility.InitializePendingActors();
         }
 
         private void FixedUpdate()
@@ -173,7 +179,7 @@ namespace Coimbra
             Invoke(new ApplicationPauseEvent(pauseStatus));
         }
 
-        private void HandleDestroyed(GameObjectBehaviour sender, DestroyReason reason)
+        private void HandleDestroyed(Actor sender, DestroyReason reason)
         {
             if (reason != DestroyReason.ApplicationQuit)
             {
@@ -189,6 +195,12 @@ namespace Coimbra
         private void HandleEventServiceChanged(IService oldValue, IService newValue)
         {
             SetEventService(newValue as IEventService);
+        }
+
+        private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            GameObjectUtility.InitializePendingActors();
+            Invoke(new SceneLoadedEvent(scene, mode));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -238,6 +250,7 @@ namespace Coimbra
             SetEventKey<PostTimeUpdateEvent>();
             SetEventKey<PreLateUpdateEvent>();
             SetEventKey<PreTimeUpdateEvent>();
+            SetEventKey<SceneLoadedEvent>();
         }
     }
 }

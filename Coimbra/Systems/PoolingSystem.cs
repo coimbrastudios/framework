@@ -12,12 +12,14 @@ namespace Coimbra
     /// Default implementation for <see cref="IPoolingService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class PoolingSystem : ServiceBase<IPoolingService>, IPoolingService
+    public sealed class PoolingSystem : ServiceActorBase<IPoolingService>, IPoolingService
     {
         private readonly List<GameObjectPool> _poolsLoading = new List<GameObjectPool>();
         private readonly HashSet<object> _poolsPrefabs = new HashSet<object>();
         private readonly HashSet<GameObjectPool> _pools = new HashSet<GameObjectPool>();
         private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
+
+        private PoolingSystem() { }
 
         /// <inheritdoc/>
         public IReadOnlyList<GameObjectPool> PoolsLoading => _poolsLoading;
@@ -27,7 +29,7 @@ namespace Coimbra
         /// </summary>
         public static IPoolingService Create()
         {
-            return new GameObject(nameof(PoolingSystem)).GetOrCreateBehaviour<PoolingSystem>();
+            return new GameObject(nameof(PoolingSystem)).AddComponent<PoolingSystem>();
         }
 
         /// <inheritdoc/>
@@ -68,14 +70,14 @@ namespace Coimbra
                 return GameObjectPool.DespawnResult.Aborted;
             }
 
-            if (instance.TryGetComponent(out GameObjectBehaviour behaviour))
+            if (instance.TryGetComponent(out Actor actor))
             {
-                if (behaviour.Pool.TryGetValid(out GameObjectPool pool))
+                if (actor.Pool.TryGetValid(out GameObjectPool pool))
                 {
                     return pool.Despawn(instance);
                 }
 
-                behaviour.Destroy();
+                actor.Destroy();
             }
             else if (!Addressables.ReleaseInstance(instance))
             {
@@ -86,7 +88,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public GameObjectPool.DespawnResult Despawn(GameObjectBehaviour instance)
+        public GameObjectPool.DespawnResult Despawn(Actor instance)
         {
             if (!instance.TryGetValid(out instance))
             {
@@ -143,42 +145,36 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        public GameObject Spawn([NotNull] GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false)
+        public Actor Spawn([NotNull] GameObject prefab, Transform parent = null, bool spawnInWorldSpace = false)
         {
             if (_poolFromPrefab.TryGetValue(prefab, out GameObjectPool pool))
             {
                 return pool.Spawn(parent, spawnInWorldSpace);
             }
 
-            GameObject instance = Instantiate(prefab, parent, spawnInWorldSpace);
-            instance.TryGetBehaviour(out _);
-
-            return instance;
+            return Instantiate(prefab, parent, spawnInWorldSpace).AsActor();
         }
 
         /// <inheritdoc/>
-        public GameObject Spawn([NotNull] GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null)
+        public Actor Spawn([NotNull] GameObject prefab, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             if (_poolFromPrefab.TryGetValue(prefab, out GameObjectPool pool))
             {
                 return pool.Spawn(position, rotation, parent);
             }
 
-            GameObject instance = Instantiate(prefab, position, rotation, parent);
-            instance.TryGetBehaviour(out _);
-
-            return instance;
+            return Instantiate(prefab, position, rotation, parent).AsActor();
         }
 
         /// <inheritdoc/>
-        public GameObject Spawn([NotNull] GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null)
+        public Actor Spawn([NotNull] GameObject prefab, Vector3 position, Vector3 rotation, Transform parent = null)
         {
             return Spawn(prefab, position, Quaternion.Euler(rotation), parent);
         }
 
         /// <inheritdoc/>
         public T Spawn<T>([NotNull] T prefab, Transform parent = null, bool spawnInWorldSpace = false)
-            where T : GameObjectBehaviour
+            where T : Actor
         {
             if (_poolFromPrefab.TryGetValue(prefab.GameObjectID, out GameObjectPool pool))
             {
@@ -193,7 +189,7 @@ namespace Coimbra
 
         /// <inheritdoc/>
         public T Spawn<T>([NotNull] T prefab, Vector3 position, Quaternion rotation, Transform parent = null)
-            where T : GameObjectBehaviour
+            where T : Actor
         {
             if (_poolFromPrefab.TryGetValue(prefab.GameObjectID, out GameObjectPool pool))
             {
@@ -208,7 +204,7 @@ namespace Coimbra
 
         /// <inheritdoc/>
         public T Spawn<T>([NotNull] T prefab, Vector3 position, Vector3 rotation, Transform parent = null)
-            where T : GameObjectBehaviour
+            where T : Actor
         {
             return Spawn(prefab, position, Quaternion.Euler(rotation), parent);
         }
@@ -262,7 +258,7 @@ namespace Coimbra
             ServiceLocator.Shared.Get<IPoolingService>();
         }
 
-        private void HandlePoolDestroyed(GameObjectBehaviour sender, DestroyReason reason)
+        private void HandlePoolDestroyed(Actor sender, DestroyReason reason)
         {
             RemovePool((GameObjectPool)sender, false);
         }

@@ -39,6 +39,8 @@ namespace Coimbra
         private const string InvalidEventKeyMessageFormat = "The event key \"{0}\" doesn't match the current set key \"{1}\" for type \"{2}\"";
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
+        private EventSystem() { }
+
         /// <inheritdoc/>
         public ServiceLocator OwningLocator { get; set; }
 

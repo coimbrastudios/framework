@@ -6,21 +6,24 @@ using UnityEngine.Scripting;
 
 namespace Coimbra
 {
+    /// <summary>
+    /// Used to represent a <see cref="GameObject"/>. It is expected to inherit from this class to create the main script of each object.
+    /// </summary>
     [PublicAPI]
     [Preserve]
     [DisallowMultipleComponent]
-    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Behaviour")]
-    public class GameObjectBehaviour : MonoBehaviour
+    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "Actor")]
+    public class Actor : MonoBehaviour
     {
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> active state changes.
         /// </summary>
-        public delegate void ActiveStateHandler(GameObjectBehaviour sender, bool state);
+        public delegate void ActiveStateHandler(Actor sender, bool state);
 
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> destroy.
         /// </summary>
-        public delegate void DestroyHandler(GameObjectBehaviour sender, DestroyReason reason);
+        public delegate void DestroyHandler(Actor sender, DestroyReason reason);
 
         /// <summary>
         /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
@@ -32,10 +35,12 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroyed;
 
-        private bool _isDestroyed;
-        private bool _isInitialized;
-        private bool _isQuitting;
         private GameObjectID? _gameObjectID;
+
+        protected Actor()
+        {
+            GameObjectUtility.AddPendingActor(this);
+        }
 
         /// <summary>
         /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
@@ -53,9 +58,24 @@ namespace Coimbra
         public Transform CachedTransform { get; private set; }
 
         /// <summary>
+        /// True when this actor starts to destroy.
+        /// </summary>
+        public bool IsDestroying { get; private set; }
+
+        /// <summary>
+        /// Was <see cref="Initialize"/> called at least once in this actor?
+        /// </summary>
+        public bool IsInitialized { get; private set; }
+
+        /// <summary>
         /// Indicates if the object belongs to a pool as <see cref="Pool"/> can already be null due a scene change.
         /// </summary>
         public bool IsPooled { get; private set; }
+
+        /// <summary>
+        /// True when application is quitting.
+        /// </summary>
+        public bool IsQuitting { get; private set; }
 
         /// <summary>
         /// Indicates if the object is currently spawned or should be treated as non-spawned.
@@ -69,13 +89,14 @@ namespace Coimbra
         [field: Disable]
         public GameObjectPool Pool { get; internal set; }
 
-        public static implicit operator GameObject(GameObjectBehaviour behaviour)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator GameObject(Actor actor)
         {
-            return behaviour.CachedGameObject;
+            return actor.CachedGameObject;
         }
 
         /// <summary>
-        /// Destroys the <see cref="GameObject"/> that this behaviour belongs to.
+        /// Destroys the <see cref="GameObject"/> that this actor represents.
         /// </summary>
         public void Destroy()
         {
@@ -83,21 +104,21 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Initializes this behaviour.
+        /// Initializes this actor.
         /// </summary>
         public void Initialize()
         {
-            if (_isInitialized)
+            if (IsInitialized || gameObject.scene.name == null)
             {
                 return;
             }
 
-            _isInitialized = true;
+            IsInitialized = true;
             IsPooled = Pool != null;
             CachedGameObject = gameObject;
             CachedTransform = transform;
             _gameObjectID = CachedGameObject;
-            GameObjectUtility.AddCachedBehaviour(this);
+            GameObjectUtility.AddCachedActor(this);
             OnObjectInitialize();
         }
 
@@ -140,17 +161,13 @@ namespace Coimbra
         /// </summary>
         protected void OnApplicationQuit()
         {
-            _isQuitting = true;
+            IsQuitting = true;
         }
 
         /// <summary>
         /// Called each time this object is despawned.
-        /// <para>By default it deactivates the <see cref="GameObject"/>, so consider calling the base method at the end.</para>
         /// </summary>
-        protected virtual void OnObjectDespawn()
-        {
-            CachedGameObject.SetActive(false);
-        }
+        protected virtual void OnObjectDespawn() { }
 
         /// <summary>
         /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
@@ -176,11 +193,7 @@ namespace Coimbra
         /// <summary>
         /// Called each time this object is spawned.
         /// </summary>
-        /// <para>By default it activates the <see cref="GameObject"/>, so consider calling the base method at the begin.</para>
-        protected virtual void OnObjectSpawn()
-        {
-            CachedGameObject.SetActive(true);
-        }
+        protected virtual void OnObjectSpawn() { }
 
         /// <summary>
         /// Wrapper for <see cref="OnObjectDespawn"/> that checks and toggles the <see cref="IsSpawned"/> flag.
@@ -215,15 +228,15 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Destroy(bool callDestroy)
         {
-            if (_isDestroyed)
+            if (IsDestroying)
             {
                 return;
             }
 
-            _isDestroyed = true;
+            IsDestroying = true;
             OnObjectDestroy();
 
-            if (_isQuitting)
+            if (IsQuitting)
             {
                 OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
             }
@@ -245,7 +258,7 @@ namespace Coimbra
 
             OnActiveStateChanged = null;
             OnDestroyed = null;
-            GameObjectUtility.RemoveCachedBehaviour(GameObjectID);
+            GameObjectUtility.RemoveCachedActor(GameObjectID);
             CachedGameObject = null;
             CachedTransform = null;
             Pool = null;

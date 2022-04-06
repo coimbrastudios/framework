@@ -46,7 +46,7 @@ namespace Coimbra.Tests
         [Test]
         public void GivenUnloadedPool_WhenDespawn_ThenFails()
         {
-            GameObjectBehaviour behaviour = new GameObject().AddComponent<GameObjectBehaviour>();
+            Actor behaviour = new GameObject().AddComponent<Actor>();
             Assert.That(_pool.Despawn(behaviour), Is.EqualTo(GameObjectPool.DespawnResult.Aborted));
             Object.Destroy(behaviour.gameObject);
         }
@@ -133,7 +133,7 @@ namespace Coimbra.Tests
         {
             _pool.MaxCapacity = 5;
             _pool.PreloadCount = 5;
-            _pool.OnObjectInstantiated += delegate(GameObjectPool pool, GameObjectBehaviour instance)
+            _pool.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
                 Debug.Log(pool);
                 Assert.That(instance.IsSpawned, Is.False, nameof(instance.IsSpawned));
@@ -154,7 +154,7 @@ namespace Coimbra.Tests
         {
             _poolWithInactivePrefab.MaxCapacity = 5;
             _poolWithInactivePrefab.PreloadCount = 5;
-            _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, GameObjectBehaviour instance)
+            _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
                 Debug.Log(pool);
                 Assert.That(instance.IsSpawned, Is.False, nameof(instance.IsSpawned));
@@ -178,7 +178,7 @@ namespace Coimbra.Tests
 
             yield return _poolWithInactivePrefab.LoadAsync().ToCoroutine();
 
-            GameObjectBehaviour instance = _poolWithInactivePrefab.Spawn();
+            Actor instance = _poolWithInactivePrefab.Spawn();
             Assert.That(instance.IsSpawned, Is.True);
         }
 
@@ -191,7 +191,7 @@ namespace Coimbra.Tests
 
             yield return _pool.LoadAsync().ToCoroutine();
 
-            GameObjectBehaviour instance = _pool.Spawn();
+            Actor instance = _pool.Spawn();
             Assert.That(_pool.Despawn(instance), Is.EqualTo(GameObjectPool.DespawnResult.Despawned));
             Assert.That(instance.IsSpawned, Is.False);
         }
@@ -222,10 +222,10 @@ namespace Coimbra.Tests
 
             yield return _pool.LoadAsync().ToCoroutine();
 
-            GameObjectBehaviour instanceA = _pool.Spawn();
+            Actor instanceA = _pool.Spawn();
             _pool.Despawn(instanceA);
 
-            GameObjectBehaviour instanceB = _pool.Spawn();
+            Actor instanceB = _pool.Spawn();
             Assert.That(instanceA, Is.EqualTo(instanceB));
             Assert.That(instanceA.IsSpawned, Is.True);
         }
@@ -236,9 +236,9 @@ namespace Coimbra.Tests
         {
             _poolWithInactivePrefab.MaxCapacity = 5;
             _poolWithInactivePrefab.PreloadCount = 5;
-            _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, GameObjectBehaviour instance)
+            _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
-                instance.OnDestroyed += delegate(GameObjectBehaviour sender, DestroyReason reason)
+                instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
                 {
                     Debug.Log(reason);
                 };
@@ -278,7 +278,7 @@ namespace Coimbra.Tests
             Assert.That(_pool.AvailableInstancesCount, Is.EqualTo(1));
         }
 
-        private static void AssertInstanceIsValid(GameObjectPool pool, GameObjectBehaviour instance)
+        private static void AssertInstanceIsValid(GameObjectPool pool, Actor instance)
         {
             Assert.That(instance.Pool, Is.EqualTo(pool), nameof(instance.Pool));
             Assert.That(instance.CachedTransform, Is.EqualTo(instance.transform), nameof(instance.CachedTransform));

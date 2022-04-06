@@ -23,6 +23,7 @@ Package of general utilities to be used with Unity development.
     - `ApplicationFocusEvent`: Listen to Unity's ApplicationFocus callback;
     - `ApplicationPauseEvent`: Listen to Unity's ApplicationPause callback;
     - `ApplicationQuitEvent`: Listen to Unity's ApplicationQuit callback;
+    - `SceneChangedEvent`: Listen to Unity's sceneChanged event safely for `Actor`;
     - `FixedUpdateEvent`: Listen to Unity's FixedUpdate callback;
     - `LateUpdateEvent`: Listen to Unity's LateUpdate callback;
     - `UpdateEvent`: Listen to Unity's Update callback;

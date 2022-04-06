@@ -6,14 +6,16 @@ namespace Coimbra
     /// Default implementation for <see cref="ICoroutineService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class CoroutineSystem : ServiceBase<ICoroutineService>, ICoroutineService
+    public sealed class CoroutineSystem : ServiceActorBase<ICoroutineService>, ICoroutineService
     {
+        private CoroutineSystem() { }
+
         /// <summary>
         /// Create a new <see cref="ICoroutineService"/>.
         /// </summary>
         public static ICoroutineService Create()
         {
-            return new GameObject(nameof(CoroutineSystem)).GetOrCreateBehaviour<CoroutineSystem>();
+            return new GameObject(nameof(CoroutineSystem)).AddComponent<CoroutineSystem>();
         }
 
         /// <inheritdoc/>

@@ -4,28 +4,28 @@ using UnityEngine;
 namespace Coimbra
 {
     [DisallowMultipleComponent]
-    public abstract class ServiceBase<T> : GameObjectBehaviour, IService
+    public abstract class ServiceActorBase<T> : Actor, IService
         where T : class, IService
     {
         [SerializeReference]
         [Disable]
         private ServiceLocator _owningLocator;
 
-        static ServiceBase()
+        static ServiceActorBase()
         {
             if (!typeof(T).IsInterface)
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires an interface type argument!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires an interface type argument!");
             }
 
             if (typeof(T) == typeof(IService))
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
             }
 
             if (!typeof(IService).IsAssignableFrom(typeof(T)))
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
+                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
             }
         }
 

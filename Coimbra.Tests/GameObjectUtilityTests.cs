@@ -8,29 +8,29 @@ namespace Coimbra.Tests
     public class GameObjectUtilityTests
     {
         [Test]
-        public void GivenGameObjectWithoutBehaviour_WhenGetOrCreateBehaviour_ThenBehaviourIsValid()
+        public void GivenGameObjectWithoutActor_WhenAsActor_ThenActorIsValid()
         {
             GameObject gameObject = new GameObject();
-            GameObjectBehaviour behaviour = gameObject.GetOrCreateBehaviour();
-            Assert.That(behaviour, Is.Not.Null);
-            Assert.That(behaviour.gameObject, Is.EqualTo(gameObject));
+            Actor actor = gameObject.AsActor();
+            Assert.That(actor, Is.Not.Null);
+            Assert.That(actor.gameObject, Is.EqualTo(gameObject));
         }
 
         [Test]
-        public void GivenGameObjectWithBehaviour_WhenGetOrCreateBehaviour_ThenBehaviourIsStillUnique()
+        public void GivenGameObjectWithActor_WhenAsActor_ThenActorIsStillUnique()
         {
-            GameObject gameObject = new GameObject("Test", typeof(GameObjectBehaviour));
-            GameObjectBehaviour behaviour = gameObject.GetOrCreateBehaviour();
-            Assert.That(behaviour.gameObject, Is.EqualTo(gameObject));
-            Assert.That(gameObject.GetComponents<GameObjectBehaviour>().Length, Is.EqualTo(1));
+            GameObject gameObject = new GameObject("Test", typeof(Actor));
+            Actor actor = gameObject.AsActor();
+            Assert.That(actor.gameObject, Is.EqualTo(gameObject));
+            Assert.That(gameObject.GetComponents<Actor>().Length, Is.EqualTo(1));
         }
 
         [Test]
-        public void GivenGameObjectWithBehaviour_AndItsTransform_WhenGetOrCreateBehaviourWithBoth_ThenBothResultsTheSame()
+        public void GivenGameObjectWithActor_AndItsTransform_WhenAsActorWithBoth_ThenBothResultsTheSame()
         {
-            GameObject gameObject = new GameObject("Test", typeof(GameObjectBehaviour));
+            GameObject gameObject = new GameObject("Test", typeof(Actor));
             Transform transform = gameObject.transform;
-            Assert.That(gameObject.GetOrCreateBehaviour(), Is.EqualTo(transform.gameObject.GetOrCreateBehaviour()));
+            Assert.That(gameObject.AsActor(), Is.EqualTo(transform.gameObject.AsActor()));
         }
     }
 }

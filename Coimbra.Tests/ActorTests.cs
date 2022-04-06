@@ -6,14 +6,14 @@ using UnityEngine.TestTools;
 namespace Coimbra.Tests
 {
     [TestFixture]
-    [TestOf(typeof(GameObjectBehaviour))]
+    [TestOf(typeof(Actor))]
     public class GameObjectBehaviourTests
     {
         [Test]
         public void GivenActivePrefab_WhenInstantiated_ThenCachesAreValid()
         {
-            GameObjectBehaviour prefab = new GameObject().AddComponent<GameObjectBehaviour>();
-            GameObjectBehaviour instance = Object.Instantiate(prefab);
+            Actor prefab = new GameObject().AddComponent<Actor>();
+            Actor instance = Object.Instantiate(prefab);
             Assert.That(instance.CachedGameObject, Is.Not.Null);
             Assert.That(instance.CachedTransform, Is.Not.Null);
         }
@@ -24,8 +24,8 @@ namespace Coimbra.Tests
             GameObject prefab = new GameObject();
             prefab.SetActive(false);
 
-            GameObjectBehaviour prefabBehaviour = prefab.AddComponent<GameObjectBehaviour>();
-            GameObjectBehaviour instance = Object.Instantiate(prefabBehaviour);
+            Actor prefabBehaviour = prefab.AddComponent<Actor>();
+            Actor instance = Object.Instantiate(prefabBehaviour);
             Assert.That(instance.CachedGameObject, Is.Null);
             Assert.That(instance.CachedTransform, Is.Null);
         }
@@ -34,9 +34,9 @@ namespace Coimbra.Tests
         public void GivenActiveInstance_WhenDisabled_ThenActiveStateChangedTriggers_AndStateIsFalse()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            GameObjectBehaviour prefab = new GameObject().AddComponent<GameObjectBehaviour>();
-            GameObjectBehaviour instance = Object.Instantiate(prefab);
-            instance.OnActiveStateChanged += delegate(GameObjectBehaviour sender, bool state)
+            Actor prefab = new GameObject().AddComponent<Actor>();
+            Actor instance = Object.Instantiate(prefab);
+            instance.OnActiveStateChanged += delegate(Actor sender, bool state)
             {
                 Debug.LogFormat(logFormat, state);
             };
@@ -49,10 +49,10 @@ namespace Coimbra.Tests
         public void GivenInactiveInstance_AndWasActive_WhenEnabled_ThenActivateStateChangedTriggers_AndStateIsTrue()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            GameObjectBehaviour prefab = new GameObject().AddComponent<GameObjectBehaviour>();
-            GameObjectBehaviour instance = Object.Instantiate(prefab);
+            Actor prefab = new GameObject().AddComponent<Actor>();
+            Actor instance = Object.Instantiate(prefab);
             instance.CachedGameObject.SetActive(false);
-            instance.OnActiveStateChanged += delegate(GameObjectBehaviour sender, bool state)
+            instance.OnActiveStateChanged += delegate(Actor sender, bool state)
             {
                 Debug.LogFormat(logFormat, state);
             };
@@ -64,10 +64,10 @@ namespace Coimbra.Tests
         [Test]
         public void GivenActivePrefab_AndHasPool_WhenInstantiated_ThenIsPooled()
         {
-            GameObjectBehaviour prefab = new GameObject().AddComponent<GameObjectBehaviour>();
+            Actor prefab = new GameObject().AddComponent<Actor>();
             prefab.Pool = new GameObject().AddComponent<GameObjectPool>();
 
-            GameObjectBehaviour instance = Object.Instantiate(prefab);
+            Actor instance = Object.Instantiate(prefab);
             Assert.That(instance.IsPooled, Is.True);
         }
 
@@ -75,8 +75,8 @@ namespace Coimbra.Tests
         public IEnumerator GivenActiveInstance_WhenDestroyedByDestroyCall_ThenResultIsExplicitCall()
         {
             const string logFormat = "OnDestroyed.reason = {0}";
-            GameObjectBehaviour instance = new GameObject().AddComponent<GameObjectBehaviour>();
-            instance.OnDestroyed += delegate(GameObjectBehaviour sender, DestroyReason reason)
+            Actor instance = new GameObject().AddComponent<Actor>();
+            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };

@@ -41,19 +41,19 @@ namespace Coimbra
                 {
                     if (current is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.gameObject.GetOrCreateBehaviour().OnDestroyed += HandleGameObjectDestroy;
+                        monoBehaviour.gameObject.AsActor().OnDestroyed += HandleGameObjectDestroy;
                     }
                 }
 
                 {
                     if (previous is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.gameObject.GetOrCreateBehaviour().OnDestroyed -= HandleGameObjectDestroy;
+                        monoBehaviour.gameObject.AsActor().OnDestroyed -= HandleGameObjectDestroy;
                     }
                 }
             }
 
-            private void HandleGameObjectDestroy(GameObjectBehaviour sender, DestroyReason destroyReason)
+            private void HandleGameObjectDestroy(Actor sender, DestroyReason destroyReason)
             {
                 if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.CachedGameObject)
                 {

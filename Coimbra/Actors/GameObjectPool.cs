@@ -9,10 +9,13 @@ using UnityEngine.Scripting;
 
 namespace Coimbra
 {
+    /// <summary>
+    /// Stack-based pool for any <see cref="GameObject"/> that makes use of <see cref="Addressables"/> system.
+    /// </summary>
     [PublicAPI]
     [Preserve]
     [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Pool")]
-    public sealed class GameObjectPool : GameObjectBehaviour
+    public sealed class GameObjectPool : Actor
     {
         /// <summary>
         /// Results available when trying to despawn an object.
@@ -55,7 +58,7 @@ namespace Coimbra
         /// <summary>
         /// Delegate for listening when an object instantiates on a pool.
         /// </summary>
-        public delegate void ObjectInstantiateHandler(GameObjectPool pool, GameObjectBehaviour instance);
+        public delegate void ObjectInstantiateHandler(GameObjectPool pool, Actor instance);
 
         /// <summary>
         /// Delegate for listening state changes of a pool.
@@ -110,9 +113,11 @@ namespace Coimbra
         [Tooltip("The transform to be used as the container.")]
         private Transform _containerTransform;
 
-        private GameObjectBehaviour _prefab;
+        private Actor _prefabActor;
         private HashSet<GameObjectID> _availableInstancesIds;
-        private Stack<GameObjectBehaviour> _availableInstances;
+        private Stack<Actor> _availableInstances;
+
+        private GameObjectPool() { }
 
         /// <summary>
         /// The amount of instances currently available.
@@ -203,7 +208,7 @@ namespace Coimbra
 
                 while (_availableInstances.Count > _maxCapacity)
                 {
-                    GameObjectBehaviour instance = _availableInstances.Pop();
+                    Actor instance = _availableInstances.Pop();
 
                     if (instance == null)
                     {
@@ -255,7 +260,7 @@ namespace Coimbra
                     return;
                 }
 
-                foreach (GameObjectBehaviour instance in _availableInstances)
+                foreach (Actor instance in _availableInstances)
                 {
                     instance.CachedTransform.SetParent(_containerTransform, false);
                 }
@@ -292,10 +297,10 @@ namespace Coimbra
                     return;
                 }
 
-                _prefab = prefab.GetOrCreateBehaviour();
+                _prefabActor = prefab.AsActor();
 
-                GameObjectPool pool = _prefab.Pool;
-                _prefab.Pool = this;
+                GameObjectPool pool = _prefabActor.Pool;
+                _prefabActor.Pool = this;
 
                 {
                     bool isActive = prefab.activeSelf;
@@ -306,7 +311,7 @@ namespace Coimbra
                     }
 
                     int targetCount = _maxCapacity > 0 ? Mathf.Min(_preloadCount, _maxCapacity) : _preloadCount;
-                    _availableInstances = new Stack<GameObjectBehaviour>(targetCount);
+                    _availableInstances = new Stack<Actor>(targetCount);
                     _availableInstancesIds = new HashSet<GameObjectID>();
 
                     for (int i = 0; i < targetCount; i++)
@@ -321,10 +326,10 @@ namespace Coimbra
                             return;
                         }
 
-                        instance.TryGetComponent(out GameObjectBehaviour behaviour);
-                        _availableInstancesIds.Add(behaviour.GameObjectID);
-                        _availableInstances.Push(behaviour);
-                        Instantiate(behaviour);
+                        instance.TryGetComponent(out Actor actor);
+                        _availableInstancesIds.Add(actor.GameObjectID);
+                        _availableInstances.Push(actor);
+                        Instantiate(actor);
                     }
 
                     if (_deactivatePreloadedInstances)
@@ -333,7 +338,7 @@ namespace Coimbra
                     }
                 }
 
-                _prefab.Pool = pool;
+                _prefabActor.Pool = pool;
                 ChangeCurrentState(State.Loaded);
             }
             catch (Exception e)
@@ -356,11 +361,11 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DespawnResult Despawn(GameObject instance)
         {
-            return Despawn(instance.GetOrCreateBehaviour());
+            return Despawn(instance.AsActor());
         }
 
         /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        public DespawnResult Despawn(GameObjectBehaviour instance)
+        public DespawnResult Despawn(Actor instance)
         {
             if (_currentState == State.Unloaded)
             {
@@ -400,7 +405,7 @@ namespace Coimbra
         /// <param name="parent">The instance parent.</param>
         /// <param name="spawnInWorldSpace">If false, the instance transform will be relative to the specified parent.</param>
         /// <returns>The spawned instance.</returns>
-        public GameObjectBehaviour Spawn(Transform parent = null, bool spawnInWorldSpace = false)
+        public Actor Spawn(Transform parent = null, bool spawnInWorldSpace = false)
         {
             if (_currentState == State.Unloaded)
             {
@@ -411,7 +416,7 @@ namespace Coimbra
 
             while (_availableInstances.Count > 0)
             {
-                GameObjectBehaviour instance = _availableInstances.Pop();
+                Actor instance = _availableInstances.Pop();
 
                 if (instance == null)
                 {
@@ -440,7 +445,7 @@ namespace Coimbra
         /// <param name="rotation">The rotation in world space..</param>
         /// <param name="parent">The instance parent.</param>
         /// <returns>The spawned instance.</returns>
-        public GameObjectBehaviour Spawn(Vector3 position, Quaternion rotation, Transform parent = null)
+        public Actor Spawn(Vector3 position, Quaternion rotation, Transform parent = null)
         {
             if (_currentState == State.Unloaded)
             {
@@ -451,7 +456,7 @@ namespace Coimbra
 
             while (_availableInstances.Count > 0)
             {
-                GameObjectBehaviour instance = _availableInstances.Pop();
+                Actor instance = _availableInstances.Pop();
 
                 if (instance == null)
                 {
@@ -476,7 +481,7 @@ namespace Coimbra
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public GameObjectBehaviour Spawn(Vector3 position, Vector3 rotation, Transform parent = null)
+        public Actor Spawn(Vector3 position, Vector3 rotation, Transform parent = null)
         {
             return Spawn(position, Quaternion.Euler(rotation), parent);
         }
@@ -550,7 +555,7 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Instantiate(GameObjectBehaviour instance)
+        private void Instantiate(Actor instance)
         {
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
@@ -563,13 +568,13 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private GameObjectBehaviour Instantiate(Transform parent, bool instantiateInWorldSpace)
+        private Actor Instantiate(Transform parent, bool instantiateInWorldSpace)
         {
-            GameObjectPool pool = _prefab.Pool;
-            _prefab.Pool = this;
+            GameObjectPool pool = _prefabActor.Pool;
+            _prefabActor.Pool = this;
 
-            GameObjectBehaviour instance = Instantiate(_prefab, parent, instantiateInWorldSpace);
-            _prefab.Pool = pool;
+            Actor instance = Instantiate(_prefabActor, parent, instantiateInWorldSpace);
+            _prefabActor.Pool = pool;
 
             Instantiate(instance);
 
@@ -577,13 +582,13 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private GameObjectBehaviour Instantiate(Vector3 position, Quaternion rotation, Transform parent)
+        private Actor Instantiate(Vector3 position, Quaternion rotation, Transform parent)
         {
-            GameObjectPool pool = _prefab.Pool;
-            _prefab.Pool = this;
+            GameObjectPool pool = _prefabActor.Pool;
+            _prefabActor.Pool = this;
 
-            GameObjectBehaviour instance = Instantiate(_prefab, position, rotation, parent);
-            _prefab.Pool = pool;
+            Actor instance = Instantiate(_prefabActor, position, rotation, parent);
+            _prefabActor.Pool = pool;
 
             Instantiate(instance);
 
