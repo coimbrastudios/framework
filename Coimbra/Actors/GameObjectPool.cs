@@ -293,6 +293,7 @@ namespace Coimbra
                 return;
             }
 
+            CachedGameObject.SetActive(false);
             ChangeCurrentState(State.Loading);
 
             try
@@ -338,7 +339,7 @@ namespace Coimbra
                 return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
             }
 
-            Actor instance = _availableInstances.PopUnsafe();
+            Actor instance = _availableInstances.Pop();
 
             if (PreloadingInstancesCount > 0)
             {
@@ -376,7 +377,7 @@ namespace Coimbra
                 return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
             }
 
-            Actor instance = _availableInstances.PopUnsafe();
+            Actor instance = _availableInstances.Pop();
 
             if (PreloadingInstancesCount > 0)
             {
@@ -426,7 +427,7 @@ namespace Coimbra
                      i < count;
                      i++)
                 {
-                    _availableInstances.PopUnsafe().GetValid()?.Destroy();
+                    _availableInstances.Pop().GetValid()?.Destroy();
                 }
 
                 _availableInstances = null;
@@ -475,7 +476,7 @@ namespace Coimbra
             {
                 for (int i = 0; i < _shrinkStep; i++)
                 {
-                    _availableInstances.PopUnsafe().Destroy();
+                    _availableInstances.Pop().Destroy();
                 }
             }
         }

@@ -32,16 +32,100 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Shorthand for getting the last item of the list.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Last<T>(this List<T> list)
+        {
+            return list[list.Count - 1];
+        }
+
+        /// <summary>
         /// Shorthand for removing the last element and returning it without checking if the operation is valid.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T PopUnsafe<T>(this List<T> list)
+        public static T Pop<T>(this List<T> list)
         {
-            int index = list.Count - 1;
-            T item = list[index];
-            list.RemoveAt(index);
+            T item = Last(list);
+            RemoveLast(list);
 
             return item;
+        }
+
+        /// <summary>
+        /// Shorthand for removing the last element.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveLast<T>(this List<T> list)
+        {
+            list.RemoveAt(list.Count - 1);
+        }
+
+        /// <summary>
+        /// More efficient version of <see cref="List{T}.Remove"/> that doesn't care about preserving the order.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool RemoveSwapBack<T>(this List<T> list, T item)
+        {
+            int index = list.IndexOf(item);
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            RemoveAtSwapBack(list, index);
+
+            return true;
+        }
+
+        /// <summary>
+        /// More efficient version of <see cref="List{T}.RemoveAt"/> that doesn't care about preserving the order.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveAtSwapBack<T>(this List<T> list, int index)
+        {
+            list[index] = Last(list);
+            RemoveLast(list);
+        }
+
+        /// <summary>
+        /// More efficient version of <see cref="List{T}.RemoveAll"/> that doesn't care about preserving the order.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int RemoveAllSwapBack<T>(this List<T> list, Predicate<T> match)
+        {
+            if (match == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (!match.Invoke(list[i]))
+                {
+                    continue;
+                }
+
+                RemoveAtSwapBack(list, i);
+                --i;
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// More efficient version of <see cref="List{T}.RemoveRange"/> that doesn't care about preserving the order.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveRangeSwapBack<T>(this List<T> list, int index, int count)
+        {
+            for (int i = count - 1; i >= 0; i--)
+            {
+                RemoveAtSwapBack(list, index + count);
+            }
         }
     }
 }

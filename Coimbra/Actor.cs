@@ -58,7 +58,9 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroyed;
 
-        private static readonly List<Actor> ConstructedActors = new List<Actor>();
+        private static readonly List<Actor> PooledActors = new List<Actor>();
+
+        private static readonly List<Actor> UninitializedActors = new List<Actor>();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
@@ -66,7 +68,7 @@ namespace Coimbra
 
         protected Actor()
         {
-            ConstructedActors.Add(this);
+            UninitializedActors.Add(this);
         }
 
         /// <summary>
@@ -144,16 +146,16 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InitializeAllActors()
         {
-            for (int i = ConstructedActors.Count - 1; i >= 0; i--)
+            for (int i = UninitializedActors.Count - 1; i >= 0; i--)
             {
-                Actor actor = ConstructedActors[i];
+                Actor actor = UninitializedActors[i];
 
                 if (actor != null)
                 {
                     actor.Initialize();
                 }
 
-                ConstructedActors.RemoveAt(i);
+                UninitializedActors.RemoveAtSwapBack(i);
             }
         }
 
@@ -216,7 +218,11 @@ namespace Coimbra
             IsPooled = Pool != null;
             OnInitialize();
 
-            if (!IsPooled)
+            if (IsPooled)
+            {
+                PooledActors.Add(this);
+            }
+            else
             {
                 Spawn();
             }
@@ -291,6 +297,12 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static IReadOnlyList<Actor> GetPooledActors()
+        {
+            return PooledActors;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Spawn()
         {
             if (IsDestroyed || IsSpawned)
@@ -308,6 +320,11 @@ namespace Coimbra
             if (IsDestroyed)
             {
                 return;
+            }
+
+            if (IsPooled)
+            {
+                PooledActors.RemoveSwapBack(this);
             }
 
             IsDestroyed = true;
