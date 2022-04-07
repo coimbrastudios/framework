@@ -18,15 +18,20 @@ namespace Coimbra
             where T : IEvent
         {
             internal static readonly Dictionary<EventHandle, EventRef<T>.Handler> Value = new Dictionary<EventHandle, EventRef<T>.Handler>(1);
+
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
 
         private sealed class Event
         {
             internal readonly RemoveHandler RemoveHandler;
+
             internal readonly List<EventHandle> Handles = new List<EventHandle>();
+
             internal readonly HashSet<EventHandle> HandlesToRemove = new HashSet<EventHandle>();
+
             internal bool IsInvoking;
+
             internal EventKey Key;
 
             internal Event(RemoveHandler removeHandler, EventKey key = null)
@@ -37,6 +42,7 @@ namespace Coimbra
         }
 
         private const string InvalidEventKeyMessageFormat = "The event key \"{0}\" doesn't match the current set key \"{1}\" for type \"{2}\"";
+
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         private EventSystem() { }

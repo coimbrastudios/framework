@@ -16,9 +16,13 @@ namespace Coimbra.Editor
     public sealed class FrameworkEditorUtility : AssetPostprocessor
     {
         private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
+
         private const string ClearConsoleOnReloadItem = FrameworkUtility.PreferencesMenuPath + "Clear Console On Reload";
+
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
+
         private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
+
         private const string EditorStartupSceneCategory = "Editor Startup Scene";
 
         [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]

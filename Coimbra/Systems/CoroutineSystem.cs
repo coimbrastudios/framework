@@ -19,17 +19,17 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectDespawn()
+        protected override void OnDestroying()
         {
+            base.OnDestroying();
             StopAllCoroutines();
-            base.OnObjectDespawn();
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectInitialize()
+        protected override void OnInitialize()
         {
+            base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
-            base.OnObjectInitialize();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

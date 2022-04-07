@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Coimbra
 {
@@ -14,15 +15,18 @@ namespace Coimbra
     [AddComponentMenu("")]
     public sealed class PoolingSystem : ServiceActorBase<IPoolingService>, IPoolingService
     {
-        private readonly List<GameObjectPool> _poolsLoading = new List<GameObjectPool>();
-        private readonly HashSet<object> _poolsPrefabs = new HashSet<object>();
-        private readonly HashSet<GameObjectPool> _pools = new HashSet<GameObjectPool>();
+        private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
+
+        private readonly HashSet<object> _prefabsSet = new HashSet<object>();
+
+        private readonly HashSet<GameObjectPool> _poolsSet = new HashSet<GameObjectPool>();
+
         private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
 
         private PoolingSystem() { }
 
         /// <inheritdoc/>
-        public IReadOnlyList<GameObjectPool> PoolsLoading => _poolsLoading;
+        public int LoadingPoolCount => _loadingList.Count;
 
         /// <summary>
         /// Create a new <see cref="IPoolingService"/>.
@@ -37,16 +41,16 @@ namespace Coimbra
         {
             if (pool == null
              || pool.PrefabReference == null
-             || _poolsPrefabs.Contains(pool.PrefabReference.RuntimeKey)
-             || !_pools.Add(pool))
+             || _prefabsSet.Contains(pool.PrefabReference.RuntimeKey)
+             || !_poolsSet.Add(pool))
             {
                 return false;
             }
 
             pool.OnDestroyed += HandlePoolDestroyed;
-            pool.OnStateChanged += HandlePoolStateChanged;
-            _poolsPrefabs.Add(pool.PrefabReference.RuntimeKey);
-            _poolsLoading.Add(pool);
+            pool.OnPoolStateChanged += HandlePoolStateChanged;
+            _prefabsSet.Add(pool.PrefabReference.RuntimeKey);
+            _loadingList.Add(pool);
 
             if (pool.CurrentState == GameObjectPool.State.Unloaded)
             {
@@ -59,70 +63,33 @@ namespace Coimbra
         /// <inheritdoc/>
         public bool ContainsPool(GameObjectPool pool)
         {
-            return _pools.Contains(pool);
+            return _poolsSet.Contains(pool);
         }
 
         /// <inheritdoc/>
-        public GameObjectPool.DespawnResult Despawn(GameObject instance)
+        public bool ContainsPool(AssetReferenceT<GameObject> prefab)
         {
-            if (!instance.TryGetValid(out instance))
-            {
-                return GameObjectPool.DespawnResult.Aborted;
-            }
-
-            if (instance.TryGetComponent(out Actor actor))
-            {
-                if (actor.Pool.TryGetValid(out GameObjectPool pool))
-                {
-                    return pool.Despawn(instance);
-                }
-
-                actor.Destroy();
-            }
-            else if (!Addressables.ReleaseInstance(instance))
-            {
-                Destroy(instance);
-            }
-
-            return GameObjectPool.DespawnResult.Destroyed;
-        }
-
-        /// <inheritdoc/>
-        public GameObjectPool.DespawnResult Despawn(Actor instance)
-        {
-            if (!instance.TryGetValid(out instance))
-            {
-                return GameObjectPool.DespawnResult.Aborted;
-            }
-
-            if (instance.Pool.TryGetValid(out GameObjectPool pool))
-            {
-                return pool.Despawn(instance);
-            }
-
-            instance.Destroy();
-
-            return GameObjectPool.DespawnResult.Destroyed;
+            return _prefabsSet.Contains(prefab.RuntimeKey);
         }
 
         /// <inheritdoc/>
         public GameObjectPool[] GetAllPools()
         {
-            return _pools.ToArray();
+            return _poolsSet.ToArray();
         }
 
         /// <inheritdoc/>
         public int GetAllPools(List<GameObjectPool> appendResults)
         {
-            appendResults.AddRange(_pools);
+            appendResults.AddRange(_poolsSet);
 
-            return _pools.Count;
+            return _poolsSet.Count;
         }
 
         /// <inheritdoc/>
         public bool RemovePool(GameObjectPool pool, bool unload)
         {
-            if (pool == null || !_pools.Remove(pool))
+            if (pool == null || !_poolsSet.Remove(pool))
             {
                 return false;
             }
@@ -131,12 +98,16 @@ namespace Coimbra
             {
                 _poolFromPrefab.Remove(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()));
             }
+            else
+            {
+                _loadingList.Remove(pool);
+            }
 
-            _poolsPrefabs.Remove(pool.PrefabReference.RuntimeKey);
-            pool.OnStateChanged -= HandlePoolStateChanged;
+            _prefabsSet.Remove(pool.PrefabReference.RuntimeKey);
+            pool.OnPoolStateChanged -= HandlePoolStateChanged;
             pool.OnDestroyed -= HandlePoolDestroyed;
 
-            if (unload)
+            if (unload && pool.CurrentState != GameObjectPool.State.Unloaded)
             {
                 pool.Unload();
             }
@@ -210,26 +181,26 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectDespawn()
+        protected override void OnDestroying()
         {
+            base.OnDestroying();
             _poolFromPrefab.Clear();
-            _poolsLoading.Clear();
-            _poolsPrefabs.Clear();
+            _loadingList.Clear();
+            _prefabsSet.Clear();
 
-            foreach (GameObjectPool pool in _pools)
+            foreach (GameObjectPool pool in _poolsSet)
             {
                 pool.OnDestroyed -= HandlePoolDestroyed;
-                pool.OnStateChanged -= HandlePoolStateChanged;
+                pool.OnPoolStateChanged -= HandlePoolStateChanged;
                 pool.Unload();
             }
 
-            _pools.Clear();
-            base.OnObjectDespawn();
+            _poolsSet.Clear();
         }
 
-        protected override void OnObjectSpawn()
+        protected override void OnInitialize()
         {
-            base.OnObjectSpawn();
+            base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
 
             if (!ScriptableSettings.TryGetOrFind(out PoolingSettings poolingSettings))
@@ -237,12 +208,31 @@ namespace Coimbra
                 return;
             }
 
-            foreach (LazyLoadReference<GameObjectPool> pool in poolingSettings.DefaultPersistentPools)
+            IReadOnlyList<AssetReferenceT<GameObject>> defaultPersistentPools = poolingSettings.DefaultPersistentPools;
+
+            for (int i = 0; i < defaultPersistentPools.Count; i++)
             {
-                if (pool.isSet && !pool.isBroken)
+                int index = i;
+
+                void handlePersistentPoolInstantiated(AsyncOperationHandle<GameObject> handle)
                 {
-                    AddPool(Instantiate(pool.asset, CachedTransform));
+                    if (IsDestroyed)
+                    {
+                        Addressables.Release(handle);
+                        Destroy(handle.Result);
+                    }
+                    else if (handle.Result.TryGetComponent(out GameObjectPool pool))
+                    {
+                        AddPool(pool);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Invalid reference, skipping item {index}!", CachedGameObject);
+                        Debug.LogError($"Expected a {nameof(GameObjectPool)} on object {handle.Result}.", handle.Result);
+                    }
                 }
+
+                Addressables.InstantiateAsync(defaultPersistentPools[i], CachedTransform).Completed += handlePersistentPoolInstantiated;
             }
         }
 
@@ -258,9 +248,9 @@ namespace Coimbra
             ServiceLocator.Shared.Get<IPoolingService>();
         }
 
-        private void HandlePoolDestroyed(Actor sender, DestroyReason reason)
+        private void HandlePoolDestroyed(Actor pool, DestroyReason reason)
         {
-            RemovePool((GameObjectPool)sender, false);
+            RemovePool((GameObjectPool)pool, false);
         }
 
         private void HandlePoolStateChanged(GameObjectPool pool, GameObjectPool.State previous, GameObjectPool.State current)
@@ -269,7 +259,7 @@ namespace Coimbra
             {
                 case GameObjectPool.State.Unloaded:
                 {
-                    _poolsLoading.Remove(pool);
+                    _loadingList.Remove(pool);
                     RemovePool(pool, false);
 
                     break;
@@ -277,7 +267,7 @@ namespace Coimbra
 
                 case GameObjectPool.State.Loaded:
                 {
-                    _poolsLoading.Remove(pool);
+                    _loadingList.Remove(pool);
                     _poolFromPrefab.Add(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()), pool);
 
                     break;

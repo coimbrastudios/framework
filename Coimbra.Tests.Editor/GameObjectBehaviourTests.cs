@@ -21,13 +21,13 @@ namespace Coimbra.Tests.Editor
 
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
+            instance.OnDestroyed += delegate(Actor sender, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };
 
             LogAssert.ignoreFailingMessages = true;
-            LogAssert.Expect(LogType.Log, string.Format(logFormat, DestroyReason.ApplicationQuit));
+            LogAssert.Expect(LogType.Log, string.Format(logFormat, Actor.DestroyReason.ApplicationQuit));
 
             yield return new ExitPlayMode();
         }
@@ -50,13 +50,13 @@ namespace Coimbra.Tests.Editor
 
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
+            instance.OnDestroyed += delegate(Actor sender, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };
 
             LogAssert.ignoreFailingMessages = true;
-            LogAssert.Expect(LogType.Log, string.Format(logFormat, DestroyReason.SceneChange));
+            LogAssert.Expect(LogType.Log, string.Format(logFormat, Actor.DestroyReason.SceneChange));
             SceneManager.LoadScene(0);
 
             yield return null;

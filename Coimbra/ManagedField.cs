@@ -16,6 +16,7 @@ namespace Coimbra
     {
         [SerializeReference]
         private T _systemObject;
+
         [SerializeField]
         private UnityEngine.Object _unityObject;
 

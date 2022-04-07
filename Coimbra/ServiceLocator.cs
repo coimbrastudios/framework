@@ -41,19 +41,19 @@ namespace Coimbra
                 {
                     if (current is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.gameObject.AsActor().OnDestroyed += HandleGameObjectDestroy;
+                        monoBehaviour.gameObject.AsActor().OnDestroyed += HandleDestroyed;
                     }
                 }
 
                 {
                     if (previous is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
                     {
-                        monoBehaviour.gameObject.AsActor().OnDestroyed -= HandleGameObjectDestroy;
+                        monoBehaviour.gameObject.AsActor().OnDestroyed -= HandleDestroyed;
                     }
                 }
             }
 
-            private void HandleGameObjectDestroy(Actor sender, DestroyReason destroyReason)
+            private void HandleDestroyed(Actor sender, Actor.DestroyReason destroyReason)
             {
                 if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.CachedGameObject)
                 {
@@ -94,7 +94,7 @@ namespace Coimbra
         /// If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.
         /// </summary>
         [field: SerializeField]
-        public bool AllowFallbackToShared  { get; private set; }
+        public bool AllowFallbackToShared { get; private set; }
 
         /// <summary>
         /// Adds a listener for when a service instance changes.

@@ -13,6 +13,7 @@ namespace Coimbra
     public sealed class ApplicationSystem : ServiceActorBase<IApplicationService>, IApplicationService
     {
         private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
+
         private IEventService _eventService;
 
         private ApplicationSystem() { }
@@ -26,20 +27,20 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectDestroy()
+        protected override void OnDestroying()
         {
-            base.OnObjectDestroy();
+            base.OnDestroying();
             SetEventService(null);
             SceneManager.sceneLoaded -= HandleSceneLoaded;
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectInitialize()
+        protected override void OnInitialize()
         {
+            base.OnInitialize();
+            DontDestroyOnLoad(CachedGameObject);
             SceneManager.sceneLoaded += HandleSceneLoaded;
             OnDestroyed += HandleDestroyed;
-            DontDestroyOnLoad(CachedGameObject);
-            base.OnObjectInitialize();
         }
 
         /// <inheritdoc/>
@@ -151,7 +152,7 @@ namespace Coimbra
             CancellationToken token = CachedGameObject.GetCancellationTokenOnDestroy();
             InvokeFixedUpdateEvents().AttachExternalCancellation(token);
             InvokeMainUpdateEvents().AttachExternalCancellation(token);
-            GameObjectUtility.InitializePendingActors();
+            InitializeAllActors();
         }
 
         private void FixedUpdate()
@@ -199,7 +200,7 @@ namespace Coimbra
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            GameObjectUtility.InitializePendingActors();
+            InitializeAllActors();
             Invoke(new SceneLoadedEvent(scene, mode));
         }
 

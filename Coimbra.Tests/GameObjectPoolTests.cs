@@ -12,8 +12,8 @@ namespace Coimbra.Tests
     [TestOf(typeof(GameObjectPool))]
     public class GameObjectPoolTests
     {
-#if COIMBRA_GAMEOBJECTPOOL_TESTS
-        private const int Timeout = 1000;
+#if false
+        private const int OneSecond = 1000;
         private const string PoolWithActivePrefabAddress = "Packages/com.coimbrastudios.core/Prefabs/GameObjectPool.prefab";
         private const string PoolWithInactivePrefabAddress = "Packages/com.coimbrastudios.core/Prefabs/GameObjectPool_InactivePrefab.prefab";
 
@@ -21,7 +21,7 @@ namespace Coimbra.Tests
         private GameObjectPool _poolWithInactivePrefab;
 
         [UnitySetUp]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator SetUp()
         {
             AsyncOperationHandle<GameObject> poolOperation = Addressables.InstantiateAsync(PoolWithActivePrefabAddress);
@@ -39,15 +39,15 @@ namespace Coimbra.Tests
         [TearDown]
         public void TearDown()
         {
-            _pool.Destroy();
-            _poolWithInactivePrefab.Destroy();
+            _pool.gameObject.AsActor().Destroy();
+            _poolWithInactivePrefab.gameObject.AsActor().Destroy();
         }
 
         [Test]
         public void GivenUnloadedPool_WhenDespawn_ThenFails()
         {
             Actor behaviour = new GameObject().AddComponent<Actor>();
-            Assert.That(_pool.Despawn(behaviour), Is.EqualTo(GameObjectPool.DespawnResult.Aborted));
+            Assert.That(_pool.Despawn(behaviour), Is.False);
             Object.Destroy(behaviour.gameObject);
         }
 
@@ -71,7 +71,7 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenUnloadedPool_WhenLoad_ThenStateIsLoadedEventually()
         {
             _pool.OnStateChanged += delegate(GameObjectPool pool, GameObjectPool.State previous, GameObjectPool.State current)
@@ -103,7 +103,7 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenLoadedPool_WhenUnload_ThenStateIsUnloaded()
         {
             yield return _pool.LoadAsync().ToCoroutine();
@@ -114,7 +114,7 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenLoadedPool_WhenUnload_AndLoad_ThenStateIsLoadedEventually()
         {
             yield return _pool.LoadAsync().ToCoroutine();
@@ -128,11 +128,10 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenUnloadedPool_AndActivePrefab_WhenLoad_ThenInstantiateTriggersForEachInstance_AndInstancesAreValid()
         {
-            _pool.MaxCapacity = 5;
-            _pool.PreloadCount = 5;
+            _pool.DesiredAvailableInstancesRange = new IntRange(0, 5);
             _pool.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
                 Debug.Log(pool);
@@ -140,7 +139,7 @@ namespace Coimbra.Tests
                 AssertInstanceIsValid(pool, instance);
             };
 
-            for (int i = 0; i < _pool.PreloadCount; i++)
+            for (int i = 0; i < _pool.DesiredAvailableInstancesRange.Max; i++)
             {
                 LogAssert.Expect(LogType.Log, _pool.ToString());
             }
@@ -149,11 +148,10 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenUnloadedPool_AndInactivePrefab_WhenLoad_ThenInstantiateTriggersForEachInstance_AndInstancesAreValid()
         {
-            _poolWithInactivePrefab.MaxCapacity = 5;
-            _poolWithInactivePrefab.PreloadCount = 5;
+            _pool.DesiredAvailableInstancesRange = new IntRange(0, 5);
             _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
                 Debug.Log(pool);
@@ -161,7 +159,7 @@ namespace Coimbra.Tests
                 AssertInstanceIsValid(pool, instance);
             };
 
-            for (int i = 0; i < _poolWithInactivePrefab.PreloadCount; i++)
+            for (int i = 0; i < _poolWithInactivePrefab.DesiredAvailableInstancesRange.Max; i++)
             {
                 LogAssert.Expect(LogType.Log, _poolWithInactivePrefab.ToString());
             }
@@ -170,11 +168,10 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenLoadedPool_AndInactivePrefab_WhenSpawned_ThenInstanceIsSpawned()
         {
-            _poolWithInactivePrefab.MaxCapacity = 1;
-            _poolWithInactivePrefab.PreloadCount = 1;
+            _pool.DesiredAvailableInstancesRange = new IntRange(0, 1);
 
             yield return _poolWithInactivePrefab.LoadAsync().ToCoroutine();
 
@@ -183,30 +180,30 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
-        public IEnumerator GivenLoadedPool_AndPoolHasCapacity_WhenDespawned_ThenResultIsDespawned()
+        [Timeout(OneSecond)]
+        public IEnumerator GivenLoadedPool_AndCanExpand_WhenSpawnUntilAvailableInstanceIsTooSmall_ThenPoolIncreases()
         {
-            _pool.MaxCapacity = 1;
-            _pool.PreloadCount = 1;
+            _pool.DesiredCapacity = 3;
+            _pool.DesiredAvailableInstancesRange = new IntRange(2, 5);
 
             yield return _pool.LoadAsync().ToCoroutine();
 
             Actor instance = _pool.Spawn();
-            Assert.That(_pool.Despawn(instance), Is.EqualTo(GameObjectPool.DespawnResult.Despawned));
+            Assert.That(_pool.Despawn(instance), Is.True);
             Assert.That(instance.IsSpawned, Is.False);
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
-        public IEnumerator GivenLoadedPool_AndPoolIsFull_WhenDespawned_ThenResultIsDestroyed()
+        [Timeout(OneSecond)]
+        public IEnumerator GivenLoadedPool_AndCanShrink_WhenDespawnUntilAvailableInstanceIsTooBig_ThenPoolDecreases()
         {
-            _pool.PreloadCount = 1;
             _pool.MaxCapacity = 1;
+            _pool.DesiredAvailableInstancesRange = new IntRange(0, 1);
 
             yield return _pool.LoadAsync().ToCoroutine();
 
             GameObject instance = new GameObject();
-            Assert.That(_pool.Despawn(instance), Is.EqualTo(GameObjectPool.DespawnResult.Destroyed));
+            Assert.That(_pool.Despawn(instance), Is.True);
 
             yield return null;
 
@@ -214,11 +211,12 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenLoadedPool_AndSpawnedInstance_WhenDespawned_AndSpawned_ThenInstancesAreTheSame()
         {
-            _pool.PreloadCount = 1;
-            _pool.MaxCapacity = 1;
+            _pool.DesiredCapacity = 0;
+            _pool.DesiredAvailableInstancesRange = new IntRange(0, 1);
+
 
             yield return _pool.LoadAsync().ToCoroutine();
 
@@ -231,14 +229,13 @@ namespace Coimbra.Tests
         }
 
         [UnityTest]
-        [Timeout(Timeout)]
+        [Timeout(OneSecond)]
         public IEnumerator GivenLoadedPool_AndInactivePrefab_WhenDestroyed_ThenResultIsExplicitCall()
         {
-            _poolWithInactivePrefab.MaxCapacity = 5;
             _poolWithInactivePrefab.PreloadCount = 5;
             _poolWithInactivePrefab.OnObjectInstantiated += delegate(GameObjectPool pool, Actor instance)
             {
-                instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
+                instance.OnObjectDestroyed += delegate(Actor sender, DestroyReason reason)
                 {
                     Debug.Log(reason);
                 };
@@ -255,27 +252,6 @@ namespace Coimbra.Tests
         {
             _pool.PreloadCount = -1;
             Assert.That(_pool.PreloadCount, Is.GreaterThanOrEqualTo(0));
-        }
-
-        [Test]
-        public void GivenUnloadedPool_WhenSetMaxCapacity_ThenIsNeverNegative()
-        {
-            _pool.MaxCapacity = -1;
-            Assert.That(_pool.MaxCapacity, Is.GreaterThanOrEqualTo(0));
-        }
-
-        [UnityTest]
-        [Timeout(Timeout)]
-        public IEnumerator GivenLoadedPool_WhenSetMaxCapacityToSmallerNumber_ThenAvailableInstanceCountAlsoChanges()
-        {
-            _pool.MaxCapacity = 5;
-            _pool.PreloadCount = 5;
-
-            yield return _pool.LoadAsync().ToCoroutine();
-
-            Assert.That(_pool.AvailableInstancesCount, Is.EqualTo(5));
-            _pool.MaxCapacity = 1;
-            Assert.That(_pool.AvailableInstancesCount, Is.EqualTo(1));
         }
 
         private static void AssertInstanceIsValid(GameObjectPool pool, Actor instance)

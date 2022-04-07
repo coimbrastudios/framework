@@ -4,14 +4,18 @@ using UnityEngine.Scripting;
 
 namespace Coimbra
 {
-    [AddComponentMenu("")]
     [Preserve]
+    [AddComponentMenu("")]
     internal sealed class TimerComponent : MonoBehaviour
     {
         internal int CompletedLoops;
+
         internal int TargetLoops;
+
         internal ITimerService Service;
+
         internal TimerHandle Handle;
+
         internal Action Callback;
 
         internal void Run()

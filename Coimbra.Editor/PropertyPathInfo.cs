@@ -78,7 +78,8 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the object that contains that field.
         /// </summary>
-        [CanBeNull] [Pure]
+        [CanBeNull]
+        [Pure]
         public object GetScope([NotNull] Object context)
         {
             PropertyPathInfo propertyPathInfo = this;
@@ -98,7 +99,8 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the object that contains that field for each context.
         /// </summary>
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public object[] GetScopes([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -112,7 +114,8 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetScopes(Object[])"/>
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public T[] GetScopes<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];
@@ -162,7 +165,8 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the field value.
         /// </summary>
-        [CanBeNull] [Pure]
+        [CanBeNull]
+        [Pure]
         public object GetValue([NotNull] Object context)
         {
             PropertyPathInfo propertyPathInfo = this;
@@ -172,7 +176,8 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValue"/>
-        [CanBeNull] [Pure]
+        [CanBeNull]
+        [Pure]
         public T GetValue<T>([NotNull] Object context)
         {
             object value = GetValue(context);
@@ -183,7 +188,8 @@ namespace Coimbra.Editor
         /// <summary>
         /// Get the field value for each context.
         /// </summary>
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public object[] GetValues([NotNull] Object[] context)
         {
             object[] values = new object[context.Length];
@@ -197,7 +203,8 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [NotNull] [Pure]
+        [NotNull]
+        [Pure]
         public T[] GetValues<T>([NotNull] Object[] context)
         {
             T[] values = new T[context.Length];

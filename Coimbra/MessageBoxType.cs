@@ -9,14 +9,17 @@ namespace Coimbra
         /// Neutral message.
         /// </summary>
         None,
+
         /// <summary>
         /// Info message.
         /// </summary>
         Info,
+
         /// <summary>
         /// Warning message.
         /// </summary>
         Warning,
+
         /// <summary>
         /// Error message.
         /// </summary>

@@ -59,8 +59,11 @@ namespace Coimbra
         public event Action<T> OnPush;
 
         private readonly object _lock = new object();
+
         private readonly HashSet<T> _availableSet = new HashSet<T>();
+
         private readonly Stack<T> _availableStack = new Stack<T>();
+
         private readonly CreateHandler _createCallback;
 
         /// <param name="createCallback">Called when creating a new item for the pool. It should never return null.</param>

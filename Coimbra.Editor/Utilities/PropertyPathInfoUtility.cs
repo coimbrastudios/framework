@@ -15,6 +15,7 @@ namespace Coimbra.Editor
     public static class PropertyPathInfoUtility
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+
         private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new Dictionary<SerializedProperty, PropertyPathInfo>();
 
         /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>

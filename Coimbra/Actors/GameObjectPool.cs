@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -18,25 +19,6 @@ namespace Coimbra
     public sealed class GameObjectPool : Actor
     {
         /// <summary>
-        /// Results available when trying to despawn an object.
-        /// </summary>
-        public enum DespawnResult
-        {
-            /// <summary>
-            /// Successfully despawned the object.
-            /// </summary>
-            Despawned,
-            /// <summary>
-            /// The object got destroyed.
-            /// </summary>
-            Destroyed,
-            /// <summary>
-            /// Aborted the operation because the object does not belong to the pool.
-            /// </summary>
-            Aborted
-        }
-
-        /// <summary>
         /// The <see cref="GameObjectPool"/> state.
         /// </summary>
         public enum State
@@ -45,10 +27,12 @@ namespace Coimbra
             /// Pool is completely unloaded without any instances on it.
             /// </summary>
             Unloaded,
+
             /// <summary>
             /// Pool is preloading its instances.
             /// </summary>
             Loading,
+
             /// <summary>
             /// Pool is completely loaded and ready to be used.
             /// </summary>
@@ -56,66 +40,86 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Delegate for listening when an object instantiates on a pool.
+        /// Delegate for listening when an instance is created.
         /// </summary>
-        public delegate void ObjectInstantiateHandler(GameObjectPool pool, Actor instance);
+        public delegate void CreateInstanceHandler(GameObjectPool pool, Actor instance);
 
         /// <summary>
-        /// Delegate for listening state changes of a pool.
+        /// Delegate for listening state changes of a <see cref="GameObjectPool"/>.
         /// </summary>
-        public delegate void StateChangeHandler(GameObjectPool pool, State previous, State current);
+        public delegate void PoolStateChangeHandler(GameObjectPool pool, State previous, State current);
 
         /// <summary>
-        /// Invoked when an object is instantiated.
+        /// Invoked when a new instance is created.
         /// </summary>
-        public event ObjectInstantiateHandler OnObjectInstantiated;
+        public event CreateInstanceHandler OnInstanceCreated;
 
         /// <summary>
         /// Invoked when this pool <see cref="CurrentState"/> changes.
         /// </summary>
-        public event StateChangeHandler OnStateChanged;
+        public event PoolStateChangeHandler OnPoolStateChanged;
 
         [SerializeField]
         [Disable]
         [Tooltip("The current pool state.")]
         private State _currentState;
+
         [SerializeField]
         [DisableOnPlayMode]
         [Tooltip("The prefab that this pool is using.")]
         private AssetReferenceT<GameObject> _prefabReference;
-        [SerializeField]
-        [DisableOnPlayMode]
-        [Tooltip("If true, this pool will automatically load.")]
-        private bool _autoLoad;
-        [SerializeField]
-        [Tooltip("If true, instantiate will be used when spawn fails.")]
-        private bool _canInstantiateOnSpawn = true;
-        [SerializeField]
-        [Tooltip("If true, new instances will receive a more descriptive name. (Editor Only)")]
-        private bool _changeNameOnInstantiate = true;
-        [SerializeField]
-        [Tooltip("Should all preloaded instances start deactivated?")]
-        private bool _deactivatePreloadedInstances = true;
-        [SerializeField]
-        [Tooltip("If true, parent will not change automatically when despawned. Changing to false affects performance.")]
-        private bool _keepParentOnDespawn = true;
-        [SerializeField]
-        [Min(0)]
-        [Tooltip("Amount of instances available from the beginning.")]
-        private int _preloadCount = 1;
-        [SerializeField]
-        [DisableOnPlayMode]
-        [Min(0)]
-        [Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity.")]
-        private int _maxCapacity = 1;
+
         [SerializeField]
         [DisableOnPlayMode]
         [Tooltip("The transform to be used as the container.")]
         private Transform _containerTransform;
 
+        [SerializeField]
+        [DisableOnPlayMode]
+        [Tooltip("If true, this pool will automatically load when initializing.")]
+        private bool _loadOnInitialize;
+
+        [SerializeField]
+        [Tooltip("If true, instantiate will be used when there is no available instance.")]
+        private bool _canInstantiateOnSpawn = true;
+
+        [SerializeField]
+        [Tooltip("If true, new instances will receive a more descriptive name. (Editor Only)")]
+        private bool _changeNameOnInstantiate = true;
+
+        [SerializeField]
+        [Tooltip("Should all preloaded instances start deactivated?")]
+        private bool _deactivatePreloadedInstances = true;
+
+        [SerializeField]
+        [Tooltip("If true, parent will not change automatically when despawned.")]
+        private bool _keepParentOnDespawn;
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [Tooltip("The range of instances desired to be available.")]
+        private IntRange _desiredAvailableInstancesRange = 1;
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [Min(0)]
+        [Tooltip("The amount of instances to preload each time we are below the minimum amount of desired available instances. If 0, then it will never expand.")]
+        private int _expandStep;
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [Min(0)]
+        [Tooltip("Destroy this amount of instance when we are above the maximum amount of desired available instances by this same amount. If 0, then it will never shrink.")]
+        private int _shrinkStep;
+
+        [SerializeField]
+        [Disable]
+        [Tooltip("The instances currently available.")]
+        private List<Actor> _availableInstances;
+
+        private int _loadFrame;
+
         private Actor _prefabActor;
-        private HashSet<GameObjectID> _availableInstancesIds;
-        private Stack<Actor> _availableInstances;
 
         private GameObjectPool() { }
 
@@ -125,29 +129,20 @@ namespace Coimbra
         public int AvailableInstancesCount => _availableInstances?.Count ?? 0;
 
         /// <summary>
+        /// The amount of instances that still need to preload.
+        /// </summary>
+        [field: SerializeField]
+        [field: Disable]
+        [field: Tooltip("The amount of instances that still need to preload.")]
+        public int PreloadingInstancesCount { get; private set; }
+
+        /// <summary>
         /// The current pool state.
         /// </summary>
         public State CurrentState => _currentState;
 
         /// <summary>
-        /// If true, this pool will automatically load.
-        /// </summary>
-        public bool AutoLoad
-        {
-            get => _autoLoad;
-            set
-            {
-                _autoLoad = value;
-
-                if (_autoLoad && _currentState == State.Unloaded && IsSpawned)
-                {
-                    LoadAsync().Forget();
-                }
-            }
-        }
-
-        /// <summary>
-        /// If true, instantiate will be used when spawn fails.
+        /// If true, instantiate will be used when there is no available instance.
         /// </summary>
         public bool CanInstantiateOnSpawn
         {
@@ -174,6 +169,15 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// The amount of instances to preload each time we are below the minimum amount of desired available instances. If 0, then it will never expand.
+        /// </summary>
+        public int ExpandStep
+        {
+            get => _expandStep;
+            set => _expandStep = Mathf.Max(value, 0);
+        }
+
+        /// <summary>
         /// If true, parent will not change automatically when despawned. Changing to false affects performance.
         /// </summary>
         public bool KeepParentOnDespawn
@@ -183,42 +187,38 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Amount of instances available from the beginning.
+        /// If true, this pool will automatically load when initializing.
         /// </summary>
-        public int PreloadCount
+        public bool LoadOnInitialize
         {
-            get => _preloadCount;
-            set => _preloadCount = Mathf.Max(value, 0);
+            get => _loadOnInitialize;
+            set
+            {
+                _loadOnInitialize = value;
+
+                if (_loadOnInitialize && IsInitialized && _currentState == State.Unloaded)
+                {
+                    LoadAsync().Forget();
+                }
+            }
         }
 
         /// <summary>
-        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity.
+        /// Destroy this amount of instance when we are above the maximum amount of desired available instances by this same amount. If 0, then it will never shrink.
         /// </summary>
-        public int MaxCapacity
+        public int ShrinkStep
         {
-            get => _maxCapacity;
-            set
-            {
-                _maxCapacity = Mathf.Max(value, 0);
+            get => _shrinkStep;
+            set => _shrinkStep = Mathf.Max(value, 0);
+        }
 
-                if (_maxCapacity == 0 || _availableInstances == null)
-                {
-                    return;
-                }
-
-                while (_availableInstances.Count > _maxCapacity)
-                {
-                    Actor instance = _availableInstances.Pop();
-
-                    if (instance == null)
-                    {
-                        continue;
-                    }
-
-                    _availableInstancesIds.Remove(instance.GameObjectID);
-                    instance.Destroy();
-                }
-            }
+        /// <summary>
+        /// The range of instances desired to be available.
+        /// </summary>
+        public IntRange DesiredAvailableInstancesRange
+        {
+            get => _desiredAvailableInstancesRange;
+            set => _desiredAvailableInstancesRange = new IntRange(Mathf.Max(value.Min, 0), Mathf.Max(value.Max, 0));
         }
 
         /// <summary>
@@ -272,6 +272,13 @@ namespace Coimbra
         /// </summary>
         public async UniTask LoadAsync()
         {
+            if (IsDestroyed)
+            {
+                Debug.LogWarning($"Attempting to load the already destroyed pool {CachedGameObject}! This will have no effect.", CachedGameObject);
+
+                return;
+            }
+
             if (_currentState != State.Unloaded)
             {
                 Debug.LogWarning($"Pool {CachedGameObject} is {_currentState} already!", CachedGameObject);
@@ -297,106 +304,18 @@ namespace Coimbra
                     return;
                 }
 
+                _loadFrame = Time.frameCount;
                 _prefabActor = prefab.AsActor();
+                _availableInstances = new List<Actor>(_desiredAvailableInstancesRange.Max + _shrinkStep);
 
-                GameObjectPool pool = _prefabActor.Pool;
-                _prefabActor.Pool = this;
+                await PreloadAsync(_desiredAvailableInstancesRange.Max);
 
-                {
-                    bool isActive = prefab.activeSelf;
-
-                    if (_deactivatePreloadedInstances)
-                    {
-                        prefab.SetActive(false);
-                    }
-
-                    int targetCount = _maxCapacity > 0 ? Mathf.Min(_preloadCount, _maxCapacity) : _preloadCount;
-                    _availableInstances = new Stack<Actor>(targetCount);
-                    _availableInstancesIds = new HashSet<GameObjectID>();
-
-                    for (int i = 0; i < targetCount; i++)
-                    {
-                        GameObject instance = await _prefabReference.InstantiateAsync(_containerTransform).Task;
-
-                        if (!_prefabReference.IsValid())
-                        {
-                            Addressables.ReleaseInstance(instance);
-                            Destroy(instance);
-
-                            return;
-                        }
-
-                        instance.TryGetComponent(out Actor actor);
-                        _availableInstancesIds.Add(actor.GameObjectID);
-                        _availableInstances.Push(actor);
-                        Instantiate(actor);
-                    }
-
-                    if (_deactivatePreloadedInstances)
-                    {
-                        prefab.SetActive(isActive);
-                    }
-                }
-
-                _prefabActor.Pool = pool;
                 ChangeCurrentState(State.Loaded);
             }
             catch (Exception e)
             {
-                Debug.LogException(e, CachedGameObject);
+                Debug.LogException(e, gameObject);
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(GameObjectID instance)
-        {
-            return _availableInstancesIds?.Contains(instance) ?? false;
-        }
-
-        /// <summary>
-        /// Despawns the specified instance.
-        /// </summary>
-        /// <param name="instance">The instance to despawn.</param>
-        /// <returns>The result of the call.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DespawnResult Despawn(GameObject instance)
-        {
-            return Despawn(instance.AsActor());
-        }
-
-        /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        public DespawnResult Despawn(Actor instance)
-        {
-            if (_currentState == State.Unloaded)
-            {
-                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
-
-                return DespawnResult.Aborted;
-            }
-
-            if (_availableInstancesIds.Contains(instance.GameObjectID))
-            {
-                return DespawnResult.Aborted;
-            }
-
-            if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity)
-            {
-                instance.Despawn();
-
-                if (!_keepParentOnDespawn)
-                {
-                    instance.CachedTransform.SetParent(_containerTransform, false);
-                }
-
-                _availableInstances.Push(instance);
-                _availableInstancesIds.Add(instance.GameObjectID);
-
-                return DespawnResult.Despawned;
-            }
-
-            instance.Destroy();
-
-            return DespawnResult.Destroyed;
         }
 
         /// <summary>
@@ -414,28 +333,26 @@ namespace Coimbra
                 return null;
             }
 
-            while (_availableInstances.Count > 0)
+            if (_availableInstances.Count == 0)
             {
-                Actor instance = _availableInstances.Pop();
-
-                if (instance == null)
-                {
-                    continue;
-                }
-
-                _availableInstancesIds.Remove(instance.GameObjectID);
-                instance.CachedTransform.SetParent(parent, spawnInWorldSpace);
-                instance.Spawn();
-
-                return instance;
+                return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
             }
 
-            if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity || _canInstantiateOnSpawn)
+            Actor instance = _availableInstances.PopUnsafe();
+
+            if (PreloadingInstancesCount > 0)
             {
-                return Instantiate(parent, spawnInWorldSpace);
+                PreloadingInstancesCount++;
+            }
+            else if (_expandStep > 0 && _availableInstances.Count < _desiredAvailableInstancesRange.Min)
+            {
+                PreloadAsync(_expandStep).Forget();
             }
 
-            return null;
+            instance.CachedTransform.SetParent(parent, spawnInWorldSpace);
+            instance.Spawn();
+
+            return instance;
         }
 
         /// <summary>
@@ -454,29 +371,27 @@ namespace Coimbra
                 return null;
             }
 
-            while (_availableInstances.Count > 0)
+            if (_availableInstances.Count == 0)
             {
-                Actor instance = _availableInstances.Pop();
-
-                if (instance == null)
-                {
-                    continue;
-                }
-
-                _availableInstancesIds.Remove(instance.GameObjectID);
-                instance.CachedTransform.parent = parent;
-                instance.CachedTransform.SetPositionAndRotation(position, rotation);
-                instance.Spawn();
-
-                return instance;
+                return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
             }
 
-            if (_maxCapacity == 0 || _availableInstances.Count < _maxCapacity || _canInstantiateOnSpawn)
+            Actor instance = _availableInstances.PopUnsafe();
+
+            if (PreloadingInstancesCount > 0)
             {
-                return Instantiate(position, rotation, parent);
+                PreloadingInstancesCount++;
+            }
+            else if (_expandStep > 0 && _availableInstances.Count < _desiredAvailableInstancesRange.Min)
+            {
+                PreloadAsync(_expandStep).Forget();
             }
 
-            return null;
+            instance.CachedTransform.parent = parent;
+            instance.CachedTransform.SetPositionAndRotation(position, rotation);
+            instance.Spawn();
+
+            return instance;
         }
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Vector3, Quaternion, Transform)"/>
@@ -499,7 +414,10 @@ namespace Coimbra
                 return false;
             }
 
+            _loadFrame = 0;
+            _prefabActor = null;
             _prefabReference.ReleaseAsset();
+            PreloadingInstancesCount = 0;
 
             if (_availableInstances != null)
             {
@@ -508,42 +426,112 @@ namespace Coimbra
                      i < count;
                      i++)
                 {
-                    _availableInstances.Pop().GetValid()?.Destroy();
+                    _availableInstances.PopUnsafe().GetValid()?.Destroy();
                 }
 
                 _availableInstances = null;
             }
 
-            _availableInstancesIds = null;
             ChangeCurrentState(State.Unloaded);
 
             return true;
         }
 
-        protected override void OnObjectSpawn()
+        protected override void OnInitialize()
         {
-            base.OnObjectSpawn();
+            base.OnInitialize();
 
-            if (_autoLoad)
+            if (_loadOnInitialize)
             {
                 LoadAsync().Forget();
             }
         }
 
-        protected override void OnObjectDespawn()
+        protected override void OnDestroying()
         {
+            base.OnDestroying();
+
             if (_currentState != State.Unloaded)
             {
                 Unload();
             }
+        }
 
-            base.OnObjectDespawn();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Despawn(Actor instance)
+        {
+            if (!_keepParentOnDespawn)
+            {
+                instance.CachedTransform.SetParent(_containerTransform, false);
+            }
+
+            _availableInstances.Add(instance);
+
+            if (PreloadingInstancesCount > 0)
+            {
+                PreloadingInstancesCount--;
+            }
+            else if (_shrinkStep > 0 && _availableInstances.Count >= _desiredAvailableInstancesRange.Max + _shrinkStep)
+            {
+                for (int i = 0; i < _shrinkStep; i++)
+                {
+                    _availableInstances.PopUnsafe().Destroy();
+                }
+            }
+        }
+
+        private async UniTask PreloadAsync(int count)
+        {
+            int savedLoadFrame = _loadFrame;
+            bool savedActiveState = _prefabActor.CachedGameObject.activeSelf;
+
+            if (_deactivatePreloadedInstances)
+            {
+                _prefabActor.CachedGameObject.SetActive(false);
+            }
+
+            PreloadingInstancesCount = count;
+            _availableInstances.EnsureCapacity(_availableInstances.Count + count);
+
+            while (PreloadingInstancesCount > 0)
+            {
+                _prefabActor.Pool = this;
+
+                AsyncOperationHandle<GameObject> operationHandle = _prefabReference.InstantiateAsync(_containerTransform);
+                GameObject instance = await operationHandle.Task;
+
+                if (savedLoadFrame != _loadFrame)
+                {
+                    Addressables.ReleaseInstance(instance);
+                    Destroy(instance);
+
+                    break;
+                }
+
+                --PreloadingInstancesCount;
+                instance.TryGetComponent(out Actor actorInstance);
+                actorInstance.OperationHandle = operationHandle;
+                _availableInstances.Add(actorInstance);
+                Initialize(actorInstance, false);
+            }
+
+            if (_deactivatePreloadedInstances)
+            {
+                _prefabActor.CachedGameObject.SetActive(savedActiveState);
+            }
+
+            _prefabActor.Pool = null;
         }
 
         private void Reset()
         {
-            _autoLoad = true;
+            _loadOnInitialize = true;
             _containerTransform = transform;
+        }
+
+        private void OnValidate()
+        {
+            DesiredAvailableInstancesRange = _desiredAvailableInstancesRange;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -551,11 +539,11 @@ namespace Coimbra
         {
             State previous = _currentState;
             _currentState = target;
-            OnStateChanged?.Invoke(this, previous, _currentState);
+            OnPoolStateChanged?.Invoke(this, previous, _currentState);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Instantiate(Actor instance)
+        private void Initialize(Actor instance, bool spawn)
         {
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
@@ -564,33 +552,34 @@ namespace Coimbra
             }
 #endif
             instance.Initialize();
-            OnObjectInstantiated?.Invoke(this, instance);
+            OnInstanceCreated?.Invoke(this, instance);
+
+            if (spawn)
+            {
+                instance.Spawn();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Actor Instantiate(Transform parent, bool instantiateInWorldSpace)
+        private Actor CreateInstance(Transform parent, bool instantiateInWorldSpace)
         {
-            GameObjectPool pool = _prefabActor.Pool;
             _prefabActor.Pool = this;
 
             Actor instance = Instantiate(_prefabActor, parent, instantiateInWorldSpace);
-            _prefabActor.Pool = pool;
-
-            Instantiate(instance);
+            _prefabActor.Pool = null;
+            Initialize(instance, true);
 
             return instance;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Actor Instantiate(Vector3 position, Quaternion rotation, Transform parent)
+        private Actor CreateInstance(Vector3 position, Quaternion rotation, Transform parent)
         {
-            GameObjectPool pool = _prefabActor.Pool;
             _prefabActor.Pool = this;
 
             Actor instance = Instantiate(_prefabActor, position, rotation, parent);
-            _prefabActor.Pool = pool;
-
-            Instantiate(instance);
+            _prefabActor.Pool = null;
+            Initialize(instance, true);
 
             return instance;
         }

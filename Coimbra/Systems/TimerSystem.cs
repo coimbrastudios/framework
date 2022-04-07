@@ -11,6 +11,7 @@ namespace Coimbra
     public sealed class TimerSystem : ServiceActorBase<ITimerService>, ITimerService
     {
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
+
         private ManagedPool<TimerComponent> _timerComponentPool;
 
         private TimerSystem() { }
@@ -92,23 +93,20 @@ namespace Coimbra
             _timerComponentPool.Push(context);
         }
 
-        /// <inheritdoc/>
-        protected override void OnObjectDespawn()
+        protected override void OnDestroying()
         {
+            base.OnDestroying();
             StopAllTimers();
-            _timerComponentPool.Initialize();
-            base.OnObjectDespawn();
-        }
-
-        protected override void OnObjectDestroy()
-        {
-            base.OnObjectDestroy();
+            _timerComponentPool.Initialize(0, 0);
             _timerComponentPool = null;
         }
 
         /// <inheritdoc/>
-        protected override void OnObjectInitialize()
+        protected override void OnInitialize()
         {
+            base.OnInitialize();
+            DontDestroyOnLoad(CachedGameObject);
+
             _timerComponentPool = new ManagedPool<TimerComponent>(delegate
             {
                 TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
@@ -138,9 +136,6 @@ namespace Coimbra
             _timerComponentPool.OnDelete += onDelete;
             _timerComponentPool.OnPop += onPop;
             _timerComponentPool.OnPush += onPush;
-
-            DontDestroyOnLoad(CachedGameObject);
-            base.OnObjectInitialize();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -15,6 +17,27 @@ namespace Coimbra
     [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "Actor")]
     public class Actor : MonoBehaviour
     {
+        /// <summary>
+        /// Defines the reason why the object is being destroyed.
+        /// </summary>
+        public enum DestroyReason
+        {
+            /// <summary>
+            /// Instigated by an user code explicitly.
+            /// </summary>
+            ExplicitCall,
+
+            /// <summary>
+            /// Instigated by a scene change when the object was not flagged to don't destroy on load.
+            /// </summary>
+            SceneChange,
+
+            /// <summary>
+            /// Being called due the application being shutdown.
+            /// </summary>
+            ApplicationQuit,
+        }
+
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> active state changes.
         /// </summary>
@@ -35,11 +58,15 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroyed;
 
+        private static readonly List<Actor> ConstructedActors = new List<Actor>();
+
+        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
+
         private GameObjectID? _gameObjectID;
 
         protected Actor()
         {
-            GameObjectUtility.AddPendingActor(this);
+            ConstructedActors.Add(this);
         }
 
         /// <summary>
@@ -58,19 +85,24 @@ namespace Coimbra
         public Transform CachedTransform { get; private set; }
 
         /// <summary>
-        /// True when this actor starts to destroy.
+        /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="GameObject"/>?
         /// </summary>
-        public bool IsDestroying { get; private set; }
+        public bool IsDestroyed { get; private set; }
 
         /// <summary>
-        /// Was <see cref="Initialize"/> called at least once in this actor?
+        /// Was <see cref="Initialize"/> called at least once in this <see cref="Actor"/>?
         /// </summary>
         public bool IsInitialized { get; private set; }
 
         /// <summary>
-        /// Indicates if the object belongs to a pool as <see cref="Pool"/> can already be null due a scene change.
+        /// Indicates if the object was instantiated through a <see cref="GameObjectPool"/>.
         /// </summary>
         public bool IsPooled { get; private set; }
+
+        /// <summary>
+        /// True when this object is a prefab asset.
+        /// </summary>
+        public bool IsPrefab { get; private set; }
 
         /// <summary>
         /// True when application is quitting.
@@ -78,7 +110,7 @@ namespace Coimbra
         public bool IsQuitting { get; private set; }
 
         /// <summary>
-        /// Indicates if the object is currently spawned or should be treated as non-spawned.
+        /// Indicates if the object is currently spawned.
         /// </summary>
         public bool IsSpawned { get; private set; }
 
@@ -89,6 +121,8 @@ namespace Coimbra
         [field: Disable]
         public GameObjectPool Pool { get; internal set; }
 
+        internal AsyncOperationHandle<GameObject> OperationHandle { get; set; }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(Actor actor)
         {
@@ -96,34 +130,126 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Is the <see cref="Actor"/> representation of specified <see cref="GameObject"/> cached?
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasCachedActor(GameObject gameObject, out Actor actor)
+        {
+            return CachedActors.TryGetValue(gameObject, out actor);
+        }
+
+        /// <summary>
+        /// Initializes all currently constructed <see cref="Actor"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InitializeAllActors()
+        {
+            for (int i = ConstructedActors.Count - 1; i >= 0; i--)
+            {
+                Actor actor = ConstructedActors[i];
+
+                if (actor != null)
+                {
+                    actor.Initialize();
+                }
+
+                ConstructedActors.RemoveAt(i);
+            }
+        }
+
+        /// <summary>
+        /// Despawns the <see cref="GameObject"/> and return it to its pool. If it doesn't belong to a <see cref="GameObjectPool"/>, it will <see cref="Destroy"/> the object instead.
+        /// </summary>
+        public void Despawn()
+        {
+            if (!IsSpawned)
+            {
+                return;
+            }
+
+            IsSpawned = false;
+            OnDespawn();
+
+            if (IsPooled && Pool != null && Pool.CurrentState != GameObjectPool.State.Unloaded)
+            {
+                Pool.Despawn(this);
+            }
+            else
+            {
+                Destroy(true);
+            }
+        }
+
+        /// <summary>
         /// Destroys the <see cref="GameObject"/> that this actor represents.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Destroy()
         {
             Destroy(true);
         }
 
         /// <summary>
-        /// Initializes this actor.
+        /// Initializes this actor. It will also spawn it if not <see cref="IsPooled"/>.
         /// </summary>
         public void Initialize()
         {
-            if (IsInitialized || gameObject.scene.name == null)
+            if (IsDestroyed || IsInitialized)
             {
                 return;
             }
 
             IsInitialized = true;
-            IsPooled = Pool != null;
-            CachedGameObject = gameObject;
             CachedTransform = transform;
+            CachedGameObject = gameObject;
+            IsPrefab = CachedGameObject.scene.name == null;
             _gameObjectID = CachedGameObject;
-            GameObjectUtility.AddCachedActor(this);
-            OnObjectInitialize();
+            CachedActors.Add(GameObjectID, this);
+
+            if (IsPrefab)
+            {
+                OnInitializePrefab();
+
+                return;
+            }
+
+            IsPooled = Pool != null;
+            OnInitialize();
+
+            if (!IsPooled)
+            {
+                Spawn();
+            }
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnObjectInitialize"/> instead.
+        /// Called each time this object is despawned.
+        /// </summary>
+        protected virtual void OnDespawn() { }
+
+        /// <summary>
+        /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
+        /// <para>This method will be the first thing to happen when calling <see cref="Destroy"/> manually, but will also happen inside OnDestroy if using <see cref="Object.Destroy(Object)"/>.</para>
+        /// </summary>
+        protected virtual void OnDestroying() { }
+
+        /// <summary>
+        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
+        /// </summary>
+        protected virtual void OnInitialize() { }
+
+        /// <summary>
+        /// Use this for one-time initializations on prefabs.
+        /// </summary>
+        protected virtual void OnInitializePrefab() { }
+
+        /// <summary>
+        /// Called each time this object is spawned.
+        /// </summary>
+        protected virtual void OnSpawn() { }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
         protected void Awake()
         {
@@ -147,7 +273,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnObjectDestroy"/> instead.
+        /// Non-virtual by design, use <see cref="OnDestroying"/> instead.
         /// </summary>
         protected void OnDestroy()
         {
@@ -164,77 +290,35 @@ namespace Coimbra
             IsQuitting = true;
         }
 
-        /// <summary>
-        /// Called each time this object is despawned.
-        /// </summary>
-        protected virtual void OnObjectDespawn() { }
-
-        /// <summary>
-        /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
-        /// <para>By default it calls <see cref="Despawn"/>, so consider calling the base method at the begin.</para>
-        /// </summary>
-        protected virtual void OnObjectDestroy()
-        {
-            Despawn();
-        }
-
-        /// <summary>
-        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
-        /// </summary>
-        /// <para>By default it calls <see cref="Spawn"/> if non-pooled or if pooled but already spawned, so consider calling the base method at the end.</para>
-        protected virtual void OnObjectInitialize()
-        {
-            if (!IsPooled || !Pool.Contains(GameObjectID))
-            {
-                Spawn();
-            }
-        }
-
-        /// <summary>
-        /// Called each time this object is spawned.
-        /// </summary>
-        protected virtual void OnObjectSpawn() { }
-
-        /// <summary>
-        /// Wrapper for <see cref="OnObjectDespawn"/> that checks and toggles the <see cref="IsSpawned"/> flag.
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected internal void Despawn()
+        internal void Spawn()
         {
-            if (!IsSpawned)
-            {
-                return;
-            }
-
-            IsSpawned = false;
-            OnObjectDespawn();
-        }
-
-        /// <summary>
-        /// Wrapper for <see cref="OnObjectSpawn"/> that checks and toggles the <see cref="IsSpawned"/> flag.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected internal void Spawn()
-        {
-            if (IsSpawned)
+            if (IsDestroyed || IsSpawned)
             {
                 return;
             }
 
             IsSpawned = true;
-            OnObjectSpawn();
+            OnSpawn();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Destroy(bool callDestroy)
         {
-            if (IsDestroying)
+            if (IsDestroyed)
             {
                 return;
             }
 
-            IsDestroying = true;
-            OnObjectDestroy();
+            IsDestroyed = true;
+
+            if (IsSpawned)
+            {
+                IsSpawned = false;
+                OnDespawn();
+            }
+
+            OnDestroying();
 
             if (IsQuitting)
             {
@@ -249,7 +333,10 @@ namespace Coimbra
                 OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
             }
 
-            Addressables.ReleaseInstance(CachedGameObject);
+            if (OperationHandle.IsValid())
+            {
+                Addressables.ReleaseInstance(OperationHandle);
+            }
 
             if (callDestroy)
             {
@@ -258,7 +345,7 @@ namespace Coimbra
 
             OnActiveStateChanged = null;
             OnDestroyed = null;
-            GameObjectUtility.RemoveCachedActor(GameObjectID);
+            CachedActors.Remove(GameObjectID);
             CachedGameObject = null;
             CachedTransform = null;
             Pool = null;

@@ -8,14 +8,22 @@ namespace Coimbra
     public static class FrameworkUtility
     {
         internal const string EditorUserPreferencesPath = UserPreferencesPath + "/Editor";
+
         internal const string GeneralMenuPath = "Coimbra/";
+
         internal const string PackageName = "com.coimbrastudios.core";
+
         internal const string PreferencesMenuPath = ToolsMenuPath + "Preferences/";
+
         internal const string ProjectAssetsFolderPath = "Assets/com.coimbrastudios.core";
+
         internal const string ProjectSettingsPath = "Project/Coimbra Framework";
+
         internal const string ProjectUserPreferencesPath = UserPreferencesPath + "/Project";
+
         internal const string ToolsMenuPath = "Tools/Coimbra Framework/";
-        internal const string UserPreferencesPath = "Preferences/Coimbra Framework";
+
+        private const string UserPreferencesPath = "Preferences/Coimbra Framework";
 
         /// <summary>
         /// Returns true if the application is currently in Edit Mode. Always return false in a build.

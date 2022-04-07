@@ -11,7 +11,9 @@ namespace Coimbra.Editor
     internal static class FrameworkSettingsProvider
     {
         internal const string EditorUserSettingsName = "EditorPrefs";
+
         internal const string ProjectSettingsName = "ProjectSettings";
+
         internal const string ProjectUserSettingsName = "UserSettings";
 
         private static UnityEditor.SettingsManagement.Settings _settings;

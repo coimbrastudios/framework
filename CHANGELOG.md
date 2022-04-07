@@ -1,5 +1,34 @@
 # Changelog
 
+## [8.0.0] - 2022--
+
+- Added `IPoolingService.LoadingPoolCount` property to efficiently check the amount of pool currently in the `Loading` state.
+- Added `IPoolingService.ContainsPool(AssetReferenceT<GameObject>)` to efficiently check if any currently added pool is referencing the specified prefab.
+- Added `Actor.IsPrefab` property that is initialized property during `Actor.Initialize()`.
+- Added automatic resizing options for `GameObjectPool` through the new `GameObjectPool.ExpandStep` and `GameObjectPool.ShrinkStep` properties.
+- Added `AssetReferenceComponentRestriction` attribute to filter any AssetReferenceT<GameObject> by its components.
+- Changed `DestroyReason` to be a nested enum of `Actor`.
+- Changed `GameObjectPool` and `Actor` implementation quite a bit:
+  - Added public `Actor.Despawn()` to be used instead of `GameObjectPool.Despawn(Actor)`.
+  - Added new `GameObjectPool.DesiredAvailableInstancesRange` property.
+  - Changed `GameObjectPool.AutoLoad` property to `GameObjectPool.LoadOnInitialize` to make its behaviour more explicit.
+  - Changed `Actor.OnObjectDespawn()` to `Actor.OnDespawn()`.
+  - Changed `Actor.OnObjectDestroy()` to `Actor.OnDestroying()`.
+  - Changed `Actor.OnObjectInitialize()` to `Actor.OnInitialize()`.
+  - Changed `Actor.OnObjectSpawn()` to `Actor.OnSpawn()`.
+  - Changed `Actor.OnPrefabInitialize()` to `Actor.OnInitializePrefab()`.
+  - Changed `GameObjectPool.OnObjectInstantiated` event to `GameObjectPool.OnInstanceCreated`, renaming also its matching delegate.
+  - Changed `GameObjectPool.OnStateChanged` event to `GameObjectPool.OnPoolStateChanged`, renaming also its matching delegate.
+  - Changed `GameObjectPool.Spawn` to assume that all available instances are valid.
+  - Removed protected `Actor.Spawn()` and `Actor.Despawn()` methods.
+  - Removed `GameObjectPool.Despawn` methods in favor of `Actor.Despawn()`.
+  - Removed `GameObjectPool.DespawnResult` enum completely as now a despawn will always either return the object to its pool or destroy it.
+  - Removed `GameObjectPool.MaxCapacity` property in favor of `GameObjectPool.DesiredAvailableInstancesRange.Max` property.
+  - Removed `GameObjectPool.PreloadCount` property, with `GameObjectPool.DesiredAvailableInstancesRange.Max` property being used for the same purpose now.
+- Fixed completely broken `PoolingSettings.DefaultPersistentPools` feature.
+- Removed `IPoolingService.Despawn` methods in favor of new `Actor.Despawn()`.
+- Removed `IPoolingService.PoolsLoading` property, if this information is needed it is still possible to use `IPoolingService.GetAllPools` and iterate it to check the `GameObjectPool.CurrentState`.
+
 ## [7.0.0] - 2022-04-05
 
 - Added `SceneChangedEvent` that is also fired by `IApplicationService`.

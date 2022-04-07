@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -10,47 +11,51 @@ namespace Coimbra
     [RequireImplementors]
     public interface IPoolingService : IService
     {
-        IReadOnlyList<GameObjectPool> PoolsLoading { get; }
+        /// <summary>
+        /// The amount of <see cref="GameObjectPool"/> still loading.
+        /// </summary>
+        int LoadingPoolCount { get; }
 
         /// <summary>
-        /// Registers the specified pool on this service.
+        /// Registers the specified <see cref="GameObjectPool"/> on this service.
         /// </summary>
-        /// <param name="pool">The pool to be registered.</param>
-        /// <returns>True if the pool was registered.</returns>
+        /// <param name="pool">The <see cref="GameObjectPool"/> to be registered.</param>
+        /// <returns>True if the <see cref="GameObjectPool"/> was registered.</returns>
         bool AddPool(GameObjectPool pool);
 
         /// <summary>
-        /// Checks if a pool is registered on this service.
+        /// Checks if a <see cref="GameObjectPool"/> is registered on this service.
         /// </summary>
-        /// <param name="pool">The pool to check.</param>
-        /// <returns>True if the pool is currently registered.</returns>
+        /// <param name="pool">The <see cref="GameObjectPool"/> to check.</param>
+        /// <returns>True if the <see cref="GameObjectPool"/> is currently registered.</returns>
         bool ContainsPool(GameObjectPool pool);
 
-        /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        GameObjectPool.DespawnResult Despawn(GameObject instance);
-
-        /// <inheritdoc cref="GameObjectPool.Despawn(UnityEngine.GameObject)"/>
-        GameObjectPool.DespawnResult Despawn(Actor instance);
+        /// <summary>
+        /// Checks if a <see cref="GameObjectPool"/> with the specified prefab is registered on this service.
+        /// </summary>
+        /// <param name="prefab">The prefab to check for a matching <see cref="GameObjectPool"/>.</param>
+        /// <returns>True if a <see cref="GameObjectPool"/> with the specified prefab is currently registered.</returns>
+        bool ContainsPool(AssetReferenceT<GameObject> prefab);
 
         /// <summary>
-        /// Gets all pools currently registered on this service.
+        /// Gets all <see cref="GameObjectPool"/> currently registered on this service.
         /// </summary>
-        /// <returns>A new array with all the registered pools.</returns>
+        /// <returns>A new array with all the registered poo<see cref="GameObjectPool"/>ls.</returns>
         GameObjectPool[] GetAllPools();
 
         /// <summary>
-        /// Gets all pools currently registered on this service.
+        /// Gets all <see cref="GameObjectPool"/> currently registered on this service.
         /// </summary>
         /// <param name="appendResults">The list to append the results.</param>
         /// <returns>The number of appended results.</returns>
         int GetAllPools(List<GameObjectPool> appendResults);
 
         /// <summary>
-        /// Unregisters the specified pool from this service.
+        /// Unregisters the specified <see cref="GameObjectPool"/> from this service.
         /// </summary>
-        /// <param name="pool">The pool to be unregistered.</param>
+        /// <param name="pool">The <see cref="GameObjectPool"/> to be unregistered.</param>
         /// <param name="unload">If true, it will also call <see cref="GameObjectPool.Unload"/>.</param>
-        /// <returns>True if the pool was unregistered</returns>
+        /// <returns>True if the <see cref="GameObjectPool"/> was unregistered</returns>
         bool RemovePool(GameObjectPool pool, bool unload);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>

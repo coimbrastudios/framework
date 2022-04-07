@@ -19,6 +19,7 @@ namespace Coimbra
         [Tooltip("The smallest value on the range.")]
         [SerializeField]
         private float _min;
+
         [FormerlySerializedAs("y")]
         [FormerlySerializedAs("m_Y")]
         [FormerlySerializedAs("m_Max")]
@@ -53,6 +54,12 @@ namespace Coimbra
         /// Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
         public float Random => UnityEngine.Random.Range(Min, Max);
+
+        [Pure]
+        public static implicit operator FloatRange(float value)
+        {
+            return new FloatRange(value, value);
+        }
 
         [Pure]
         public static implicit operator Vector2(FloatRange value)

@@ -60,11 +60,11 @@ namespace Coimbra
         protected virtual void OnOwningLocatorChanged(ServiceLocator oldValue, ServiceLocator newValue) { }
 
         /// <inheritdoc/>
-        protected override void OnObjectDespawn()
+        protected override void OnDestroying()
         {
+            base.OnDestroying();
             _owningLocator?.Set<T>(null);
             OwningLocator = null;
-            base.OnObjectDespawn();
         }
     }
 }

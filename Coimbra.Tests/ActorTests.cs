@@ -76,12 +76,12 @@ namespace Coimbra.Tests
         {
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroyed += delegate(Actor sender, DestroyReason reason)
+            instance.OnDestroyed += delegate(Actor sender, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };
 
-            LogAssert.Expect(LogType.Log, string.Format(logFormat, DestroyReason.ExplicitCall));
+            LogAssert.Expect(LogType.Log, string.Format(logFormat, Actor.DestroyReason.ExplicitCall));
             Object.Destroy(instance.gameObject);
 
             yield return null;

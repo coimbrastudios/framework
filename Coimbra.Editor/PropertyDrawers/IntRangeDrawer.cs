@@ -10,6 +10,7 @@ namespace Coimbra.Editor
     public sealed class IntRangeDrawer : PropertyDrawer
     {
         private const string MaxSerializedProperty = "_max";
+
         private const string MinSerializedProperty = "_min";
 
         /// <summary>

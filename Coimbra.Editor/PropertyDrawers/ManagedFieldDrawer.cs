@@ -13,9 +13,13 @@ namespace Coimbra.Editor
     public sealed class ManagedFieldDrawer : PropertyDrawer
     {
         private const string SystemObjectSerializedProperty = "_systemObject";
+
         private const string UnityObjectSerializedProperty = "_unityObject";
+
         private static readonly GUIContent ClearLabel = new GUIContent("Clear");
+
         private static readonly GUIContent EmptyLabel = new GUIContent(" ");
+
         private static readonly GUIContent NewLabel = new GUIContent("New");
 
         /// <inheritdoc/>
