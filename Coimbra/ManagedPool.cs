@@ -66,10 +66,14 @@ namespace Coimbra
 
         private readonly CreateHandler _createCallback;
 
+        private readonly Action<T> _disposeCallback;
+
         /// <param name="createCallback">Called when creating a new item for the pool. It should never return null.</param>
-        public ManagedPool([NotNull] CreateHandler createCallback)
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose from native resources.</param>
+        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] Action<T> disposeCallback = null)
         {
             _createCallback = createCallback;
+            _disposeCallback = disposeCallback;
         }
 
         /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
@@ -77,6 +81,16 @@ namespace Coimbra
         /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
         public ManagedPool([NotNull] CreateHandler createCallback, int preloadCount, int maxCapacity)
             : this(createCallback)
+        {
+            Initialize(preloadCount, maxCapacity);
+        }
+
+        /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose from native resources.</param>
+        /// <param name="preloadCount">Amount of instances available from the beginning.</param>
+        /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
+        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] Action<T> disposeCallback, int preloadCount, int maxCapacity)
+            : this(createCallback, disposeCallback)
         {
             Initialize(preloadCount, maxCapacity);
         }
@@ -116,9 +130,9 @@ namespace Coimbra
                 {
                     do
                     {
-                        T item = _createCallback();
-                        _availableSet.Add(item);
-                        _availableStack.Push(item);
+                        T instance = _createCallback();
+                        _availableSet.Add(instance);
+                        _availableStack.Push(instance);
                     }
                     while (_availableStack.Count < targetCount);
                 }
@@ -126,9 +140,10 @@ namespace Coimbra
                 {
                     while (_availableStack.Count > targetCount)
                     {
-                        T item = _availableStack.Pop();
-                        _availableSet.Remove(item);
-                        OnDelete?.Invoke(item);
+                        T instance = _availableStack.Pop();
+                        _availableSet.Remove(instance);
+                        OnDelete?.Invoke(instance);
+                        _disposeCallback?.Invoke(instance);
                     }
                 }
             }
@@ -172,7 +187,7 @@ namespace Coimbra
         /// </summary>
         public void Push([NotNull] in T instance)
         {
-            bool delete = true;
+            bool dispose = true;
 
             lock (_lock)
             {
@@ -186,14 +201,17 @@ namespace Coimbra
                     _availableStack.Push(instance);
                     _availableSet.Add(instance);
                     OnPush?.Invoke(instance);
-                    delete = false;
+                    dispose = false;
                 }
             }
 
-            if (delete)
+            if (!dispose)
             {
-                OnDelete?.Invoke(instance);
+                return;
             }
+
+            OnDelete?.Invoke(instance);
+            _disposeCallback?.Invoke(instance);
         }
     }
 }

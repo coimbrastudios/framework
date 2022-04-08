@@ -1,6 +1,8 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -14,7 +16,49 @@ namespace Coimbra
         internal static class Instance<T>
             where T : class, new()
         {
-            internal static readonly ManagedPool<T> Value = Value = new ManagedPool<T>(() => new T());
+            internal static readonly ManagedPool<T> Value;
+
+            static Instance()
+            {
+                static T createCallback()
+                {
+                    return new T();
+                }
+
+                Action<T> disposeCallback = null;
+
+                if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        if (obj.TryGetValid(out T valid))
+                        {
+                            ((IDisposable)valid).Dispose();
+                        }
+                    };
+                }
+
+                if (typeof(Object).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        if (FrameworkUtility.IsPlayMode)
+                        {
+                            if ((obj as Object).TryGetValid(out Object valid))
+                            {
+                                Object.Destroy(valid);
+                            }
+                        }
+                        else if ((obj as Object).TryGetValid(out Object valid))
+
+                        {
+                            Object.DestroyImmediate(valid);
+                        }
+                    };
+                }
+
+                Value = new ManagedPool<T>(createCallback, disposeCallback);
+            }
         }
 
         /// <inheritdoc cref="ManagedPool{T}.MaxCapacity"/>

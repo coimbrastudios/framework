@@ -7,6 +7,10 @@
 - Added `Actor.IsPrefab` property that is initialized property during `Actor.Initialize()`.
 - Added automatic resizing options for `GameObjectPool` through the new `GameObjectPool.ExpandStep` and `GameObjectPool.ShrinkStep` properties.
 - Added `AssetReferenceComponentRestriction` attribute to filter any AssetReferenceT<GameObject> by its components.
+- Added many new methods in `ListUtility`.
+- Added `GameObjectPoolSceneManagerAPI` to leverage the `GameObjectPool` functionalities.
+- Added `disposeCallback` parameter on `ManagedPool` to add logic after `OnDelete` is fired (i.e. native object disposing).
+- Added proper support for IDisposable and UnityEngine.Object (i.e. ScriptableObject) in `SharedManagedPool`.
 - Changed `DestroyReason` to be a nested enum of `Actor`.
 - Changed `GameObjectPool` and `Actor` implementation quite a bit:
   - Added public `Actor.Despawn()` to be used instead of `GameObjectPool.Despawn(Actor)`.

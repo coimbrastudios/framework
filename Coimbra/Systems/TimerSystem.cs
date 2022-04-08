@@ -107,20 +107,20 @@ namespace Coimbra
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
 
-            _timerComponentPool = new ManagedPool<TimerComponent>(delegate
-            {
-                TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
-                instance.Service = this;
-
-                return instance;
-            });
-
-            static void onDelete(TimerComponent component)
+            static void disposeCallback(TimerComponent component)
             {
                 if (component != null)
                 {
                     Destroy(component);
                 }
+            }
+
+            TimerComponent createCallback()
+            {
+                TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
+                instance.Service = this;
+
+                return instance;
             }
 
             static void onPop(TimerComponent component)
@@ -133,7 +133,7 @@ namespace Coimbra
                 component.enabled = false;
             }
 
-            _timerComponentPool.OnDelete += onDelete;
+            _timerComponentPool = new ManagedPool<TimerComponent>(createCallback, disposeCallback);
             _timerComponentPool.OnPop += onPop;
             _timerComponentPool.OnPush += onPush;
         }
