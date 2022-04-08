@@ -18,6 +18,7 @@ Package of general utilities to be used with Unity development.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
 - List Extensions: A few useful methods for common operations.
 - Object Extensions: Methods to have a safe way to use `?.` and `??` operators in Unity Objects.
+- `PropertyPathInfo`: Reflection helper class for any SerializeField based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - Object Pooling: Use `ManagedPool` or `SharedManagedPool` for pooling any managed objects.
 - References: Create a `Reference` for any value or even another reference.
 - Service Locator: Enable a service-based architecture easily. It comes with a few services already:
