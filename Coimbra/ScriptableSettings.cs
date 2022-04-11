@@ -141,7 +141,7 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    if (!FrameworkUtility.IsReloadingScripts && (!ServiceLocator.Shared.TryGet(out IApplicationService applicationService) || !applicationService!.IsQuitting))
+                    if (!CoimbraUtility.IsReloadingScripts && (!ServiceLocator.Shared.TryGet(out IApplicationService applicationService) || !applicationService!.IsQuitting))
                     {
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);

@@ -5,7 +5,7 @@ namespace Coimbra
     /// <summary>
     /// General utilities.
     /// </summary>
-    public static class FrameworkUtility
+    public static class CoimbraUtility
     {
         internal const string EditorUserPreferencesPath = UserPreferencesPath + "/Editor";
 

@@ -4,7 +4,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Coimbra.Settings
 {
-    [CreateAssetMenu(menuName = FrameworkUtility.GeneralMenuPath + "Pooling Settings")]
+    [CreateAssetMenu(menuName = CoimbraUtility.GeneralMenuPath + "Pooling Settings")]
     public sealed class PoolingSettings : ScriptableSettings
     {
         [SerializeField]

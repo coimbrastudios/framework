@@ -16,15 +16,15 @@ namespace Coimbra.Editor
         {
             switch (attribute)
             {
-                case MessageBoxOnEditModeAttribute _ when !FrameworkUtility.IsEditMode:
-                case MessageBoxOnPlayModeAttribute _ when !FrameworkUtility.IsPlayMode:
+                case MessageBoxOnEditModeAttribute _ when !CoimbraUtility.IsEditMode:
+                case MessageBoxOnPlayModeAttribute _ when !CoimbraUtility.IsPlayMode:
                     return 0;
 
                 default:
                 {
                     MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
 
-                    return FrameworkEditorGUIUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.FillLabelArea, base.GetHeight());
+                    return CoimbraEditorGUIUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.FillLabelArea, base.GetHeight());
                 }
             }
         }
@@ -38,7 +38,7 @@ namespace Coimbra.Editor
             }
 
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
-            FrameworkEditorGUIUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.FillLabelArea);
+            CoimbraEditorGUIUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.FillLabelArea);
         }
     }
 }

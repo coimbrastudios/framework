@@ -12,9 +12,9 @@ namespace Coimbra
         /// <summary>
         /// Asserts that the type meets all the following requirements:
         /// <para>
-        /// - is an interface<br/>
-        /// - is not equal to the generic argument<br/>
-        /// - does implement the generic argument
+        /// - Is an interface<br/>
+        /// - Is not equal to the generic argument<br/>
+        /// - Does implement the generic argument
         /// </para>
         /// </summary>
         [Conditional("UNITY_ASSERTIONS")]

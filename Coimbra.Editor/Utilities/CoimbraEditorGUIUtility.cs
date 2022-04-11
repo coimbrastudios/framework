@@ -7,7 +7,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// General editor GUI utilities.
     /// </summary>
-    public static class FrameworkEditorGUIUtility
+    public static class CoimbraEditorGUIUtility
     {
         /// <summary>
         /// Draw a message box with the option to ignore the label area.

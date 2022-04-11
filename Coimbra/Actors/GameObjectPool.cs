@@ -15,7 +15,7 @@ namespace Coimbra
     /// </summary>
     [PublicAPI]
     [Preserve]
-    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "GameObject Pool")]
+    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "GameObject Pool")]
     public sealed class GameObjectPool : Actor
     {
         /// <summary>

@@ -7,19 +7,15 @@ namespace Coimbra.Editor
     /// Drawer for <see cref="FloatRange"/>.
     /// </summary>
     [CustomPropertyDrawer(typeof(FloatRange))]
+    [CustomPropertyDrawer(typeof(FloatRangeAttribute))]
     public sealed class FloatRangeDrawer : PropertyDrawer
     {
-        private const string MaxSerializedProperty = "_max";
-
-        private const string MinSerializedProperty = "_min";
-
         /// <summary>
         /// Draws a <see cref="FloatRange"/>. Optionally also makes it a delayed field.
         /// </summary>
-        public static void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool delayed)
+        public static void DrawGUI(Rect position, SerializedProperty parentProperty, SerializedProperty minProperty, SerializedProperty maxProperty, GUIContent label, bool delayed)
         {
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
 
             Rect labelPosition = position;
@@ -30,26 +26,12 @@ namespace Coimbra.Editor
             {
                 position.x += labelPosition.width;
                 position.width -= labelPosition.width;
-
-                SerializedProperty minProperty = property.FindPropertyRelative(MinSerializedProperty);
-                SerializedProperty maxProperty = property.FindPropertyRelative(MaxSerializedProperty);
                 DrawGUI(position, minProperty, maxProperty, delayed);
             }
         }
 
-        /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return EditorGUIUtility.singleLineHeight;
-        }
-
-        /// <inheritdoc/>
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            DrawGUI(position, property, label, false);
-        }
-
-        private static void DrawGUI(Rect position, SerializedProperty minProperty, SerializedProperty maxProperty, bool delayed)
+        /// <inheritdoc cref="DrawGUI(UnityEngine.Rect,UnityEditor.SerializedProperty,UnityEditor.SerializedProperty,UnityEditor.SerializedProperty,UnityEngine.GUIContent,bool)"/>
+        public static void DrawGUI(Rect position, SerializedProperty minProperty, SerializedProperty maxProperty, bool delayed)
         {
             position.height = EditorGUIUtility.singleLineHeight;
 
@@ -101,6 +83,36 @@ namespace Coimbra.Editor
                     }
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight;
+        }
+
+        /// <inheritdoc/>
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            SerializedProperty minProperty = property.FindPropertyRelative("_min") ?? property.FindPropertyRelative("x");
+
+            if (minProperty == null || minProperty.propertyType != SerializedPropertyType.Float)
+            {
+                EditorGUI.LabelField(position, label.text, $"{nameof(FloatRangeAttribute)} requires a float property named 'x' or '_min'.");
+
+                return;
+            }
+
+            SerializedProperty maxProperty = property.FindPropertyRelative("_max") ?? property.FindPropertyRelative("y");
+
+            if (maxProperty == null || maxProperty.propertyType != SerializedPropertyType.Float)
+            {
+                EditorGUI.LabelField(position, label.text, $"{nameof(FloatRangeAttribute)} requires a float property named 'y' or '_max'.");
+
+                return;
+            }
+
+            DrawGUI(position, property, minProperty, maxProperty, label, (attribute as FloatRangeAttribute)?.Delayed ?? false);
         }
     }
 }

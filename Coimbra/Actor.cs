@@ -14,7 +14,7 @@ namespace Coimbra
     [PublicAPI]
     [Preserve]
     [DisallowMultipleComponent]
-    [AddComponentMenu(FrameworkUtility.GeneralMenuPath + "Actor")]
+    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Actor")]
     public class Actor : MonoBehaviour
     {
         /// <summary>

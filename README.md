@@ -8,7 +8,7 @@ Package of general utilities to be used with Unity development.
 - `AssetReferenceComponentRestriction`: Filter any `AssetReference` to only show GameObjects with the specified components.
 - Editor Startup Scene: An easy way to always load a specific scene when going to play inside the editor This can be configured in `Project Settings/Coimbra Framework`.
 - Editor Tools: Some general utilities under `Tools/Coimbra Framework` menu.
-- Decorator Attributes: Attributes fully compatible with Unity's standard workflow:
+- Decorator Attributes: Decorator attributes fully compatible with Unity's standard workflow:
   - `Disable`: To disable a field so that it can't be edited. There is also `OnEditMode` and `OnPlayMode` versions.
   - `Indent`: To indent a field by the amount of steps specified.
   - `MessageBox`: To display a message above a field. There is also `OnEditMode` and `OnPlayMode` versions.
@@ -18,6 +18,10 @@ Package of general utilities to be used with Unity development.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
 - List Extensions: A few useful methods for common operations.
 - Object Extensions: Methods to have a safe way to use `?.` and `??` operators in Unity Objects.
+- Property Attributes: Property attributes fully compatible with Unity's standard workflow:
+    - `IntRange`: Draws a property as if it was a `IntRange`.
+    - `FloatRange`: Draws a property as if it was a `FloatRange`.
+    - `RangeSlider`: Draws a property using the Unity's MinMaxSlider.
 - `PropertyPathInfo`: Reflection helper class for any SerializeField based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - Object Pooling: Use `ManagedPool` or `SharedManagedPool` for pooling any managed objects.
 - References: Create a `Reference` for any value or even another reference.

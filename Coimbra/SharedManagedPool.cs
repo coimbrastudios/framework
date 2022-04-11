@@ -42,7 +42,7 @@ namespace Coimbra
                 {
                     disposeCallback += delegate(T obj)
                     {
-                        if (FrameworkUtility.IsPlayMode)
+                        if (CoimbraUtility.IsPlayMode)
                         {
                             if ((obj as Object).TryGetValid(out Object valid))
                             {

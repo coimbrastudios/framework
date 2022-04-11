@@ -13,11 +13,11 @@ namespace Coimbra.Editor
     /// General editor utilities.
     /// </summary>
     [InitializeOnLoad]
-    public sealed class FrameworkEditorUtility : AssetPostprocessor
+    public sealed class CoimbraEditorUtility : AssetPostprocessor
     {
         private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
 
-        private const string ClearConsoleOnReloadItem = FrameworkUtility.PreferencesMenuPath + "Clear Console On Reload";
+        private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
 
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
 
@@ -28,7 +28,7 @@ namespace Coimbra.Editor
         [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
         private static readonly ProjectSetting<int> StartupSceneIndex = new ProjectSetting<int>("General.EditorStartupSceneIndex", -1);
 
-        static FrameworkEditorUtility()
+        static CoimbraEditorUtility()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
@@ -40,7 +40,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Asserts that all types that inherits from a serializable type are also serializable.
         /// </summary>
-        [MenuItem(FrameworkUtility.ToolsMenuPath + "Assert Serializable Types")]
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Assert Serializable Types")]
         public static void AssertSerializableTypes()
         {
             foreach (Type serializableType in TypeCache.GetTypesWithAttribute<SerializableAttribute>())
@@ -62,7 +62,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Requests a script reload.
         /// </summary>
-        [MenuItem(FrameworkUtility.ToolsMenuPath + "Reload Scripts")]
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Reload Scripts")]
         public static void ReloadScripts()
         {
             EditorUtility.RequestScriptReload();
@@ -117,7 +117,7 @@ namespace Coimbra.Editor
         {
             bool value = EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
             Menu.SetChecked(ClearConsoleOnReloadItem, value);
-            FrameworkUtility.IsReloadingScripts = false;
+            CoimbraUtility.IsReloadingScripts = false;
         }
 
         private static void HandleBeforeAssemblyReload()
@@ -127,7 +127,7 @@ namespace Coimbra.Editor
                 ClearConsoleWindow();
             }
 
-            FrameworkUtility.IsReloadingScripts = true;
+            CoimbraUtility.IsReloadingScripts = true;
         }
 
         private static void ConfigureStartupScene(PlayModeStateChange state)
