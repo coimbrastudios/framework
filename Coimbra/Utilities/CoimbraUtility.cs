@@ -9,7 +9,7 @@ namespace Coimbra
     {
         internal const string EditorUserPreferencesPath = UserPreferencesPath + "/Editor";
 
-        internal const string GeneralMenuPath = "Coimbra/";
+        internal const string GeneralMenuPath = "Coimbra Framework/";
 
         internal const string PackageName = "com.coimbrastudios.core";
 

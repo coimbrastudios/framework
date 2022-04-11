@@ -14,14 +14,14 @@ namespace Coimbra.Editor
         private readonly Type _type;
 
         public ScriptableSettingsProvider(string settingsWindowPath, Type type, IEnumerable<string> keywords = null)
-            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(ScriptableSettings.GetOrFind(type, ScriptableSettings.FindFirst)), keywords)
+            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(ScriptableSettings.GetOrFind(type)), keywords)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             _type = type;
         }
 
         public ScriptableSettingsProvider(string settingsWindowPath, Type type)
-            : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type, ScriptableSettings.FindFirst))
+            : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type))
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             _type = type;
