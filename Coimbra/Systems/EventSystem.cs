@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -91,7 +90,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public bool CompareEventKey(Type eventType, EventKey eventKey)
         {
-            CheckType(eventType);
+            eventType.AssertNonInterfaceImplements<IEvent>();
 
             return _events.TryGetValue(eventType, out Event e) ? e.Key == eventKey : eventKey == null;
         }
@@ -132,7 +131,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public bool HasAnyListeners(Type eventType)
         {
-            CheckType(eventType);
+            eventType.AssertNonInterfaceImplements<IEvent>();
 
             return _events.TryGetValue(eventType, out Event e) && e.Handles.Count > 0;
         }
@@ -181,7 +180,7 @@ namespace Coimbra
         public bool Invoke<T>(ref EventRef<T> eventRef, EventKey eventKey = null)
             where T : IEvent
         {
-            CheckType(typeof(T));
+            typeof(T).AssertNonInterfaceImplements<IEvent>();
 
             if (!_events.TryGetValue(typeof(T), out Event e))
             {
@@ -242,7 +241,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public bool RemoveAllListeners(Type eventType, EventKey eventKey = null)
         {
-            CheckType(eventType);
+            eventType.AssertNonInterfaceImplements<IEvent>();
 
             if (!_events.TryGetValue(eventType, out Event e))
             {
@@ -389,7 +388,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public bool ResetEventKey(Type eventType, EventKey eventKey)
         {
-            CheckType(eventType);
+            eventType.AssertNonInterfaceImplements<IEvent>();
 
             if (eventKey == null || !_events.TryGetValue(eventType, out Event e))
             {
@@ -412,7 +411,7 @@ namespace Coimbra
         public bool SetEventKey<T>(EventKey eventKey)
             where T : IEvent
         {
-            CheckType(typeof(T));
+            typeof(T).AssertNonInterfaceImplements<IEvent>();
 
             if (_events.TryGetValue(typeof(T), out Event e))
             {
@@ -439,26 +438,11 @@ namespace Coimbra
             ServiceLocator.Shared.SetCreateCallback(Create, false);
         }
 
-        [Conditional("UNITY_EDITOR")]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckType(Type type, [CallerMemberName] string memberName = null)
-        {
-            if (type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException($"\"{nameof(IEventService)}.{memberName}\" requires a non-interface type argument!");
-            }
-
-            if (!typeof(IEvent).IsAssignableFrom(type))
-            {
-                throw new ArgumentOutOfRangeException($"\"{nameof(IEventService)}.{memberName}\" requires a type that implements \"{typeof(IEvent)}\"!");
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private EventHandle AddListener<T>(ref EventRef<T>.Handler eventCallback)
             where T : IEvent
         {
-            CheckType(typeof(T));
+            typeof(T).AssertNonInterfaceImplements<IEvent>();
 
             if (eventCallback == null)
             {

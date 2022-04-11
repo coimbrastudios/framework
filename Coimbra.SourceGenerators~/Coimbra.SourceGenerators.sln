@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.SourceGenerators", "Coimbra.SourceGenerators\Coimbra.SourceGenerators.csproj", "{EEF29BC7-62B7-4BE6-BA43-B4BCA3B3CEEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Systems.SourceGenerators", "Coimbra.SourceGenerators.Systems\Coimbra.SourceGenerators.Systems.csproj", "{1C4B8C08-C0DE-4E9F-AB38-027DD97532B8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -205,7 +204,7 @@ namespace Coimbra
         [CanBeNull]
         public Func<IService> GetCreateCallback(Type type, out bool willResetOnSet)
         {
-            CheckType(type);
+            type.AssertInterfaceImplementsNotEqual<IService>();
 
             if (_services.TryGetValue(type, out Service service))
             {
@@ -239,7 +238,7 @@ namespace Coimbra
         [Pure]
         public bool HasCreateCallback([NotNull] Type type)
         {
-            CheckType(type);
+            type.AssertInterfaceImplementsNotEqual<IService>();
 
             return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
@@ -264,7 +263,7 @@ namespace Coimbra
         [Pure]
         public bool IsCreated([NotNull] Type type)
         {
-            CheckType(type);
+            type.AssertInterfaceImplementsNotEqual<IService>();
 
             return _services.TryGetValue(type, out Service service) && service is { Value: { } };
         }
@@ -277,7 +276,7 @@ namespace Coimbra
         public void RemoveValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
             where T : class, IService
         {
-            CheckType(typeof(T));
+            typeof(T).AssertInterfaceImplementsNotEqual<IService>();
 
             if (_services.TryGetValue(typeof(T), out Service service))
             {
@@ -359,30 +358,10 @@ namespace Coimbra
             return value != null;
         }
 
-        [Conditional("UNITY_EDITOR")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CheckType(Type type, [CallerMemberName] string memberName = null)
+        private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
         {
-            if (!type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException($"\"{nameof(ServiceLocator)}.{memberName}\" requires an interface type argument!");
-            }
-
-            if (type == typeof(IService))
-            {
-                throw new ArgumentOutOfRangeException($"\"{nameof(ServiceLocator)}.{memberName}\" requires a type different than \"{typeof(IService)}\" itself!");
-            }
-
-            if (!typeof(IService).IsAssignableFrom(type))
-            {
-                throw new ArgumentOutOfRangeException($"\"{nameof(ServiceLocator)}.{memberName}\" requires a type that implements \"{typeof(IService)}\"!");
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null)
-        {
-            CheckType(type, memberName);
+            type.AssertInterfaceImplementsNotEqual<IService>(memberName);
 
             if (_services.TryGetValue(type, out service))
             {
