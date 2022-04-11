@@ -1,6 +1,6 @@
 # Changelog
 
-## [8.0.0] - 2022--
+## [8.0.0] - 2022-04-11
 
 - Added `IPoolingService.LoadingPoolCount` property to efficiently check the amount of pool currently in the `Loading` state.
 - Added `IPoolingService.ContainsPool(AssetReferenceT<GameObject>)` to efficiently check if any currently added pool is referencing the specified prefab.
