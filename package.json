@@ -2,7 +2,7 @@
   "name": "com.coimbrastudios.core",
   "displayName": "Coimbra Framework",
   "author": "Bruno Coimbra",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "unity": "2020.3",
   "type": "tool",
   "dependencies": {

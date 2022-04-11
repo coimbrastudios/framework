@@ -1,5 +1,9 @@
 # Changelog
 
+## [8.1.0] - 2022--
+
+- Changed `OnDespawn` and `OnSpawn` to call `SetActive` by default.
+
 ## [8.0.0] - 2022-04-11
 
 - Added `IPoolingService.LoadingPoolCount` property to efficiently check the amount of pool currently in the `Loading` state.

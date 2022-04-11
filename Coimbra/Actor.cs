@@ -229,9 +229,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Called each time this object is despawned.
+        /// Called each time this object is despawned. By default, it deactivates the object.
         /// </summary>
-        protected virtual void OnDespawn() { }
+        protected virtual void OnDespawn()
+        {
+            CachedGameObject.SetActive(false);
+        }
 
         /// <summary>
         /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
@@ -250,9 +253,12 @@ namespace Coimbra
         protected virtual void OnInitializePrefab() { }
 
         /// <summary>
-        /// Called each time this object is spawned.
+        /// Called each time this object is spawned. By default, it activates the object.
         /// </summary>
-        protected virtual void OnSpawn() { }
+        protected virtual void OnSpawn()
+        {
+            CachedGameObject.SetActive(true);
+        }
 
         /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
