@@ -1,5 +1,4 @@
-﻿using Coimbra.Settings;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;

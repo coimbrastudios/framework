@@ -1,14 +1,17 @@
-﻿#if !UNITY_2021_2_OR_NEWER
-using JetBrains.Annotations;
-#endif
+﻿
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SettingsManagement;
+#if !UNITY_2021_2_OR_NEWER
+using JetBrains.Annotations;
+#endif
 
 namespace Coimbra.Editor
 {
     [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue")]
-    internal static class FrameworkSettingsProvider
+    internal static class CoimbraSettingsProviderRegister
     {
         internal const string EditorUserSettingsName = "EditorPrefs";
 
@@ -16,23 +19,20 @@ namespace Coimbra.Editor
 
         internal const string ProjectUserSettingsName = "UserSettings";
 
-        private static UnityEditor.SettingsManagement.Settings _settings;
+        private static Settings _settings;
 
         [NotNull]
-        internal static UnityEditor.SettingsManagement.Settings Settings => _settings ??= new UnityEditor.SettingsManagement.Settings(new ISettingsRepository[]
+        internal static Settings Settings => _settings ??= new Settings(new ISettingsRepository[]
         {
             new PackageSettingsRepository(CoimbraUtility.PackageName, ProjectSettingsName),
             new ProjectUserSettings(CoimbraUtility.PackageName, ProjectUserSettingsName),
             new UserSettingsRepository(),
         });
 
-        // [SettingsProvider]
+        [SettingsProvider]
         private static SettingsProvider CreateEditorUserSettingsProvider()
         {
-            return new UserSettingsProvider(CoimbraUtility.EditorUserPreferencesPath, Settings, new[]
-            {
-                typeof(FrameworkSettingsProvider).Assembly,
-            }, SettingsScope.User);
+            return new UserSettingsProvider(CoimbraUtility.EditorUserPreferencesPath, Settings, Array.Empty<Assembly>(), SettingsScope.User);
         }
 
         [SettingsProvider]
@@ -40,17 +40,14 @@ namespace Coimbra.Editor
         {
             return new UserSettingsProvider(CoimbraUtility.ProjectSettingsPath, Settings, new[]
             {
-                typeof(FrameworkSettingsProvider).Assembly,
+                typeof(CoimbraSettingsProviderRegister).Assembly,
             }, SettingsScope.Project);
         }
 
-        // [SettingsProvider]
+        [SettingsProvider]
         private static SettingsProvider CreateProjectUserSettingsProvider()
         {
-            return new UserSettingsProvider(CoimbraUtility.ProjectUserPreferencesPath, Settings, new[]
-            {
-                typeof(FrameworkSettingsProvider).Assembly,
-            }, SettingsScope.User);
+            return new UserSettingsProvider(CoimbraUtility.ProjectUserPreferencesPath, Settings, Array.Empty<Assembly>(), SettingsScope.User);
         }
     }
 }

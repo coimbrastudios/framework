@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra
+namespace Coimbra.Editor
 {
     /// <summary>
     /// Scope for managing the <see cref="EditorGUIUtility.labelWidth"/>.

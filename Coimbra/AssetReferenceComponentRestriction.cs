@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Coimbra.Settings
+namespace Coimbra
 {
     /// <summary>
     /// Used to restrict an <see cref="AssetReference"/> field or property to only allow <see cref="GameObject"/> with a specific component. This is only enforced through the UI.

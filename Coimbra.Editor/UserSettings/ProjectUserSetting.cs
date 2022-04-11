@@ -8,6 +8,6 @@ namespace Coimbra.Editor
     {
         [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue")]
         internal ProjectUserSetting(string key, T value)
-            : base(FrameworkSettingsProvider.Settings, FrameworkSettingsProvider.ProjectUserSettingsName, key, value, SettingsScope.User) { }
+            : base(CoimbraSettingsProviderRegister.Settings, CoimbraSettingsProviderRegister.ProjectUserSettingsName, key, value, SettingsScope.User) { }
     }
 }

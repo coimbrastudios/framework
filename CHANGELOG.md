@@ -11,6 +11,9 @@
 - Added `GameObjectPoolSceneManagerAPI` to leverage the `GameObjectPool` functionalities.
 - Added `disposeCallback` parameter on `ManagedPool` to add logic after `OnDelete` is fired (i.e. native object disposing).
 - Added proper support for IDisposable and UnityEngine.Object (i.e. ScriptableObject) in `SharedManagedPool`.
+- Added option to modify the find behaviour of `ScriptableSettings` in `GetOrFind` and `TryGetOrFind`, but preserving the old behaviour if none is specified.
+- Added `ScriptableSettingsProvider` for easily displaying any `ScriptableSettings` in the project settings.
+- Changed name of `FrameworkXXX` classes to `CoimbraXXX`.
 - Changed `DestroyReason` to be a nested enum of `Actor`.
 - Changed `GameObjectPool` and `Actor` implementation quite a bit:
   - Added public `Actor.Despawn()` to be used instead of `GameObjectPool.Despawn(Actor)`.

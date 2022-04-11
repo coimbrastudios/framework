@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
@@ -13,88 +14,34 @@ namespace Coimbra
     [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {
-        private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+        /// <summary>
+        /// Delegate for using with the find methods.
+        /// </summary>
+        public delegate ScriptableSettings FindHandler(Type type);
 
         /// <summary>
-        /// Should this setting be included in the preloaded assets?
+        /// Finds with <see cref="Resources.FindObjectsOfTypeAll"/>, returning null if none.
         /// </summary>
-        [field: SerializeField]
-        [field: Tooltip("Should this setting be included in the preloaded assets?")]
-        [PublicAPI]
-        public bool Preload { get; protected set; } = true;
-
-        /// <inheritdoc cref="Get"/>
-        public static T Get<T>()
-            where T : ScriptableSettings
+        public static readonly FindHandler FindFirst = delegate(Type type)
         {
-            return Get(typeof(T)) as T;
-        }
+            Object[] rawValues = Resources.FindObjectsOfTypeAll(type);
 
-        /// <inheritdoc cref="GetOrFind"/>
-        public static T GetOrFind<T>()
-            where T : ScriptableSettings
-        {
-            return GetOrFind(typeof(T)) as T;
-        }
-
-        /// <inheritdoc cref="Has"/>
-        public static bool Has<T>()
-            where T : ScriptableSettings
-        {
-            return Has(typeof(T));
-        }
-
-        /// <inheritdoc cref="Set"/>
-        public static void Set<T>(T value, bool forceSet)
-            where T : ScriptableSettings
-        {
-            Set(typeof(T), value, forceSet);
-        }
-
-        /// <inheritdoc cref="TryGet"/>
-        public static bool TryGet<T>(out T result)
-            where T : ScriptableSettings
-        {
-            result = Get(typeof(T)) as T;
-
-            return result != null;
-        }
-
-        /// <inheritdoc cref="TryGetOrFind"/>
-        public static bool TryGetOrFind<T>(out T result)
-            where T : ScriptableSettings
-        {
-            result = GetOrFind(typeof(T)) as T;
-
-            return result != null;
-        }
-
-        /// <summary>
-        /// Gets the last set value for the specified type.
-        /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <returns>The settings if set and still valid.</returns>
-        protected static ScriptableSettings Get(Type type)
-        {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
-            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
-        }
-
-        /// <summary>
-        /// Gets the last set value for the specified type, but also tries to find one through <see cref="Resources.FindObjectsOfTypeAll"/> if none is found.
-        /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <returns>The settings if set and still valid or if a new one could be found.</returns>
-        protected static ScriptableSettings GetOrFind(Type type)
-        {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
-            if (Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
+            if (rawValues.Length == 0)
             {
-                return value;
+                return null;
             }
 
+            ScriptableSettings result = (ScriptableSettings)rawValues[0];
+            Values[type] = result;
+
+            return result;
+        };
+
+        /// <summary>
+        /// Finds with <see cref="Resources.FindObjectsOfTypeAll"/>, returning null if none. Also logs a warning if more than 1 is found.
+        /// </summary>
+        public static readonly FindHandler FindSingle = delegate(Type type)
+        {
             Object[] rawValues = Resources.FindObjectsOfTypeAll(type);
 
             if (rawValues.Length == 0)
@@ -111,6 +58,64 @@ namespace Coimbra
             Values[type] = result;
 
             return result;
+        };
+
+        private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+
+        /// <summary>
+        /// Should this setting be included in the preloaded assets?
+        /// </summary>
+        [field: SerializeField]
+        [field: Tooltip("Should this setting be included in the preloaded assets?")]
+        [PublicAPI]
+        public bool Preload { get; protected set; } = true;
+
+        /// <summary>
+        /// Gets the last set value for the specified type.
+        /// </summary>
+        /// <param name="type">The type of the settings.</param>
+        /// <returns>The settings if set and still valid.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptableSettings Get(Type type)
+        {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+
+            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
+        }
+
+        /// <inheritdoc cref="Get"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Get<T>()
+            where T : ScriptableSettings
+        {
+            return Get(typeof(T)) as T;
+        }
+
+        /// <summary>
+        /// Gets the last set value for the specified type, but also tries to find one if not set.
+        /// </summary>
+        /// <param name="type">The type of the settings.</param>
+        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/></param>.
+        /// <returns>The settings if set and still valid or if a new one could be found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptableSettings GetOrFind(Type type, FindHandler findCallback = null)
+        {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+
+            if (Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
+            {
+                return value;
+            }
+
+            return findCallback?.Invoke(type) ?? FindSingle.Invoke(type);
+        }
+
+        /// <inheritdoc cref="GetOrFind"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetOrFind<T>(FindHandler findCallback = null)
+            where T : ScriptableSettings
+        {
+            return GetOrFind(typeof(T), findCallback) as T;
         }
 
         /// <summary>
@@ -118,52 +123,58 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <returns>True if the settings is set and still valid.</returns>
-        protected static bool Has(Type type)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Has(Type type)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
             return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
         }
 
+        /// <inheritdoc cref="Has"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Has<T>()
+            where T : ScriptableSettings
+        {
+            return Has(typeof(T));
+        }
+
         /// <summary>
-        /// Sets the value for the specified type.
+        /// Sets the value for the specified type, if not set yet.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
-        /// <param name="forceSet">If false, it will not change the value if previously set.</param>
-        protected static void Set(Type type, ScriptableSettings value, bool forceSet)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Set(Type type, ScriptableSettings value)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+            Set(false, type, value);
+        }
 
-            value = value.GetValid();
+        /// <inheritdoc cref="Set"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Set<T>(T value)
+            where T : ScriptableSettings
+        {
+            Set(false, typeof(T), value);
+        }
 
-            if (TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
-            {
-                if (forceSet)
-                {
-                    if (!CoimbraUtility.IsReloadingScripts && (!ServiceLocator.Shared.TryGet(out IApplicationService applicationService) || !applicationService!.IsQuitting))
-                    {
-                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
-                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{currentValue}\"!", currentValue);
-                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
+        /// <summary>
+        /// Sets the value for the specified type, even if it was already set.
+        /// </summary>
+        /// <param name="type">The type of the settings.</param>
+        /// <param name="value">The new value for the specified type.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetOrOverwrite(Type type, ScriptableSettings value)
+        {
+            Set(true, type, value);
+        }
 
-                    return;
-                }
-            }
-
-            if (value != null)
-            {
-                Values[type] = value;
-            }
-            else
-            {
-                Values.Remove(type);
-            }
+        /// <inheritdoc cref="SetOrOverwrite"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetOrOverwrite<T>(T value)
+            where T : ScriptableSettings
+        {
+            Set(true, typeof(T), value);
         }
 
         /// <summary>
@@ -172,7 +183,8 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="result">The settings if set and still valid.</param>
         /// <returns>True if the settings is set and still valid.</returns>
-        protected static bool TryGet(Type type, out ScriptableSettings result)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGet(Type type, out ScriptableSettings result)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
@@ -181,17 +193,39 @@ namespace Coimbra
             return result != null;
         }
 
+        /// <inheritdoc cref="TryGet"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGet<T>(out T result)
+            where T : ScriptableSettings
+        {
+            result = Get(typeof(T)) as T;
+
+            return result != null;
+        }
+
         /// <summary>
-        /// Tries to get the last set value for the specified type, but also tries to find one through <see cref="Resources.FindObjectsOfTypeAll"/> if none is found.
+        /// Tries to get the last set value for the specified type, but also tries to find one through <see cref="Resources.FindObjectsOfTypeAll"/> if not set.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <param name="result">The settings if set and still valid or if a new one could be found.</param>
+        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/></param>.
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
-        protected static bool TryGetOrFind(Type type, out ScriptableSettings result)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetOrFind(Type type, out ScriptableSettings result, FindHandler findCallback = null)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
-            result = GetOrFind(type);
+            result = GetOrFind(type, findCallback);
+
+            return result != null;
+        }
+
+        /// <inheritdoc cref="TryGetOrFind"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetOrFind<T>(out T result, FindHandler findCallback = null)
+            where T : ScriptableSettings
+        {
+            result = GetOrFind(typeof(T), findCallback) as T;
 
             return result != null;
         }
@@ -239,7 +273,7 @@ namespace Coimbra
         protected virtual void OnEnable()
         {
             Type type = GetType();
-            Set(type, this, false);
+            Set(type, this);
         }
 
         protected virtual void OnDisable()
@@ -248,7 +282,43 @@ namespace Coimbra
 
             if (TryGet(type, out ScriptableSettings current) && current == this)
             {
-                Set(type, null, true);
+                SetOrOverwrite(type, null);
+            }
+        }
+
+        private static void Set(bool forceSet, Type type, ScriptableSettings value)
+        {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+
+            value = value.GetValid();
+
+            if (TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
+            {
+                if (forceSet)
+                {
+                    if (!CoimbraUtility.IsReloadingScripts && (!ServiceLocator.Shared.TryGet(out IApplicationService applicationService) || !applicationService!.IsQuitting))
+                    {
+                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
+                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{currentValue}\"!", currentValue);
+                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
+
+                    return;
+                }
+            }
+
+            if (value != null)
+            {
+                Debug.Assert(type.IsInstanceOfType(value));
+                Values[type] = value;
+            }
+            else
+            {
+                Values.Remove(type);
             }
         }
 

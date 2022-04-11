@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Coimbra.Settings
+namespace Coimbra
 {
     [CreateAssetMenu(menuName = CoimbraUtility.GeneralMenuPath + "Pooling Settings")]
     public sealed class PoolingSettings : ScriptableSettings
@@ -11,6 +12,9 @@ namespace Coimbra.Settings
         [AssetReferenceComponentRestriction(typeof(GameObjectPool))]
         [Tooltip("Default pools to be created when a new Pooling Service is being created.")]
         private AssetReferenceT<GameObject>[] _defaultPersistentPools;
+
+        public PoolingSettings()
+            : this(Array.Empty<AssetReferenceT<GameObject>>()) { }
 
         public PoolingSettings(AssetReferenceT<GameObject>[] defaultPersistentPools)
         {
