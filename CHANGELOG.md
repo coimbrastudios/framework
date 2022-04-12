@@ -4,6 +4,9 @@
 
 - Added `IEventService.IsInvoking` API to check if an event is currently invoking.
 - Added throw/catch during `EventSystem.Invoke` to make easier to debug issues during invocation.
+- Added `ServiceLocator.IsCreated` overloads with `out` parameters to receive the service value.
+- Changed `ServiceLocator.Get` to not set the service value when using the fallback option as it was misleading.
+- Changed `ServiceLocator.Set` to early-out on same service value and to use the fallback option for the value changed event.
 - Changed `OnDespawn` and `OnSpawn` to call `SetActive` by default.
 - Changed `As` and `Is` GameObject extensions to `AsActor` and `IsActor`.
 - Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.

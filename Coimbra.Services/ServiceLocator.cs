@@ -143,43 +143,20 @@ namespace Coimbra.Services
 
             if (service.Value != null)
             {
-                return (T)service.Value;
+                return service.Value as T;
             }
-
-            T value = null;
 
             if (service.CreateCallback != null)
             {
-                service.Value = service.CreateCallback.Invoke().GetValid();
-                value = service.Value as T;
+                Set(service.CreateCallback.Invoke() as T);
 
-                if (service.ResetCreateCallbackOnSet)
+                if (service.Value != null)
                 {
-                    service.CreateCallback = null;
+                    return service.Value as T;
                 }
             }
 
-            if (value != null)
-            {
-                value.OwningLocator = this;
-            }
-            else if (AllowFallbackToShared)
-            {
-                value = Shared.Get<T>();
-            }
-            else
-            {
-                return null;
-            }
-
-            if (value == null)
-            {
-                return null;
-            }
-
-            service.ValueChangedCallback(null, value);
-
-            return value;
+            return AllowFallbackToShared ? Shared.Get<T>() : null;
         }
 
         /// <summary>
@@ -265,7 +242,52 @@ namespace Coimbra.Services
         {
             type.AssertInterfaceImplementsNotEqual<IService>();
 
-            return _services.TryGetValue(type, out Service service) && service is { Value: { } };
+            return _services.TryGetValue(type, out Service service) && service.Value != null;
+        }
+
+        /// <summary>
+        /// Gets if the service is created by its type.
+        /// </summary>
+        /// <param name="value">The service value, if created.</param>
+        /// <typeparam name="T">The service type.</typeparam>
+        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        [Pure]
+        public bool IsCreated<T>(out T value)
+            where T : class, IService
+        {
+            if (IsCreated(typeof(T), out IService service))
+            {
+                value = service as T;
+
+                return true;
+            }
+
+            value = null;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets if the service is created by its type.
+        /// </summary>
+        /// <param name="type">The service type.</param>
+        /// <param name="value">The service value, if created.</param>
+        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        [Pure]
+        public bool IsCreated([NotNull] Type type, out IService value)
+        {
+            type.AssertInterfaceImplementsNotEqual<IService>();
+
+            if (_services.TryGetValue(type, out Service service) && service.Value != null)
+            {
+                value = service.Value;
+
+                return true;
+            }
+
+            value = null;
+
+            return false;
         }
 
         /// <summary>
@@ -295,25 +317,37 @@ namespace Coimbra.Services
         {
             Initialize(typeof(T), out Service service);
 
-            if (value is { OwningLocator: { } })
+            if (service.Value == value)
             {
-                if (value.OwningLocator != this)
-                {
-                    Debug.LogError($"The same service \"{value}\" can't belong to more than one {nameof(ServiceLocator)} at same time!");
-                }
-
                 return;
             }
 
             T oldValue = (service.Value as T).GetValid();
-            service.Value = value.GetValid();
+
+            if (value.TryGetValid(out value))
+            {
+                if (value.OwningLocator != null)
+                {
+                    Debug.LogError($"The same service \"{value}\" can't belong to more than one {nameof(ServiceLocator)} at same time!");
+
+                    return;
+                }
+
+                value.OwningLocator = this;
+                service.Value = value;
+            }
+            else
+            {
+                value = AllowFallbackToShared ? Shared.Get<T>() : null;
+                service.Value = null;
+            }
 
             if (service.ResetCreateCallbackOnSet)
             {
                 service.CreateCallback = null;
             }
 
-            if (oldValue != null && oldValue.OwningLocator == this)
+            if (oldValue != null)
             {
                 if (disposePrevious)
                 {
@@ -322,13 +356,12 @@ namespace Coimbra.Services
 
                 oldValue.OwningLocator = null;
             }
-
-            if (service.Value != null)
+            else if (AllowFallbackToShared)
             {
-                service.Value.OwningLocator = this;
+                oldValue = Shared.Get<T>();
             }
 
-            service.ValueChangedCallback(oldValue, service.Value);
+            service.ValueChangedCallback(oldValue, value);
         }
 
         /// <summary>
