@@ -17,7 +17,7 @@ namespace Coimbra
         /// </summary>
         [CanBeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TActor As<TActor>(this GameObject gameObject)
+        public static TActor AsActor<TActor>(this GameObject gameObject)
             where TActor : Actor
         {
             return AsActor(gameObject) as TActor;
@@ -49,7 +49,7 @@ namespace Coimbra
         /// Checks if the <see cref="Actor"/> representing a <see cref="GameObject"/> if of the specified type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Is<TActor>(this GameObject gameObject)
+        public static bool IsActor<TActor>(this GameObject gameObject)
             where TActor : Actor
         {
             return AsActor(gameObject) is TActor;
@@ -59,7 +59,7 @@ namespace Coimbra
         /// Checks if the <see cref="Actor"/> representing a <see cref="GameObject"/> if of the specified type, returning it if true.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Is<TActor>(this GameObject gameObject, [CanBeNull] out TActor result)
+        public static bool IsActor<TActor>(this GameObject gameObject, [CanBeNull] out TActor result)
             where TActor : Actor
         {
             if (AsActor(gameObject) is TActor actor)

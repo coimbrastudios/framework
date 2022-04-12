@@ -3,6 +3,8 @@
 ## [8.1.0] - 2022--
 
 - Changed `OnDespawn` and `OnSpawn` to call `SetActive` by default.
+- Changed `As` and `Is` GameObject extensions to `AsActor` and `IsActor`.
+- Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.
 
 ## [8.0.0] - 2022-04-11
 
