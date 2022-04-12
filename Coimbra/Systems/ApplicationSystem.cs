@@ -188,9 +188,7 @@ namespace Coimbra
             }
 
             Invoke(new ApplicationQuitEvent());
-#if UNITY_EDITOR
             OwningLocator?.Dispose();
-#endif
         }
 
         private void HandleEventServiceChanged(IService oldValue, IService newValue)
