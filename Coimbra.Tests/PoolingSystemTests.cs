@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Coimbra.Services;
+using NUnit.Framework;
 
 namespace Coimbra.Tests
 {

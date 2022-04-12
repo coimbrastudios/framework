@@ -62,6 +62,12 @@ namespace Coimbra
 
         private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
 
+        static ScriptableSettings()
+        {
+            Application.quitting -= HandleApplicationQuitting;
+            Application.quitting += HandleApplicationQuitting;
+        }
+
         /// <summary>
         /// Should this setting be included in the preloaded assets?
         /// </summary>
@@ -69,6 +75,11 @@ namespace Coimbra
         [field: Tooltip("Should this setting be included in the preloaded assets?")]
         [PublicAPI]
         public bool Preload { get; protected set; } = true;
+
+        /// <summary>
+        /// True when application is quitting.
+        /// </summary>
+        protected static bool IsQuitting { get; private set; }
 
         /// <summary>
         /// Gets the last set value for the specified type.
@@ -286,6 +297,11 @@ namespace Coimbra
             }
         }
 
+        private static void HandleApplicationQuitting()
+        {
+            IsQuitting = true;
+        }
+
         private static void Set(bool forceSet, Type type, ScriptableSettings value)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
@@ -296,7 +312,7 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    if (!CoimbraUtility.IsReloadingScripts && (!ServiceLocator.Shared.TryGet(out IApplicationService applicationService) || !applicationService!.IsQuitting))
+                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting)
                     {
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
@@ -327,6 +343,7 @@ namespace Coimbra
         [UnityEditor.InitializeOnEnterPlayMode]
         private static void Initialize()
         {
+            IsQuitting = false;
             Values.Clear();
             UnityEditor.PlayerSettings.GetPreloadedAssets();
         }

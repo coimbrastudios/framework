@@ -1,10 +1,13 @@
 # Changelog
 
-## [8.1.0] - 2022--
+## [9.0.0] - 2022--
 
+- Added `IEventService.IsInvoking` API to check if an event is currently invoking.
+- Added throw/catch during `EventSystem.Invoke` to make easier to debug issues during invocation.
 - Changed `OnDespawn` and `OnSpawn` to call `SetActive` by default.
 - Changed `As` and `Is` GameObject extensions to `AsActor` and `IsActor`.
 - Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.
+- Changed all service-related stuff to a new assembly and namespaces named `Coimbra.Services`.
 
 ## [8.0.0] - 2022-04-11
 

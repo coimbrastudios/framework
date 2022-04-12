@@ -1,3 +1,4 @@
+using Coimbra.Services;
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
