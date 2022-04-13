@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Coimbra.Services
 {
@@ -16,7 +15,7 @@ namespace Coimbra.Services
         private static class EventCallbacks<T>
             where T : IEvent
         {
-            internal static readonly Dictionary<EventHandle, EventData<T>.Handler> Value = new Dictionary<EventHandle, EventData<T>.Handler>(1);
+            internal static readonly Dictionary<EventHandle, EventData<T>.Handler> Value = new(1);
 
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
@@ -25,9 +24,9 @@ namespace Coimbra.Services
         {
             internal readonly RemoveHandler RemoveHandler;
 
-            internal readonly List<EventHandle> Handles = new List<EventHandle>();
+            internal readonly List<EventHandle> Handles = new();
 
-            internal readonly HashSet<EventHandle> HandlesToRemove = new HashSet<EventHandle>();
+            internal readonly HashSet<EventHandle> HandlesToRemove = new();
 
             internal bool IsInvoking;
 
@@ -42,7 +41,7 @@ namespace Coimbra.Services
 
         private const string InvalidEventKeyMessageFormat = "The event key \"{0}\" doesn't match the current set key \"{1}\" for type \"{2}\"";
 
-        private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
+        private readonly Dictionary<Type, Event> _events = new();
 
         private EventSystem() { }
 
@@ -159,7 +158,7 @@ namespace Coimbra.Services
         public bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent, new()
         {
-            EventData<T> eventData = new EventData<T>(eventSender);
+            EventData<T> eventData = new(eventSender);
 
             return Invoke(ref eventData, eventKey);
         }
@@ -168,7 +167,7 @@ namespace Coimbra.Services
         public bool Invoke<T>(object eventSender, T eventValue, EventKey eventKey = null)
             where T : IEvent
         {
-            EventData<T> eventData = new EventData<T>(eventSender, ref eventValue);
+            EventData<T> eventData = new(eventSender, ref eventValue);
 
             return Invoke(ref eventData, eventKey);
         }
@@ -177,7 +176,7 @@ namespace Coimbra.Services
         public bool Invoke<T>(object eventSender, ref T eventValue, EventKey eventKey = null)
             where T : IEvent
         {
-            EventData<T> eventData = new EventData<T>(eventSender, ref eventValue);
+            EventData<T> eventData = new(eventSender, ref eventValue);
 
             return Invoke(ref eventData, eventKey);
         }

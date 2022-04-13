@@ -60,7 +60,7 @@ namespace Coimbra
             return result;
         };
 
-        private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+        private static readonly Dictionary<Type, ScriptableSettings> Values = new();
 
         static ScriptableSettings()
         {

@@ -16,7 +16,7 @@ namespace Coimbra.Editor
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new Dictionary<SerializedProperty, PropertyPathInfo>();
+        private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new();
 
         /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
@@ -219,7 +219,7 @@ namespace Coimbra.Editor
 
             if (splitPropertyPath.Count > 2 && splitPropertyPath[1] == "Array")
             {
-                string index = new string(splitPropertyPath[2].Where(char.IsDigit).ToArray());
+                string index = new(splitPropertyPath[2].Where(char.IsDigit).ToArray());
 
                 if (splitPropertyPath[2].Replace(index, "") == "data[]")
                 {

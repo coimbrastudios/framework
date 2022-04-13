@@ -58,11 +58,11 @@ namespace Coimbra
         /// </summary>
         public event Action<T> OnPush;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
-        private readonly HashSet<T> _availableSet = new HashSet<T>();
+        private readonly HashSet<T> _availableSet = new();
 
-        private readonly Stack<T> _availableStack = new Stack<T>();
+        private readonly Stack<T> _availableStack = new();
 
         private readonly CreateHandler _createCallback;
 

@@ -12,7 +12,7 @@ namespace Coimbra.Services
     [AddComponentMenu("")]
     public sealed class ApplicationSystem : ServiceActorBase<IApplicationService>, IApplicationService
     {
-        private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
+        private readonly EventKey _eventKey = new(EventKey.RestrictionOptions.DisallowInvoke);
 
         private IEventService _eventService;
 

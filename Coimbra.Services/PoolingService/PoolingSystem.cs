@@ -14,13 +14,13 @@ namespace Coimbra.Services
     [AddComponentMenu("")]
     public sealed class PoolingSystem : ServiceActorBase<IPoolingService>, IPoolingService
     {
-        private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
+        private readonly List<GameObjectPool> _loadingList = new();
 
-        private readonly HashSet<object> _prefabsSet = new HashSet<object>();
+        private readonly HashSet<object> _prefabsSet = new();
 
-        private readonly HashSet<GameObjectPool> _poolsSet = new HashSet<GameObjectPool>();
+        private readonly HashSet<GameObjectPool> _poolsSet = new();
 
-        private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
+        private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new();
 
         private PoolingSystem() { }
 

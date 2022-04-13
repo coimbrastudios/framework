@@ -70,9 +70,9 @@ namespace Coimbra.Services
         /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
         /// </summary>
         [NotNull]
-        public static readonly ServiceLocator Shared = new ServiceLocator($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
+        public static readonly ServiceLocator Shared = new($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
 
-        private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
+        private readonly Dictionary<Type, Service> _services = new();
 
         /// <param name="id">Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.</param>
         /// <param name="allowFallbackToShared">If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.</param>

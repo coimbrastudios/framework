@@ -58,11 +58,11 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroyed;
 
-        private static readonly List<Actor> PooledActors = new List<Actor>();
+        private static readonly List<Actor> PooledActors = new();
 
-        private static readonly List<Actor> UninitializedActors = new List<Actor>();
+        private static readonly List<Actor> UninitializedActors = new();
 
-        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
+        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new();
 
         private GameObjectID? _gameObjectID;
 
@@ -295,7 +295,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="ApplicationQuitEvent"/> instead.
+        /// Non-virtual by design, use <see cref="Application.quitting"/> instead.
         /// </summary>
         protected void OnApplicationQuit()
         {

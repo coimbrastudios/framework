@@ -69,7 +69,7 @@ namespace Coimbra.Editor
         /// <returns></returns>
         public static float GetMessageBoxHeight(string message, MessageBoxType type, bool fillLabelArea, float defaultMinContentHeight)
         {
-            GUIContent content = new GUIContent(message);
+            GUIContent content = new(message);
             float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
             float minContentHeight;
 
@@ -153,7 +153,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            StringBuilder stringBuilder = new StringBuilder(value.Length * 2);
+            StringBuilder stringBuilder = new(value.Length * 2);
 
             char currentInput = value[i];
             char lastOutput = char.ToUpper(currentInput);

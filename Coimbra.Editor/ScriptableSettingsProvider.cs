@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,19 +29,37 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc/>
+        public override void OnFooterBarGUI()
+        {
+            if (settingsEditor != null && settingsEditor.target != null)
+            {
+                base.OnFooterBarGUI();
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void OnTitleBarGUI()
+        {
+            if (settingsEditor != null && settingsEditor.target != null)
+            {
+                base.OnTitleBarGUI();
+            }
+        }
+
+        /// <inheritdoc/>
         public override void OnGUI(string searchContext)
         {
-            if (settingsEditor == null)
+            if (settingsEditor != null && settingsEditor.target != null)
+            {
+                base.OnGUI(searchContext);
+            }
+            else
             {
                 if (GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
                 {
                     CreateScriptableSettings();
                 }
-
-                EditorGUILayout.Space();
             }
-
-            base.OnGUI(searchContext);
         }
 
         private void CreateScriptableSettings()
@@ -75,6 +94,22 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(settings, relativePath);
             EditorGUIUtility.PingObject(settings);
             ScriptableSettings.Set(_type, settings);
+
+            if (settingsEditor != null)
+            {
+                UnityEngine.Object.DestroyImmediate(settingsEditor);
+            }
+
+            PropertyInfo property = typeof(AssetSettingsProvider).GetProperty(nameof(settingsEditor), BindingFlags.Instance | BindingFlags.Public);
+            Debug.Assert(property != null);
+
+            MethodInfo setter = property.GetSetMethod(true);
+            Debug.Assert(setter != null);
+
+            setter.Invoke(this, new object[]
+            {
+                UnityEditor.Editor.CreateEditor(settings)
+            });
         }
     }
 }

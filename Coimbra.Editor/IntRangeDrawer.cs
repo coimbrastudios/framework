@@ -15,7 +15,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static void DrawGUI(Rect position, SerializedProperty parentProperty, SerializedProperty minProperty, SerializedProperty maxProperty, GUIContent label, bool delayed)
         {
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
 
             Rect labelPosition = position;
@@ -40,7 +40,7 @@ namespace Coimbra.Editor
             float totalWidth = position.width;
             float fieldWith = totalWidth / 2 - spacing / 2 - labelWidth;
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(IntRange.Min)), minProperty))
+            using (EditorGUI.PropertyScope propertyScope = new(position, new GUIContent(nameof(IntRange.Min)), minProperty))
             {
                 position.width = labelWidth;
                 EditorGUI.LabelField(position, propertyScope.content);
@@ -48,7 +48,7 @@ namespace Coimbra.Editor
                 position.x += position.width;
                 position.width = fieldWith;
 
-                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope changeCheckScope = new())
                 {
                     int value = delayed
                                     ? EditorGUI.DelayedIntField(position, minProperty.intValue)
@@ -62,7 +62,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(IntRange.Max)), maxProperty))
+            using (EditorGUI.PropertyScope propertyScope = new(position, new GUIContent(nameof(IntRange.Max)), maxProperty))
             {
                 position.x += position.width + spacing;
                 position.width = labelWidth;
@@ -71,7 +71,7 @@ namespace Coimbra.Editor
                 position.x += position.width;
                 position.width = fieldWith;
 
-                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope changeCheckScope = new())
                 {
                     int value = delayed
                                     ? EditorGUI.DelayedIntField(position, maxProperty.intValue)

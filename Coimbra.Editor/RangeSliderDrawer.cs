@@ -11,7 +11,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static void DrawGUI(Rect position, SerializedProperty parentProperty, SerializedProperty minProperty, SerializedProperty maxProperty, GUIContent label, float minLimit, float maxLimit, bool roundToInt, bool delayed)
         {
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
 
             Rect labelPosition = position;
@@ -47,7 +47,7 @@ namespace Coimbra.Editor
             {
                 position.width = fieldWidth;
 
-                using (EditorGUI.ChangeCheckScope minCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope minCheckScope = new())
                 {
                     int value = delayed
                                     ? EditorGUI.DelayedIntField(position, minProperty.intValue)
@@ -66,7 +66,7 @@ namespace Coimbra.Editor
                 position.x += position.width + spacing;
                 position.width = totalWidth - fieldWidth * 2 - spacing * 2;
 
-                using (EditorGUI.ChangeCheckScope sliderCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope sliderCheckScope = new())
                 {
                     float min = minProperty.hasMultipleDifferentValues ? minLimit : minProperty.intValue;
                     float max = maxProperty.hasMultipleDifferentValues ? maxLimit : maxProperty.intValue;
@@ -86,7 +86,7 @@ namespace Coimbra.Editor
                 position.x += position.width + spacing;
                 position.width = fieldWidth;
 
-                using (EditorGUI.ChangeCheckScope maxCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope maxCheckScope = new())
                 {
                     int value = delayed
                                     ? EditorGUI.DelayedIntField(position, maxProperty.intValue)
@@ -113,7 +113,7 @@ namespace Coimbra.Editor
             {
                 position.width = fieldWidth;
 
-                using (EditorGUI.ChangeCheckScope minCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope minCheckScope = new())
                 {
                     float value = delayed
                                       ? EditorGUI.DelayedFloatField(position, minProperty.floatValue)
@@ -132,7 +132,7 @@ namespace Coimbra.Editor
                 position.x += position.width + spacing;
                 position.width = totalWidth - fieldWidth * 2 - spacing * 2;
 
-                using (EditorGUI.ChangeCheckScope sliderCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope sliderCheckScope = new())
                 {
                     float min = minProperty.hasMultipleDifferentValues ? minLimit : minProperty.floatValue;
                     float max = maxProperty.hasMultipleDifferentValues ? maxLimit : maxProperty.floatValue;
@@ -152,7 +152,7 @@ namespace Coimbra.Editor
                 position.x += position.width + spacing;
                 position.width = fieldWidth;
 
-                using (EditorGUI.ChangeCheckScope maxCheckScope = new EditorGUI.ChangeCheckScope())
+                using (EditorGUI.ChangeCheckScope maxCheckScope = new())
                 {
                     float value = delayed
                                       ? EditorGUI.DelayedFloatField(position, maxProperty.floatValue)

@@ -10,7 +10,7 @@ namespace Coimbra.Services
     [AddComponentMenu("")]
     public sealed class TimerSystem : ServiceActorBase<ITimerService>, ITimerService
     {
-        private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
+        private readonly Dictionary<TimerHandle, TimerComponent> _instances = new();
 
         private ManagedPool<TimerComponent> _timerComponentPool;
 

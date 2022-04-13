@@ -1,12 +1,8 @@
-﻿
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SettingsManagement;
-#if !UNITY_2021_2_OR_NEWER
-using JetBrains.Annotations;
-#endif
 
 namespace Coimbra.Editor
 {

@@ -21,7 +21,7 @@ namespace Coimbra.Tests
         [Test]
         public void GivenInactivePrefab_WhenInstantiated_ThenCachesAreInvalid()
         {
-            GameObject prefab = new GameObject();
+            GameObject prefab = new();
             prefab.SetActive(false);
 
             Actor prefabBehaviour = prefab.AddComponent<Actor>();

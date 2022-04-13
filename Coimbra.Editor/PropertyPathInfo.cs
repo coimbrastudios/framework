@@ -47,7 +47,7 @@ namespace Coimbra.Editor
                 return _propertyPath;
             }
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             PropertyPathInfo current = this;
 
             do

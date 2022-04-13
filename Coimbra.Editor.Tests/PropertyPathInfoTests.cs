@@ -104,7 +104,7 @@ namespace Coimbra.Editor.Tests
         private static void GetScopeWorks<T>(T[] targets)
             where T : UnityEngine.Object, IDummyInterface
         {
-            using (SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>()))
+            using (SerializedObject serializedObject = new(targets.ToArray<UnityEngine.Object>()))
             {
                 Assert.That(serializedObject, Is.Not.Null);
                 GetScopeWorks(serializedObject, "_integer", targets);
@@ -182,8 +182,8 @@ namespace Coimbra.Editor.Tests
             UnityEngine.Object[] targets = serializedObject.targetObjects;
             object[] scopeArray = serializedProperty.GetScopes();
             T[] scopeArrayT = serializedProperty.GetScopes<T>();
-            List<object> scopeList = new List<object>();
-            List<T> scopeListT = new List<T>();
+            List<object> scopeList = new();
+            List<T> scopeListT = new();
             serializedProperty.GetScopes(scopeList);
             serializedProperty.GetScopes(scopeListT);
 
@@ -199,7 +199,7 @@ namespace Coimbra.Editor.Tests
         private static void GetValueWorks<T>(T[] targets)
             where T : UnityEngine.Object, IDummyInterface
         {
-            using (SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>()))
+            using (SerializedObject serializedObject = new(targets.ToArray<UnityEngine.Object>()))
             {
                 Assert.That(serializedObject, Is.Not.Null);
                 GetValueWorks(serializedObject, "_integer", targets.Select(x => x.Integer).ToArray());
@@ -295,8 +295,8 @@ namespace Coimbra.Editor.Tests
             UnityEngine.Object[] targets = serializedObject.targetObjects;
             object[] scopeArray = serializedProperty.GetValues();
             T[] scopeArrayT = serializedProperty.GetValues<T>();
-            List<object> scopeList = new List<object>();
-            List<T> scopeListT = new List<T>();
+            List<object> scopeList = new();
+            List<T> scopeListT = new();
             serializedProperty.GetValues(scopeList);
             serializedProperty.GetValues(scopeListT);
 
@@ -312,7 +312,7 @@ namespace Coimbra.Editor.Tests
         private static void SetValueWorks<T>(T[] targets)
             where T : UnityEngine.Object, IDummyInterface
         {
-            using (SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>()))
+            using (SerializedObject serializedObject = new(targets.ToArray<UnityEngine.Object>()))
             {
                 Assert.That(serializedObject, Is.Not.Null);
                 SetValueWorks<int>(serializedObject, "_integer", x => int.MaxValue, (i, x) => targets[i].Integer == x);
