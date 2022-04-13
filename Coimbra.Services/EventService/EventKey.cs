@@ -1,10 +1,12 @@
 ﻿using System;
+using UnityEngine.Scripting;
 
 namespace Coimbra.Services
 {
     /// <summary>
     /// The event key to be used in <see cref="IEventService"/> APIs.
     /// </summary>
+    [Preserve]
     public sealed class EventKey
     {
         /// <summary>

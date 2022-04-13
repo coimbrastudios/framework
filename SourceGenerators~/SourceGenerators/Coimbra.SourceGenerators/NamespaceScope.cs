@@ -1,0 +1,20 @@
+﻿using System;
+
+namespace Coimbra.SourceGenerators
+{
+    public readonly struct NamespaceScope : IDisposable
+    {
+        private readonly BracesScope _bracesScope;
+
+        public NamespaceScope(SourceBuilder sourceBuilder, string namespaceValue)
+        {
+            sourceBuilder.AddLine($"namespace {namespaceValue}");
+            _bracesScope = new BracesScope(sourceBuilder);
+        }
+
+        public void Dispose()
+        {
+            _bracesScope.Dispose();
+        }
+    }
+}

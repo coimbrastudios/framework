@@ -15,7 +15,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="eventCallback">The callback to be added.</param>
         /// <typeparam name="T">The event type.</typeparam>
-        EventHandle AddListener<T>(EventRef<T>.Handler eventCallback)
+        EventHandle AddListener<T>(EventData<T>.Handler eventCallback)
             where T : IEvent;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Coimbra.Services
         /// <param name="appendList">List to add the event handle if generated a valid one.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if a valid <see cref="EventHandle"/> was generated.</returns>
-        bool AddListener<T>(EventRef<T>.Handler eventCallback, List<EventHandle> appendList)
+        bool AddListener<T>(EventData<T>.Handler eventCallback, List<EventHandle> appendList)
             where T : IEvent;
 
         /// <summary>
@@ -96,42 +96,42 @@ namespace Coimbra.Services
         /// Invokes the specified event type for all its listeners.
         /// </summary>
         /// <param name="eventSender">The object invoking the event.</param>
-        /// <param name="eventData">The event data to be sent.</param>
+        /// <param name="eventValue">The event data to be sent.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
+        bool Invoke<T>(object eventSender, T eventValue, EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>
         /// Invokes the specified event type for all its listeners.
         /// </summary>
         /// <param name="eventSender">The object invoking the event.</param>
-        /// <param name="eventData">The event data to be sent.</param>
+        /// <param name="eventValue">The event data to be sent.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
+        bool Invoke<T>(object eventSender, ref T eventValue, EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>
         /// Invokes the specified event type for all its listeners.
         /// </summary>
-        /// <param name="eventRef">The event reference being invoked.</param>
+        /// <param name="eventData">The event reference being invoked.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(EventRef<T> eventRef, EventKey eventKey = null)
+        bool Invoke<T>(EventData<T> eventData, EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>
         /// Invokes the specified event type for all its listeners.
         /// </summary>
-        /// <param name="eventRef">The event reference being invoked.</param>
+        /// <param name="eventData">The event reference being invoked.</param>
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="T">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<T>(ref EventRef<T> eventRef, EventKey eventKey = null)
+        bool Invoke<T>(ref EventData<T> eventData, EventKey eventKey = null)
             where T : IEvent;
 
         /// <summary>

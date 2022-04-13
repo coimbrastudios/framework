@@ -33,7 +33,7 @@ namespace Coimbra.Tests
         public void AddListener_Single()
         {
             const string log = nameof(log);
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             });
@@ -47,12 +47,12 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logA);
             });
 
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logB);
             });
@@ -71,25 +71,25 @@ namespace Coimbra.Tests
             EventHandle handle3 = new EventHandle();
             EventHandle handle4 = new EventHandle();
 
-            void callback1(ref EventRef<TestEvent> testEvent)
+            void callback1(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(nameof(callback1));
                 _eventService.RemoveListener(handle1);
             }
 
-            void callback2(ref EventRef<TestEvent> testEvent)
+            void callback2(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(nameof(callback2));
                 _eventService.RemoveListener(handle2);
             }
 
-            void callback3(ref EventRef<TestEvent> testEvent)
+            void callback3(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(nameof(callback3));
                 _eventService.RemoveListener(handle3);
             }
 
-            void callback4(ref EventRef<TestEvent> testEvent)
+            void callback4(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(nameof(callback4));
                 _eventService.RemoveListener(handle4);
@@ -123,7 +123,7 @@ namespace Coimbra.Tests
         {
             const string log = nameof(log);
 
-            static void callback(ref EventRef<TestEvent> testEvent)
+            static void callback(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             }
@@ -140,12 +140,12 @@ namespace Coimbra.Tests
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            static void callbackA(ref EventRef<TestEvent> testEvent)
+            static void callbackA(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logA);
             }
 
-            static void callbackB(ref EventRef<TestEvent> testEvent)
+            static void callbackB(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logB);
             }
@@ -172,12 +172,12 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logA);
             });
 
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logB);
             });
@@ -192,7 +192,7 @@ namespace Coimbra.Tests
         {
             const string log = nameof(log);
             _eventService.SetEventKey<TestEvent>(new EventKey());
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             });
@@ -208,7 +208,7 @@ namespace Coimbra.Tests
             const string log = nameof(log);
             EventKey eventKey = new EventKey();
             _eventService.SetEventKey<TestEvent>(eventKey);
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             });
@@ -224,7 +224,7 @@ namespace Coimbra.Tests
         public void Invoke_AfterSetEventKey_AndResetEventKey()
         {
             const string log = nameof(log);
-            _eventService.AddListener(delegate(ref EventRef<TestEvent> testEvent)
+            _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             });

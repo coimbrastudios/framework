@@ -16,7 +16,7 @@ namespace Coimbra.Services
         private static class EventCallbacks<T>
             where T : IEvent
         {
-            internal static readonly Dictionary<EventHandle, EventRef<T>.Handler> Value = new Dictionary<EventHandle, EventRef<T>.Handler>(1);
+            internal static readonly Dictionary<EventHandle, EventData<T>.Handler> Value = new Dictionary<EventHandle, EventData<T>.Handler>(1);
 
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
@@ -57,15 +57,15 @@ namespace Coimbra.Services
             return new EventSystem();
         }
 
-        /// <inheritdoc/>
-        public EventHandle AddListener<T>(EventRef<T>.Handler eventCallback)
+        /// <inheritdoc cref="IEventService.AddListener{T}(Coimbra.Services.EventData{T}.Handler)"/>
+        public EventHandle AddListener<T>(EventData<T>.Handler eventCallback)
             where T : IEvent
         {
             return AddListener(ref eventCallback);
         }
 
-        /// <inheritdoc/>
-        public bool AddListener<T>(EventRef<T>.Handler eventCallback, List<EventHandle> appendList)
+        /// <inheritdoc cref="IEventService.AddListener{T}(Coimbra.Services.EventData{T}.Handler, List{EventHandle})"/>
+        public bool AddListener<T>(EventData<T>.Handler eventCallback, List<EventHandle> appendList)
             where T : IEvent
         {
             EventHandle eventHandle = AddListener(ref eventCallback);
@@ -159,38 +159,38 @@ namespace Coimbra.Services
         public bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent, new()
         {
-            EventRef<T> eventRef = new EventRef<T>(eventSender);
+            EventData<T> eventData = new EventData<T>(eventSender);
 
-            return Invoke(ref eventRef, eventKey);
+            return Invoke(ref eventData, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
+        public bool Invoke<T>(object eventSender, T eventValue, EventKey eventKey = null)
             where T : IEvent
         {
-            EventRef<T> eventRef = new EventRef<T>(eventSender, ref eventData);
+            EventData<T> eventData = new EventData<T>(eventSender, ref eventValue);
 
-            return Invoke(ref eventRef, eventKey);
+            return Invoke(ref eventData, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
+        public bool Invoke<T>(object eventSender, ref T eventValue, EventKey eventKey = null)
             where T : IEvent
         {
-            EventRef<T> eventRef = new EventRef<T>(eventSender, ref eventData);
+            EventData<T> eventData = new EventData<T>(eventSender, ref eventValue);
 
-            return Invoke(ref eventRef, eventKey);
+            return Invoke(ref eventData, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(EventRef<T> eventRef, EventKey eventKey = null)
+        public bool Invoke<T>(EventData<T> eventData, EventKey eventKey = null)
             where T : IEvent
         {
-            return Invoke(ref eventRef, eventKey);
+            return Invoke(ref eventData, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(ref EventRef<T> eventRef, EventKey eventKey = null)
+        public bool Invoke<T>(ref EventData<T> eventData, EventKey eventKey = null)
             where T : IEvent
         {
             typeof(T).AssertNonInterfaceImplements<IEvent>();
@@ -222,11 +222,11 @@ namespace Coimbra.Services
 
                 for (int i = 0; i < count; i++)
                 {
-                    eventRef.Handle = e.Handles[i];
+                    eventData.CurrentHandle = e.Handles[i];
 
-                    if (!e.HandlesToRemove.Contains(eventRef.Handle))
+                    if (!e.HandlesToRemove.Contains(eventData.CurrentHandle))
                     {
-                        EventCallbacks<T>.Value[eventRef.Handle].Invoke(ref eventRef);
+                        EventCallbacks<T>.Value[eventData.CurrentHandle].Invoke(ref eventData);
                     }
                 }
             }
@@ -456,7 +456,7 @@ namespace Coimbra.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private EventHandle AddListener<T>(ref EventRef<T>.Handler eventCallback)
+        private EventHandle AddListener<T>(ref EventData<T>.Handler eventCallback)
             where T : IEvent
         {
             typeof(T).AssertNonInterfaceImplements<IEvent>();

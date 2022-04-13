@@ -1,5 +1,6 @@
 ﻿!*.sln
 !*.csproj
+*.vs
 bin/
 obj/
 *.meta

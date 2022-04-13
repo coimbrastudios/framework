@@ -1,16 +1,19 @@
-﻿namespace Coimbra.Services
+﻿using UnityEngine.Scripting;
+
+namespace Coimbra.Services
 {
     /// <summary>
     /// A reference to an event being invoked.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public ref struct EventRef<T>
+    [Preserve]
+    public ref struct EventData<T>
         where T : IEvent
     {
         /// <summary>
         /// Generic delegate for listening events from the <see cref="IEventService"/>.
         /// </summary>
-        public delegate void Handler(ref EventRef<T> e);
+        public delegate void Handler(ref EventData<T> e);
 
         /// <summary>
         /// The one that invoked the event.
@@ -25,20 +28,20 @@
         /// <summary>
         /// The handle for the current call.
         /// </summary>
-        public EventHandle Handle;
+        public EventHandle CurrentHandle;
 
-        public EventRef(object sender)
+        public EventData(object sender)
         {
             Sender = sender;
             Value = default;
-            Handle = default;
+            CurrentHandle = default;
         }
 
-        public EventRef(object sender, ref T value)
+        public EventData(object sender, ref T value)
         {
             Sender = sender;
             Value = value;
-            Handle = default;
+            CurrentHandle = default;
         }
     }
 }

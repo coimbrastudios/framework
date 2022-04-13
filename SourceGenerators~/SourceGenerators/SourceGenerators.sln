@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Coimbra.Services.SourceGenerators", "Coimbra.Services.SourceGenerators\Coimbra.Services.SourceGenerators.csproj", "{AB45A5A5-9CDF-44AA-8C90-7D7293EA57B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.SourceGenerators", "Coimbra.SourceGenerators\Coimbra.SourceGenerators.csproj", "{1900A4B1-69BF-45F3-8384-D5BCEDA5E422}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB45A5A5-9CDF-44AA-8C90-7D7293EA57B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB45A5A5-9CDF-44AA-8C90-7D7293EA57B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB45A5A5-9CDF-44AA-8C90-7D7293EA57B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB45A5A5-9CDF-44AA-8C90-7D7293EA57B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1900A4B1-69BF-45F3-8384-D5BCEDA5E422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1900A4B1-69BF-45F3-8384-D5BCEDA5E422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1900A4B1-69BF-45F3-8384-D5BCEDA5E422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1900A4B1-69BF-45F3-8384-D5BCEDA5E422}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A23F3866-9E9E-400D-99E0-18762BCFD07C}
+	EndGlobalSection
+EndGlobal
