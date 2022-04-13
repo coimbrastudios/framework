@@ -13,6 +13,7 @@
 - Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.
 - Changed all service-related stuff to a new assembly and namespaces named `Coimbra.Services`.
 - Fixed `ProjectSettings` generated windows not updating correctly right after creating or destroying the target instance.
+- Fixed destroyed actors due scene unload being flagged as explicit call
 
 ## [8.0.0] - 2022-04-11
 

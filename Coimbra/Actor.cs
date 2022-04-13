@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
 
 namespace Coimbra
@@ -63,6 +64,8 @@ namespace Coimbra
         private static readonly List<Actor> UninitializedActors = new();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new();
+
+        private bool _isUnloadingScene;
 
         private GameObjectID? _gameObjectID;
 
@@ -225,6 +228,43 @@ namespace Coimbra
             else
             {
                 Spawn();
+            }
+        }
+
+        /// <summary>
+        /// Should be called externally when a <see cref="Scene"/> is about to be unloaded. Called by default on <see cref="CoimbraSceneManagerAPI"/>.
+        /// </summary>
+        /// <param name="scene"></param>
+        public void OnUnloadScene(Scene scene)
+        {
+            if (CachedGameObject.scene == Pool.CachedGameObject.scene)
+            {
+                return;
+            }
+
+            if (CachedGameObject.scene == scene)
+            {
+                _isUnloadingScene = true;
+                Despawn();
+
+                if (IsDestroyed)
+                {
+                    return;
+                }
+
+                _isUnloadingScene = false;
+
+                if (Pool.KeepParentOnDespawn)
+                {
+                    CachedTransform.SetParent(Pool.CachedTransform, false);
+                }
+
+                return;
+            }
+
+            if (Pool.CachedGameObject.scene == scene)
+            {
+                Pool = null;
             }
         }
 
