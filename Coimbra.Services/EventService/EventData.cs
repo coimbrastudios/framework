@@ -37,6 +37,13 @@ namespace Coimbra.Services
             CurrentHandle = default;
         }
 
+        public EventData(object sender, T value)
+        {
+            Sender = sender;
+            Value = value;
+            CurrentHandle = default;
+        }
+
         public EventData(object sender, ref T value)
         {
             Sender = sender;

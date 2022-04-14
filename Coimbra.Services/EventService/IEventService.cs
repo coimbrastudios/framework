@@ -152,17 +152,17 @@ namespace Coimbra.Services
         bool RemoveAllListeners(Type eventType, EventKey eventKey = null);
 
         /// <summary>
+        /// Removes all listeners from all event types that don't have the <see cref="EventKey.RestrictionOptions.DisallowRemoveAll"/> restriction.
+        /// </summary>
+        /// <returns>True if removed any listener.</returns>
+        bool RemoveAllListenersAllowed();
+
+        /// <summary>
         /// Removes all listeners from all event types with the matching event key.
         /// </summary>
         /// <param name="eventKey">The encapsulation key to compare to.</param>
         /// <returns>True if removed any listener.</returns>
         bool RemoveAllListenersWithKey(EventKey eventKey);
-
-        /// <summary>
-        /// Removes all listeners from all event types that don't have the <see cref="EventKey.RestrictionOptions.DisallowRemoveAll"/> restriction.
-        /// </summary>
-        /// <returns>True if removed any listener.</returns>
-        bool RemoveAllListenersWithoutRestriction();
 
         /// <summary>
         /// Removes a listener from an event with its handle.

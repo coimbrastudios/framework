@@ -12,6 +12,8 @@
 - Changed `As` and `Is` GameObject extensions to `AsActor` and `IsActor`.
 - Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.
 - Changed all service-related stuff to a new assembly and namespaces named `Coimbra.Services`.
+- Changed `EventSystem.Invoke` to early out if there is no listeners.
+- Changed `RemoveAllListenersWithoutRestriction` to `RemoveAllListenersAllowed`.
 - Fixed `ProjectSettings` generated windows not updating correctly right after creating or destroying the target instance.
 - Fixed destroyed actors due scene unload being flagged as explicit call
 

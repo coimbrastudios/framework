@@ -32,10 +32,15 @@ namespace Coimbra.Services
 
             internal EventKey Key;
 
-            internal Event(RemoveHandler removeHandler, EventKey key = null)
+            private Event(RemoveHandler removeHandler)
             {
                 RemoveHandler = removeHandler;
-                Key = key;
+            }
+
+            public static Event Create<T>()
+                where T : IEvent
+            {
+                return new Event(EventCallbacks<T>.RemoveHandler);
             }
         }
 
@@ -99,22 +104,7 @@ namespace Coimbra.Services
         {
             foreach (Event e in _events.Values)
             {
-                if (e.IsInvoking)
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        e.HandlesToRemove.Add(handle);
-                    }
-                }
-                else
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        e.RemoveHandler.Invoke(handle);
-                    }
-
-                    e.Handles.Clear();
-                }
+                RemoveAllListeners(e);
             }
 
             _events.Clear();
@@ -213,12 +203,17 @@ namespace Coimbra.Services
                 return false;
             }
 
+            int count = e.Handles.Count;
+
+            if (count == 0)
+            {
+                return false;
+            }
+
             e.IsInvoking = true;
 
             try
             {
-                int count = e.Handles.Count;
-
                 for (int i = 0; i < count; i++)
                 {
                     eventData.CurrentHandle = e.Handles[i];
@@ -271,23 +266,20 @@ namespace Coimbra.Services
                 return false;
             }
 
+            return RemoveAllListeners(e);
+        }
+
+        /// <inheritdoc/>
+        public bool RemoveAllListenersAllowed()
+        {
             bool result = false;
 
-            if (e.IsInvoking)
+            foreach (Event e in _events.Values)
             {
-                foreach (EventHandle handle in e.Handles)
+                if (e.Key == null || (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) == 0)
                 {
-                    result |= e.HandlesToRemove.Add(handle);
+                    result |= RemoveAllListeners(e);
                 }
-            }
-            else
-            {
-                foreach (EventHandle handle in e.Handles)
-                {
-                    result |= e.RemoveHandler.Invoke(handle);
-                }
-
-                e.Handles.Clear();
             }
 
             return result;
@@ -300,59 +292,9 @@ namespace Coimbra.Services
 
             foreach (Event e in _events.Values)
             {
-                if (e.Key != eventKey)
+                if (e.Key == eventKey)
                 {
-                    continue;
-                }
-
-                if (e.IsInvoking)
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.HandlesToRemove.Add(handle);
-                    }
-                }
-                else
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.RemoveHandler.Invoke(handle);
-                    }
-
-                    e.Handles.Clear();
-                }
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc/>
-        public bool RemoveAllListenersWithoutRestriction()
-        {
-            bool result = false;
-
-            foreach (Event e in _events.Values)
-            {
-                if (e.Key != null && (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) != 0)
-                {
-                    continue;
-                }
-
-                if (e.IsInvoking)
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.HandlesToRemove.Add(handle);
-                    }
-                }
-                else
-                {
-                    foreach (EventHandle handle in e.Handles)
-                    {
-                        result |= e.RemoveHandler.Invoke(handle);
-                    }
-
-                    e.Handles.Clear();
+                    result |= RemoveAllListeners(e);
                 }
             }
 
@@ -437,13 +379,14 @@ namespace Coimbra.Services
 
                     return false;
                 }
-
-                e.Key = eventKey;
             }
             else
             {
-                _events.Add(typeof(T), new Event(EventCallbacks<T>.RemoveHandler, eventKey));
+                e = Event.Create<T>();
+                _events.Add(typeof(T), e);
             }
+
+            e.Key = eventKey;
 
             return true;
         }
@@ -452,6 +395,31 @@ namespace Coimbra.Services
         private static void HandleSubsystemRegistration()
         {
             ServiceLocator.Shared.SetCreateCallback(Create, false);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool RemoveAllListeners(Event e)
+        {
+            bool result = false;
+
+            if (e.IsInvoking)
+            {
+                foreach (EventHandle handle in e.Handles)
+                {
+                    result |= e.HandlesToRemove.Add(handle);
+                }
+            }
+            else
+            {
+                foreach (EventHandle handle in e.Handles)
+                {
+                    result |= e.RemoveHandler.Invoke(handle);
+                }
+
+                e.Handles.Clear();
+            }
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -470,7 +438,7 @@ namespace Coimbra.Services
 
             if (!_events.TryGetValue(typeof(T), out Event e))
             {
-                e = new Event(EventCallbacks<T>.RemoveHandler);
+                e = Event.Create<T>();
                 _events.Add(typeof(T), e);
             }
 
