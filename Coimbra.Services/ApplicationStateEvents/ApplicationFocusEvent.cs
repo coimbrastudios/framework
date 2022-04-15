@@ -1,9 +1,11 @@
-﻿namespace Coimbra.Services.ApplicationStateEvents
+﻿using Coimbra.Services.Events;
+
+namespace Coimbra.Services.ApplicationStateEvents
 {
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationFocus.html">OnApplicationFocus</a>.
     /// </summary>
-    public readonly partial struct ApplicationFocusEvent : IApplicationStateEvent
+    public readonly partial struct ApplicationFocusEvent : IApplicationStateEvent, IEvent
     {
         /// <summary>
         /// True if currently focused.

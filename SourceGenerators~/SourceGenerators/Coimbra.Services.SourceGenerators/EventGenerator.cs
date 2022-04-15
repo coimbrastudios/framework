@@ -25,10 +25,13 @@ namespace Coimbra.Services.SourceGenerators
                 }
 
                 SourceBuilder sourceBuilder = new SourceBuilder();
+
                 string[] usings =
                 {
                     "Coimbra.Services",
-                    "System.Collections.Generic"
+                    "Coimbra.Services.Events",
+                    "System.Collections.Generic",
+                    "System.Runtime.CompilerServices"
                 };
 
                 foreach (ClassDeclarationSyntax node in eventSyntaxReceiver.Classes)
@@ -84,52 +87,72 @@ namespace Coimbra.Services.SourceGenerators
 
         private void AddContent(SourceBuilder sourceBuilder, string typeName)
         {
-            void addMethod0(string prefix, string name)
-            {
-                sourceBuilder.AddLine("/// <summary>");
-                sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}\"/>");
-                sourceBuilder.AddLine("/// </summary>");
-                sourceBuilder.AddLine($"public {prefix} {name}(IEventService eventService = null)");
+            const string atMethod = "At(IEventService eventService";
+            const string atService = "eventService";
+            const string sharedMethod = "Shared(";
+            const string sharedService = "ServiceLocator.Shared.Get<IEventService>()";
 
-                using (new BracesScope(sourceBuilder))
+            void addMethods0(string prefix, string name)
+            {
+                void addMethod(string method, string service)
                 {
-                    checkService();
-                    sourceBuilder.AddLine($"return eventService.{name}<{typeName}>();");
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"public new {prefix} {method})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>();");
+                    }
                 }
-            }
 
-            void addMethod1(string prefix, string name, string paramType, string paramName, string defaultValue = null)
-            {
-                sourceBuilder.AddLine("/// <summary>");
-                sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType)})\"/>");
-                sourceBuilder.AddLine("/// </summary>");
-                sourceBuilder.AddLine($"public {prefix} {name}({paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)}, IEventService eventService = null)");
-
-                using (new BracesScope(sourceBuilder))
-                {
-                    checkService();
-                    sourceBuilder.AddLine($"return eventService.{name}<{typeName}>({paramName});");
-                }
-            }
-
-            void addMethod2(string prefix, string name, string paramType1, string paramName1, string paramType2, string paramName2, string defaultValue = null)
-            {
-                sourceBuilder.AddLine("/// <summary>");
-                sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType1)}, {validateComment(paramType2)})\"/>");
-                sourceBuilder.AddLine("/// </summary>");
-                sourceBuilder.AddLine($"public {prefix} {name}({paramType1} {paramName1}, {paramType2} {paramName2}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)}, IEventService eventService = null)");
-
-                using (new BracesScope(sourceBuilder))
-                {
-                    checkService();
-                    sourceBuilder.AddLine($"return eventService.{name}<{typeName}>({paramName1}, {paramName2});");
-                }
-            }
-
-            void checkService()
-            {
-                sourceBuilder.AddLine("eventService ??= ServiceLocator.Shared.Get<IEventService>();");
+                addMethod($"{name}{atMethod}", atService);
                 sourceBuilder.SkipLine();
+                addMethod($"{name}{sharedMethod}", sharedService);
+            }
+
+            void addMethods1(string prefix, string name, string paramType, string paramName, string defaultValue = null)
+            {
+                void addMethod(string method, string service)
+                {
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType)})\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"public new {prefix} {method}{paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>({paramName});");
+                    }
+                }
+
+                addMethod($"{name}{atMethod}, ", atService);
+                sourceBuilder.SkipLine();
+                addMethod($"{name}{sharedMethod}", sharedService);
+            }
+
+            void addMethods2(string prefix, string name, string paramType1, string paramName1, string paramType2, string paramName2, string defaultValue = null)
+            {
+                void addMethod(string method, string service)
+                {
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType1)}, {validateComment(paramType2)})\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"public new {prefix} {method}{paramType1} {paramName1}, {paramType2} {paramName2}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>({paramName1}, {paramName2});");
+                    }
+                }
+
+                addMethod($"{name}{atMethod}, ", atService);
+                sourceBuilder.SkipLine();
+                addMethod($"{name}{sharedMethod}", sharedService);
             }
 
             string validateComment(string value)
@@ -137,23 +160,33 @@ namespace Coimbra.Services.SourceGenerators
                 return value.Replace('<', '{').Replace('>', '}').Replace(typeName, "T");
             }
 
-            addMethod1("static EventHandle", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback");
+            addMethods1("static EventHandle", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback");
             sourceBuilder.SkipLine();
-            addMethod2("static bool", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
+            addMethods2("static bool", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
             sourceBuilder.SkipLine();
-            addMethod1("static bool", "CompareEventKey", "EventKey", "eventKey");
+            addMethods1("static bool", "CompareEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
-            addMethod0("static bool", "HasAnyListeners");
+            addMethods0("static bool", "HasAnyListeners");
             sourceBuilder.SkipLine();
-            addMethod0("static bool", "IsInvoking");
+            addMethods0("static bool", "IsInvoking");
             sourceBuilder.SkipLine();
-            addMethod1("static bool", "RemoveAllListeners", "EventKey", "eventKey", "null");
+            addMethods1("static bool", "RemoveAllListeners", "EventKey", "eventKey", "null");
             sourceBuilder.SkipLine();
-            addMethod1("static bool", "ResetEventKey", "EventKey", "eventKey");
+            addMethods1("static bool", "ResetEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
-            addMethod1("static bool", "SetEventKey", "EventKey", "eventKey");
+            addMethods1("static bool", "SetEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
-            addMethod2("bool", "Invoke", "object", "sender", "EventKey", "key", "null");
+            addMethods2("bool", "Invoke", "object", "sender", "EventKey", "key", "null");
+            sourceBuilder.SkipLine();
+            sourceBuilder.AddLine("/// <summary>");
+            sourceBuilder.AddLine("/// Returns an <see cref=\"EventData{T}\"/> for this event.");
+            sourceBuilder.AddLine("/// </summary>");
+            sourceBuilder.AddLine($"public new EventData<{typeName}> ToData(object sender)");
+
+            using (new BracesScope(sourceBuilder))
+            {
+                sourceBuilder.AddLine($"return new EventData<{typeName}>(sender, this);");
+            }
         }
     }
 }

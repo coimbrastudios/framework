@@ -4,17 +4,24 @@ namespace Coimbra.SourceGenerators
 {
     public readonly struct NamespaceScope : IDisposable
     {
-        private readonly BracesScope _bracesScope;
+        private readonly BracesScope? _bracesScope;
 
         public NamespaceScope(SourceBuilder sourceBuilder, string namespaceValue)
         {
-            sourceBuilder.AddLine($"namespace {namespaceValue}");
-            _bracesScope = new BracesScope(sourceBuilder);
+            if (string.IsNullOrWhiteSpace(namespaceValue))
+            {
+                _bracesScope = null;
+            }
+            else
+            {
+                sourceBuilder.AddLine($"namespace {namespaceValue}");
+                _bracesScope = new BracesScope(sourceBuilder);
+            }
         }
 
         public void Dispose()
         {
-            _bracesScope.Dispose();
+            _bracesScope?.Dispose();
         }
     }
 }
