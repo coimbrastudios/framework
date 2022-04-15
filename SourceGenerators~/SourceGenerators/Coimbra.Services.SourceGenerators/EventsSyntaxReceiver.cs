@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Coimbra.Services.SourceGenerators
 {
-    public sealed class EventSyntaxReceiver : ISyntaxReceiver
+    public sealed class EventsSyntaxReceiver : ISyntaxReceiver
     {
         public readonly List<ClassDeclarationSyntax> Classes = new List<ClassDeclarationSyntax>();
 

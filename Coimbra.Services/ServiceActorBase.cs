@@ -41,7 +41,7 @@ namespace Coimbra.Services
         {
             base.OnDestroying();
             OwningLocator?.Set<T>(null);
-            (this as IService).SetOwningLocator(null);
+            OwningLocator = null;
         }
     }
 }

@@ -9,17 +9,17 @@ using System.Text;
 namespace Coimbra.Services.SourceGenerators
 {
     [Generator]
-    public sealed class EventGenerator : ISourceGenerator
+    public sealed class EventsGenerator : ISourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            Console.WriteLine($"{nameof(EventGenerator)} executing on assembly {context.Compilation.AssemblyName}");
+            Console.WriteLine($"{nameof(EventsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
 
             try
             {
-                EventSyntaxReceiver eventSyntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
+                EventsSyntaxReceiver syntaxReceiver = (EventsSyntaxReceiver)context.SyntaxReceiver;
 
-                if (eventSyntaxReceiver == null)
+                if (syntaxReceiver == null)
                 {
                     return;
                 }
@@ -34,7 +34,7 @@ namespace Coimbra.Services.SourceGenerators
                     "System.Runtime.CompilerServices"
                 };
 
-                foreach (ClassDeclarationSyntax node in eventSyntaxReceiver.Classes)
+                foreach (ClassDeclarationSyntax node in syntaxReceiver.Classes)
                 {
                     sourceBuilder.Initialize(usings);
 
@@ -54,7 +54,7 @@ namespace Coimbra.Services.SourceGenerators
                     context.AddSource(node.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                 }
 
-                foreach (StructDeclarationSyntax node in eventSyntaxReceiver.Structs)
+                foreach (StructDeclarationSyntax node in syntaxReceiver.Structs)
                 {
                     sourceBuilder.Initialize(usings);
 
@@ -82,7 +82,7 @@ namespace Coimbra.Services.SourceGenerators
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new EventSyntaxReceiver());
+            context.RegisterForSyntaxNotifications(() => new EventsSyntaxReceiver());
         }
 
         private void AddContent(SourceBuilder sourceBuilder, string typeName)
