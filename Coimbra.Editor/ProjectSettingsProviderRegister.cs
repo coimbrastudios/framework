@@ -11,7 +11,7 @@ namespace Coimbra.Editor
         [SettingsProviderGroup]
         private static SettingsProvider[] CreatePoolingSettingsProvider()
         {
-            using ManagedPool<List<SettingsProvider>>.Instance _ = SharedManagedPool.Pop(out List<SettingsProvider> list);
+            using ManagedPool<List<SettingsProvider>>.Instance _ = SharedManagedPools.Pop(out List<SettingsProvider> list);
             list.Clear();
 
             foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())

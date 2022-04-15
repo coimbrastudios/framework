@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Events;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
@@ -48,6 +49,16 @@ namespace Coimbra
         /// Delegate for handling a <see cref="GameObject"/> destroy.
         /// </summary>
         public delegate void DestroyHandler(Actor sender, DestroyReason reason);
+
+        /// <summary>
+        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. Use <see cref="OnSceneInitializedOnce"/> if you need to only fire it once.
+        /// </summary>
+        public static event UnityAction<Scene, LoadSceneMode> OnSceneInitialized;
+
+        /// <summary>
+        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. It resets after each call and is called after <see cref="OnSceneInitialized"/>.
+        /// </summary>
+        public static event UnityAction<Scene, LoadSceneMode> OnSceneInitializedOnce;
 
         /// <summary>
         /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
@@ -141,25 +152,6 @@ namespace Coimbra
         public static bool HasCachedActor(GameObject gameObject, out Actor actor)
         {
             return CachedActors.TryGetValue(gameObject, out actor);
-        }
-
-        /// <summary>
-        /// Initializes all currently constructed <see cref="Actor"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InitializeAllActors()
-        {
-            for (int i = UninitializedActors.Count - 1; i >= 0; i--)
-            {
-                Actor actor = UninitializedActors[i];
-
-                if (actor != null)
-                {
-                    actor.Initialize();
-                }
-
-                UninitializedActors.RemoveAtSwapBack(i);
-            }
         }
 
         /// <summary>
@@ -358,6 +350,38 @@ namespace Coimbra
 
             IsSpawned = true;
             OnSpawn();
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void HandleSubsystemRegistration()
+        {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+            SceneManager.sceneLoaded += HandleSceneLoaded;
+        }
+
+        private static void HandleSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+        {
+            for (int i = UninitializedActors.Count - 1; i >= 0; i--)
+            {
+                Actor actor = UninitializedActors[i];
+
+                if (actor != null)
+                {
+                    actor.Initialize();
+                }
+
+                UninitializedActors.RemoveAtSwapBack(i);
+            }
+
+            OnSceneInitialized?.Invoke(scene, loadSceneMode);
+
+            if (OnSceneInitializedOnce == null)
+            {
+                return;
+            }
+
+            OnSceneInitializedOnce.Invoke(scene, loadSceneMode);
+            OnSceneInitializedOnce = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

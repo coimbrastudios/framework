@@ -171,7 +171,7 @@ namespace Coimbra.Editor
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
         {
-            using (SharedManagedPool.Pop(out List<UnityEngine.Object> pooledList))
+            using (SharedManagedPools.Pop(out List<UnityEngine.Object> pooledList))
             {
                 pooledList.Clear();
                 pooledList.AddRange(PlayerSettings.GetPreloadedAssets());

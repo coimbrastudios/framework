@@ -1,4 +1,4 @@
-﻿using Coimbra.Services;
+﻿using Coimbra.Services.Timers;
 using NUnit.Framework;
 using System.Collections;
 using UnityEngine;

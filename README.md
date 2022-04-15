@@ -23,20 +23,20 @@ Package of general utilities to be used with Unity development.
     - `FloatRange`: Draws a property as if it was a `FloatRange`.
     - `RangeSlider`: Draws a property using the Unity's MinMaxSlider.
 - `PropertyPathInfo`: Reflection helper class for any SerializeField based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
-- Object Pooling: Use `ManagedPool` or `SharedManagedPool` for pooling any managed objects.
+- Object Pooling: Use `ManagedPool` or `SharedManagedPools` for pooling any managed objects.
 - References: Create a `Reference` for any value or even another reference.
 - Service Locator: Enable a service-based architecture easily. It comes with a few services already:
-  - `IApplicationService`: Responsible for some built-in events and compatibility with Enter Play Mode Options.
-  - `ICoroutineService`: Start or stop standard Unity coroutines from anywhere.
-  - `IEventService`: Listen and invoke strongly-typed events. Some events are also provided by default:
-    - `SceneChangedEvent`: Invoked on Unity's sceneChanged and meant to replace the Start callback, while making it safe to use with the new `Actor` type;
+  - `IApplicationStateService`: Responsible for some built-in events:
     - `ApplicationFocusEvent`: Invoked on Unity's ApplicationFocus callback;
     - `ApplicationPauseEvent`: Invoked on Unity's ApplicationPause callback;
     - `ApplicationQuitEvent`: Invoked on Unity's ApplicationQuit callback;
+  - `ICoroutineService`: Start or stop standard Unity coroutines from anywhere.
+  - `IEventService`: Listen and invoke strongly-typed events.
+  - `IPlayerLoopService`: Responsible for [PlayerLoop](https://docs.unity3d.com/ScriptReference/LowLevel.PlayerLoop.html)-related events:
     - `FixedUpdateEvent`: Invoked on Unity's FixedUpdate callback;
     - `LateUpdateEvent`: Invoked on Unity's LateUpdate callback;
     - `UpdateEvent`: Invoked on Unity's Update callback;
-    - PlayerLoopTiming events: One for each PlayerLoopTiming available in the [UniTask](https://github.com/Cysharp/UniTask) API.
+    - [PlayerLoopTiming](https://github.com/Cysharp/UniTask#playerloop) Events: Invoked in their respective timing.
   - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
   - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
 - Scriptable Settings: Easily access ScriptableObjects from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute`.

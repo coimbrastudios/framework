@@ -116,11 +116,15 @@ namespace Coimbra.Services
             foreach (Service service in _services.Values)
             {
                 service.ValueChangedCallback = service.HandleValueChanged;
-                service.Value.GetValid()?.Dispose();
 
-                if (service.Value.IsValid())
+                if (service.Value.TryGetValid(out service.Value))
                 {
-                    service.Value.OwningLocator = null;
+                    service.Value.Dispose();
+
+                    if (service.Value.TryGetValid(out service.Value))
+                    {
+                        service.Value.SetOwningLocator(null);
+                    }
                 }
 
                 service.Value = null;
@@ -333,8 +337,8 @@ namespace Coimbra.Services
                     return;
                 }
 
-                value.OwningLocator = this;
                 service.Value = value;
+                value.SetOwningLocator(this);
             }
             else
             {
@@ -354,7 +358,7 @@ namespace Coimbra.Services
                     oldValue.Dispose();
                 }
 
-                oldValue.OwningLocator = null;
+                oldValue.SetOwningLocator(null);
             }
             else if (AllowFallbackToShared)
             {
@@ -389,6 +393,18 @@ namespace Coimbra.Services
             value = Get<T>();
 
             return value != null;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void HandleSubsystemRegistration()
+        {
+            Application.quitting -= HandleApplicationQuitting;
+            Application.quitting += HandleApplicationQuitting;
+        }
+
+        private static void HandleApplicationQuitting()
+        {
+            Shared.Dispose();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

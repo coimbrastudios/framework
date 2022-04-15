@@ -260,7 +260,7 @@ namespace Coimbra
             }
             else
             {
-                using (SharedManagedPool.Pop(out List<Object> pooledList))
+                using (SharedManagedPools.Pop(out List<Object> pooledList))
                 {
                     pooledList.Clear();
                     pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
@@ -350,7 +350,7 @@ namespace Coimbra
 
         private void EnsurePreload(bool withWarning)
         {
-            using (SharedManagedPool.Pop(out List<Object> pooledList))
+            using (SharedManagedPools.Pop(out List<Object> pooledList))
             {
                 pooledList.Clear();
                 pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());

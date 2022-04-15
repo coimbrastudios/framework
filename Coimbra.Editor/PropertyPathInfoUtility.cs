@@ -42,7 +42,7 @@ namespace Coimbra.Editor
 
             Type rootTargetType = property.serializedObject.targetObject.GetType();
 
-            using (SharedManagedPool.Pop(out List<string> splitPropertyPath))
+            using (SharedManagedPools.Pop(out List<string> splitPropertyPath))
             {
                 splitPropertyPath.Clear();
                 splitPropertyPath.AddRange(property.propertyPath.Split('.'));

@@ -2,20 +2,30 @@
 
 ## [9.0.0] - 2022--
 
+- Added code generator for `IEvent` to improve API usage and debugging experience.
 - Added `IEventService.IsInvoking` API to check if an event is currently invoking.
 - Added throw/catch during `EventSystem.Invoke` to make easier to debug issues during invocation.
 - Added `ServiceLocator.IsCreated` overloads with `out` parameters to receive the service value.
+- Added globals `Actor.OnSceneInitialized` and `Actor.OnSceneInitializedOnce` event to use for new loaded scenes instead of Start.
+- Added `IsFocused` and `IsPaused` properties in `IApplicationService`.
+- Added `IEventService.OnFirstListenerAdded` and `IEventService.OnLastListenerRemoved` events.
+- Added `IPlayerLoopService` to reduce the responsibilities from `IApplicationService`.
+- Added `EventServiceActorBase` class.
 - Changed minimum Unity version to 2021.2.
+- Changed `IApplicationService` to `IApplicationStateService` and reduced its responsibilities.
 - Changed `ServiceLocator.Get` to not set the service value when using the fallback option as it was misleading.
 - Changed `ServiceLocator.Set` to early-out on same service value and to use the fallback option for the value changed event.
 - Changed `OnDespawn` and `OnSpawn` to call `SetActive` by default.
 - Changed `As` and `Is` GameObject extensions to `AsActor` and `IsActor`.
-- Changed ServiceLocator.Dispose to be called in builds too inside `ApplicationSystem`.
-- Changed all service-related stuff to a new assembly and namespaces named `Coimbra.Services`.
+- Changed `ServiceLocator.Dispose` to be called in builds too inside during Application.quitting.
+- Changed all service-related stuff to a new assemblies and namespaces under `Coimbra.Services`.
 - Changed `EventSystem.Invoke` to early out if there is no listeners.
 - Changed `RemoveAllListenersWithoutRestriction` to `RemoveAllListenersAllowed`.
+- Changed `SharedManagedPool` to `SharedManagedPools` to make the name more explicit.
 - Fixed `ProjectSettings` generated windows not updating correctly right after creating or destroying the target instance.
-- Fixed destroyed actors due scene unload being flagged as explicit call
+- Fixed destroyed actors due scene unload being flagged as explicit call.
+- Removed `Actor.InitializeAllActors`, now it gets called before the newly added events.
+- Removed `SceneLoadedEvent`, use the newly added global `Actor` events instead.
 
 ## [8.0.0] - 2022-04-11
 

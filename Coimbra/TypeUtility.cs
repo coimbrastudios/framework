@@ -50,6 +50,11 @@ namespace Coimbra
         public static void AssertNonInterfaceImplements<TInterface>(this Type type, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
             where TInterface : class
         {
+            if (type.IsAbstract)
+            {
+                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a non-abstract type argument!");
+            }
+
             if (type.IsInterface)
             {
                 throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a non-interface type argument!");

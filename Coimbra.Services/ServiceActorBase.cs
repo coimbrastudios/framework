@@ -3,48 +3,32 @@ using UnityEngine;
 
 namespace Coimbra.Services
 {
+    /// <summary>
+    /// Base class to easily create a <see cref="IService"/> that is also an <see cref="Actor"/>.
+    /// </summary>
     [DisallowMultipleComponent]
     public abstract class ServiceActorBase<T> : Actor, IService
         where T : class, IService
     {
-        [SerializeReference]
-        [Disable]
-        private ServiceLocator _owningLocator;
-
         static ServiceActorBase()
         {
-            if (!typeof(T).IsInterface)
-            {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires an interface type argument!");
-            }
+            typeof(T).AssertInterfaceImplementsNotEqual<IService>();
+        }
 
-            if (typeof(T) == typeof(IService))
-            {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires a type different than \"{typeof(IService)}\" itself!");
-            }
+        protected ServiceActorBase()
+        {
+            Type type = GetType();
 
-            if (!typeof(IService).IsAssignableFrom(typeof(T)))
+            if (!type.IsAbstract)
             {
-                throw new ArgumentOutOfRangeException($"\"{typeof(ServiceActorBase<>)}\" requires a type that implements \"{typeof(IService)}\"!");
+                type.AssertNonInterfaceImplements<IService>();
             }
         }
 
         /// <inheritdoc/>
-        public ServiceLocator OwningLocator
-        {
-            get => _owningLocator;
-            set
-            {
-                if (_owningLocator == value)
-                {
-                    return;
-                }
-
-                ServiceLocator oldValue = _owningLocator;
-                _owningLocator = value;
-                OnOwningLocatorChanged(oldValue, _owningLocator);
-            }
-        }
+        [field: SerializeReference]
+        [field: Disable]
+        public ServiceLocator OwningLocator { get; set; }
 
         /// <inheritdoc/>
         public void Dispose()
@@ -52,19 +36,12 @@ namespace Coimbra.Services
             Destroy();
         }
 
-        /// <summary>
-        /// Will be called after the <see cref="OwningLocator"/> has been set and only if the value actually changed.
-        /// </summary>
-        /// <param name="oldValue">The value before.</param>
-        /// <param name="newValue">The value after. Is the same as the current <see cref="OwningLocator"/>.</param>
-        protected virtual void OnOwningLocatorChanged(ServiceLocator oldValue, ServiceLocator newValue) { }
-
         /// <inheritdoc/>
         protected override void OnDestroying()
         {
             base.OnDestroying();
-            _owningLocator?.Set<T>(null);
-            OwningLocator = null;
+            OwningLocator?.Set<T>(null);
+            (this as IService).SetOwningLocator(null);
         }
     }
 }
