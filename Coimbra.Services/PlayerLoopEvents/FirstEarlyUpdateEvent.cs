@@ -1,11 +1,9 @@
-﻿using Coimbra.Services.Events;
-
-namespace Coimbra.Services.PlayerLoopEvents
+﻿namespace Coimbra.Services.PlayerLoopEvents
 {
     /// <summary>
     /// Invoked during <see cref="UnityEngine.PlayerLoop.EarlyUpdate"/>.
     /// </summary>
-    public readonly partial struct FirstEarlyUpdateEvent : IPlayerLoopEvent, IEvent
+    public readonly partial struct FirstEarlyUpdateEvent : IPlayerLoopEvent
     {
         /// <inheritdoc/>
         public float DeltaTime { get; }

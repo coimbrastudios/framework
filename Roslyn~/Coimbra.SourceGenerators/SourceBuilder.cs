@@ -14,29 +14,32 @@ namespace Coimbra.SourceGenerators
             _stringBuilder = new StringBuilder();
         }
 
-        public void Initialize(params string[] usings)
+        public void Initialize()
         {
             Indent.Amount = 0;
             _stringBuilder.Clear();
             _stringBuilder.AppendLine("// This file is auto-generated!");
             _stringBuilder.AppendLine();
-
-            if (usings == null || usings.Length == 0)
-            {
-                return;
-            }
-
-            foreach (string s in usings)
-            {
-                _stringBuilder.AppendLine($"using {s};");
-            }
-
-            _stringBuilder.AppendLine();
         }
 
-        public void AddLine(string lineContent)
+        public void AddLine(string lineContent, bool skipIndent = false)
         {
-            _stringBuilder.AppendLine($"{Indent}{lineContent}");
+            _stringBuilder.AppendLine(skipIndent ? $"{lineContent}" : $"{Indent}{lineContent}");
+        }
+
+        public void AddUsing(string value)
+        {
+            AddLine($"using {value};");
+        }
+
+        public LineScope BeginLine(bool skipIndent = false)
+        {
+            if (!skipIndent)
+            {
+                _stringBuilder.Append(Indent);
+            }
+
+            return new LineScope(_stringBuilder);
         }
 
         public void SkipLine()

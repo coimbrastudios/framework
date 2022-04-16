@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6a1eb5039d922ae4398fb3181942ed70
+guid: 68b78d2c552273a44b3a8fa9f9c0f26c
 labels:
 - RoslynAnalyzer
 - SourceGenerator
@@ -42,7 +42,7 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: x86_64
   - first:
       Standalone: OSXUniversal
     second:

@@ -15,10 +15,6 @@ namespace Coimbra.Editor
     [InitializeOnLoad]
     public sealed class CoimbraEditorUtility : AssetPostprocessor
     {
-        private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
-
-        private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
-
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
 
         private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
@@ -34,7 +30,7 @@ namespace Coimbra.Editor
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
             EditorApplication.playModeStateChanged -= ConfigureStartupScene;
             EditorApplication.playModeStateChanged += ConfigureStartupScene;
-            EditorApplication.delayCall += UpdateCheckedItems;
+            EditorApplication.delayCall += () => CoimbraUtility.IsReloadingScripts = false;
         }
 
         /// <summary>
@@ -69,17 +65,6 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Toggles the option set for clearing the console on script reloads.
-        /// </summary>
-        [MenuItem(ClearConsoleOnReloadItem)]
-        public static void ToggleClearConsoleOnReload()
-        {
-            bool value = !EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
-            EditorPrefs.SetBool(ClearConsoleOnReloadKey, value);
-            Menu.SetChecked(ClearConsoleOnReloadItem, value);
-        }
-
-        /// <summary>
         /// Clears the console windows.
         /// </summary>
         public static void ClearConsoleWindow()
@@ -110,23 +95,8 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        /// <summary>
-        /// Updates currently checked menu items for this class.
-        /// </summary>
-        public static void UpdateCheckedItems()
-        {
-            bool value = EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
-            Menu.SetChecked(ClearConsoleOnReloadItem, value);
-            CoimbraUtility.IsReloadingScripts = false;
-        }
-
         private static void HandleBeforeAssemblyReload()
         {
-            if (EditorPrefs.GetBool(ClearConsoleOnReloadKey, false))
-            {
-                ClearConsoleWindow();
-            }
-
             CoimbraUtility.IsReloadingScripts = true;
         }
 

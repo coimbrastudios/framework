@@ -1,11 +1,9 @@
-﻿using Coimbra.Services.Events;
-
-namespace Coimbra.Services.PlayerLoopEvents
+﻿namespace Coimbra.Services.PlayerLoopEvents
 {
     /// <summary>
     /// Invoked during <see cref="UnityEngine.PlayerLoop.FixedUpdate"/>.
     /// </summary>
-    public readonly partial struct FirstFixedUpdateEvent : IPlayerLoopEvent, IEvent
+    public readonly partial struct FirstFixedUpdateEvent : IPlayerLoopEvent
     {
         /// <inheritdoc/>
         public float DeltaTime { get; }

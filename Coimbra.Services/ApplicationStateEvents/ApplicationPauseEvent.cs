@@ -1,11 +1,9 @@
-﻿using Coimbra.Services.Events;
-
-namespace Coimbra.Services.ApplicationStateEvents
+﻿namespace Coimbra.Services.ApplicationStateEvents
 {
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</a>.
     /// </summary>
-    public readonly partial struct ApplicationPauseEvent : IApplicationStateEvent, IEvent
+    public readonly partial struct ApplicationPauseEvent : IApplicationStateEvent
     {
         /// <summary>
         /// True if currently paused.

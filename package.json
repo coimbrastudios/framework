@@ -3,7 +3,7 @@
   "displayName": "Coimbra Framework",
   "author": "Bruno Coimbra",
   "version": "9.0.0",
-  "unity": "2021.2",
+  "unity": "2021.3",
   "type": "tool",
   "dependencies": {
     "com.unity.addressables": "1.18.19",

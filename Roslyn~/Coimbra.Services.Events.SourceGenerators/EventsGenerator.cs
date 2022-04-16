@@ -6,86 +6,98 @@ using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Text;
 
-namespace Coimbra.Services.SourceGenerators
+namespace Coimbra.Services.Events.SourceGenerators
 {
     [Generator]
     public sealed class EventsGenerator : ISourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            Console.WriteLine($"{nameof(EventsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
+            Logger.Write($"{nameof(EventsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
 
             try
             {
-                EventsSyntaxReceiver syntaxReceiver = (EventsSyntaxReceiver)context.SyntaxReceiver;
-
-                if (syntaxReceiver == null)
-                {
-                    return;
-                }
-
+                ConcreteInterfaceImplementationContextReceiver contextReceiver = (ConcreteInterfaceImplementationContextReceiver)context.SyntaxContextReceiver;
                 SourceBuilder sourceBuilder = new SourceBuilder();
 
-                string[] usings =
+                foreach (TypeDeclarationSyntax node in contextReceiver!.Types)
                 {
-                    "Coimbra.Services",
-                    "Coimbra.Services.Events",
-                    "System.Collections.Generic",
-                    "System.Runtime.CompilerServices"
-                };
+                    sourceBuilder.Initialize();
 
-                foreach (ClassDeclarationSyntax node in syntaxReceiver.Classes)
-                {
-                    sourceBuilder.Initialize(usings);
-
-                    using (new NamespaceScope(sourceBuilder, node.GetNamespace()))
+                    using (new PragmaWarningDisableScope(sourceBuilder, "0109"))
                     {
-                        string prefix = node.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal";
-                        prefix += node.Modifiers.Any(SyntaxKind.SealedKeyword) ? " sealed" : string.Empty;
-                        sourceBuilder.AddLine($"{prefix} partial class {node.GetTypeName()}");
+                        sourceBuilder.AddUsing("Coimbra.Services");
+                        sourceBuilder.AddUsing("Coimbra.Services.Events");
+                        sourceBuilder.AddUsing("System.Collections.Generic");
+                        sourceBuilder.AddUsing("System.Runtime.CompilerServices");
+                        sourceBuilder.SkipLine();
 
-                        using (new BracesScope(sourceBuilder))
+                        using (new NamespaceScope(sourceBuilder, node.GetNamespace()))
                         {
-                            AddContent(sourceBuilder, node.GetTypeName());
+                            using (LineScope lineScope = sourceBuilder.BeginLine())
+                            {
+                                lineScope.AddContent(node.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
+
+                                switch (node)
+                                {
+                                    case ClassDeclarationSyntax _:
+                                    {
+                                        if (node.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                        {
+                                            lineScope.AddContent(" sealed");
+                                        }
+
+                                        lineScope.AddContent(" partial class");
+
+                                        break;
+                                    }
+
+                                    case StructDeclarationSyntax _:
+                                    {
+                                        if (node.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                        {
+                                            lineScope.AddContent(" readonly");
+                                        }
+
+                                        lineScope.AddContent(" partial struct");
+
+                                        break;
+                                    }
+
+                                    default:
+                                    {
+                                        Logger.Write($"Cannot resolve generation for {node.GetType()}");
+
+                                        continue;
+                                    }
+                                }
+
+                                lineScope.AddContent($" {node.GetTypeName()}");
+                            }
+
+                            using (new BracesScope(sourceBuilder))
+                            {
+                                AddMethods(sourceBuilder, node.GetTypeName());
+                            }
                         }
                     }
 
-                    Console.WriteLine($"Finished generating {node.GetTypeName()}");
-                    context.AddSource(node.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
-                }
-
-                foreach (StructDeclarationSyntax node in syntaxReceiver.Structs)
-                {
-                    sourceBuilder.Initialize(usings);
-
-                    using (new NamespaceScope(sourceBuilder, node.GetNamespace()))
-                    {
-                        string prefix = node.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal";
-                        prefix += node.Modifiers.Any(SyntaxKind.ReadOnlyKeyword) ? " readonly" : string.Empty;
-                        sourceBuilder.AddLine($"{prefix} partial struct {node.GetTypeName()}");
-
-                        using (new BracesScope(sourceBuilder))
-                        {
-                            AddContent(sourceBuilder, node.GetTypeName());
-                        }
-                    }
-
-                    Console.WriteLine($"Finished generating {node.GetTypeName()}");
+                    Logger.Write($"Finished generating {node.GetTypeName()}");
                     context.AddSource(node.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Logger.Write(e);
             }
         }
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new EventsSyntaxReceiver());
+            context.RegisterForSyntaxNotifications(() => new ConcreteInterfaceImplementationContextReceiver("IEvent", "Coimbra.Services.Events"));
         }
 
-        private void AddContent(SourceBuilder sourceBuilder, string typeName)
+        private static void AddMethods(SourceBuilder sourceBuilder, string typeName)
         {
             const string atMethod = "At(IEventService eventService";
             const string atService = "eventService";

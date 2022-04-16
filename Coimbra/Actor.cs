@@ -411,13 +411,13 @@ namespace Coimbra
             {
                 OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
             }
-            else if (CachedGameObject.scene.isLoaded)
+            else if (_isUnloadingScene || !CachedGameObject.scene.isLoaded)
             {
-                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
+                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
             }
             else
             {
-                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
+                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
             }
 
             if (OperationHandle.IsValid())

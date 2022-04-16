@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Analyzers", "Coimbra.Analyzers\Coimbra.Analyzers.csproj", "{DC77170D-102D-4464-A1E0-ABD77BB8D88E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.SourceGenerators", "Coimbra.SourceGenerators\Coimbra.SourceGenerators.csproj", "{38B539F8-A1CD-4EBD-96A4-B74DD29C9B08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Events.SourceGenerators", "Coimbra.Services.Events.SourceGenerators\Coimbra.Services.Events.SourceGenerators.csproj", "{AEB81595-5C05-46F7-94F9-704699B87893}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Analyzers", "Coimbra.Services.Analyzers\Coimbra.Services.Analyzers.csproj", "{E102BA22-4F8E-4298-9E9E-F65085A5ADDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Events.Analyzers", "Coimbra.Services.Events.Analyzers\Coimbra.Services.Events.Analyzers.csproj", "{7FECF7D2-C60D-4C58-BD42-59B22EE3ABA7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC77170D-102D-4464-A1E0-ABD77BB8D88E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC77170D-102D-4464-A1E0-ABD77BB8D88E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38B539F8-A1CD-4EBD-96A4-B74DD29C9B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38B539F8-A1CD-4EBD-96A4-B74DD29C9B08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB81595-5C05-46F7-94F9-704699B87893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB81595-5C05-46F7-94F9-704699B87893}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E102BA22-4F8E-4298-9E9E-F65085A5ADDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E102BA22-4F8E-4298-9E9E-F65085A5ADDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FECF7D2-C60D-4C58-BD42-59B22EE3ABA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FECF7D2-C60D-4C58-BD42-59B22EE3ABA7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {133E6E99-932A-4AAF-882E-C67B035AD9B1}
+	EndGlobalSection
+EndGlobal
