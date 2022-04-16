@@ -2,7 +2,7 @@
 
 ## [9.0.0] - 2022--
 
-- Added code generator for `IEvent` to improve API usage and debugging experience.
+- Added source generator for `IEvent` to improve API usage and debugging experience.
 - Added `IEventService.IsInvoking` API to check if an event is currently invoking.
 - Added throw/catch during `EventSystem.Invoke` to make easier to debug issues during invocation.
 - Added `ServiceLocator.IsCreated` overloads with `out` parameters to receive the service value.
