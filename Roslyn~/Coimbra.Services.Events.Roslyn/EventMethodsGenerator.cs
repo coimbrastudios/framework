@@ -17,10 +17,10 @@ namespace Coimbra.Services.Events.Roslyn
 
             try
             {
-                ConcreteInterfaceImplementationContextReceiver contextReceiver = (ConcreteInterfaceImplementationContextReceiver)context.SyntaxContextReceiver;
+                EventContextReceiver contextReceiver = (EventContextReceiver)context.SyntaxContextReceiver;
                 SourceBuilder sourceBuilder = new SourceBuilder();
 
-                foreach (TypeDeclarationSyntax node in contextReceiver!.Types)
+                foreach (TypeDeclarationSyntax typeDeclarationSyntax in contextReceiver!.Types)
                 {
                     sourceBuilder.Initialize();
 
@@ -32,17 +32,17 @@ namespace Coimbra.Services.Events.Roslyn
                         sourceBuilder.AddUsing("System.Runtime.CompilerServices");
                         sourceBuilder.SkipLine();
 
-                        using (new NamespaceScope(sourceBuilder, node.GetNamespace()))
+                        using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                         {
                             using (LineScope lineScope = sourceBuilder.BeginLine())
                             {
-                                lineScope.AddContent(node.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
+                                lineScope.AddContent(typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
 
-                                switch (node)
+                                switch (typeDeclarationSyntax)
                                 {
                                     case ClassDeclarationSyntax _:
                                     {
-                                        if (node.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                        if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
                                         {
                                             lineScope.AddContent(" sealed");
                                         }
@@ -54,7 +54,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                                     case StructDeclarationSyntax _:
                                     {
-                                        if (node.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                        if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
                                         {
                                             lineScope.AddContent(" readonly");
                                         }
@@ -66,24 +66,32 @@ namespace Coimbra.Services.Events.Roslyn
 
                                     default:
                                     {
-                                        Logger.Write($"Cannot resolve generation for {node.GetType()}");
+                                        Logger.Write($"Cannot resolve generation for {typeDeclarationSyntax.GetType()}");
 
                                         continue;
                                     }
                                 }
 
-                                lineScope.AddContent($" {node.GetTypeName()}");
+                                lineScope.AddContent($" {typeDeclarationSyntax.GetTypeName()}");
                             }
 
                             using (new BracesScope(sourceBuilder))
                             {
-                                AddMethods(sourceBuilder, node.GetTypeName());
+                                string typeName = typeDeclarationSyntax.GetTypeName();
+
+                                if (!typeDeclarationSyntax.HasParameterlessConstructor(out _))
+                                {
+                                    sourceBuilder.AddLine($"public {typeName}() {{ }}");
+                                    sourceBuilder.SkipLine();
+                                }
+
+                                AddMethods(sourceBuilder, typeName);
                             }
                         }
                     }
 
-                    Logger.Write($"Finished generating {node.GetTypeName()}");
-                    context.AddSource(node.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+                    Logger.Write($"Finished generating {typeDeclarationSyntax.GetTypeName()}");
+                    context.AddSource(typeDeclarationSyntax.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                 }
             }
             catch (Exception e)
@@ -94,7 +102,7 @@ namespace Coimbra.Services.Events.Roslyn
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new ConcreteInterfaceImplementationContextReceiver("IEvent", "Coimbra.Services.Events"));
+            context.RegisterForSyntaxNotifications(() => new EventContextReceiver());
         }
 
         private static void AddMethods(SourceBuilder sourceBuilder, string typeName)

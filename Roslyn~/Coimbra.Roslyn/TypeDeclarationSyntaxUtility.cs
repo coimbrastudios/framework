@@ -20,6 +20,35 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasParameterlessConstructor(this TypeDeclarationSyntax typeDeclarationSyntax, out bool isPublic)
+        {
+            switch (typeDeclarationSyntax)
+            {
+                case StructDeclarationSyntax _:
+                case ClassDeclarationSyntax _ when !typeDeclarationSyntax.Members.Any(SyntaxKind.ConstructorDeclaration):
+                {
+                    isPublic = true;
+
+                    return true;
+                }
+            }
+
+            foreach (MemberDeclarationSyntax memberDeclarationSyntax in typeDeclarationSyntax.Members)
+            {
+                if (memberDeclarationSyntax is ConstructorDeclarationSyntax constructorDeclarationSyntax && constructorDeclarationSyntax.ParameterList.Parameters.Count == 0)
+                {
+                    isPublic = constructorDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword);
+
+                    return true;
+                }
+            }
+
+            isPublic = false;
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ImplementsInterface(this TypeDeclarationSyntax typeDeclarationSyntax, string interfaceName)
         {
             if (typeDeclarationSyntax.BaseList == null)

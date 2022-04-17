@@ -7,20 +7,20 @@ using System.Linq;
 
 namespace Coimbra.Roslyn
 {
-    public sealed class ConcreteInterfaceImplementationContextReceiver : ISyntaxContextReceiver
+    public sealed class EventContextReceiver : ISyntaxContextReceiver
     {
         public readonly List<TypeDeclarationSyntax> Types = new List<TypeDeclarationSyntax>();
 
         private readonly Func<INamedTypeSymbol, bool> _interfacePredicate;
 
-        public ConcreteInterfaceImplementationContextReceiver(string interfaceTypeName, string interfaceTypeNamespace)
+        public EventContextReceiver()
         {
-            bool predicate(INamedTypeSymbol x)
+            static bool interfacePredicate(INamedTypeSymbol x)
             {
-                return x.Name == interfaceTypeName && x.ContainingNamespace.ToString() == interfaceTypeNamespace;
+                return x.Name == "IEvent" && x.ContainingNamespace.ToString() == "Coimbra.Services.Events";
             }
 
-            _interfacePredicate = predicate;
+            _interfacePredicate = interfacePredicate;
         }
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
@@ -28,12 +28,12 @@ namespace Coimbra.Roslyn
             try
             {
                 if (!(context.Node is TypeDeclarationSyntax typeDeclarationSyntax)
-                 || !(typeDeclarationSyntax is ClassDeclarationSyntax || typeDeclarationSyntax is StructDeclarationSyntax)
+                 || !(typeDeclarationSyntax is StructDeclarationSyntax || typeDeclarationSyntax is ClassDeclarationSyntax)
                  || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
                  || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
                  || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
                  || !(context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol)
-                 || typeSymbol.AllInterfaces.FirstOrDefault(_interfacePredicate) == null)
+                 || !typeSymbol.AllInterfaces.Any(_interfacePredicate))
                 {
                     return;
                 }

@@ -12,19 +12,21 @@ namespace Coimbra.Services.Events.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EventDeclarationAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial, Diagnostics.ConcreteEventShouldNotBeNested);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial,
+                                                                                                           Diagnostics.ConcreteEventShouldNotBeNested,
+                                                                                                           Diagnostics.ConcreteEventParameterlessCtorShouldBePublic);
 
         public override void Initialize(AnalysisContext context)
         {
-            static bool predicate(INamedTypeSymbol x)
+            static bool interfacePredicate(INamedTypeSymbol x)
             {
                 return x.Name == "IEvent" && x.ContainingNamespace.ToString() == "Coimbra.Services.Events";
             }
 
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.RegisterSyntaxNodeAction(x => AnalyzeObjectCreation<ClassDeclarationSyntax>(x, predicate), SyntaxKind.ClassDeclaration);
-            context.RegisterSyntaxNodeAction(x => AnalyzeObjectCreation<StructDeclarationSyntax>(x, predicate), SyntaxKind.StructDeclaration);
+            context.RegisterSyntaxNodeAction(x => AnalyzeObjectCreation<ClassDeclarationSyntax>(x, interfacePredicate), SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(x => AnalyzeObjectCreation<StructDeclarationSyntax>(x, interfacePredicate), SyntaxKind.StructDeclaration);
         }
 
         private static void AnalyzeObjectCreation<T>(SyntaxNodeAnalysisContext context, Func<INamedTypeSymbol, bool> interfacePredicate)
@@ -33,7 +35,7 @@ namespace Coimbra.Services.Events.Roslyn
             if (!(context.Node is T typeDeclarationSyntax)
              || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
              || !(context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol)
-             || typeSymbol.AllInterfaces.FirstOrDefault(interfacePredicate) == null)
+             || !typeSymbol.AllInterfaces.Any(interfacePredicate))
             {
                 return;
             }
@@ -46,6 +48,11 @@ namespace Coimbra.Services.Events.Roslyn
             if (!typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldBePartial, typeDeclarationSyntax.GetLocation(), typeDeclarationSyntax.GetTypeName()));
+            }
+
+            if (typeDeclarationSyntax.HasParameterlessConstructor(out bool isPublic) && !isPublic)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventParameterlessCtorShouldBePublic, typeDeclarationSyntax.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }
         }
     }
