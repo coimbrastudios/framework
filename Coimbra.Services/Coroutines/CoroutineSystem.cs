@@ -6,7 +6,7 @@ namespace Coimbra.Services.Coroutines
     /// Default implementation for <see cref="ICoroutineService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class CoroutineSystem : ServiceActorBase<ICoroutineService>, ICoroutineService
+    public sealed class CoroutineSystem : ServiceActorBase<CoroutineSystem>, ICoroutineService
     {
         private CoroutineSystem() { }
 

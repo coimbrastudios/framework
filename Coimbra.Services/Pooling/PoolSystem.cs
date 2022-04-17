@@ -12,7 +12,7 @@ namespace Coimbra.Services.Pooling
     /// Default implementation for <see cref="IPoolService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class PoolSystem : ServiceActorBase<IPoolService>, IPoolService
+    public sealed class PoolSystem : ServiceActorBase<PoolSystem>, IPoolService
     {
         private readonly List<GameObjectPool> _loadingList = new();
 

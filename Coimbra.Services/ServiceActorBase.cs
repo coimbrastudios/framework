@@ -8,7 +8,7 @@ namespace Coimbra.Services
     /// </summary>
     [DisallowMultipleComponent]
     public abstract class ServiceActorBase<T> : Actor, IService
-        where T : class, IService
+        where T : ServiceActorBase<T>
     {
         static ServiceActorBase()
         {
@@ -40,7 +40,17 @@ namespace Coimbra.Services
         protected override void OnDestroying()
         {
             base.OnDestroying();
-            OwningLocator?.Set<T>(null);
+
+            if (OwningLocator == null)
+            {
+                return;
+            }
+
+            if (OwningLocator.IsCreated(out T value) && value == this)
+            {
+                OwningLocator.Set<T>(null, false);
+            }
+
             OwningLocator = null;
         }
     }

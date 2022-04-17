@@ -6,7 +6,7 @@ namespace Coimbra.Services.Events
     /// Specialized <see cref="ServiceActorBase{T}"/> prepared for using its <see cref="IService.OwningLocator"/>'s <see cref="IEventService"/>.
     /// </summary>
     public abstract class EventServiceActorBase<T> : ServiceActorBase<T>, IService
-        where T : class, IService
+        where T : EventServiceActorBase<T>
     {
         private IEventService _eventService;
 

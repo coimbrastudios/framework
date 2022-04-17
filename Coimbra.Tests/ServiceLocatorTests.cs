@@ -43,7 +43,7 @@ namespace Coimbra.Tests
             Assert.That(service, Is.Not.Null);
             Assert.That(ServiceLocator.Shared.HasCreateCallback<IDummyService>(), Is.False);
 
-            ServiceLocator.Shared.Set<IDummyService>(null);
+            ServiceLocator.Shared.Set<IDummyService>(null, false);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.False);
@@ -76,7 +76,7 @@ namespace Coimbra.Tests
             }
 
             ServiceLocator.Shared.AddValueChangedListener<IDummyService>(serviceValueChangedHandler);
-            ServiceLocator.Shared.Set(serviceA);
+            ServiceLocator.Shared.Set(serviceA, false);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.True);
@@ -84,7 +84,7 @@ namespace Coimbra.Tests
             Assert.That(service, Is.Not.Null);
             Assert.That(service.Value, Is.EqualTo(a));
 
-            ServiceLocator.Shared.Set(serviceB);
+            ServiceLocator.Shared.Set(serviceB, false);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.True);
@@ -101,7 +101,7 @@ namespace Coimbra.Tests
             Assert.That(service, Is.Not.Null);
             Assert.That(service.Value, Is.EqualTo(b));
 
-            ServiceLocator.Shared.Set(serviceA);
+            ServiceLocator.Shared.Set(serviceA, false);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.True);

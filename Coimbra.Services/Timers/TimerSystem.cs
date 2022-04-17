@@ -8,7 +8,7 @@ namespace Coimbra.Services.Timers
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class TimerSystem : ServiceActorBase<ITimerService>, ITimerService
+    public sealed class TimerSystem : ServiceActorBase<TimerSystem>, ITimerService
     {
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new();
 

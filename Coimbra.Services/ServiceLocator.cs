@@ -150,15 +150,30 @@ namespace Coimbra.Services
                 return service.Value as T;
             }
 
-            if (service.CreateCallback != null)
+            if (service.CreateCallback == null)
             {
-                Set(service.CreateCallback.Invoke() as T);
+                return AllowFallbackToShared ? Shared.Get<T>() : null;
+            }
 
-                if (service.Value != null)
+            IService value = service.CreateCallback.Invoke();
+
+            switch (value)
+            {
+                case null:
                 {
-                    return service.Value as T;
+                    return AllowFallbackToShared ? Shared.Get<T>() : null;
+                }
+
+                case T result:
+                {
+                    Set(value, false);
+
+                    return result;
                 }
             }
+
+            Debug.LogWarning($"Create callback for {typeof(T)} returning a value of type {value.GetType()}! Disposing it...");
+            value.Dispose();
 
             return AllowFallbackToShared ? Shared.Get<T>() : null;
         }
@@ -316,7 +331,7 @@ namespace Coimbra.Services
         /// <param name="value">The service instance.</param>
         /// <param name="disposePrevious">If true, the last set instance will have their <see cref="IDisposable.Dispose"/> method called.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void Set<T>([CanBeNull] T value, bool disposePrevious = false)
+        public void Set<T>([CanBeNull] T value, bool disposePrevious)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
