@@ -65,20 +65,20 @@ namespace Coimbra.Services.ApplicationStateEvents
         private void OnApplicationFocus(bool hasFocus)
         {
             IsFocused = hasFocus;
-            EventService?.Invoke(this, new ApplicationFocusEvent(hasFocus), _eventKey);
+            new ApplicationFocusEvent(hasFocus).InvokeAt(EventService, this, _eventKey);
         }
 
         private void OnApplicationPause(bool pauseStatus)
         {
             IsPaused = pauseStatus;
-            EventService?.Invoke(this, new ApplicationPauseEvent(pauseStatus), _eventKey);
+            new ApplicationPauseEvent(pauseStatus).InvokeAt(EventService, this, _eventKey);
         }
 
         private void HandleDestroyed(Actor sender, DestroyReason reason)
         {
             if (reason == DestroyReason.ApplicationQuit)
             {
-                EventService?.Invoke(this, new ApplicationQuitEvent(), _eventKey);
+                new ApplicationQuitEvent().InvokeAt(EventService, this, _eventKey);
             }
         }
     }
