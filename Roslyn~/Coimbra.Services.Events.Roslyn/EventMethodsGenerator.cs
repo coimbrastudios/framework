@@ -18,7 +18,7 @@ namespace Coimbra.Services.Events.Roslyn
             try
             {
                 EventContextReceiver contextReceiver = (EventContextReceiver)context.SyntaxContextReceiver;
-                SourceBuilder sourceBuilder = new SourceBuilder();
+                SourceBuilder sourceBuilder = new();
 
                 foreach (TypeDeclarationSyntax typeDeclarationSyntax in contextReceiver!.Types)
                 {

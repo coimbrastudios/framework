@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Release</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <RootNamespace>Coimbra.SourceGenerators</RootNamespace>
   </PropertyGroup>
 

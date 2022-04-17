@@ -168,7 +168,7 @@ namespace Coimbra.Services.Events
         public bool CompareEventKey<TEvent>(EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            return CompareEventKey(typeof(TEvent), eventKey);
+            return _events.TryGetValue(typeof(TEvent), out Event e) ? e.Key == eventKey : eventKey == null;
         }
 
         /// <inheritdoc/>
@@ -194,7 +194,7 @@ namespace Coimbra.Services.Events
         public bool HasAnyListeners<TEvent>()
             where TEvent : IEvent, new()
         {
-            return HasAnyListeners(typeof(TEvent));
+            return _events.TryGetValue(typeof(TEvent), out Event e) && e.Count > 0;
         }
 
         /// <inheritdoc/>
@@ -269,7 +269,19 @@ namespace Coimbra.Services.Events
         public bool RemoveAllListeners<TEvent>(EventKey eventKey = null)
             where TEvent : IEvent, new()
         {
-            return RemoveAllListeners(typeof(TEvent), eventKey);
+            if (!_events.TryGetValue(typeof(TEvent), out Event e))
+            {
+                return false;
+            }
+
+            if (e.Key == null || e.Key == eventKey || (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) == 0)
+            {
+                return e.RemoveAllListeners();
+            }
+
+            Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(TEvent));
+
+            return false;
         }
 
         /// <inheritdoc/>
@@ -282,14 +294,14 @@ namespace Coimbra.Services.Events
                 return false;
             }
 
-            if (e.Key != null && e.Key != eventKey && (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) != 0)
+            if (e.Key == null || e.Key == eventKey || (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) == 0)
             {
-                Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, eventType);
-
-                return false;
+                return e.RemoveAllListeners();
             }
 
-            return e.RemoveAllListeners();
+            Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, eventType);
+
+            return false;
         }
 
         /// <inheritdoc/>
@@ -358,7 +370,21 @@ namespace Coimbra.Services.Events
         public bool ResetEventKey<TEvent>(EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            return ResetEventKey(typeof(TEvent), eventKey);
+            if (eventKey == null || !_events.TryGetValue(typeof(TEvent), out Event e))
+            {
+                return false;
+            }
+
+            if (e.Key != null && e.Key != eventKey)
+            {
+                Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(TEvent));
+
+                return false;
+            }
+
+            e.Key = null;
+
+            return true;
         }
 
         /// <inheritdoc/>
@@ -387,8 +413,6 @@ namespace Coimbra.Services.Events
         public bool SetEventKey<TEvent>(EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            typeof(TEvent).AssertNonInterfaceImplements<IEvent>();
-
             if (_events.TryGetValue(typeof(TEvent), out Event e))
             {
                 if (e.Key != null && e.Key != eventKey)
@@ -419,8 +443,6 @@ namespace Coimbra.Services.Events
         private static bool Invoke<TEvent>(IReadOnlyDictionary<Type, Event> events, ref EventData<TEvent> eventData, EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            typeof(TEvent).AssertNonInterfaceImplements<IEvent>();
-
             if (!events.TryGetValue(typeof(TEvent), out Event e))
             {
                 return false;
@@ -482,8 +504,6 @@ namespace Coimbra.Services.Events
         private EventHandle AddListener<TEvent>(ref EventData<TEvent>.Handler eventCallback)
             where TEvent : IEvent, new()
         {
-            typeof(TEvent).AssertNonInterfaceImplements<IEvent>();
-
             if (eventCallback == null)
             {
                 return default;

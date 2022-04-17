@@ -6,7 +6,7 @@ namespace Coimbra.Roslyn
     {
         public int Amount;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         private int _lastAmount;
 

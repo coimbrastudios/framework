@@ -8,26 +8,26 @@ namespace Coimbra.Roslyn
     {
         private const string EventsCategory = "Coimbra.Services.Events";
 
-        public static readonly DiagnosticDescriptor ConcreteEventShouldBePartial = new DiagnosticDescriptor("COIMBRA0001",
-                                                                                                            "Concrete IEvent should be partial.",
-                                                                                                            "Add missing partial keyword in {0}.",
-                                                                                                            EventsCategory,
-                                                                                                            DiagnosticSeverity.Warning,
-                                                                                                            true);
+        public static readonly DiagnosticDescriptor ConcreteEventShouldBePartial = new("COIMBRA0001",
+                                                                                       "Concrete IEvent should be partial.",
+                                                                                       "Add missing partial keyword in {0}.",
+                                                                                       EventsCategory,
+                                                                                       DiagnosticSeverity.Warning,
+                                                                                       true);
 
-        public static readonly DiagnosticDescriptor ConcreteEventShouldNotBeNested = new DiagnosticDescriptor("COIMBRA0002",
-                                                                                                              "Concrete IEvent should not be a nested type.",
-                                                                                                              "Move {0} outside of {1}.",
-                                                                                                              EventsCategory,
-                                                                                                              DiagnosticSeverity.Warning,
-                                                                                                              true);
+        public static readonly DiagnosticDescriptor ConcreteEventShouldNotBeNested = new("COIMBRA0002",
+                                                                                         "Concrete IEvent should not be a nested type.",
+                                                                                         "Move {0} outside of {1}.",
+                                                                                         EventsCategory,
+                                                                                         DiagnosticSeverity.Warning,
+                                                                                         true);
 
-        public static readonly DiagnosticDescriptor ConcreteEventParameterlessCtorShouldBePublic = new DiagnosticDescriptor("COIMBRA0003",
-                                                                                                                            "Concrete IEvent should have public parameterless constructor.",
-                                                                                                                            "Make public the parameterless constructor of {0}.",
-                                                                                                                            EventsCategory,
-                                                                                                                            DiagnosticSeverity.Error,
-                                                                                                                            true);
+        public static readonly DiagnosticDescriptor ConcreteEventParameterlessCtorShouldBePublic = new("COIMBRA0003",
+                                                                                                       "Concrete IEvent should have public parameterless constructor.",
+                                                                                                       "Make public the parameterless constructor of {0}.",
+                                                                                                       EventsCategory,
+                                                                                                       DiagnosticSeverity.Error,
+                                                                                                       true);
     }
 }
 

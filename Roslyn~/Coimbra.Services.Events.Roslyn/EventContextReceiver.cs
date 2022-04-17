@@ -9,7 +9,7 @@ namespace Coimbra.Roslyn
 {
     public sealed class EventContextReceiver : ISyntaxContextReceiver
     {
-        public readonly List<TypeDeclarationSyntax> Types = new List<TypeDeclarationSyntax>();
+        public readonly List<TypeDeclarationSyntax> Types = new();
 
         private readonly Func<INamedTypeSymbol, bool> _interfacePredicate;
 
@@ -27,12 +27,12 @@ namespace Coimbra.Roslyn
         {
             try
             {
-                if (!(context.Node is TypeDeclarationSyntax typeDeclarationSyntax)
-                 || !(typeDeclarationSyntax is StructDeclarationSyntax || typeDeclarationSyntax is ClassDeclarationSyntax)
+                if (context.Node is not TypeDeclarationSyntax typeDeclarationSyntax
+                 || typeDeclarationSyntax is not (StructDeclarationSyntax or ClassDeclarationSyntax)
                  || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
                  || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
                  || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                 || !(context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol)
+                 || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
                  || !typeSymbol.AllInterfaces.Any(_interfacePredicate))
                 {
                     return;

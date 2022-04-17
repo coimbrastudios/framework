@@ -32,9 +32,9 @@ namespace Coimbra.Services.Events.Roslyn
         private static void AnalyzeObjectCreation<T>(SyntaxNodeAnalysisContext context, Func<INamedTypeSymbol, bool> interfacePredicate)
             where T : TypeDeclarationSyntax
         {
-            if (!(context.Node is T typeDeclarationSyntax)
+            if (context.Node is not T typeDeclarationSyntax
              || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
-             || !(context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol)
+             || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
              || !typeSymbol.AllInterfaces.Any(interfacePredicate))
             {
                 return;

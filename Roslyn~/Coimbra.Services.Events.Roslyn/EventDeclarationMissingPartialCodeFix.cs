@@ -29,8 +29,8 @@ namespace Coimbra.Services.Events.Roslyn
                                                          .OfType<TypeDeclarationSyntax>()
                                                          .FirstOrDefault();
 
-            if (!(typeDeclarationSyntax is ClassDeclarationSyntax || typeDeclarationSyntax is StructDeclarationSyntax)
-             || context.Diagnostics.FirstOrDefault() == null)
+            if (typeDeclarationSyntax is not (ClassDeclarationSyntax or StructDeclarationSyntax)
+             || !context.Diagnostics.Any())
             {
                 return;
             }
@@ -57,7 +57,7 @@ namespace Coimbra.Services.Events.Roslyn
                 return document;
             }
 
-            TypeDeclarationSyntax newTypeDeclarationSyntax = typeDeclarationSyntax.AddModifiers(SyntaxFactory.Identifier("partial"));
+            TypeDeclarationSyntax newTypeDeclarationSyntax = typeDeclarationSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword));
             SyntaxNode newRoot = root.ReplaceNode(typeDeclarationSyntax, newTypeDeclarationSyntax);
 
             return document.WithSyntaxRoot(newRoot);
