@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 0161
 using System;
 
-namespace Coimbra.SourceGenerators
+namespace Coimbra.Roslyn
 {
     public readonly struct PragmaWarningDisableScope : IDisposable
     {

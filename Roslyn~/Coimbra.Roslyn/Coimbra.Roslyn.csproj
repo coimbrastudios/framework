@@ -5,6 +5,7 @@
     <Configurations>Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>8</LangVersion>
+    <RootNamespace>Coimbra.SourceGenerators</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

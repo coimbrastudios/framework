@@ -7,12 +7,12 @@ using UnityEngine.TestTools;
 
 namespace Coimbra.Tests
 {
+    public readonly partial struct TestEvent : IEvent { }
+
     [TestFixture]
     [TestOf(typeof(EventSystem))]
     public class EventSystemTests
     {
-        private struct TestEvent : IEvent { }
-
         private IEventService _eventService;
 
         [SetUp]

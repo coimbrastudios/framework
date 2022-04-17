@@ -5,6 +5,7 @@
     <Configurations>Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>8</LangVersion>
+    <RootNamespace>Coimbra.Services.Events.SourceGenerators</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Coimbra.SourceGenerators\Coimbra.SourceGenerators.csproj" />
+    <ProjectReference Include="..\Coimbra.Roslyn\Coimbra.Roslyn.csproj" />
   </ItemGroup>
 
 </Project>

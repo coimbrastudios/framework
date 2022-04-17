@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Coimbra.SourceGenerators
+namespace Coimbra.Roslyn
 {
     public readonly struct LineScope : IDisposable
     {

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Coimbra.SourceGenerators
+namespace Coimbra.Roslyn
 {
     public sealed class SourceIndent
     {

@@ -1,10 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Coimbra.SourceGenerators
+#pragma warning disable RS2008
+
+namespace Coimbra.Roslyn
 {
-    public static class DiagnosticDescriptors
+    public static class Diagnostics
     {
-        private const string EventsCategory = "Coimbra.Services.Events.SourceGenerators";
+        private const string EventsCategory = "Coimbra.Services.Events";
 
         public static readonly DiagnosticDescriptor ConcreteEventShouldBePartial = new DiagnosticDescriptor("COIMBRA0001",
                                                                                                             "Concrete IEvent should be partial.",
@@ -15,9 +17,11 @@ namespace Coimbra.SourceGenerators
 
         public static readonly DiagnosticDescriptor ConcreteEventShouldNotBeNested = new DiagnosticDescriptor("COIMBRA0002",
                                                                                                               "Concrete IEvent should not be a nested type.",
-                                                                                                              "{0} should not be a nested type.",
+                                                                                                              "{0} should be moved from outside the scope of {1}.",
                                                                                                               EventsCategory,
                                                                                                               DiagnosticSeverity.Warning,
                                                                                                               true);
     }
 }
+
+#pragma warning restore RS2008

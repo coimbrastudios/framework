@@ -1,4 +1,3 @@
-using Coimbra.SourceGenerators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -6,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Coimbra.Services.Events.SourceGenerators
+namespace Coimbra.Roslyn
 {
     public sealed class ConcreteInterfaceImplementationContextReceiver : ISyntaxContextReceiver
     {
         public readonly List<TypeDeclarationSyntax> Types = new List<TypeDeclarationSyntax>();
 
-        private readonly Func<INamedTypeSymbol, bool> _predicate;
+        private readonly Func<INamedTypeSymbol, bool> _interfacePredicate;
 
         public ConcreteInterfaceImplementationContextReceiver(string interfaceTypeName, string interfaceTypeNamespace)
         {
@@ -21,25 +20,25 @@ namespace Coimbra.Services.Events.SourceGenerators
                 return x.Name == interfaceTypeName && x.ContainingNamespace.ToString() == interfaceTypeNamespace;
             }
 
-            _predicate = predicate;
+            _interfacePredicate = predicate;
         }
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
             try
             {
-                if (!(context.Node is TypeDeclarationSyntax typeNode)
-                 || !(typeNode is ClassDeclarationSyntax || typeNode is StructDeclarationSyntax)
-                 || typeNode.Parent is TypeDeclarationSyntax
-                 || !typeNode.Modifiers.Any(SyntaxKind.PartialKeyword)
-                 || typeNode.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                if (!(context.Node is TypeDeclarationSyntax typeDeclarationSyntax)
+                 || !(typeDeclarationSyntax is ClassDeclarationSyntax || typeDeclarationSyntax is StructDeclarationSyntax)
+                 || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
+                 || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
+                 || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
                  || !(context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol)
-                 || typeSymbol.AllInterfaces.FirstOrDefault(_predicate) == null)
+                 || typeSymbol.AllInterfaces.FirstOrDefault(_interfacePredicate) == null)
                 {
                     return;
                 }
 
-                Types.Add(typeNode);
+                Types.Add(typeDeclarationSyntax);
             }
             catch (Exception e)
             {

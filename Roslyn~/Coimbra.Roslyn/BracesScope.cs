@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Coimbra.SourceGenerators
+namespace Coimbra.Roslyn
 {
     public readonly struct BracesScope : IDisposable
     {

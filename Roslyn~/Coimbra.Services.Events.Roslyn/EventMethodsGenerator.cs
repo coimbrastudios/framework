@@ -1,4 +1,4 @@
-using Coimbra.SourceGenerators;
+using Coimbra.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -6,14 +6,14 @@ using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Text;
 
-namespace Coimbra.Services.Events.SourceGenerators
+namespace Coimbra.Services.Events.Roslyn
 {
     [Generator]
-    public sealed class EventsGenerator : ISourceGenerator
+    public sealed class EventMethodsGenerator : ISourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            Logger.Write($"{nameof(EventsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
+            Logger.Write($"{nameof(EventMethodsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
 
             try
             {
