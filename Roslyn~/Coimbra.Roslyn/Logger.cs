@@ -12,7 +12,7 @@ namespace Coimbra.Roslyn
             try
             {
                 using StreamWriter streamWriter = File.AppendText(GetTempGeneratedPathToFile("Coimbra.Roslyn.log"));
-                streamWriter.WriteLine(message);
+                streamWriter.WriteLine($"[{DateTime.Now}] {message}");
             }
             catch (IOException)
             {

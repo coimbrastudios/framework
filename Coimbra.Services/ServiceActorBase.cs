@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Coimbra.Services
 {
@@ -7,24 +6,10 @@ namespace Coimbra.Services
     /// Base class to easily create a <see cref="IService"/> that is also an <see cref="Actor"/>.
     /// </summary>
     [DisallowMultipleComponent]
-    public abstract class ServiceActorBase<T> : Actor, IService
-        where T : ServiceActorBase<T>
+    public abstract class ServiceActorBase<TServiceActor, TService> : Actor, IService
+        where TServiceActor : ServiceActorBase<TServiceActor, TService>, TService
+        where TService : class, IService
     {
-        static ServiceActorBase()
-        {
-            typeof(T).AssertInterfaceImplementsNotEqual<IService>();
-        }
-
-        protected ServiceActorBase()
-        {
-            Type type = GetType();
-
-            if (!type.IsAbstract)
-            {
-                type.AssertNonInterfaceImplements<IService>();
-            }
-        }
-
         /// <inheritdoc/>
         [field: SerializeReference]
         [field: Disable]
@@ -46,9 +31,9 @@ namespace Coimbra.Services
                 return;
             }
 
-            if (OwningLocator.IsCreated(out T value) && value == this)
+            if (OwningLocator.IsCreated(out TService value) && value == this as TService)
             {
-                OwningLocator.Set<T>(null, false);
+                OwningLocator.Set<TService>(null, false);
             }
 
             OwningLocator = null;

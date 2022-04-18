@@ -9,7 +9,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// Default implementation for <see cref="IPlayerLoopService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class PlayerLoopSystem : EventServiceActorBase<PlayerLoopSystem>, IPlayerLoopService
+    public sealed class PlayerLoopSystem : EventServiceActorBase<PlayerLoopSystem, IPlayerLoopService>, IPlayerLoopService
     {
         private readonly EventKey _eventKey = new(EventKey.RestrictionOptions.DisallowInvoke);
 

@@ -166,7 +166,7 @@ namespace Coimbra.Services
 
                 case T result:
                 {
-                    Set(value, false);
+                    Set(result, false);
 
                     return result;
                 }

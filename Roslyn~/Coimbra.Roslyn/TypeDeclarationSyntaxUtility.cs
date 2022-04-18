@@ -47,24 +47,5 @@ namespace Coimbra.Roslyn
 
             return false;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ImplementsInterface(this TypeDeclarationSyntax typeDeclarationSyntax, string interfaceName)
-        {
-            if (typeDeclarationSyntax.BaseList == null)
-            {
-                return false;
-            }
-
-            foreach (BaseTypeSyntax type in typeDeclarationSyntax.BaseList.Types)
-            {
-                if (type.ToString() == interfaceName)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     }
 }
