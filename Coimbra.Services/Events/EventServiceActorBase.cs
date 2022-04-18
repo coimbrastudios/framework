@@ -36,9 +36,9 @@
         protected abstract void OnEventServiceChanged(IEventService previous, IEventService current);
 
         /// <inheritdoc/>
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
             EventService = null;
         }
 

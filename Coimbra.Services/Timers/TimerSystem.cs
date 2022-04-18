@@ -93,9 +93,9 @@ namespace Coimbra.Services.Timers
             _timerComponentPool.Push(context);
         }
 
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
             StopAllTimers();
             _timerComponentPool.Initialize(0, 0);
             _timerComponentPool = null;

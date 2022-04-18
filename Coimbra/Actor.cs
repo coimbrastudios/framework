@@ -66,9 +66,9 @@ namespace Coimbra
         public event ActiveStateHandler OnActiveStateChanged;
 
         /// <summary>
-        /// Invoked when a <see cref="GameObject"/> is destroyed for any reason.
+        /// Invoked when a <see cref="GameObject"/> is being destroyed for any reason.
         /// </summary>
-        public event DestroyHandler OnDestroyed;
+        public event DestroyHandler OnDestroying;
 
         private static readonly List<Actor> PooledActors = new();
 
@@ -270,9 +270,8 @@ namespace Coimbra
 
         /// <summary>
         /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
-        /// <para>This method will be the first thing to happen when calling <see cref="Destroy"/> manually, but will also happen inside OnDestroy if using <see cref="Object.Destroy(Object)"/>.</para>
         /// </summary>
-        protected virtual void OnDestroying() { }
+        protected virtual void OnDestroyed() { }
 
         /// <summary>
         /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
@@ -317,7 +316,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnDestroying"/> instead.
+        /// Non-virtual by design, use <see cref="OnDestroyed"/> instead.
         /// </summary>
         protected void OnDestroy()
         {
@@ -405,20 +404,20 @@ namespace Coimbra
                 OnDespawn();
             }
 
-            OnDestroying();
-
             if (IsQuitting)
             {
-                OnDestroyed?.Invoke(this, DestroyReason.ApplicationQuit);
+                OnDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
             }
             else if (_isUnloadingScene || !CachedGameObject.scene.isLoaded)
             {
-                OnDestroyed?.Invoke(this, DestroyReason.SceneChange);
+                OnDestroying?.Invoke(this, DestroyReason.SceneChange);
             }
             else
             {
-                OnDestroyed?.Invoke(this, DestroyReason.ExplicitCall);
+                OnDestroying?.Invoke(this, DestroyReason.ExplicitCall);
             }
+
+            OnDestroyed();
 
             if (OperationHandle.IsValid())
             {
@@ -431,7 +430,7 @@ namespace Coimbra
             }
 
             OnActiveStateChanged = null;
-            OnDestroyed = null;
+            OnDestroying = null;
             CachedActors.Remove(GameObjectID);
             CachedGameObject = null;
             CachedTransform = null;

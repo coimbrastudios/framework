@@ -22,9 +22,9 @@ namespace Coimbra.Services
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
 
             if (OwningLocator == null)
             {

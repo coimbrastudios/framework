@@ -448,9 +448,9 @@ namespace Coimbra
             }
         }
 
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
 
             if (_currentState != State.Unloaded)
             {

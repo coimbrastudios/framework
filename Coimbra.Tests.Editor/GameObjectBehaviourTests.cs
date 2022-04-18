@@ -21,7 +21,7 @@ namespace Coimbra.Tests.Editor
 
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroyed += delegate(Actor sender, Actor.DestroyReason reason)
+            instance.OnDestroying += delegate(Actor sender, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };
@@ -50,7 +50,7 @@ namespace Coimbra.Tests.Editor
 
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroyed += delegate(Actor sender, Actor.DestroyReason reason)
+            instance.OnDestroying += delegate(Actor sender, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };

@@ -12,6 +12,7 @@
 - Added `IPlayerLoopService` to reduce the responsibilities from `IApplicationService`.
 - Added `EventServiceActorBase` class.
 - Changed minimum Unity version to 2021.3.
+- Changed `Actor` destruction event to happen before virtual method call, switching their names to match the new behaviour.
 - Changed `IApplicationService` to `IApplicationStateService` and reduced its responsibilities.
 - Changed `ServiceLocator.Get` to not set the service value when using the fallback option as it was misleading.
 - Changed `ServiceLocator.Set` to early-out on same service value and to use the fallback option for the value changed event.

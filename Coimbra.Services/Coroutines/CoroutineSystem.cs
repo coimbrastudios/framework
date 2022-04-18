@@ -19,9 +19,9 @@ namespace Coimbra.Services.Coroutines
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
             StopAllCoroutines();
         }
 

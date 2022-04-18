@@ -46,7 +46,7 @@ namespace Coimbra.Services.Pooling
                 return false;
             }
 
-            pool.OnDestroyed += HandlePoolDestroyed;
+            pool.OnDestroying += HandlePoolDestroying;
             pool.OnPoolStateChanged += HandlePoolStateChanged;
             _prefabsSet.Add(pool.PrefabReference.RuntimeKey);
             _loadingList.Add(pool);
@@ -104,7 +104,7 @@ namespace Coimbra.Services.Pooling
 
             _prefabsSet.Remove(pool.PrefabReference.RuntimeKey);
             pool.OnPoolStateChanged -= HandlePoolStateChanged;
-            pool.OnDestroyed -= HandlePoolDestroyed;
+            pool.OnDestroying -= HandlePoolDestroying;
 
             if (unload && pool.CurrentState != GameObjectPool.State.Unloaded)
             {
@@ -180,16 +180,16 @@ namespace Coimbra.Services.Pooling
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroying()
+        protected override void OnDestroyed()
         {
-            base.OnDestroying();
+            base.OnDestroyed();
             _poolFromPrefab.Clear();
             _loadingList.Clear();
             _prefabsSet.Clear();
 
             foreach (GameObjectPool pool in _poolsSet)
             {
-                pool.OnDestroyed -= HandlePoolDestroyed;
+                pool.OnDestroying -= HandlePoolDestroying;
                 pool.OnPoolStateChanged -= HandlePoolStateChanged;
                 pool.Unload();
             }
@@ -247,7 +247,7 @@ namespace Coimbra.Services.Pooling
             ServiceLocator.Shared.Get<IPoolService>();
         }
 
-        private void HandlePoolDestroyed(Actor pool, DestroyReason reason)
+        private void HandlePoolDestroying(Actor pool, DestroyReason reason)
         {
             RemovePool((GameObjectPool)pool, false);
         }

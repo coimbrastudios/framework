@@ -47,7 +47,7 @@ namespace Coimbra.Services.ApplicationStateEvents
         {
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
-            OnDestroyed += HandleDestroyed;
+            OnDestroying += HandleDestroying;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -74,7 +74,7 @@ namespace Coimbra.Services.ApplicationStateEvents
             new ApplicationPauseEvent(pauseStatus).InvokeAt(EventService, this, _eventKey);
         }
 
-        private void HandleDestroyed(Actor sender, DestroyReason reason)
+        private void HandleDestroying(Actor sender, DestroyReason reason)
         {
             if (reason == DestroyReason.ApplicationQuit)
             {
