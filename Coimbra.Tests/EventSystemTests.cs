@@ -33,6 +33,7 @@ namespace Coimbra.Tests
         public void AddListener_Single()
         {
             const string log = nameof(log);
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
@@ -47,6 +48,7 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logA);
@@ -172,6 +174,7 @@ namespace Coimbra.Tests
         {
             const string logA = nameof(logA);
             const string logB = nameof(logB);
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(logA);
@@ -192,6 +195,7 @@ namespace Coimbra.Tests
         {
             const string log = nameof(log);
             _eventService.SetEventKey<TestEvent>(new EventKey());
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
@@ -208,12 +212,14 @@ namespace Coimbra.Tests
             const string log = nameof(log);
             EventKey eventKey = new();
             _eventService.SetEventKey<TestEvent>(eventKey);
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
             });
 
             LogAssert.Expect(LogType.Log, log);
+
             Assert.DoesNotThrow(delegate
             {
                 _eventService.Invoke(this, new TestEvent(), eventKey);
@@ -224,6 +230,7 @@ namespace Coimbra.Tests
         public void Invoke_AfterSetEventKey_AndResetEventKey()
         {
             const string log = nameof(log);
+
             _eventService.AddListener(delegate(ref EventData<TestEvent> testEvent)
             {
                 Debug.Log(log);
@@ -233,6 +240,7 @@ namespace Coimbra.Tests
             EventKey eventKey = new();
             _eventService.SetEventKey<TestEvent>(eventKey);
             _eventService.ResetEventKey<TestEvent>(eventKey);
+
             Assert.DoesNotThrow(delegate
             {
                 _eventService.Invoke(this, new TestEvent());

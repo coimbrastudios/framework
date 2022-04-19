@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Formatting;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -12,9 +14,9 @@ using System.Threading.Tasks;
 namespace Coimbra.Services.Events.Roslyn
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
-    public sealed class EventDeclarationMissingPartialCodeFix : CodeFixProvider
+    public sealed class EventDeclarationNestedTypeCodeFix : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial.Id);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.ConcreteEventShouldNotBeNested.Id);
 
         public override FixAllProvider GetFixAllProvider()
         {
@@ -42,25 +44,36 @@ namespace Coimbra.Services.Events.Roslyn
 
             Task<Document> createChangedDocument(CancellationToken cancellationToken)
             {
-                return AddMissingPartialKeywordAsync(context.Document, typeDeclarationSyntax, cancellationToken);
+                return MoveTypeToOuterScopeAsync(context.Document, typeDeclarationSyntax, cancellationToken);
             }
 
-            context.RegisterCodeFix(CodeAction.Create("Add missing partial keyword.", createChangedDocument, typeDeclarationSyntax.ToFullString()), context.Diagnostics);
+            context.RegisterCodeFix(CodeAction.Create("Move type to outer scope.", createChangedDocument, typeDeclarationSyntax.ToFullString()), context.Diagnostics);
         }
 
-        private static async Task<Document> AddMissingPartialKeywordAsync(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
+        private static async Task<Document> MoveTypeToOuterScopeAsync(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
         {
             SyntaxNode root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            DocumentEditor editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-            if (root == null)
+            if (root == null || editor == null)
             {
                 return document;
             }
 
-            TypeDeclarationSyntax newTypeDeclarationSyntax = typeDeclarationSyntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword));
-            SyntaxNode newRoot = root.ReplaceNode(typeDeclarationSyntax, newTypeDeclarationSyntax);
+            SyntaxNode sibling = typeDeclarationSyntax.Parent!;
 
-            return document.WithSyntaxRoot(newRoot);
+            while (sibling.Parent is TypeDeclarationSyntax)
+            {
+                sibling = sibling.Parent;
+            }
+
+            editor.InsertBefore(sibling, typeDeclarationSyntax.WithAdditionalAnnotations(Formatter.Annotation)
+                                                              .WithLeadingTrivia(SyntaxFactory.ElasticMarker)
+                                                              .WithTrailingTrivia(SyntaxFactory.ElasticMarker));
+
+            editor.RemoveNode(typeDeclarationSyntax, SyntaxRemoveOptions.AddElasticMarker);
+
+            return editor.GetChangedDocument();
         }
     }
 }

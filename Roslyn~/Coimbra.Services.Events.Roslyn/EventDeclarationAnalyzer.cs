@@ -40,17 +40,21 @@ namespace Coimbra.Services.Events.Roslyn
                 return;
             }
 
+            bool reportError = true;
+
             if (typeDeclarationSyntax.Parent is TypeDeclarationSyntax parentTypeNode)
             {
+                reportError = false;
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldNotBeNested, typeDeclarationSyntax.GetLocation(), typeDeclarationSyntax.GetTypeName(), parentTypeNode.GetTypeName()));
             }
 
             if (!typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
+                reportError = false;
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldBePartial, typeDeclarationSyntax.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }
 
-            if (typeDeclarationSyntax.HasParameterlessConstructor(out bool isPublic) && !isPublic)
+            if (reportError && typeDeclarationSyntax.HasParameterlessConstructor(out bool isPublic) && !isPublic)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventParameterlessCtorShouldBePublic, typeDeclarationSyntax.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }

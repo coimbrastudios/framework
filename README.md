@@ -47,8 +47,8 @@ Package of general utilities to be used with Unity development.
 
 ## Analyzers
 
-| ID          | Title                                                         | Severity | Fix |
-|-------------|:--------------------------------------------------------------|----------|-----|
-| COIMBRA0001 | Concrete IEvent should be partial.                            | Warning  | Yes |
-| COIMBRA0002 | Concrete IEvent should not be a nested type.                  | Warning  | No  |
-| COIMBRA0003 | Concrete IEvent should have public parameterless constructor. | Error    | Yes |
+| ID          | Title                                                         | Severity | Code Fix |
+|-------------|:--------------------------------------------------------------|----------|----------|
+| COIMBRA0001 | Concrete IEvent should be partial.                            | Warning  | Yes      |
+| COIMBRA0002 | Concrete IEvent should not be a nested type.                  | Warning  | Yes      |
+| COIMBRA0003 | Concrete IEvent should have public parameterless constructor. | Error    | Yes      |

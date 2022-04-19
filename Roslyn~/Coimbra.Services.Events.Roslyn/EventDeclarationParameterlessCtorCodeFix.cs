@@ -16,6 +16,11 @@ namespace Coimbra.Services.Events.Roslyn
     {
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.ConcreteEventParameterlessCtorShouldBePublic.Id);
 
+        public override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
+
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             SyntaxNode root = await context
@@ -37,18 +42,13 @@ namespace Coimbra.Services.Events.Roslyn
 
             Task<Document> createChangedDocument(CancellationToken cancellationToken)
             {
-                return MakeParameterlessConstructorPublic(context.Document, typeDeclarationSyntax, cancellationToken);
+                return MakeParameterlessConstructorPublicAsync(context.Document, typeDeclarationSyntax, cancellationToken);
             }
 
             context.RegisterCodeFix(CodeAction.Create("Make parameterless constructor public.", createChangedDocument, typeDeclarationSyntax.ToFullString()), context.Diagnostics);
         }
 
-        public override FixAllProvider GetFixAllProvider()
-        {
-            return WellKnownFixAllProviders.BatchFixer;
-        }
-
-        private static async Task<Document> MakeParameterlessConstructorPublic(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
+        private static async Task<Document> MakeParameterlessConstructorPublicAsync(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
         {
             SyntaxNode root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
