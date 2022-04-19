@@ -25,25 +25,17 @@ namespace Coimbra.Roslyn
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
-            try
+            if (context.Node is not (TypeDeclarationSyntax typeDeclarationSyntax and (StructDeclarationSyntax or ClassDeclarationSyntax))
+             || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
+             || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
+             || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
+             || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
+             || !typeSymbol.AllInterfaces.Any(_interfacePredicate))
             {
-                if (context.Node is not TypeDeclarationSyntax typeDeclarationSyntax
-                 || typeDeclarationSyntax is not (StructDeclarationSyntax or ClassDeclarationSyntax)
-                 || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
-                 || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
-                 || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                 || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-                 || !typeSymbol.AllInterfaces.Any(_interfacePredicate))
-                {
-                    return;
-                }
+                return;
+            }
 
-                Types.Add(typeDeclarationSyntax);
-            }
-            catch (Exception e)
-            {
-                Logger.Write(e);
-            }
+            Types.Add(typeDeclarationSyntax);
         }
     }
 }

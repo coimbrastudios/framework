@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System;
 using System.Text;
 
 namespace Coimbra.Services.Events.Roslyn
@@ -13,90 +12,78 @@ namespace Coimbra.Services.Events.Roslyn
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            Logger.Write($"{nameof(EventMethodsGenerator)} executing on assembly {context.Compilation.AssemblyName}");
+            EventContextReceiver contextReceiver = (EventContextReceiver)context.SyntaxContextReceiver;
+            SourceBuilder sourceBuilder = new();
 
-            try
+            foreach (TypeDeclarationSyntax typeDeclarationSyntax in contextReceiver!.Types)
             {
-                EventContextReceiver contextReceiver = (EventContextReceiver)context.SyntaxContextReceiver;
-                SourceBuilder sourceBuilder = new();
+                sourceBuilder.Initialize();
 
-                foreach (TypeDeclarationSyntax typeDeclarationSyntax in contextReceiver!.Types)
+                using (new PragmaWarningDisableScope(sourceBuilder, "0109"))
                 {
-                    sourceBuilder.Initialize();
+                    sourceBuilder.AddUsing("Coimbra.Services");
+                    sourceBuilder.AddUsing("Coimbra.Services.Events");
+                    sourceBuilder.AddUsing("System.Collections.Generic");
+                    sourceBuilder.AddUsing("System.Runtime.CompilerServices");
+                    sourceBuilder.SkipLine();
 
-                    using (new PragmaWarningDisableScope(sourceBuilder, "0109"))
+                    using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                     {
-                        sourceBuilder.AddUsing("Coimbra.Services");
-                        sourceBuilder.AddUsing("Coimbra.Services.Events");
-                        sourceBuilder.AddUsing("System.Collections.Generic");
-                        sourceBuilder.AddUsing("System.Runtime.CompilerServices");
-                        sourceBuilder.SkipLine();
-
-                        using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
+                        using (LineScope lineScope = sourceBuilder.BeginLine())
                         {
-                            using (LineScope lineScope = sourceBuilder.BeginLine())
+                            lineScope.AddContent(typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
+
+                            switch (typeDeclarationSyntax)
                             {
-                                lineScope.AddContent(typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
-
-                                switch (typeDeclarationSyntax)
+                                case ClassDeclarationSyntax _:
                                 {
-                                    case ClassDeclarationSyntax _:
+                                    if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
                                     {
-                                        if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
-                                        {
-                                            lineScope.AddContent(" sealed");
-                                        }
-
-                                        lineScope.AddContent(" partial class");
-
-                                        break;
+                                        lineScope.AddContent(" sealed");
                                     }
 
-                                    case StructDeclarationSyntax _:
-                                    {
-                                        if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
-                                        {
-                                            lineScope.AddContent(" readonly");
-                                        }
+                                    lineScope.AddContent(" partial class");
 
-                                        lineScope.AddContent(" partial struct");
-
-                                        break;
-                                    }
-
-                                    default:
-                                    {
-                                        Logger.Write($"Cannot resolve generation for {typeDeclarationSyntax.GetType()}");
-
-                                        continue;
-                                    }
+                                    break;
                                 }
 
-                                lineScope.AddContent($" {typeDeclarationSyntax.GetTypeName()}");
-                            }
-
-                            using (new BracesScope(sourceBuilder))
-                            {
-                                string typeName = typeDeclarationSyntax.GetTypeName();
-
-                                if (!typeDeclarationSyntax.HasParameterlessConstructor(out _))
+                                case StructDeclarationSyntax _:
                                 {
-                                    sourceBuilder.AddLine($"public {typeName}() {{ }}");
-                                    sourceBuilder.SkipLine();
+                                    if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                    {
+                                        lineScope.AddContent(" readonly");
+                                    }
+
+                                    lineScope.AddContent(" partial struct");
+
+                                    break;
                                 }
 
-                                AddMethods(sourceBuilder, typeName);
+                                default:
+                                {
+                                    continue;
+                                }
                             }
+
+                            lineScope.AddContent($" {typeDeclarationSyntax.GetTypeName()}");
+                        }
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            string typeName = typeDeclarationSyntax.GetTypeName();
+
+                            if (!typeDeclarationSyntax.HasParameterlessConstructor(out _))
+                            {
+                                sourceBuilder.AddLine($"public {typeName}() {{ }}");
+                                sourceBuilder.SkipLine();
+                            }
+
+                            AddMethods(sourceBuilder, typeName);
                         }
                     }
-
-                    Logger.Write($"Finished generating {typeDeclarationSyntax.GetTypeName()}");
-                    context.AddSource(typeDeclarationSyntax.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Write(e);
+
+                context.AddSource(typeDeclarationSyntax.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
             }
         }
 
