@@ -15,7 +15,7 @@ namespace Coimbra.Services.Events
         private static class EventCallbacks<TEvent>
             where TEvent : IEvent, new()
         {
-            internal static readonly Dictionary<EventHandle, EventData<TEvent>.Handler> Value = new(1);
+            internal static readonly Dictionary<EventHandle, Event<TEvent>.Handler> Value = new(1);
 
             internal static readonly RemoveHandler RemoveHandler = Value.Remove;
         }
@@ -142,14 +142,14 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public EventHandle AddListener<TEvent>(EventData<TEvent>.Handler eventCallback)
+        public EventHandle AddListener<TEvent>(Event<TEvent>.Handler eventCallback)
             where TEvent : IEvent, new()
         {
             return AddListener(ref eventCallback);
         }
 
         /// <inheritdoc/>
-        public bool AddListener<TEvent>(EventData<TEvent>.Handler eventCallback, List<EventHandle> appendList)
+        public bool AddListener<TEvent>(Event<TEvent>.Handler eventCallback, List<EventHandle> appendList)
             where TEvent : IEvent, new()
         {
             EventHandle eventHandle = AddListener(ref eventCallback);
@@ -228,41 +228,27 @@ namespace Coimbra.Services.Events
         public bool Invoke<TEvent>(object eventSender, EventKey eventKey = null)
             where TEvent : IEvent, new()
         {
-            EventData<TEvent> eventData = new(eventSender);
+            Event<TEvent> e = new(this, eventSender);
 
-            return Invoke(_events, ref eventData, eventKey);
+            return Invoke(ref e, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<TEvent>(object eventSender, TEvent eventValue, EventKey eventKey = null)
+        public bool Invoke<TEvent>(object eventSender, TEvent eventData, EventKey eventKey = null)
             where TEvent : IEvent, new()
         {
-            EventData<TEvent> eventData = new(eventSender, ref eventValue);
+            Event<TEvent> e = new(this, eventSender, ref eventData);
 
-            return Invoke(_events, ref eventData, eventKey);
+            return Invoke(ref e, eventKey);
         }
 
         /// <inheritdoc/>
-        public bool Invoke<TEvent>(object eventSender, ref TEvent eventValue, EventKey eventKey = null)
+        public bool Invoke<TEvent>(object eventSender, ref TEvent eventData, EventKey eventKey = null)
             where TEvent : IEvent, new()
         {
-            EventData<TEvent> eventData = new(eventSender, ref eventValue);
+            Event<TEvent> e = new(this, eventSender, ref eventData);
 
-            return Invoke(_events, ref eventData, eventKey);
-        }
-
-        /// <inheritdoc/>
-        public bool Invoke<TEvent>(EventData<TEvent> eventData, EventKey eventKey = null)
-            where TEvent : IEvent, new()
-        {
-            return Invoke(_events, ref eventData, eventKey);
-        }
-
-        /// <inheritdoc/>
-        public bool Invoke<TEvent>(ref EventData<TEvent> eventData, EventKey eventKey = null)
-            where TEvent : IEvent, new()
-        {
-            return Invoke(_events, ref eventData, eventKey);
+            return Invoke(ref e, eventKey);
         }
 
         /// <inheritdoc/>
@@ -440,10 +426,33 @@ namespace Coimbra.Services.Events
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool Invoke<TEvent>(IReadOnlyDictionary<Type, Event> events, ref EventData<TEvent> eventData, EventKey eventKey)
+        private EventHandle AddListener<TEvent>(ref Event<TEvent>.Handler eventCallback)
             where TEvent : IEvent, new()
         {
-            if (!events.TryGetValue(typeof(TEvent), out Event e))
+            if (eventCallback == null)
+            {
+                return default;
+            }
+
+            EventHandle handle = EventHandle.Create(typeof(TEvent));
+            EventCallbacks<TEvent>.Value.Add(handle, eventCallback);
+
+            if (!_events.TryGetValue(typeof(TEvent), out Event e))
+            {
+                e = Event.Create<TEvent>(this);
+                _events.Add(typeof(TEvent), e);
+            }
+
+            e.Add(in handle);
+
+            return handle;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Invoke<TEvent>(ref Event<TEvent> eventRef, EventKey eventKey = null)
+            where TEvent : IEvent, new()
+        {
+            if (!_events.TryGetValue(typeof(TEvent), out Event e))
             {
                 return false;
             }
@@ -475,11 +484,11 @@ namespace Coimbra.Services.Events
             {
                 for (int i = 0; i < count; i++)
                 {
-                    eventData.CurrentHandle = e[i];
+                    eventRef.CurrentHandle = e[i];
 
-                    if (!e.HandlesToRemove.Contains(eventData.CurrentHandle))
+                    if (!e.HandlesToRemove.Contains(eventRef.CurrentHandle))
                     {
-                        EventCallbacks<TEvent>.Value[eventData.CurrentHandle].Invoke(ref eventData);
+                        EventCallbacks<TEvent>.Value[eventRef.CurrentHandle].Invoke(ref eventRef);
                     }
                 }
             }
@@ -498,29 +507,6 @@ namespace Coimbra.Services.Events
             e.HandlesToRemove.Clear();
 
             return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private EventHandle AddListener<TEvent>(ref EventData<TEvent>.Handler eventCallback)
-            where TEvent : IEvent, new()
-        {
-            if (eventCallback == null)
-            {
-                return default;
-            }
-
-            EventHandle handle = EventHandle.Create(typeof(TEvent));
-            EventCallbacks<TEvent>.Value.Add(handle, eventCallback);
-
-            if (!_events.TryGetValue(typeof(TEvent), out Event e))
-            {
-                e = Event.Create<TEvent>(this);
-                _events.Add(typeof(TEvent), e);
-            }
-
-            e.Add(in handle);
-
-            return handle;
         }
     }
 }

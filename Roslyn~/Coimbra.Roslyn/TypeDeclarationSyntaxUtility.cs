@@ -8,15 +8,15 @@ namespace Coimbra.Roslyn
     public static class TypeDeclarationSyntaxUtility
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetTypeName(this TypeDeclarationSyntax typeDeclarationSyntax)
-        {
-            return typeDeclarationSyntax.Identifier.Text;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetNamespace(this TypeDeclarationSyntax typeDeclarationSyntax)
         {
             return (typeDeclarationSyntax.Parent as NamespaceDeclarationSyntax)?.Name.ToString();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetTypeName(this TypeDeclarationSyntax typeDeclarationSyntax)
+        {
+            return typeDeclarationSyntax.Identifier.Text;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

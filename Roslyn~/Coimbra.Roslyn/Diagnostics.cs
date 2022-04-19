@@ -23,7 +23,7 @@ namespace Coimbra.Roslyn
                                                                                          true);
 
         public static readonly DiagnosticDescriptor ConcreteEventParameterlessCtorShouldBePublic = new("COIMBRA0003",
-                                                                                                       "Concrete IEvent should have public parameterless constructor.",
+                                                                                                       "Concrete IEvent parameterless constructor should be public.",
                                                                                                        "Make public the parameterless constructor of {0}.",
                                                                                                        EventsCategory,
                                                                                                        DiagnosticSeverity.Error,

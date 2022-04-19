@@ -167,9 +167,9 @@ namespace Coimbra.Services.Events.Roslyn
                 return value.Replace('<', '{').Replace('>', '}').Replace(typeName, "T");
             }
 
-            addMethods1("static EventHandle", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback");
+            addMethods1("static EventHandle", "AddListener", $"Event<{typeName}>.Handler", "eventCallback");
             sourceBuilder.SkipLine();
-            addMethods2("static bool", "AddListener", $"EventData<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
+            addMethods2("static bool", "AddListener", $"Event<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
             sourceBuilder.SkipLine();
             addMethods1("static bool", "CompareEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
@@ -184,16 +184,6 @@ namespace Coimbra.Services.Events.Roslyn
             addMethods1("static bool", "SetEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
             addMethods2("bool", "Invoke", "object", "sender", "EventKey", "key", "null");
-            sourceBuilder.SkipLine();
-            sourceBuilder.AddLine("/// <summary>");
-            sourceBuilder.AddLine("/// Returns an <see cref=\"EventData{T}\"/> for this event.");
-            sourceBuilder.AddLine("/// </summary>");
-            sourceBuilder.AddLine($"public new EventData<{typeName}> ToData(object sender)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return new EventData<{typeName}>(sender, this);");
-            }
         }
     }
 }

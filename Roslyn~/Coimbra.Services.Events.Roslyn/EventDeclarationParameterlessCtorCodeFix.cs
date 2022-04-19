@@ -42,13 +42,13 @@ namespace Coimbra.Services.Events.Roslyn
 
             Task<Document> createChangedDocument(CancellationToken cancellationToken)
             {
-                return MakeParameterlessConstructorPublicAsync(context.Document, typeDeclarationSyntax, cancellationToken);
+                return FixMissingPublicParameterlessConstructorAsync(context.Document, typeDeclarationSyntax, cancellationToken);
             }
 
             context.RegisterCodeFix(CodeAction.Create("Make parameterless constructor public.", createChangedDocument, typeDeclarationSyntax.ToFullString()), context.Diagnostics);
         }
 
-        private static async Task<Document> MakeParameterlessConstructorPublicAsync(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
+        private static async Task<Document> FixMissingPublicParameterlessConstructorAsync(Document document, TypeDeclarationSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
         {
             SyntaxNode root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
@@ -59,24 +59,26 @@ namespace Coimbra.Services.Events.Roslyn
 
             foreach (MemberDeclarationSyntax memberDeclarationSyntax in typeDeclarationSyntax.Members)
             {
-                if (memberDeclarationSyntax is ConstructorDeclarationSyntax constructorDeclarationSyntax && constructorDeclarationSyntax.ParameterList.Parameters.Count == 0)
+                if (memberDeclarationSyntax is not ConstructorDeclarationSyntax constructorDeclarationSyntax || constructorDeclarationSyntax.ParameterList.Parameters.Count != 0)
                 {
-                    SyntaxTokenList newSyntaxTokenList = memberDeclarationSyntax.Modifiers;
-
-                    for (int i = newSyntaxTokenList.Count - 1; i >= 0; i--)
-                    {
-                        if (newSyntaxTokenList[i].Kind() is SyntaxKind.ProtectedKeyword or SyntaxKind.InternalKeyword or SyntaxKind.PrivateKeyword)
-                        {
-                            newSyntaxTokenList = newSyntaxTokenList.RemoveAt(i);
-                        }
-                    }
-
-                    newSyntaxTokenList = newSyntaxTokenList.Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-                    MemberDeclarationSyntax newMemberDeclarationSyntax = memberDeclarationSyntax.WithModifiers(newSyntaxTokenList);
-                    SyntaxNode newRoot = root.ReplaceNode(memberDeclarationSyntax, newMemberDeclarationSyntax);
-
-                    return document.WithSyntaxRoot(newRoot);
+                    continue;
                 }
+
+                SyntaxTokenList newSyntaxTokenList = memberDeclarationSyntax.Modifiers;
+
+                for (int i = newSyntaxTokenList.Count - 1; i >= 0; i--)
+                {
+                    if (newSyntaxTokenList[i].Kind() is SyntaxKind.ProtectedKeyword or SyntaxKind.InternalKeyword or SyntaxKind.PrivateKeyword)
+                    {
+                        newSyntaxTokenList = newSyntaxTokenList.RemoveAt(i);
+                    }
+                }
+
+                newSyntaxTokenList = newSyntaxTokenList.Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+                MemberDeclarationSyntax newMemberDeclarationSyntax = memberDeclarationSyntax.WithModifiers(newSyntaxTokenList);
+                SyntaxNode newRoot = root.ReplaceNode(memberDeclarationSyntax, newMemberDeclarationSyntax);
+
+                return document.WithSyntaxRoot(newRoot);
             }
 
             return document;

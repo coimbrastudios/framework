@@ -3,51 +3,51 @@
 namespace Coimbra.Services.Events
 {
     /// <summary>
-    /// A reference to an event being invoked.
+    /// An event being invoked.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [Preserve]
-    public ref struct EventData<T>
+    public ref struct Event<T>
         where T : IEvent
     {
         /// <summary>
         /// Generic delegate for listening events from the <see cref="IEventService"/>.
         /// </summary>
-        public delegate void Handler(ref EventData<T> e);
+        public delegate void Handler(ref Event<T> e);
 
         /// <summary>
-        /// The one that invoked the event.
+        /// The object that requested the event invocation.
         /// </summary>
         public readonly object Sender;
 
         /// <summary>
-        /// The actual value of the event.
+        /// The <see cref="IEventService"/> used to invoke the event.
         /// </summary>
-        public readonly T Value;
+        public readonly IEventService Service;
+
+        /// <summary>
+        /// The data of the event.
+        /// </summary>
+        public readonly T Data;
 
         /// <summary>
         /// The handle for the current call.
         /// </summary>
         public EventHandle CurrentHandle;
 
-        public EventData(object sender)
+        public Event(IEventService service, object sender)
         {
+            Service = service;
             Sender = sender;
-            Value = default;
+            Data = default;
             CurrentHandle = default;
         }
 
-        public EventData(object sender, T value)
+        public Event(IEventService service, object sender, ref T data)
         {
+            Service = service;
             Sender = sender;
-            Value = value;
-            CurrentHandle = default;
-        }
-
-        public EventData(object sender, ref T value)
-        {
-            Sender = sender;
-            Value = value;
+            Data = data;
             CurrentHandle = default;
         }
     }
