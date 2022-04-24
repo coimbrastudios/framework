@@ -87,12 +87,14 @@ namespace Coimbra.Services
         /// Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.
         /// </summary>
         [field: SerializeField]
+        [field: Disable]
         public string Id { get; private set; }
 
         /// <summary>
         /// If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.
         /// </summary>
         [field: SerializeField]
+        [field: Disable]
         public bool AllowFallbackToShared { get; private set; }
 
         /// <summary>

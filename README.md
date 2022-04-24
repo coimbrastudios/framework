@@ -47,8 +47,14 @@ Package of general utilities to be used with Unity development.
 
 ## Analyzers
 
-| ID          | Title                                                       | Severity | Code Fix |
-|-------------|:------------------------------------------------------------|----------|----------|
-| COIMBRA0001 | Concrete IEvent should be partial.                          | Warning  | Yes      |
-| COIMBRA0002 | Concrete IEvent should not be a nested type.                | Warning  | Yes      |
-| COIMBRA0003 | Concrete IEvent parameterless constructor should be public. | Error    | Yes      |
+| ID          | Title                                                                                                 | Severity | Code Fix |
+|-------------|:------------------------------------------------------------------------------------------------------|----------|----------|
+| COIMBRA0001 | Concrete IEvent should be partial.                                                                    | Warning  | Yes      |
+| COIMBRA0002 | Concrete IEvent should not be a nested type.                                                          | Warning  | Yes      |
+| COIMBRA0003 | Concrete IEvent parameterless constructor should be public.                                           | Error    | Yes      |
+| COIMBRA0004 | ServiceLocator APIs requires an interface type as generic parameter.                                  | Error    | Yes      |
+| COIMBRA0005 | ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter. | Error    | No       |
+| COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |
+| COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
+| COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | Yes      |
+

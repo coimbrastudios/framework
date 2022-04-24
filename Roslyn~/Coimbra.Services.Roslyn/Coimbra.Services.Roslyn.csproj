@@ -5,7 +5,7 @@
         <Configurations>Release</Configurations>
         <Platforms>AnyCPU</Platforms>
         <LangVersion>9</LangVersion>
-        <RootNamespace>Coimbra.Services.Events.Roslyn</RootNamespace>
+        <RootNamespace>Coimbra.Services.Roslyn</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -8,6 +8,8 @@ namespace Coimbra.Roslyn
     {
         private const string EventsCategory = "Coimbra.Services.Events";
 
+        private const string ServicesCategory = "Coimbra.Services";
+
         public static readonly DiagnosticDescriptor ConcreteEventShouldBePartial = new("COIMBRA0001",
                                                                                        "Concrete IEvent should be partial.",
                                                                                        "Add missing partial keyword in {0}.",
@@ -28,6 +30,41 @@ namespace Coimbra.Roslyn
                                                                                                        EventsCategory,
                                                                                                        DiagnosticSeverity.Error,
                                                                                                        true);
+
+        public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",
+                                                                                          "ServiceLocator APIs requires an interface type as generic parameter.",
+                                                                                          "Change generic parameter to {0}.",
+                                                                                          ServicesCategory,
+                                                                                          DiagnosticSeverity.Error,
+                                                                                          true);
+
+        public static readonly DiagnosticDescriptor ServiceLocatorRequiresNonAbstractInterface = new("COIMBRA0005",
+                                                                                                     "ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter.",
+                                                                                                     "Change generic parameter to another type or remove AbstractInterfaceAttribute from {0}.",
+                                                                                                     ServicesCategory,
+                                                                                                     DiagnosticSeverity.Error,
+                                                                                                     true);
+
+        public static readonly DiagnosticDescriptor ConcreteServiceShouldOnlyImplementOneService = new("COIMBRA0006",
+                                                                                                       "Concrete IService should only implement one IService at a time.",
+                                                                                                       "Move all but one of the service implementations out from {0}.",
+                                                                                                       ServicesCategory,
+                                                                                                       DiagnosticSeverity.Error,
+                                                                                                       true);
+
+        public static readonly DiagnosticDescriptor ConcreteServiceShouldNotImplementAbstractService = new("COIMBRA0007",
+                                                                                                           "Concrete IService should not implement any IService with AbstractServiceAttribute.",
+                                                                                                           "Remove all abstract services implementations from {0}.",
+                                                                                                           ServicesCategory,
+                                                                                                           DiagnosticSeverity.Warning,
+                                                                                                           true);
+
+        public static readonly DiagnosticDescriptor AbstractServiceShouldBeUsedWithServiceInterfaces = new("COIMBRA0008",
+                                                                                                           "AbstractServiceAttribute should only be used with an interface that extends IService.",
+                                                                                                           "Remove AbstractServiceAttribute from {0}.",
+                                                                                                           ServicesCategory,
+                                                                                                           DiagnosticSeverity.Warning,
+                                                                                                           true);
     }
 }
 

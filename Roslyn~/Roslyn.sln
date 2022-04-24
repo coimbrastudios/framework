@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Events.Ros
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Events.Roslyn.Tests", "Coimbra.Services.Events.Roslyn.Tests\Coimbra.Services.Events.Roslyn.Tests.csproj", "{3DCD631B-5D4D-4DBE-BBFF-43B8D996AA46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coimbra.Services.Roslyn", "Coimbra.Services.Roslyn\Coimbra.Services.Roslyn.csproj", "{560161C2-5D91-4AA9-ACBB-69BCADC1B39C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Any CPU = Release|Any CPU
@@ -20,6 +22,8 @@ Global
 		{AEB81595-5C05-46F7-94F9-704699B87893}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3DCD631B-5D4D-4DBE-BBFF-43B8D996AA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DCD631B-5D4D-4DBE-BBFF-43B8D996AA46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{560161C2-5D91-4AA9-ACBB-69BCADC1B39C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{560161C2-5D91-4AA9-ACBB-69BCADC1B39C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

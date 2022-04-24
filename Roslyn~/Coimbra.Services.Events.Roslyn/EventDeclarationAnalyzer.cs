@@ -3,9 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Coimbra.Services.Events.Roslyn
 {
@@ -18,24 +16,17 @@ namespace Coimbra.Services.Events.Roslyn
 
         public override void Initialize(AnalysisContext context)
         {
-            static bool interfacePredicate(INamedTypeSymbol x)
-            {
-                return x.Name == "IEvent" && x.ContainingNamespace.ToString() == "Coimbra.Services.Events";
-            }
-
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.RegisterSyntaxNodeAction(x => AnalyzeEventDeclaration<ClassDeclarationSyntax>(x, interfacePredicate), SyntaxKind.ClassDeclaration);
-            context.RegisterSyntaxNodeAction(x => AnalyzeEventDeclaration<StructDeclarationSyntax>(x, interfacePredicate), SyntaxKind.StructDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeEventDeclaration, SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration);
         }
 
-        private static void AnalyzeEventDeclaration<T>(SyntaxNodeAnalysisContext context, Func<INamedTypeSymbol, bool> interfacePredicate)
-            where T : TypeDeclarationSyntax
+        private static void AnalyzeEventDeclaration(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not T typeDeclarationSyntax
+            if (context.Node is not TypeDeclarationSyntax typeDeclarationSyntax
              || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
              || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.AllInterfaces.Any(interfacePredicate))
+             || !typeSymbol.ImplementsInterface("IEvent", "Coimbra.Services.Events", true))
             {
                 return;
             }
