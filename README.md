@@ -56,5 +56,5 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0005 | ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter. | Error    | No       |
 | COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |
 | COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
-| COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | Yes      |
+| COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | No       |
 

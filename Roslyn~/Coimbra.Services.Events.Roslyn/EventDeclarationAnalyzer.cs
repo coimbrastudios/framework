@@ -26,7 +26,7 @@ namespace Coimbra.Services.Events.Roslyn
             if (context.Node is not TypeDeclarationSyntax typeDeclarationSyntax
              || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
              || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.ImplementsInterface("IEvent", "Coimbra.Services.Events", true))
+             || !typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
             {
                 return;
             }

@@ -34,12 +34,12 @@ namespace Coimbra.Services.Roslyn
 
             foreach (INamedTypeSymbol interfaceSymbol in typeSymbol.Interfaces)
             {
-                if (!interfaceSymbol.IsOrImplementsInterface("IService", "Coimbra.Services", true))
+                if (!interfaceSymbol.IsOrImplementsInterface(CoimbraServicesTypes.ServiceInterface, CoimbraServicesTypes.Namespace))
                 {
                     continue;
                 }
 
-                if (interfaceSymbol.HasAttribute("AbstractServiceAttribute", "Coimbra.Services"))
+                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace))
                 {
                     abstractServiceCount++;
                 }

@@ -20,19 +20,19 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace, bool checkBases)
+        public static bool ImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
             while (namedTypeSymbol != null)
             {
                 foreach (INamedTypeSymbol interfaceSymbol in namedTypeSymbol.Interfaces)
                 {
-                    if (interfaceSymbol.Is(name, containingNamespace))
+                    if (interfaceSymbol.IsOrImplementsInterface(name, containingNamespace))
                     {
                         return true;
                     }
                 }
 
-                namedTypeSymbol = checkBases ? namedTypeSymbol.BaseType : null;
+                namedTypeSymbol = namedTypeSymbol.BaseType;
             }
 
             return false;
@@ -45,9 +45,9 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsOrImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace, bool checkBases)
+        public static bool IsOrImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
-            return namedTypeSymbol.Is(name, containingNamespace) || namedTypeSymbol.ImplementsInterface(name, containingNamespace, checkBases);
+            return namedTypeSymbol.Is(name, containingNamespace) || namedTypeSymbol.ImplementsInterface(name, containingNamespace);
         }
     }
 }

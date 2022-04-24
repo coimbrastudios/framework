@@ -1,41 +1,25 @@
+using Coimbra.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Coimbra.Roslyn
+namespace Coimbra.Services.Events.Roslyn
 {
     public sealed class EventContextReceiver : ISyntaxContextReceiver
     {
         public readonly List<TypeDeclarationSyntax> Types = new();
 
-        private readonly Func<INamedTypeSymbol, bool> _interfacePredicate;
-
-        public EventContextReceiver()
-        {
-            static bool interfacePredicate(INamedTypeSymbol x)
-            {
-                return x.Name == "IEvent" && x.ContainingNamespace.ToString() == "Coimbra.Services.Events";
-            }
-
-            _interfacePredicate = interfacePredicate;
-        }
-
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
-            if (context.Node is not (TypeDeclarationSyntax typeDeclarationSyntax and (StructDeclarationSyntax or ClassDeclarationSyntax))
-             || typeDeclarationSyntax.Parent is TypeDeclarationSyntax
-             || !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
-             || typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
-             || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.AllInterfaces.Any(_interfacePredicate))
+            if (context.Node is TypeDeclarationSyntax { Parent: not TypeDeclarationSyntax } typeDeclarationSyntax and (StructDeclarationSyntax or ClassDeclarationSyntax)
+             && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
+             && typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
+             && context.SemanticModel.GetDeclaredSymbol(context.Node) is INamedTypeSymbol typeSymbol
+             && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
             {
-                return;
+                Types.Add(typeDeclarationSyntax);
             }
-
-            Types.Add(typeDeclarationSyntax);
         }
     }
 }
