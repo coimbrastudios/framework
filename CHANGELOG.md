@@ -1,5 +1,9 @@
 # Changelog
 
+## [9.0.1] - UNRELEASED
+
+- Added missing documentation for `AbstractServiceAttribute`.
+
 ## [9.0.0] - 2022-04-26
 
 - Added source generator and roslyn analyzers for `IEvent` to improve API usage and debugging experience.
