@@ -33,14 +33,14 @@ namespace Coimbra.Roslyn
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",
                                                                                           "ServiceLocator APIs requires an interface type as generic parameter.",
-                                                                                          "Change generic parameter to {0}.",
+                                                                                          "ServiceLocator.{0} requires an interface as the type argument, {1} is not a compatible type.",
                                                                                           ServicesCategory,
                                                                                           DiagnosticSeverity.Error,
                                                                                           true);
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresNonAbstractInterface = new("COIMBRA0005",
                                                                                                      "ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter.",
-                                                                                                     "Change generic parameter to another type or remove AbstractInterfaceAttribute from {0}.",
+                                                                                                     "ServiceLocator.{0} requires another type argument, or remove AbstractInterfaceAttribute from {1}.",
                                                                                                      ServicesCategory,
                                                                                                      DiagnosticSeverity.Error,
                                                                                                      true);

@@ -7,5 +7,7 @@
         public const string Namespace = "Coimbra.Services";
 
         public const string ServiceInterface = "IService";
+
+        public const string ServiceLocatorClass = "ServiceLocator";
     }
 }

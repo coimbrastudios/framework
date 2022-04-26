@@ -202,8 +202,6 @@ namespace Coimbra.Services
         [CanBeNull]
         public Func<IService> GetCreateCallback(Type type, out bool willResetOnSet)
         {
-            type.AssertInterfaceImplementsNotEqual<IService>();
-
             if (_services.TryGetValue(type, out Service service))
             {
                 willResetOnSet = service.ResetCreateCallbackOnSet;
@@ -236,8 +234,6 @@ namespace Coimbra.Services
         [Pure]
         public bool HasCreateCallback([NotNull] Type type)
         {
-            type.AssertInterfaceImplementsNotEqual<IService>();
-
             return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
 
@@ -261,8 +257,6 @@ namespace Coimbra.Services
         [Pure]
         public bool IsCreated([NotNull] Type type)
         {
-            type.AssertInterfaceImplementsNotEqual<IService>();
-
             return _services.TryGetValue(type, out Service service) && service.Value != null;
         }
 
@@ -297,8 +291,6 @@ namespace Coimbra.Services
         [Pure]
         public bool IsCreated([NotNull] Type type, out IService value)
         {
-            type.AssertInterfaceImplementsNotEqual<IService>();
-
             if (_services.TryGetValue(type, out Service service) && service.Value != null)
             {
                 value = service.Value;
@@ -319,8 +311,6 @@ namespace Coimbra.Services
         public void RemoveValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
             where T : class, IService
         {
-            typeof(T).AssertInterfaceImplementsNotEqual<IService>();
-
             if (_services.TryGetValue(typeof(T), out Service service))
             {
                 service.ValueChangedCallback -= callback;
@@ -427,8 +417,6 @@ namespace Coimbra.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
         {
-            type.AssertInterfaceImplementsNotEqual<IService>(memberName);
-
             if (_services.TryGetValue(type, out service))
             {
                 return;

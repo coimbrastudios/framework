@@ -3,10 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace Coimbra.Roslyn
 {
-    public static class NamedTypeSymbolUtility
+    public static class TypeSymbolUtility
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasAttribute(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool HasAttribute(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
             foreach (AttributeData attributeData in namedTypeSymbol.GetAttributes())
             {
@@ -20,7 +20,7 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool ImplementsInterface(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
             while (namedTypeSymbol != null)
             {
@@ -39,13 +39,13 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Is(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool Is(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
             return namedTypeSymbol.Name == name && namedTypeSymbol.ContainingNamespace.ToString() == containingNamespace;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsOrImplementsInterface(this INamedTypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool IsOrImplementsInterface(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
         {
             return namedTypeSymbol.Is(name, containingNamespace) || namedTypeSymbol.ImplementsInterface(name, containingNamespace);
         }

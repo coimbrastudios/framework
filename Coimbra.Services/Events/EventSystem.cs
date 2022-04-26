@@ -168,14 +168,12 @@ namespace Coimbra.Services.Events
         public bool CompareEventKey<TEvent>(EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            return _events.TryGetValue(typeof(TEvent), out Event e) ? e.Key == eventKey : eventKey == null;
+            return CompareEventKey(typeof(TEvent), eventKey);
         }
 
         /// <inheritdoc/>
         public bool CompareEventKey(Type eventType, EventKey eventKey)
         {
-            eventType.AssertNonInterfaceImplements<IEvent>();
-
             return _events.TryGetValue(eventType, out Event e) ? e.Key == eventKey : eventKey == null;
         }
 
@@ -194,14 +192,12 @@ namespace Coimbra.Services.Events
         public bool HasAnyListeners<TEvent>()
             where TEvent : IEvent, new()
         {
-            return _events.TryGetValue(typeof(TEvent), out Event e) && e.Count > 0;
+            return HasAnyListeners(typeof(TEvent));
         }
 
         /// <inheritdoc/>
         public bool HasAnyListeners(Type eventType)
         {
-            eventType.AssertNonInterfaceImplements<IEvent>();
-
             return _events.TryGetValue(eventType, out Event e) && e.Count > 0;
         }
 
@@ -255,26 +251,12 @@ namespace Coimbra.Services.Events
         public bool RemoveAllListeners<TEvent>(EventKey eventKey = null)
             where TEvent : IEvent, new()
         {
-            if (!_events.TryGetValue(typeof(TEvent), out Event e))
-            {
-                return false;
-            }
-
-            if (e.Key == null || e.Key == eventKey || (e.Key.Restrictions & EventKey.RestrictionOptions.DisallowRemoveAll) == 0)
-            {
-                return e.RemoveAllListeners();
-            }
-
-            Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(TEvent));
-
-            return false;
+            return RemoveAllListeners(typeof(TEvent), eventKey);
         }
 
         /// <inheritdoc/>
         public bool RemoveAllListeners(Type eventType, EventKey eventKey = null)
         {
-            eventType.AssertNonInterfaceImplements<IEvent>();
-
             if (!_events.TryGetValue(eventType, out Event e))
             {
                 return false;
@@ -356,28 +338,12 @@ namespace Coimbra.Services.Events
         public bool ResetEventKey<TEvent>(EventKey eventKey)
             where TEvent : IEvent, new()
         {
-            if (eventKey == null || !_events.TryGetValue(typeof(TEvent), out Event e))
-            {
-                return false;
-            }
-
-            if (e.Key != null && e.Key != eventKey)
-            {
-                Debug.LogErrorFormat(InvalidEventKeyMessageFormat, eventKey, e.Key, typeof(TEvent));
-
-                return false;
-            }
-
-            e.Key = null;
-
-            return true;
+            return ResetEventKey(typeof(TEvent), eventKey);
         }
 
         /// <inheritdoc/>
         public bool ResetEventKey(Type eventType, EventKey eventKey)
         {
-            eventType.AssertNonInterfaceImplements<IEvent>();
-
             if (eventKey == null || !_events.TryGetValue(eventType, out Event e))
             {
                 return false;
