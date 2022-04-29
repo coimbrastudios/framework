@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
@@ -80,6 +81,10 @@ namespace Coimbra
 
         private GameObjectID? _gameObjectID;
 
+        private CancellationTokenSource _despawnCancellationTokenSource;
+
+        private CancellationTokenSource _destroyCancellationTokenSource;
+
         protected Actor()
         {
             UninitializedActors.Add(this);
@@ -99,6 +104,42 @@ namespace Coimbra
         /// Cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
         /// </summary>
         public Transform CachedTransform { get; private set; }
+
+        /// <summary>
+        /// <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be despawned.
+        /// </summary>
+        public CancellationToken DespawnCancellationToken
+        {
+            get
+            {
+                if (!IsSpawned)
+                {
+                    return CancellationToken.None;
+                }
+
+                _despawnCancellationTokenSource ??= new CancellationTokenSource();
+
+                return _despawnCancellationTokenSource.Token;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be destroyed.
+        /// </summary>
+        public CancellationToken DestroyCancellationToken
+        {
+            get
+            {
+                if (IsDestroyed)
+                {
+                    return CancellationToken.None;
+                }
+
+                _destroyCancellationTokenSource ??= new CancellationTokenSource();
+
+                return _destroyCancellationTokenSource.Token;
+            }
+        }
 
         /// <summary>
         /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="GameObject"/>?
@@ -159,22 +200,7 @@ namespace Coimbra
         /// </summary>
         public void Despawn()
         {
-            if (!IsSpawned)
-            {
-                return;
-            }
-
-            IsSpawned = false;
-            OnDespawn();
-
-            if (IsPooled && Pool != null && Pool.CurrentState != GameObjectPool.State.Unloaded)
-            {
-                Pool.Despawn(this);
-            }
-            else
-            {
-                Destroy(true);
-            }
+            Despawn(true);
         }
 
         /// <summary>
@@ -384,7 +410,34 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Destroy(bool callDestroy)
+        private void Despawn(bool callPoolDespawnOrDestroy)
+        {
+            if (!IsSpawned)
+            {
+                return;
+            }
+
+            IsSpawned = false;
+            CancellationTokenSourceUtility.Collect(ref _despawnCancellationTokenSource);
+            OnDespawn();
+
+            if (!callPoolDespawnOrDestroy)
+            {
+                return;
+            }
+
+            if (IsPooled && Pool != null && Pool.CurrentState != GameObjectPool.State.Unloaded)
+            {
+                Pool.Despawn(this);
+            }
+            else
+            {
+                Destroy(true);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Destroy(bool callObjectDestroy)
         {
             if (IsDestroyed)
             {
@@ -397,12 +450,8 @@ namespace Coimbra
             }
 
             IsDestroyed = true;
-
-            if (IsSpawned)
-            {
-                IsSpawned = false;
-                OnDespawn();
-            }
+            Despawn(false);
+            CancellationTokenSourceUtility.Collect(ref _destroyCancellationTokenSource);
 
             if (IsQuitting)
             {
@@ -424,7 +473,7 @@ namespace Coimbra
                 Addressables.ReleaseInstance(OperationHandle);
             }
 
-            if (callDestroy)
+            if (callObjectDestroy)
             {
                 Object.Destroy(CachedGameObject);
             }

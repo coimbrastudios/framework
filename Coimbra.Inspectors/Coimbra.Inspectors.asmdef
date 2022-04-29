@@ -1,0 +1,16 @@
+{
+    "name": "Coimbra.Inspectors",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6aabbee860c32c64d9bbd52d0704ed2c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

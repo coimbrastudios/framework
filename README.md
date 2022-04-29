@@ -57,4 +57,5 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |
 | COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
 | COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | No       |
-
+| COIMBRA0009 | ShowInInspectorAttribute only work on methods with a return value.                                    | Error    | No       |
+| COIMBRA0010 | ShowInInspectorAttribute only work on methods without parameters.                                     | Error    | No       |

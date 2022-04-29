@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -10,13 +11,37 @@ namespace Coimbra.Editor
     public static class CoimbraEditorGUIUtility
     {
         /// <summary>
+        /// Adjust a position based on the specified <see cref="InspectorArea"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AdjustPosition(ref Rect position, InspectorArea area)
+        {
+            switch (area)
+            {
+                case InspectorArea.Field:
+                {
+                    position.xMin += EditorGUIUtility.labelWidth;
+
+                    break;
+                }
+
+                case InspectorArea.Label:
+                {
+                    position.width = EditorGUIUtility.labelWidth;
+
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Draw a message box with the option to ignore the label area.
         /// </summary>
         /// <param name="position">Rectangle on the screen to draw the help box within.</param>
         /// <param name="message">The message text.</param>
         /// <param name="type">The type of message.</param>
-        /// <param name="fillLabelArea">If false, the label area will be skipped.</param>
-        public static void DrawMessageBox(Rect position, string message, MessageBoxType type, bool fillLabelArea)
+        /// <param name="area">To use with <see cref="AdjustPosition"/>.</param>
+        public static void DrawMessageBox(Rect position, string message, MessageBoxType type, InspectorArea area)
         {
             MessageType messageType;
 
@@ -51,11 +76,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            if (!fillLabelArea)
-            {
-                position.xMin += EditorGUIUtility.labelWidth;
-            }
-
+            AdjustPosition(ref position, area);
             EditorGUI.HelpBox(position, message, messageType);
         }
 
@@ -67,7 +88,7 @@ namespace Coimbra.Editor
         /// <param name="fillLabelArea">If false, the label area will be skipped.</param>
         /// <param name="defaultMinContentHeight">The default min content height when no icon is present.</param>
         /// <returns></returns>
-        public static float GetMessageBoxHeight(string message, MessageBoxType type, bool fillLabelArea, float defaultMinContentHeight)
+        public static float GetMessageBoxHeight(string message, MessageBoxType type, InspectorArea area, float defaultMinContentHeight)
         {
             GUIContent content = new(message);
             float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
@@ -107,12 +128,10 @@ namespace Coimbra.Editor
                 }
             }
 
-            if (!fillLabelArea)
-            {
-                contentWidth -= EditorGUIUtility.labelWidth;
-            }
+            Rect rect = new(0, 0, contentWidth, 0);
+            AdjustPosition(ref rect, area);
 
-            float height = EditorStyles.helpBox.CalcHeight(content, contentWidth);
+            float height = EditorStyles.helpBox.CalcHeight(content, rect.width);
 
             return Mathf.Max(height, minContentHeight);
         }
@@ -129,6 +148,14 @@ namespace Coimbra.Editor
             if (string.IsNullOrWhiteSpace(value))
             {
                 return value;
+            }
+
+            const string startBackingField = "<";
+            const string endBackingField = ">k__BackingField";
+
+            if (value.StartsWith(startBackingField) && value.EndsWith(endBackingField))
+            {
+                value = value.Substring(1, value.Length - startBackingField.Length - endBackingField.Length);
             }
 
             int i = 0;
