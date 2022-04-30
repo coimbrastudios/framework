@@ -62,7 +62,6 @@ namespace Coimbra.Inspectors.Editor
         /// <param name="predicate">The expression to check. Expects to represent a bool value.</param>
         /// <param name="conditions">The additional conditions to check.</param>
         /// <returns>True if both the expression and the conditions passes.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CheckConditions(string? predicate, DecoratorConditions? conditions)
         {
             // TODO
@@ -159,7 +158,6 @@ namespace Coimbra.Inspectors.Editor
         /// <param name="position">The initial GUI position.</param>
         /// <param name="serializedProperty">The property being drawn.</param>
         /// <returns>The total height of the drawn GUI.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float DrawSerializedProperty(Rect position, SerializedProperty serializedProperty)
         {
             IReadOnlyList<Object> scopes = serializedProperty.serializedObject.targetObjects;
