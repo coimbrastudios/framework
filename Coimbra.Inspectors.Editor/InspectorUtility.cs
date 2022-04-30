@@ -56,6 +56,12 @@ namespace Coimbra.Inspectors.Editor
             }
         }
 
+        /// <summary>
+        /// Checks a given expression and <see cref="DecoratorConditions"/>.
+        /// </summary>
+        /// <param name="predicate">The expression to check. Expects to represent a bool value.</param>
+        /// <param name="conditions">The additional conditions to check.</param>
+        /// <returns>True if both the expression and the conditions passes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CheckConditions(string? predicate, DecoratorConditions? conditions)
         {
@@ -103,8 +109,12 @@ namespace Coimbra.Inspectors.Editor
                         continue;
                     }
 
-                    totalHeight += Draw(ref position, inspectorMember, scopes, null);
-                    totalHeight += EditorGUIUtility.standardVerticalSpacing;
+                    if (i > 0)
+                    {
+                        totalHeight += EditorGUIUtility.standardVerticalSpacing;
+                    }
+
+                    totalHeight += DrawInspectorMember(ref position, inspectorMember, scopes, null);
                 }
             }
 
@@ -119,8 +129,12 @@ namespace Coimbra.Inspectors.Editor
                         continue;
                     }
 
-                    totalHeight += Draw(ref position, inspectorMember, scopes, null);
-                    totalHeight += EditorGUIUtility.standardVerticalSpacing;
+                    if (i > 0)
+                    {
+                        totalHeight += EditorGUIUtility.standardVerticalSpacing;
+                    }
+
+                    totalHeight += DrawInspectorMember(ref position, inspectorMember, scopes, null);
                 }
             }
 
@@ -153,115 +167,18 @@ namespace Coimbra.Inspectors.Editor
 
             if (inspectorCache.Members.TryGetValue(InspectorMemberId.Get(serializedProperty), out InspectorMember inspectorMember))
             {
-                if (CheckConditions(inspectorMember.HideInInspectorIfAttribute!.Predicate, inspectorMember.HideInInspectorIfAttribute.Conditions))
+                if (inspectorMember.HideInInspectorIfAttribute != null && CheckConditions(inspectorMember.HideInInspectorIfAttribute.Predicate, inspectorMember.HideInInspectorIfAttribute.Conditions))
                 {
                     return 0;
                 }
 
-                return Draw(ref position, inspectorMember, scopes, serializedProperty);
+                return DrawInspectorMember(ref position, inspectorMember, scopes, serializedProperty);
             }
 
             position.height = EditorGUI.GetPropertyHeight(serializedProperty, true);
             EditorGUI.PropertyField(position, serializedProperty, true);
 
             return position.height;
-        }
-
-        private static float Draw(ref Rect position, InspectorMember member, IReadOnlyList<Object> scopes, SerializedProperty? serializedProperty)
-        {
-            float totalHeight = 0;
-
-            InspectorDecoratorDrawerContext context = new()
-            {
-                Label = member.Label,
-                MemberInfo = member.MemberInfo,
-                Scopes = scopes,
-                SerializedProperty = serializedProperty,
-            };
-
-            position.height = 0;
-
-            for (int i = 0; i < member.DecoratorAttributes.Count; i++)
-            {
-                context.Attribute = member.DecoratorAttributes[i];
-
-                if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
-                {
-                    continue;
-                }
-
-                context.Position = position;
-                position.height = drawer.GetHeightBeforeGUI(ref context);
-                context.Position = position;
-                drawer.OnBeforeGUI(ref context);
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-
-            if (serializedProperty != null)
-            {
-                position.height = EditorGUI.GetPropertyHeight(serializedProperty, context.Label, true);
-                EditorGUI.PropertyField(position, serializedProperty, context.Label, true);
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-            else
-            {
-                position.height = EditorGUIUtility.singleLineHeight;
-
-                switch (member.MemberInfo)
-                {
-                    case FieldInfo fieldInfo:
-                    {
-                        EditorGUI.LabelField(position, context.Label.text, fieldInfo.GetValue(scopes[0]).ToString());
-
-                        break;
-                    }
-
-                    case MethodInfo methodInfo:
-                    {
-                        EditorGUI.LabelField(position, context.Label.text, methodInfo.Invoke(scopes[0], null).ToString());
-
-                        break;
-                    }
-
-                    case PropertyInfo propertyInfo:
-                    {
-                        EditorGUI.LabelField(position, context.Label.text, propertyInfo.GetValue(scopes[0]).ToString());
-
-                        break;
-                    }
-                }
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-
-            for (int i = member.DecoratorAttributes.Count - 1; i >= 0; i--)
-            {
-                context.Attribute = member.DecoratorAttributes[i];
-
-                if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
-                {
-                    continue;
-                }
-
-                context.Position = position;
-                position.height = drawer.GetHeightAfterGUI(ref context);
-                context.Position = position;
-                drawer.OnAfterGUI(ref context);
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-
-            return totalHeight;
         }
 
         private static void DrawCustomInspector(InspectorEditorBase inspectorEditor)
@@ -305,6 +222,118 @@ namespace Coimbra.Inspectors.Editor
             }
 
             inspectorEditor.serializedObject.ApplyModifiedProperties();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawDecoratorAfterGUI(ref Rect position, ref InspectorDecoratorDrawerContext context, ref float totalHeight)
+        {
+            if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
+            {
+                return;
+            }
+
+            context.Position = position;
+            position.height = drawer.GetHeightAfterGUI(ref context);
+            context.Position = position;
+            drawer.OnAfterGUI(ref context);
+
+            totalHeight += position.height;
+            position.y += position.height;
+            position.height = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawDecoratorBeforeGUI(ref Rect position, ref InspectorDecoratorDrawerContext context, ref float totalHeight)
+        {
+            if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
+            {
+                return;
+            }
+
+            context.Position = position;
+            position.height = drawer.GetHeightBeforeGUI(ref context);
+            context.Position = position;
+            drawer.OnBeforeGUI(ref context);
+
+            totalHeight += position.height;
+            position.y += position.height;
+            position.height = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void DrawMemberInfoField(ref Rect position, ref InspectorDecoratorDrawerContext context)
+        {
+            switch (context.MemberInfo)
+            {
+                case FieldInfo fieldInfo:
+                {
+                    EditorGUI.LabelField(position, context.Label.text, fieldInfo.GetValue(context.Scopes[0]).ToString());
+
+                    break;
+                }
+
+                case MethodInfo methodInfo:
+                {
+                    EditorGUI.LabelField(position, context.Label.text, methodInfo.Invoke(context.Scopes[0], null).ToString());
+
+                    break;
+                }
+
+                case PropertyInfo propertyInfo:
+                {
+                    EditorGUI.LabelField(position, context.Label.text, propertyInfo.GetValue(context.Scopes[0]).ToString());
+
+                    break;
+                }
+            }
+        }
+
+        private static float DrawInspectorMember(ref Rect position, InspectorMember member, IReadOnlyList<Object> scopes, SerializedProperty? serializedProperty)
+        {
+            float totalHeight = 0;
+
+            InspectorDecoratorDrawerContext context = new()
+            {
+                Label = member.Label,
+                MemberInfo = member.MemberInfo,
+                Scopes = scopes,
+                SerializedProperty = serializedProperty,
+            };
+
+            position.height = 0;
+
+            for (int i = 0; i < member.DecoratorAttributes.Count; i++)
+            {
+                context.Attribute = member.DecoratorAttributes[i];
+                DrawDecoratorBeforeGUI(ref position, ref context, ref totalHeight);
+            }
+
+            if (serializedProperty != null)
+            {
+                position.height = EditorGUI.GetPropertyHeight(serializedProperty, context.Label, true);
+                EditorGUI.PropertyField(position, serializedProperty, context.Label, true);
+
+                totalHeight += position.height;
+                position.y += position.height;
+                position.height = 0;
+            }
+            else
+            {
+                position.height = EditorGUIUtility.singleLineHeight;
+                DrawMemberInfoField(ref position, ref context);
+
+                totalHeight += position.height;
+                position.y += position.height;
+                position.height = 0;
+            }
+
+            for (int i = member.DecoratorAttributes.Count - 1; i >= 0; i--)
+            {
+                context.Attribute = member.DecoratorAttributes[i];
+                DrawDecoratorAfterGUI(ref position, ref context, ref totalHeight);
+            }
+
+            return totalHeight;
         }
     }
 }

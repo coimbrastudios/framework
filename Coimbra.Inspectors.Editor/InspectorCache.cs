@@ -20,8 +20,8 @@ namespace Coimbra.Inspectors.Editor
 
         private InspectorCache(Type type)
         {
-            IReadOnlyList<MemberInfo> staticMemberInfos = type.GetInspectorMembers(BindingFlags.Static);
-            IReadOnlyList<MemberInfo> instanceMemberInfos = type.GetInspectorMembers(BindingFlags.Instance);
+            IReadOnlyList<MemberInfo> staticMemberInfos = type.GetStaticInspectorMembers();
+            IReadOnlyList<MemberInfo> instanceMemberInfos = type.GetInstanceInspectorMembers();
             List<InspectorMember> staticMembersWithShowInInspector = new(staticMemberInfos.Count);
             List<InspectorMember> instanceMembersWithShowInInspector = new(instanceMemberInfos.Count);
             Dictionary<InspectorMemberId, InspectorMember> members = new(staticMemberInfos.Count + instanceMemberInfos.Count);
@@ -42,6 +42,7 @@ namespace Coimbra.Inspectors.Editor
 
                 GUIContent label = new(labelAttribute?.Label ?? CoimbraEditorGUIUtility.ToDisplayName(memberInfo.Name));
                 InspectorMember member = new(memberInfo, label, showInInspectorAttribute, null, decoratorAttribute);
+                members.Add(InspectorMemberId.Get(memberInfo), member);
                 staticMembersWithShowInInspector.Add(member);
             }
 
@@ -69,6 +70,7 @@ namespace Coimbra.Inspectors.Editor
                 };
 
                 InspectorMember member = new(memberInfo, label, showInInspectorAttribute, hideInInspectorIfAttribute, decoratorAttribute);
+                members.Add(InspectorMemberId.Get(memberInfo), member);
 
                 if (showInInspectorAttribute != null)
                 {

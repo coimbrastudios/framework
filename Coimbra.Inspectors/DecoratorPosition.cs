@@ -8,13 +8,13 @@ namespace Coimbra.Inspectors
     public enum DecoratorPosition
     {
         /// <summary>
-        /// After the field GUI.
-        /// </summary>
-        AfterGUI,
-
-        /// <summary>
         /// Before the field GUI.
         /// </summary>
         BeforeGUI,
+
+        /// <summary>
+        /// After the field GUI.
+        /// </summary>
+        AfterGUI,
     }
 }

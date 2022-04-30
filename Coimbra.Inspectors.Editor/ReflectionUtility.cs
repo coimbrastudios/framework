@@ -3,8 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
-namespace Coimbra.Editor
+namespace Coimbra.Inspectors.Editor
 {
     internal static class ReflectionUtility
     {
@@ -14,36 +15,22 @@ namespace Coimbra.Editor
 
         private const BindingFlags PrivateMethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
-        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> AllInspectorMembersFromType = new();
+        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> AllInstanceInspectorMembersFromType = new();
 
-        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> DeclaredInspectorMembersFromType = new();
+        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> AllStaticInspectorMembersFromType = new();
 
-        internal static IReadOnlyList<MemberInfo> GetInspectorMembers(this Type sourceType, BindingFlags additionalBindingFlags)
+        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> DeclaredInstanceInspectorMembersFromType = new();
+
+        private static readonly Dictionary<Type, IReadOnlyList<MemberInfo>> DeclaredStaticInspectorMembersFromType = new();
+
+        internal static IReadOnlyList<MemberInfo> GetInstanceInspectorMembers(this Type sourceType)
         {
-            if (AllInspectorMembersFromType.TryGetValue(sourceType, out IReadOnlyList<MemberInfo> results))
-            {
-                return results;
-            }
+            return GetInspectorMembers(sourceType, AllInstanceInspectorMembersFromType, DeclaredInstanceInspectorMembersFromType, BindingFlags.Instance);
+        }
 
-            List<MemberInfo> allList = new();
-            Type? currentType = sourceType;
-
-            do
-            {
-                if (!DeclaredInspectorMembersFromType.TryGetValue(currentType, out IReadOnlyList<MemberInfo> declaredList))
-                {
-                    declaredList = currentType.GetMembers(DeclaredBindingFlags | additionalBindingFlags | BindingFlags.GetField | BindingFlags.InvokeMethod | BindingFlags.GetProperty);
-                    DeclaredInspectorMembersFromType.Add(currentType, declaredList);
-                }
-
-                currentType = currentType.BaseType;
-                allList.AddRange(declaredList);
-            }
-            while (currentType != null);
-
-            AllInspectorMembersFromType.Add(sourceType, allList);
-
-            return allList;
+        internal static IReadOnlyList<MemberInfo> GetStaticInspectorMembers(this Type sourceType)
+        {
+            return GetInspectorMembers(sourceType, AllStaticInspectorMembersFromType, DeclaredStaticInspectorMembersFromType, BindingFlags.Static);
         }
 
         internal static MethodInfo? GetMethodSlow(this Type type, string name, bool includeParent)
@@ -67,6 +54,38 @@ namespace Coimbra.Editor
             }
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static IReadOnlyList<MemberInfo> GetInspectorMembers(Type sourceType,
+                                                                      Dictionary<Type, IReadOnlyList<MemberInfo>> allInspectorMembersFromType,
+                                                                      Dictionary<Type, IReadOnlyList<MemberInfo>> declaredInspectorMembersFromType,
+                                                                      BindingFlags additionalBindingFlags)
+        {
+            if (allInspectorMembersFromType.TryGetValue(sourceType, out IReadOnlyList<MemberInfo> results))
+            {
+                return results;
+            }
+
+            List<MemberInfo> allList = new();
+            Type? currentType = sourceType;
+
+            do
+            {
+                if (!declaredInspectorMembersFromType.TryGetValue(currentType, out IReadOnlyList<MemberInfo> declaredList))
+                {
+                    declaredList = currentType.GetMembers(DeclaredBindingFlags | additionalBindingFlags | BindingFlags.GetField | BindingFlags.InvokeMethod | BindingFlags.GetProperty);
+                    declaredInspectorMembersFromType.Add(currentType, declaredList);
+                }
+
+                currentType = currentType.BaseType;
+                allList.AddRange(declaredList);
+            }
+            while (currentType != null);
+
+            allInspectorMembersFromType.Add(sourceType, allList);
+
+            return allList;
         }
     }
 }
