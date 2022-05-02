@@ -9,20 +9,20 @@ namespace Coimbra
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class MessageBoxAttribute : PropertyAttribute
     {
-        public readonly bool FillLabelArea;
-
         public readonly string Message;
 
         public readonly MessageBoxType Type;
 
-        public MessageBoxAttribute(string message, MessageBoxType type)
-            : this(message, true, type) { }
+        public readonly InspectorArea Area;
 
-        public MessageBoxAttribute(string message, bool fillLabelArea = true, MessageBoxType type = MessageBoxType.None)
+        public MessageBoxAttribute(string message, InspectorArea area)
+            : this(message, MessageBoxType.None, area) { }
+
+        public MessageBoxAttribute(string message, MessageBoxType type = MessageBoxType.None, InspectorArea area = InspectorArea.Fill)
         {
-            FillLabelArea = fillLabelArea;
             Message = message;
             Type = type;
+            Area = area;
         }
     }
 }

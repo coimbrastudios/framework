@@ -172,7 +172,7 @@ namespace Coimbra
         [Pure]
         public override int GetHashCode()
         {
-            return (Min.GetHashCode() + Max.GetHashCode()) * 37;
+            return HashCode.Combine(Min, + Max);
         }
 
         [NotNull]

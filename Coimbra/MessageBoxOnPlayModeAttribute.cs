@@ -5,10 +5,10 @@ namespace Coimbra
     /// </summary>
     public sealed class MessageBoxOnPlayModeAttribute : MessageBoxAttribute
     {
-        public MessageBoxOnPlayModeAttribute(string message, MessageBoxType type)
-            : base(message, type) { }
+        public MessageBoxOnPlayModeAttribute(string message, InspectorArea area)
+            : base(message, area) { }
 
-        public MessageBoxOnPlayModeAttribute(string message, bool fillLabelArea = true, MessageBoxType type = MessageBoxType.None)
-            : base(message, fillLabelArea, type) { }
+        public MessageBoxOnPlayModeAttribute(string message, MessageBoxType type = MessageBoxType.None, InspectorArea area = InspectorArea.Fill)
+            : base(message, type, area) { }
     }
 }

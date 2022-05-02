@@ -298,7 +298,7 @@ namespace Coimbra
 
             try
             {
-                GameObject prefab = await _prefabReference.LoadAssetAsync().Task;
+                GameObject prefab = await _prefabReference.LoadAssetAsync().Task.AsUniTask().AttachExternalCancellation(DestroyCancellationToken);
 
                 if (!_prefabReference.IsValid())
                 {
@@ -309,13 +309,13 @@ namespace Coimbra
                 _prefabActor = prefab.AsActor();
                 _availableInstances = new List<Actor>(_desiredAvailableInstancesRange.Max + _shrinkStep);
 
-                await PreloadAsync(_desiredAvailableInstancesRange.Max);
+                await PreloadAsync(_desiredAvailableInstancesRange.Max).AttachExternalCancellation(DestroyCancellationToken);
 
                 ChangeCurrentState(State.Loaded);
             }
             catch (Exception e)
             {
-                Debug.LogException(e, gameObject);
+                Debug.LogException(e, CachedGameObject);
             }
         }
 
@@ -499,7 +499,7 @@ namespace Coimbra
                 _prefabActor.Pool = this;
 
                 AsyncOperationHandle<GameObject> operationHandle = _prefabReference.InstantiateAsync(_containerTransform);
-                GameObject instance = await operationHandle.Task;
+                GameObject instance = await operationHandle.Task.AsUniTask().AttachExternalCancellation(DestroyCancellationToken);
 
                 if (savedLoadFrame != _loadFrame)
                 {
@@ -546,13 +546,13 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Initialize(Actor instance, bool spawn)
         {
+            instance.Initialize();
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
             {
-                instance.gameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
+                instance.CachedGameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
             }
 #endif
-            instance.Initialize();
             OnInstanceCreated?.Invoke(this, instance);
 
             if (spawn)

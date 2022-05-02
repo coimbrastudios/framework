@@ -1,6 +1,5 @@
 ﻿using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
-using System.Threading;
 using UnityEngine;
 
 namespace Coimbra.Services.PlayerLoopEvents
@@ -158,9 +157,8 @@ namespace Coimbra.Services.PlayerLoopEvents
 
         private void Start()
         {
-            CancellationToken token = CachedGameObject.GetCancellationTokenOnDestroy();
-            InvokeFixedUpdateEvents().AttachExternalCancellation(token);
-            InvokeMainUpdateEvents().AttachExternalCancellation(token);
+            InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+            InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
         }
 
         private void FixedUpdate()
