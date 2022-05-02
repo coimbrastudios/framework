@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
@@ -26,6 +27,22 @@ namespace Coimbra
                 }
 
                 Action<T> disposeCallback = null;
+
+                if (typeof(IDictionary).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        ((IDictionary)obj).Clear();
+                    };
+                }
+
+                if (typeof(IList).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        ((IList)obj).Clear();
+                    };
+                }
 
                 if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
                 {

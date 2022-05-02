@@ -11,22 +11,22 @@ namespace Coimbra.Inspectors.Editor
     public sealed class DisableIfDrawer : IInspectorDecoratorDrawer
     {
         /// <inheritdoc/>
-        public float GetHeightAfterGUI(ref InspectorDecoratorDrawerContext context)
+        public float GetAfterGUIHeight(ref InspectorDecoratorDrawerContext context)
         {
             return 0;
         }
 
         /// <inheritdoc/>
-        public float GetHeightBeforeGUI(ref InspectorDecoratorDrawerContext context)
+        public float GetBeforeGUIHeight(ref InspectorDecoratorDrawerContext context)
         {
             return 0;
         }
 
         /// <inheritdoc/>
-        public void OnAfterGUI(ref InspectorDecoratorDrawerContext context) { }
+        public void OnAfterGUI(Rect position, ref InspectorDecoratorDrawerContext context) { }
 
         /// <inheritdoc/>
-        public void OnBeforeGUI(ref InspectorDecoratorDrawerContext context)
+        public void OnBeforeGUI(Rect position, ref InspectorDecoratorDrawerContext context)
         {
             DisableIfAttribute attribute = (DisableIfAttribute)context.Attribute;
 

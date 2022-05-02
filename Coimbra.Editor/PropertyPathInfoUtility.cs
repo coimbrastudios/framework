@@ -16,7 +16,7 @@ namespace Coimbra.Editor
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static readonly Dictionary<string, PropertyPathInfo> PropertyPathInfoMap = new();
+        private static readonly Dictionary<SerializedProperty, PropertyPathInfo> PropertyPathInfoMap = new();
 
         /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
@@ -35,9 +35,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
         {
-            string propertyPath = property.propertyPath;
-
-            if (PropertyPathInfoMap.TryGetValue(propertyPath, out PropertyPathInfo propertyPathInfo))
+            if (PropertyPathInfoMap.TryGetValue(property, out PropertyPathInfo propertyPathInfo))
             {
                 return propertyPathInfo;
             }
@@ -47,12 +45,12 @@ namespace Coimbra.Editor
             using (SharedManagedPools.Pop(out List<string> splitPropertyPath))
             {
                 splitPropertyPath.Clear();
-                splitPropertyPath.AddRange(propertyPath.Split('.'));
+                splitPropertyPath.AddRange(property.propertyPath.Split('.'));
 
                 propertyPathInfo = GetPropertyPathInfoRecursive(rootTargetType, splitPropertyPath);
             }
 
-            PropertyPathInfoMap.Add(propertyPath, propertyPathInfo);
+            PropertyPathInfoMap.Add(property, propertyPathInfo);
 
             return propertyPathInfo;
         }

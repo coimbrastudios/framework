@@ -12,7 +12,7 @@ namespace Coimbra.Inspectors.Editor
     /// </summary>
     public abstract class InspectorEditorBase : UnityEditor.Editor
     {
-        internal static Action<InspectorEditorBase> DrawCustomInspectorHandler = null!;
+        internal static Action<SerializedProperty, bool> DrawCustomInspectorsHandler = null!;
 
         /// <summary>
         /// If false, the disabled field showing the script will not be drawn.
@@ -22,16 +22,36 @@ namespace Coimbra.Inspectors.Editor
         /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
-            DrawCustomInspector();
+            serializedObject.UpdateIfRequiredOrScript();
+
+            SerializedProperty iterator = serializedObject.GetIterator();
+
+            if (iterator.NextVisible(true))
+            {
+                if (DrawScriptField)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.PropertyField(iterator, true);
+                    }
+                }
+
+                if (iterator.NextVisible(false))
+                {
+                    DrawCustomInspectors(iterator, true);
+                }
+            }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>
-        /// Custom implementation of <see cref="Editor.DrawDefaultInspector"/> with extended functionalities.
+        /// Custom each member with the extended inspector functionalities.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void DrawCustomInspector()
+        protected static void DrawCustomInspectors(SerializedProperty iterator, bool includeChildren)
         {
-            DrawCustomInspectorHandler(this);
+            DrawCustomInspectorsHandler(iterator, includeChildren);
         }
     }
 }

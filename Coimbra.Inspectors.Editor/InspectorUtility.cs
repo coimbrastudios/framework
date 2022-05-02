@@ -1,59 +1,32 @@
 #nullable enable
 
+using Coimbra.Editor;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Coimbra.Inspectors.Editor
 {
     [InitializeOnLoad]
     public static class InspectorUtility
     {
-        private static readonly Dictionary<Type, IInspectorDecoratorDrawer> DecoratorDrawerMap = new();
-
         static InspectorUtility()
         {
-            InspectorEditorBase.DrawCustomInspectorHandler = DrawCustomInspector;
-            DecoratorDrawerMap.Clear();
-
-            foreach (Type decoratorDrawerType in TypeCache.GetTypesDerivedFrom<IInspectorDecoratorDrawer>())
+            InspectorEditorBase.DrawCustomInspectorsHandler = delegate(SerializedProperty iterator, bool includeChildren)
             {
-                if (decoratorDrawerType.IsAbstract || !decoratorDrawerType.IsDefined(typeof(InspectorDecoratorDrawerAttribute)))
-                {
-                    continue;
-                }
+                Rect position = EditorGUILayout.GetControlRect(false, 0);
+                float totalHeight = DrawCustomInspectors(position, iterator, includeChildren);
+                EditorGUILayout.GetControlRect(false, totalHeight);
+            };
 
-                IInspectorDecoratorDrawer decoratorDrawer = (IInspectorDecoratorDrawer)Activator.CreateInstance(decoratorDrawerType);
+            InspectorPropertyDrawerBase.DrawCustomInspectorsHandler = delegate(Rect position, SerializedProperty iterator, bool includeChildren)
+            {
+                DrawCustomInspectors(position, iterator, includeChildren);
+            };
 
-                foreach (InspectorDecoratorDrawerAttribute decoratorDrawerAttribute in decoratorDrawerType.GetCustomAttributes<InspectorDecoratorDrawerAttribute>())
-                {
-                    if (!decoratorDrawerAttribute.Type.IsSubclassOf(typeof(InspectorDecoratorAttributeBase)))
-                    {
-                        Debug.LogError($"{nameof(InspectorDecoratorDrawerAttribute)}.{nameof(InspectorDecoratorDrawerAttribute.Type)} expects a type that inherits from {nameof(InspectorDecoratorAttributeBase)}!");
-
-                        continue;
-                    }
-
-                    DecoratorDrawerMap[decoratorDrawerAttribute.Type] = decoratorDrawer;
-
-                    if (!decoratorDrawerAttribute.UseForChildren)
-                    {
-                        continue;
-                    }
-
-                    foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(decoratorDrawerAttribute.Type))
-                    {
-                        if (!DecoratorDrawerMap.ContainsKey(derivedType))
-                        {
-                            DecoratorDrawerMap.Add(derivedType, decoratorDrawer);
-                        }
-                    }
-                }
-            }
+            InspectorPropertyDrawerBase.GetCustomInspectorsHeightHandler = GetCustomInspectorHeight;
         }
 
         /// <summary>
@@ -72,30 +45,15 @@ namespace Coimbra.Inspectors.Editor
         /// <summary>
         /// Draws all members that contains <see cref="ShowInInspectorAttribute"/>.
         /// </summary>
-        /// <param name="scopes">The list of targets being drawn.</param>
-        /// <param name="memberKinds">Member kinds to draw.</param>
-        /// <returns>The total height of the drawn GUI.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawMembersWithShowInInspector(IReadOnlyList<Object> scopes, ShowInInspectorMemberKinds memberKinds)
-        {
-            Rect position = EditorGUILayout.GetControlRect(false, 0);
-            float totalHeight = DrawMembersWithShowInInspector(position, scopes, memberKinds);
-            EditorGUILayout.GetControlRect(false, totalHeight);
-        }
-
-        /// <summary>
-        /// Draws all members that contains <see cref="ShowInInspectorAttribute"/>.
-        /// </summary>
         /// <param name="position">The initial GUI position.</param>
         /// <param name="scopes">The list of targets being drawn.</param>
         /// <param name="memberKinds">Member kinds to draw.</param>
         /// <returns>The total height of the drawn GUI.</returns>
-        public static float DrawMembersWithShowInInspector(Rect position, IReadOnlyList<Object> scopes, ShowInInspectorMemberKinds memberKinds)
+        public static float DrawMembersWithShowInInspector(Rect position, IReadOnlyList<object> scopes, ShowInInspectorMemberKinds memberKinds)
         {
             Type type = scopes[0].GetType();
             InspectorCache inspectorCache = InspectorCache.Get(type);
             float totalHeight = 0;
-            position.height = 0;
 
             if ((memberKinds & ShowInInspectorMemberKinds.Static) != 0)
             {
@@ -108,12 +66,96 @@ namespace Coimbra.Inspectors.Editor
                         continue;
                     }
 
-                    if (i > 0)
+                    float height = inspectorMember.DrawGUI(position, scopes, null, false);
+
+                    if (height > 0)
                     {
-                        totalHeight += EditorGUIUtility.standardVerticalSpacing;
+                        position.y += height + EditorGUIUtility.standardVerticalSpacing;
+                        totalHeight += height + EditorGUIUtility.standardVerticalSpacing;
+                    }
+                }
+            }
+
+            if ((memberKinds & ShowInInspectorMemberKinds.Instance) != 0)
+            {
+                for (int i = 0; i < inspectorCache.InstanceMembersWithShowInInspector.Count; i++)
+                {
+                    InspectorMember inspectorMember = inspectorCache.InstanceMembersWithShowInInspector[i];
+
+                    if (!CheckConditions(inspectorMember.ShowInInspectorAttribute!.Predicate, inspectorMember.ShowInInspectorAttribute.Conditions))
+                    {
+                        continue;
                     }
 
-                    totalHeight += DrawInspectorMember(ref position, inspectorMember, scopes, null);
+                    float height = inspectorMember.DrawGUI(position, scopes, null, false);
+
+                    if (height > 0)
+                    {
+                        position.y += height + EditorGUIUtility.standardVerticalSpacing;
+                        totalHeight += height + EditorGUIUtility.standardVerticalSpacing;
+                    }
+                }
+            }
+
+            return totalHeight > 0 ? totalHeight - EditorGUIUtility.standardVerticalSpacing : 0;
+        }
+
+        /// <summary>
+        /// Draws a <see cref="SerializedProperty"/> while processing all of its <see cref="InspectorDecoratorAttributeBase"/>.
+        /// </summary>
+        /// <param name="position">The initial GUI position.</param>
+        /// <param name="serializedProperty">The property being drawn.</param>
+        /// <param name="includeChildren">Should include the children when drawing?</param>
+        /// <returns>The total height of the drawn GUI.</returns>
+        public static float DrawSerializedProperty(Rect position, SerializedProperty serializedProperty, bool includeChildren)
+        {
+            using (SharedManagedPools.Pop(out List<object> scopes))
+            {
+                serializedProperty.GetScopes(scopes);
+
+                InspectorCache inspectorCache = InspectorCache.Get(scopes[0].GetType());
+
+                if (inspectorCache.Members.TryGetValue(InspectorMemberId.Get(serializedProperty), out InspectorMember inspectorMember))
+                {
+                    if (inspectorMember.HideInInspectorIfAttribute != null && CheckConditions(inspectorMember.HideInInspectorIfAttribute.Predicate, inspectorMember.HideInInspectorIfAttribute.Conditions))
+                    {
+                        return 0;
+                    }
+
+                    return inspectorMember.DrawGUI(position, scopes, serializedProperty, includeChildren);
+                }
+
+                position.height = EditorGUI.GetPropertyHeight(serializedProperty, includeChildren);
+                EditorGUI.PropertyField(position, serializedProperty, includeChildren);
+
+                return position.height;
+            }
+        }
+
+        /// <summary>
+        /// Gets the total height of all members that contains <see cref="ShowInInspectorAttribute"/>.
+        /// </summary>
+        /// <param name="scopes">The list of targets to calculate the height.</param>
+        /// <param name="memberKinds">Member kinds to use to calculate the height.</param>
+        /// <returns>The total height of the calculated GUI.</returns>
+        public static float GetMembersWithShowInInspectorHeight(IReadOnlyList<object> scopes, ShowInInspectorMemberKinds memberKinds)
+        {
+            Type type = scopes[0].GetType();
+            InspectorCache inspectorCache = InspectorCache.Get(type);
+            float totalHeight = 0;
+
+            if ((memberKinds & ShowInInspectorMemberKinds.Static) != 0)
+            {
+                for (int i = 0; i < inspectorCache.StaticMembersWithShowInInspector.Count; i++)
+                {
+                    InspectorMember inspectorMember = inspectorCache.StaticMembersWithShowInInspector[i];
+
+                    if (!CheckConditions(inspectorMember.ShowInInspectorAttribute!.Predicate, inspectorMember.ShowInInspectorAttribute.Conditions))
+                    {
+                        continue;
+                    }
+
+                    totalHeight += inspectorMember.GetGUIHeight(scopes, null, false) + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
@@ -133,205 +175,157 @@ namespace Coimbra.Inspectors.Editor
                         totalHeight += EditorGUIUtility.standardVerticalSpacing;
                     }
 
-                    totalHeight += DrawInspectorMember(ref position, inspectorMember, scopes, null);
+                    totalHeight += inspectorMember.GetGUIHeight(scopes, null, false) + EditorGUIUtility.standardVerticalSpacing;
                 }
             }
 
-            return totalHeight;
+            return totalHeight > 0 ? totalHeight - EditorGUIUtility.standardVerticalSpacing : 0;
         }
 
         /// <summary>
-        /// Draws a <see cref="SerializedProperty"/> while processing all of its <see cref="InspectorDecoratorAttributeBase"/>.
+        /// Gets a <see cref="SerializedProperty"/> height considering all of its <see cref="InspectorDecoratorAttributeBase"/>.
         /// </summary>
-        /// <param name="serializedProperty">The property being drawn.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawSerializedProperty(SerializedProperty serializedProperty)
+        /// <param name="serializedProperty">The property to calculate the height.</param>
+        /// <param name="includeChildren">Should include the children into the calculation?</param>
+        /// <returns>The total height of the calculated GUI.</returns>
+        public static float GetSerializedPropertyHeight(SerializedProperty serializedProperty, bool includeChildren)
         {
-            Rect position = EditorGUILayout.GetControlRect(false, 0);
-            float totalHeight = DrawSerializedProperty(position, serializedProperty);
-            EditorGUILayout.GetControlRect(false, totalHeight);
-        }
-
-        /// <summary>
-        /// Draws a <see cref="SerializedProperty"/> while processing all of its <see cref="InspectorDecoratorAttributeBase"/>.
-        /// </summary>
-        /// <param name="position">The initial GUI position.</param>
-        /// <param name="serializedProperty">The property being drawn.</param>
-        /// <returns>The total height of the drawn GUI.</returns>
-        public static float DrawSerializedProperty(Rect position, SerializedProperty serializedProperty)
-        {
-            IReadOnlyList<Object> scopes = serializedProperty.serializedObject.targetObjects;
-            InspectorCache inspectorCache = InspectorCache.Get(scopes[0].GetType());
-
-            if (inspectorCache.Members.TryGetValue(InspectorMemberId.Get(serializedProperty), out InspectorMember inspectorMember))
+            using (SharedManagedPools.Pop(out List<object> scopes))
             {
-                if (inspectorMember.HideInInspectorIfAttribute != null && CheckConditions(inspectorMember.HideInInspectorIfAttribute.Predicate, inspectorMember.HideInInspectorIfAttribute.Conditions))
+                serializedProperty.GetScopes(scopes);
+
+                InspectorCache inspectorCache = InspectorCache.Get(scopes[0].GetType());
+
+                if (inspectorCache.Members.TryGetValue(InspectorMemberId.Get(serializedProperty), out InspectorMember inspectorMember))
                 {
-                    return 0;
-                }
-
-                return DrawInspectorMember(ref position, inspectorMember, scopes, serializedProperty);
-            }
-
-            position.height = EditorGUI.GetPropertyHeight(serializedProperty, true);
-            EditorGUI.PropertyField(position, serializedProperty, true);
-
-            return position.height;
-        }
-
-        private static void DrawCustomInspector(InspectorEditorBase inspectorEditor)
-        {
-            inspectorEditor.serializedObject.UpdateIfRequiredOrScript();
-
-            SerializedProperty iterator = inspectorEditor.serializedObject.GetIterator();
-
-            if (iterator.NextVisible(true))
-            {
-                if (inspectorEditor.DrawScriptField)
-                {
-                    using (new EditorGUI.DisabledScope(true))
+                    if (inspectorMember.HideInInspectorIfAttribute != null && CheckConditions(inspectorMember.HideInInspectorIfAttribute.Predicate, inspectorMember.HideInInspectorIfAttribute.Conditions))
                     {
-                        EditorGUILayout.PropertyField(iterator, true);
+                        return 0;
+                    }
+
+                    return inspectorMember.GetGUIHeight(scopes, serializedProperty, includeChildren);
+                }
+
+                return EditorGUI.GetPropertyHeight(serializedProperty, true);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float DrawCustomInspectors(Rect position, SerializedProperty iterator, bool includeChildren)
+        {
+            using (SharedManagedPools.Pop(out List<object> scopes))
+            {
+                iterator.GetScopes(scopes);
+
+                float totalHeight = 0;
+                position.height = GetMembersWithShowInInspectorHeight(scopes, ShowInInspectorMemberKinds.Static);
+
+                if (position.height > 0)
+                {
+                    Vector2 offset = Vector2.right * EditorGUIUtility.standardVerticalSpacing;
+                    totalHeight += EditorStyles.helpBox.CalcScreenSize(position.size).y + EditorGUIUtility.standardVerticalSpacing;
+
+                    using (new GUI.GroupScope(position, EditorStyles.helpBox))
+                    {
+                        using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+                        {
+                            float height = DrawMembersWithShowInInspector(new Rect(offset, position.size - offset), scopes, ShowInInspectorMemberKinds.Static);
+
+                            if (height > 0)
+                            {
+                                position.y += height + EditorGUIUtility.standardVerticalSpacing;
+                            }
+                        }
                     }
                 }
 
-                using (new GUILayout.VerticalScope(GUI.skin.box))
-                {
-                    DrawMembersWithShowInInspector(inspectorEditor.targets, ShowInInspectorMemberKinds.Static);
-                }
-
-                while (iterator.NextVisible(false))
+                do
                 {
                     bool enabled = GUI.enabled;
                     int indentLevel = EditorGUI.indentLevel;
-                    DrawSerializedProperty(iterator);
+                    float height = DrawSerializedProperty(position, iterator, includeChildren);
+
+                    if (height > 0)
+                    {
+                        position.y += height + EditorGUIUtility.standardVerticalSpacing;
+                        totalHeight += height + EditorGUIUtility.standardVerticalSpacing;
+                    }
 
                     GUI.enabled = enabled;
                     EditorGUI.indentLevel = indentLevel;
                 }
+                while (iterator.NextVisible(false));
 
-                if (!inspectorEditor.serializedObject.isEditingMultipleObjects)
+                if (!iterator.serializedObject.isEditingMultipleObjects)
                 {
-                    using (new GUILayout.VerticalScope(GUI.skin.box))
+                    position.height = GetMembersWithShowInInspectorHeight(scopes, ShowInInspectorMemberKinds.Instance);
+
+                    if (position.height > 0)
                     {
-                        DrawMembersWithShowInInspector(inspectorEditor.targets, ShowInInspectorMemberKinds.Instance);
+                        Vector2 offset = Vector2.right * EditorGUIUtility.standardVerticalSpacing;
+                        totalHeight += EditorStyles.helpBox.CalcScreenSize(position.size).y + EditorGUIUtility.standardVerticalSpacing;
+
+                        using (new GUI.GroupScope(position, EditorStyles.helpBox))
+                        {
+                            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+                            {
+                                float height = DrawMembersWithShowInInspector(new Rect(offset, position.size - offset), scopes, ShowInInspectorMemberKinds.Instance);
+
+                                if (height > 0)
+                                {
+                                    position.y += height + EditorGUIUtility.standardVerticalSpacing;
+                                }
+                            }
+                        }
                     }
                 }
-            }
 
-            inspectorEditor.serializedObject.ApplyModifiedProperties();
+                return totalHeight > 0 ? totalHeight - EditorGUIUtility.standardVerticalSpacing : 0;
+            }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DrawDecoratorAfterGUI(ref Rect position, ref InspectorDecoratorDrawerContext context, ref float totalHeight)
+        private static float GetCustomInspectorHeight(SerializedProperty iterator, bool includeChildren)
         {
-            if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
+            using (SharedManagedPools.Pop(out List<object> scopes))
             {
-                return;
-            }
+                iterator.GetScopes(scopes);
 
-            context.Position = position;
-            position.height = drawer.GetHeightAfterGUI(ref context);
-            context.Position = position;
-            drawer.OnAfterGUI(ref context);
+                float totalHeight = 0;
+                float height = GetMembersWithShowInInspectorHeight(scopes, ShowInInspectorMemberKinds.Static);
 
-            totalHeight += position.height;
-            position.y += position.height;
-            position.height = 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DrawDecoratorBeforeGUI(ref Rect position, ref InspectorDecoratorDrawerContext context, ref float totalHeight)
-        {
-            if (!DecoratorDrawerMap.TryGetValue(context.Attribute.GetType(), out IInspectorDecoratorDrawer drawer))
-            {
-                return;
-            }
-
-            context.Position = position;
-            position.height = drawer.GetHeightBeforeGUI(ref context);
-            context.Position = position;
-            drawer.OnBeforeGUI(ref context);
-
-            totalHeight += position.height;
-            position.y += position.height;
-            position.height = 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DrawMemberInfoField(ref Rect position, ref InspectorDecoratorDrawerContext context)
-        {
-            switch (context.MemberInfo)
-            {
-                case FieldInfo fieldInfo:
+                if (height > 0)
                 {
-                    EditorGUI.LabelField(position, context.Label.text, fieldInfo.GetValue(context.Scopes[0]).ToString());
-
-                    break;
+                    totalHeight += EditorStyles.helpBox.CalcScreenSize(new Vector2(0, height)).y + EditorGUIUtility.standardVerticalSpacing;
                 }
 
-                case MethodInfo methodInfo:
+                do
                 {
-                    EditorGUI.LabelField(position, context.Label.text, methodInfo.Invoke(context.Scopes[0], null).ToString());
+                    bool enabled = GUI.enabled;
+                    int indentLevel = EditorGUI.indentLevel;
+                    height = GetSerializedPropertyHeight(iterator, includeChildren);
 
-                    break;
+                    if (height > 0)
+                    {
+                        totalHeight += height + EditorGUIUtility.standardVerticalSpacing;
+                    }
+
+                    GUI.enabled = enabled;
+                    EditorGUI.indentLevel = indentLevel;
+                }
+                while (iterator.NextVisible(false));
+
+                if (!iterator.serializedObject.isEditingMultipleObjects)
+                {
+                    height = GetMembersWithShowInInspectorHeight(scopes, ShowInInspectorMemberKinds.Instance);
+
+                    if (height > 0)
+                    {
+                        totalHeight += EditorStyles.helpBox.CalcScreenSize(new Vector2(0, height)).y + EditorGUIUtility.standardVerticalSpacing;
+                    }
                 }
 
-                case PropertyInfo propertyInfo:
-                {
-                    EditorGUI.LabelField(position, context.Label.text, propertyInfo.GetValue(context.Scopes[0]).ToString());
-
-                    break;
-                }
+                return totalHeight > 0 ? totalHeight - EditorGUIUtility.standardVerticalSpacing : 0;
             }
-        }
-
-        private static float DrawInspectorMember(ref Rect position, InspectorMember member, IReadOnlyList<Object> scopes, SerializedProperty? serializedProperty)
-        {
-            float totalHeight = 0;
-
-            InspectorDecoratorDrawerContext context = new()
-            {
-                Label = member.Label,
-                MemberInfo = member.MemberInfo,
-                Scopes = scopes,
-                SerializedProperty = serializedProperty,
-            };
-
-            position.height = 0;
-
-            for (int i = 0; i < member.DecoratorAttributes.Count; i++)
-            {
-                context.Attribute = member.DecoratorAttributes[i];
-                DrawDecoratorBeforeGUI(ref position, ref context, ref totalHeight);
-            }
-
-            if (serializedProperty != null)
-            {
-                position.height = EditorGUI.GetPropertyHeight(serializedProperty, context.Label, true);
-                EditorGUI.PropertyField(position, serializedProperty, context.Label, true);
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-            else
-            {
-                position.height = EditorGUIUtility.singleLineHeight;
-                DrawMemberInfoField(ref position, ref context);
-
-                totalHeight += position.height;
-                position.y += position.height;
-                position.height = 0;
-            }
-
-            for (int i = member.DecoratorAttributes.Count - 1; i >= 0; i--)
-            {
-                context.Attribute = member.DecoratorAttributes[i];
-                DrawDecoratorAfterGUI(ref position, ref context, ref totalHeight);
-            }
-
-            return totalHeight;
         }
     }
 }

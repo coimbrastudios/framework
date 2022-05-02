@@ -14,7 +14,7 @@ namespace Coimbra.Inspectors.Editor
     public sealed class MessageBoxDrawer : IInspectorDecoratorDrawer
     {
         /// <inheritdoc/>
-        public float GetHeightAfterGUI(ref InspectorDecoratorDrawerContext context)
+        public float GetAfterGUIHeight(ref InspectorDecoratorDrawerContext context)
         {
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)context.Attribute;
 
@@ -22,7 +22,7 @@ namespace Coimbra.Inspectors.Editor
         }
 
         /// <inheritdoc/>
-        public float GetHeightBeforeGUI(ref InspectorDecoratorDrawerContext context)
+        public float GetBeforeGUIHeight(ref InspectorDecoratorDrawerContext context)
         {
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)context.Attribute;
 
@@ -30,15 +30,15 @@ namespace Coimbra.Inspectors.Editor
         }
 
         /// <inheritdoc/>
-        public void OnAfterGUI(ref InspectorDecoratorDrawerContext context)
+        public void OnAfterGUI(Rect position, ref InspectorDecoratorDrawerContext context)
         {
-            OnGUI(ref context);
+            OnGUI(position, ref context);
         }
 
         /// <inheritdoc/>
-        public void OnBeforeGUI(ref InspectorDecoratorDrawerContext context)
+        public void OnBeforeGUI(Rect position, ref InspectorDecoratorDrawerContext context)
         {
-            OnGUI(ref context);
+            OnGUI(position, ref context);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,14 +48,13 @@ namespace Coimbra.Inspectors.Editor
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void OnGUI(ref InspectorDecoratorDrawerContext context)
+        private static void OnGUI(Rect position, ref InspectorDecoratorDrawerContext context)
         {
-            if (context.Position.height == 0)
+            if (position.height == 0)
             {
                 return;
             }
 
-            Rect position = context.Position;
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)context.Attribute;
             CoimbraEditorGUIUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area);
         }

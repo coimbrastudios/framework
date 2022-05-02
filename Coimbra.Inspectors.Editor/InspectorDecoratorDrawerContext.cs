@@ -13,11 +13,6 @@ namespace Coimbra.Inspectors.Editor
     public ref struct InspectorDecoratorDrawerContext
     {
         /// <summary>
-        /// The current inspector position.
-        /// </summary>
-        public Rect Position { get; internal set; }
-
-        /// <summary>
         /// The label considering <see cref="LabelAttribute"/> and <see cref="TooltipAttribute"/>.
         /// </summary>
         public GUIContent Label { get; internal set; }
@@ -35,7 +30,7 @@ namespace Coimbra.Inspectors.Editor
         /// <summary>
         /// All objects being inspected when editing multiple objects.
         /// </summary>
-        public IReadOnlyList<Object> Scopes { get; internal set; }
+        public IReadOnlyList<object> Scopes { get; internal set; }
 
         /// <summary>
         /// The <see cref="SerializedProperty"/> being inspected, if any.
