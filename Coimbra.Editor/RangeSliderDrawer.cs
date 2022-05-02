@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Drawer for <see cref="RangeSliderAttribute"/>.
+    /// </summary>
     [CustomPropertyDrawer(typeof(RangeSliderAttribute))]
     public sealed class RangeSliderDrawer : PropertyDrawer
     {
@@ -166,11 +169,13 @@ namespace Coimbra.Editor
             }
         }
 
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUIUtility.singleLineHeight;
         }
 
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             SerializedProperty minProperty = property.FindPropertyRelative("_min") ?? property.FindPropertyRelative("x");
