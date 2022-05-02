@@ -8,7 +8,7 @@ namespace Coimbra.Services.Events
 {
     [Preserve]
     internal static class EventCallbacks<TEvent>
-        where TEvent : IEvent, new()
+        where TEvent : IEvent
     {
         internal static readonly Dictionary<EventHandle, Event<TEvent>.Handler> Value = new(1);
 

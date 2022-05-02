@@ -24,12 +24,12 @@ namespace Coimbra.Roslyn
                                                                                          DiagnosticSeverity.Warning,
                                                                                          true);
 
-        public static readonly DiagnosticDescriptor ConcreteEventParameterlessCtorShouldBePublic = new("COIMBRA0003",
-                                                                                                       "Concrete IEvent parameterless constructor should be public.",
-                                                                                                       "Make public the parameterless constructor of {0}.",
-                                                                                                       EventsCategory,
-                                                                                                       DiagnosticSeverity.Error,
-                                                                                                       true);
+        public static readonly DiagnosticDescriptor C0003 = new("COIMBRA0003",
+                                                                      "",
+                                                                      "",
+                                                                      "",
+                                                                      DiagnosticSeverity.Hidden,
+                                                                      true);
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",
                                                                                           "ServiceLocator APIs requires an interface type as generic parameter.",

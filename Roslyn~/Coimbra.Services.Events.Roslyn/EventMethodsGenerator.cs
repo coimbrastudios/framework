@@ -71,13 +71,6 @@ namespace Coimbra.Services.Events.Roslyn
                         using (new BracesScope(sourceBuilder))
                         {
                             string typeName = typeDeclarationSyntax.GetTypeName();
-
-                            if (!typeDeclarationSyntax.HasParameterlessConstructor(out _))
-                            {
-                                sourceBuilder.AddLine($"public {typeName}() {{ }}");
-                                sourceBuilder.SkipLine();
-                            }
-
                             AddMethods(sourceBuilder, typeName);
                         }
                     }
@@ -98,6 +91,30 @@ namespace Coimbra.Services.Events.Roslyn
             const string atService = "eventService";
             const string sharedMethod = "Shared(";
             const string sharedService = "ServiceLocator.Shared.Get<IEventService>()";
+
+            void addInvokeMethods()
+            {
+                const string prefix = "bool";
+                const string name = "Invoke";
+
+                void addMethod(string method, string service)
+                {
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}(object, EventKey)\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"public new {prefix} {method}object sender, EventKey key = null)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>(sender, this, key);");
+                    }
+                }
+
+                addMethod($"{name}{atMethod}, ", atService);
+                sourceBuilder.SkipLine();
+                addMethod($"{name}{sharedMethod}", sharedService);
+            }
 
             void addMethods0(string prefix, string name)
             {
@@ -183,7 +200,7 @@ namespace Coimbra.Services.Events.Roslyn
             sourceBuilder.SkipLine();
             addMethods1("static bool", "SetEventKey", "EventKey", "eventKey");
             sourceBuilder.SkipLine();
-            addMethods2("bool", "Invoke", "object", "sender", "EventKey", "key", "null");
+            addInvokeMethods();
         }
     }
 }

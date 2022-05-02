@@ -50,14 +50,14 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public EventHandle AddListener<T>(Event<T>.Handler eventCallback)
-            where T : IEvent, new()
+            where T : IEvent
         {
             return AddListener(ref eventCallback);
         }
 
         /// <inheritdoc/>
         public bool AddListener<T>(Event<T>.Handler eventCallback, List<EventHandle> appendList)
-            where T : IEvent, new()
+            where T : IEvent
         {
             EventHandle eventHandle = AddListener(ref eventCallback);
 
@@ -73,7 +73,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool CompareEventKey<T>(EventKey eventKey)
-            where T : IEvent, new()
+            where T : IEvent
         {
             return CompareEventKey(typeof(T), eventKey);
         }
@@ -97,7 +97,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool HasAnyListeners<T>()
-            where T : IEvent, new()
+            where T : IEvent
         {
             return HasAnyListeners(typeof(T));
         }
@@ -116,7 +116,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool IsInvoking<T>()
-            where T : IEvent, new()
+            where T : IEvent
         {
             return _events.TryGetValue(typeof(T), out Event e) && e.IsInvoking;
         }
@@ -129,7 +129,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, EventKey eventKey = null)
-            where T : IEvent, new()
+            where T : IEvent
         {
             Event<T> e = new(this, eventSender);
 
@@ -138,7 +138,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
-            where T : IEvent, new()
+            where T : IEvent
         {
             Event<T> e = new(this, eventSender, ref eventData);
 
@@ -147,7 +147,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
-            where T : IEvent, new()
+            where T : IEvent
         {
             Event<T> e = new(this, eventSender, ref eventData);
 
@@ -156,7 +156,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool RemoveAllListeners<T>(EventKey eventKey = null)
-            where T : IEvent, new()
+            where T : IEvent
         {
             return RemoveAllListeners(typeof(T), eventKey);
         }
@@ -238,7 +238,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool ResetEventKey<T>(EventKey eventKey)
-            where T : IEvent, new()
+            where T : IEvent
         {
             return ResetEventKey(typeof(T), eventKey);
         }
@@ -265,7 +265,7 @@ namespace Coimbra.Services.Events
 
         /// <inheritdoc/>
         public bool SetEventKey<T>(EventKey eventKey)
-            where T : IEvent, new()
+            where T : IEvent
         {
             if (_events.TryGetValue(typeof(T), out Event e))
             {
@@ -294,7 +294,7 @@ namespace Coimbra.Services.Events
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Event Create<T>()
-            where T : IEvent, new()
+            where T : IEvent
         {
             Event e = Event.Create<T>();
             e.OnFirstListenerAdded += _firstListenerAddedHandler;
@@ -306,7 +306,7 @@ namespace Coimbra.Services.Events
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private EventHandle AddListener<T>(ref Event<T>.Handler eventCallback)
-            where T : IEvent, new()
+            where T : IEvent
         {
             if (eventCallback == null)
             {
@@ -328,7 +328,7 @@ namespace Coimbra.Services.Events
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Invoke<T>(ref Event<T> eventRef, EventKey eventKey = null)
-            where T : IEvent, new()
+            where T : IEvent
         {
             if (!_events.TryGetValue(typeof(T), out Event e))
             {

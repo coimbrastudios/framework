@@ -31,7 +31,7 @@ namespace Coimbra.Services.Events
         /// <param name="eventCallback">The callback to be added.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         EventHandle AddListener<TEvent>(Event<TEvent>.Handler eventCallback)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Adds a listener to an event type.
@@ -41,7 +41,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if a valid <see cref="EventHandle"/> was generated.</returns>
         bool AddListener<TEvent>(Event<TEvent>.Handler eventCallback, List<EventHandle> appendList)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Compares the event key for specified type.
@@ -50,7 +50,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the current event key matches the <see cref="eventKey"/> parameter.</returns>
         bool CompareEventKey<TEvent>(EventKey eventKey)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Compares the event key for specified type.
@@ -66,7 +66,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if there is any listeners for this event on this service.</returns>
         bool HasAnyListeners<TEvent>()
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Checks if an event type contains any listeners.
@@ -88,7 +88,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type</typeparam>
         /// <returns>True if the event is currently being invoked.</returns>
         bool IsInvoking<TEvent>()
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Checks if an event is currently being invoked.
@@ -105,7 +105,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type to be constructed and sent.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
         bool Invoke<TEvent>(object eventSender, EventKey eventKey = null)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Invokes the specified event type for all its listeners.
@@ -116,7 +116,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
         bool Invoke<TEvent>(object eventSender, TEvent eventData, EventKey eventKey = null)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Invokes the specified event type for all its listeners.
@@ -127,7 +127,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
         bool Invoke<TEvent>(object eventSender, ref TEvent eventData, EventKey eventKey = null)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Removes all listeners from an event type.
@@ -136,7 +136,7 @@ namespace Coimbra.Services.Events
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if removed any listener for the specified event type.</returns>
         bool RemoveAllListeners<TEvent>(EventKey eventKey = null)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Removes all listeners from an event type.
@@ -178,7 +178,7 @@ namespace Coimbra.Services.Events
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         bool ResetEventKey<TEvent>(EventKey eventKey)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
 
         /// <summary>
         /// Resets the encapsulation key for an event type;
@@ -193,6 +193,6 @@ namespace Coimbra.Services.Events
         /// <param name="eventKey">The encapsulation key for the event.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         bool SetEventKey<TEvent>(EventKey eventKey)
-            where TEvent : IEvent, new();
+            where TEvent : IEvent;
     }
 }

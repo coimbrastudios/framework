@@ -111,7 +111,7 @@ namespace Coimbra.Services.Events
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Event Create<T>()
-            where T : IEvent, new()
+            where T : IEvent
         {
             return new Event(typeof(T), EventCallbacks<T>.RemoveHandler);
         }
