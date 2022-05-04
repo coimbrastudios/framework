@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -88,10 +89,6 @@ namespace Coimbra
         private bool _changeNameOnInstantiate = true;
 
         [SerializeField]
-        [Tooltip("Should all preloaded instances start deactivated?")]
-        private bool _deactivatePreloadedInstances = true;
-
-        [SerializeField]
         [Tooltip("If true, parent will not change automatically when despawned.")]
         private bool _keepParentOnDespawn;
 
@@ -117,7 +114,7 @@ namespace Coimbra
         [Tooltip("The instances currently available.")]
         private List<Actor> _availableInstances;
 
-        private int _loadFrame;
+        private int? _loadFrame;
 
         private Actor _prefabActor;
 
@@ -157,15 +154,6 @@ namespace Coimbra
         {
             get => _changeNameOnInstantiate;
             set => _changeNameOnInstantiate = value;
-        }
-
-        /// <summary>
-        /// Should all preloaded instances start deactivated?
-        /// </summary>
-        public bool DeactivatePreloadedInstances
-        {
-            get => _deactivatePreloadedInstances;
-            set => _deactivatePreloadedInstances = value;
         }
 
         /// <summary>
@@ -270,7 +258,7 @@ namespace Coimbra
         /// <summary>
         /// Loads this pool, instancing the amount of preloaded instances in the process.
         /// </summary>
-        public async UniTask LoadAsync()
+        public async UniTask LoadAsync(CancellationToken cancellationToken = default)
         {
             if (IsDestroyed)
             {
@@ -298,7 +286,9 @@ namespace Coimbra
 
             try
             {
-                GameObject prefab = await _prefabReference.LoadAssetAsync().Task.AsUniTask().AttachExternalCancellation(DestroyCancellationToken);
+                cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, DestroyCancellationToken).Token;
+
+                GameObject prefab = await _prefabReference.LoadAssetAsync().Task.AsUniTask().AttachExternalCancellation(cancellationToken);
 
                 if (!_prefabReference.IsValid())
                 {
@@ -309,13 +299,20 @@ namespace Coimbra
                 _prefabActor = prefab.AsActor();
                 _availableInstances = new List<Actor>(_desiredAvailableInstancesRange.Max + _shrinkStep);
 
-                await PreloadAsync(_desiredAvailableInstancesRange.Max).AttachExternalCancellation(DestroyCancellationToken);
+                await PreloadAsync(_desiredAvailableInstancesRange.Max, cancellationToken);
 
                 ChangeCurrentState(State.Loaded);
             }
             catch (Exception e)
             {
-                Debug.LogException(e, CachedGameObject);
+                if (e.IsOperationCanceledException())
+                {
+                    Unload(false);
+                }
+                else
+                {
+                    Debug.LogException(e, CachedGameObject);
+                }
             }
         }
 
@@ -406,16 +403,19 @@ namespace Coimbra
         /// Unloads this pool, destroying all the current available instances in the process.
         /// </summary>
         /// <returns>True if was able to unload the pool.</returns>
-        public bool Unload()
+        public bool Unload(bool logWarning = true)
         {
             if (_currentState == State.Unloaded)
             {
-                Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
+                if (logWarning)
+                {
+                    Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
+                }
 
                 return false;
             }
 
-            _loadFrame = 0;
+            _loadFrame = null;
             _prefabActor = null;
             _prefabReference.ReleaseAsset();
             PreloadingInstancesCount = 0;
@@ -481,47 +481,47 @@ namespace Coimbra
             }
         }
 
-        private async UniTask PreloadAsync(int count)
+        private async UniTask PreloadAsync(int count, CancellationToken cancellationToken = default)
         {
-            int savedLoadFrame = _loadFrame;
-            bool savedActiveState = _prefabActor.CachedGameObject.activeSelf;
+            Debug.Assert(_loadFrame.HasValue);
 
-            if (_deactivatePreloadedInstances)
-            {
-                _prefabActor.CachedGameObject.SetActive(false);
-            }
-
+            int savedLoadFrame = _loadFrame.Value;
             PreloadingInstancesCount = count;
             _availableInstances.EnsureCapacity(_availableInstances.Count + count);
 
             while (PreloadingInstancesCount > 0)
             {
-                _prefabActor.Pool = this;
-
                 AsyncOperationHandle<GameObject> operationHandle = _prefabReference.InstantiateAsync(_containerTransform);
-                GameObject instance = await operationHandle.Task.AsUniTask().AttachExternalCancellation(DestroyCancellationToken);
+                GameObject instance = null;
 
-                if (savedLoadFrame != _loadFrame)
+                try
+                {
+                    instance = await operationHandle.Task.AsUniTask().AttachExternalCancellation(cancellationToken);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    Debug.LogException(e);
+                }
+
+                if (instance == null)
+                {
+                    return;
+                }
+
+                if (_loadFrame == null || savedLoadFrame != _loadFrame)
                 {
                     Addressables.ReleaseInstance(instance);
                     Destroy(instance);
 
-                    break;
+                    return;
                 }
 
                 --PreloadingInstancesCount;
                 instance.TryGetComponent(out Actor actorInstance);
-                actorInstance.OperationHandle = operationHandle;
                 _availableInstances.Add(actorInstance);
-                Initialize(actorInstance, false);
+                actorInstance.Initialize(this, operationHandle);
+                ProcessInstance(actorInstance, false);
             }
-
-            if (_deactivatePreloadedInstances)
-            {
-                _prefabActor.CachedGameObject.SetActive(savedActiveState);
-            }
-
-            _prefabActor.Pool = null;
         }
 
         private void Reset()
@@ -544,9 +544,28 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Initialize(Actor instance, bool spawn)
+        private Actor CreateInstance(Transform parent, bool instantiateInWorldSpace)
         {
-            instance.Initialize();
+            Actor instance = Instantiate(_prefabActor, parent, instantiateInWorldSpace);
+            instance.Initialize(this, default);
+            ProcessInstance(instance, true);
+
+            return instance;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Actor CreateInstance(Vector3 position, Quaternion rotation, Transform parent)
+        {
+            Actor instance = Instantiate(_prefabActor, position, rotation, parent);
+            instance.Initialize(this, default);
+            ProcessInstance(instance, true);
+
+            return instance;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessInstance(Actor instance, bool spawn)
+        {
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
             {
@@ -559,30 +578,6 @@ namespace Coimbra
             {
                 instance.Spawn();
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Actor CreateInstance(Transform parent, bool instantiateInWorldSpace)
-        {
-            _prefabActor.Pool = this;
-
-            Actor instance = Instantiate(_prefabActor, parent, instantiateInWorldSpace);
-            _prefabActor.Pool = null;
-            Initialize(instance, true);
-
-            return instance;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Actor CreateInstance(Vector3 position, Quaternion rotation, Transform parent)
-        {
-            _prefabActor.Pool = this;
-
-            Actor instance = Instantiate(_prefabActor, position, rotation, parent);
-            _prefabActor.Pool = null;
-            Initialize(instance, true);
-
-            return instance;
         }
     }
 }

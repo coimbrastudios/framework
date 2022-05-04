@@ -36,7 +36,7 @@ namespace Coimbra.Tests
             const string logFormat = "OnActivateStateChanged.state = {0}";
             Actor prefab = new GameObject().AddComponent<Actor>();
             Actor instance = Object.Instantiate(prefab);
-            instance.OnActiveStateChanged += delegate(Actor sender, bool state)
+            instance.OnActiveStateChanged += delegate(Actor _, bool state)
             {
                 Debug.LogFormat(logFormat, state);
             };
@@ -52,7 +52,7 @@ namespace Coimbra.Tests
             Actor prefab = new GameObject().AddComponent<Actor>();
             Actor instance = Object.Instantiate(prefab);
             instance.CachedGameObject.SetActive(false);
-            instance.OnActiveStateChanged += delegate(Actor sender, bool state)
+            instance.OnActiveStateChanged += delegate(Actor _, bool state)
             {
                 Debug.LogFormat(logFormat, state);
             };
@@ -62,13 +62,14 @@ namespace Coimbra.Tests
         }
 
         [Test]
-        public void GivenActivePrefab_AndHasPool_WhenInstantiated_ThenIsPooled()
+        public void GivenActivePrefab_AndHasPool_WhenInstantiated_ThenIsNotPooled()
         {
             Actor prefab = new GameObject().AddComponent<Actor>();
-            prefab.Pool = new GameObject().AddComponent<GameObjectPool>();
+            GameObjectPool pool = new GameObject().AddComponent<GameObjectPool>();
+            prefab.Initialize(pool, default);
 
             Actor instance = Object.Instantiate(prefab);
-            Assert.That(instance.IsPooled, Is.True);
+            Assert.That(instance.IsPooled, Is.False);
         }
 
         [UnityTest]
@@ -76,7 +77,7 @@ namespace Coimbra.Tests
         {
             const string logFormat = "OnDestroyed.reason = {0}";
             Actor instance = new GameObject().AddComponent<Actor>();
-            instance.OnDestroying += delegate(Actor sender, Actor.DestroyReason reason)
+            instance.OnDestroying += delegate(Actor _, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);
             };

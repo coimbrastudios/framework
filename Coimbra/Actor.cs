@@ -85,6 +85,8 @@ namespace Coimbra
 
         private CancellationTokenSource _destroyCancellationTokenSource;
 
+        private AsyncOperationHandle<GameObject> _operationHandle;
+
         protected Actor()
         {
             UninitializedActors.Add(this);
@@ -176,9 +178,7 @@ namespace Coimbra
         /// </summary>
         [field: SerializeField]
         [field: Disable]
-        public GameObjectPool Pool { get; internal set; }
-
-        internal AsyncOperationHandle<GameObject> OperationHandle { get; set; }
+        public GameObjectPool Pool { get; private set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(Actor actor)
@@ -215,38 +215,10 @@ namespace Coimbra
         /// <summary>
         /// Initializes this actor. It will also spawn it if not <see cref="IsPooled"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize()
         {
-            if (IsDestroyed || IsInitialized)
-            {
-                return;
-            }
-
-            IsInitialized = true;
-            CachedTransform = transform;
-            CachedGameObject = gameObject;
-            IsPrefab = CachedGameObject.scene.name == null;
-            _gameObjectID = CachedGameObject;
-            CachedActors.Add(GameObjectID, this);
-
-            if (IsPrefab)
-            {
-                OnInitializePrefab();
-
-                return;
-            }
-
-            IsPooled = Pool != null;
-            OnInitialize();
-
-            if (IsPooled)
-            {
-                PooledActors.Add(this);
-            }
-            else
-            {
-                Spawn();
-            }
+            Initialize(null, default);
         }
 
         /// <summary>
@@ -365,6 +337,42 @@ namespace Coimbra
             return PooledActors;
         }
 
+        internal void Initialize(GameObjectPool pool, AsyncOperationHandle<GameObject> operationHandle)
+        {
+            if (IsDestroyed || IsInitialized)
+            {
+                return;
+            }
+
+            Pool = pool;
+            IsInitialized = true;
+            CachedTransform = transform;
+            CachedGameObject = gameObject;
+            IsPrefab = CachedGameObject.scene.name == null;
+            _operationHandle = operationHandle;
+            _gameObjectID = CachedGameObject;
+            CachedActors.Add(GameObjectID, this);
+
+            if (IsPrefab)
+            {
+                OnInitializePrefab();
+
+                return;
+            }
+
+            IsPooled = Pool != null;
+            OnInitialize();
+
+            if (IsPooled)
+            {
+                PooledActors.Add(this);
+            }
+            else
+            {
+                Spawn();
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Spawn()
         {
@@ -468,9 +476,9 @@ namespace Coimbra
 
             OnDestroyed();
 
-            if (OperationHandle.IsValid())
+            if (_operationHandle.IsValid())
             {
-                Addressables.ReleaseInstance(OperationHandle);
+                Addressables.ReleaseInstance(_operationHandle);
             }
 
             if (callObjectDestroy)
