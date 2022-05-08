@@ -11,22 +11,22 @@ namespace Coimbra.Editor
         [SettingsProviderGroup]
         private static SettingsProvider[] CreatePoolingSettingsProvider()
         {
-            using ManagedPool<List<SettingsProvider>>.Instance _ = SharedManagedPools.Pop(out List<SettingsProvider> list);
-            list.Clear();
-
-            foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
+            using (SharedManagedPools.Pop(out List<SettingsProvider> list))
             {
-                Debug.Assert(!type.IsAbstract, $"{nameof(ProjectSettingsAttribute)} should not be used on abstract type {type.FullName}!");
-                Debug.Assert(!type.IsGenericType, $"{nameof(ProjectSettingsAttribute)} should not be used on generic type {type.FullName}!");
-                Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type), $"{type.FullName} should be a {nameof(ScriptableSettings)} to use {nameof(ProjectSettingsAttribute)}!");
+                foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
+                {
+                    Debug.Assert(!type.IsAbstract, $"{nameof(ProjectSettingsAttribute)} should not be used on abstract type {type.FullName}!");
+                    Debug.Assert(!type.IsGenericType, $"{nameof(ProjectSettingsAttribute)} should not be used on generic type {type.FullName}!");
+                    Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type), $"{type.FullName} should be a {nameof(ScriptableSettings)} to use {nameof(ProjectSettingsAttribute)}!");
 
-                ProjectSettingsAttribute attribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
-                string path = attribute.PathOverride ?? CoimbraUtility.ProjectSettingsPath;
-                string name = attribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name);
-                list.Add(new ScriptableSettingsProvider($"{path}/{name}", type));
+                    ProjectSettingsAttribute attribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
+                    string path = attribute.PathOverride ?? CoimbraUtility.ProjectSettingsPath;
+                    string name = attribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name);
+                    list.Add(new ScriptableSettingsProvider($"{path}/{name}", type));
+                }
+
+                return list.ToArray();
             }
-
-            return list.ToArray();
         }
     }
 }

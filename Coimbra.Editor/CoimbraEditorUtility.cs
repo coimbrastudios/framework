@@ -143,7 +143,6 @@ namespace Coimbra.Editor
         {
             using (SharedManagedPools.Pop(out List<UnityEngine.Object> pooledList))
             {
-                pooledList.Clear();
                 pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
 
                 int count = pooledList.Count;
@@ -160,8 +159,6 @@ namespace Coimbra.Editor
                 {
                     PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
                 }
-
-                pooledList.Clear();
             }
         }
     }

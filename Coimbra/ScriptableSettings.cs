@@ -262,7 +262,6 @@ namespace Coimbra
             {
                 using (SharedManagedPools.Pop(out List<Object> pooledList))
                 {
-                    pooledList.Clear();
                     pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
 
                     if (!pooledList.Remove(this))
@@ -275,7 +274,6 @@ namespace Coimbra
                     while (pooledList.Remove(this)) { }
 
                     UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
-                    pooledList.Clear();
                 }
             }
 #endif
@@ -352,7 +350,6 @@ namespace Coimbra
         {
             using (SharedManagedPools.Pop(out List<Object> pooledList))
             {
-                pooledList.Clear();
                 pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
 
                 if (pooledList.Contains(this))
@@ -369,7 +366,6 @@ namespace Coimbra
 
                 pooledList.Add(this);
                 UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
-                pooledList.Clear();
             }
         }
 #endif

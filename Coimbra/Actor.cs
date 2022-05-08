@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -8,6 +9,7 @@ using UnityEngine.Events;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -73,7 +75,7 @@ namespace Coimbra
 
         private static readonly List<Actor> PooledActors = new();
 
-        private static readonly List<Actor> UninitializedActors = new();
+        private static readonly List<WeakReference<Actor>> UninitializedActors = new();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new();
 
@@ -81,15 +83,15 @@ namespace Coimbra
 
         private GameObjectID? _gameObjectID;
 
+        private AsyncOperationHandle<GameObject> _operationHandle;
+
         private CancellationTokenSource _despawnCancellationTokenSource;
 
         private CancellationTokenSource _destroyCancellationTokenSource;
 
-        private AsyncOperationHandle<GameObject> _operationHandle;
-
         protected Actor()
         {
-            UninitializedActors.Add(this);
+            UninitializedActors.Add(new WeakReference<Actor>(this));
         }
 
         /// <summary>
@@ -178,12 +180,52 @@ namespace Coimbra
         /// </summary>
         [field: SerializeField]
         [field: Disable]
+        [field: Tooltip("The pool that owns this instance.")]
         public GameObjectPool Pool { get; private set; }
+
+        /// <summary>
+        /// If true, it will deactivate the prefab when initializing it.
+        /// </summary>
+        [field: SerializeField]
+        [field: DisableOnPlayMode]
+        [field: Tooltip("If true, it will deactivate the prefab when initializing it.")]
+        public bool DeactivatePrefabOnInitialize { get; set; }
+
+        /// <summary>
+        /// If true, it will activate the object when spawning it.
+        /// </summary>
+        [field: SerializeField]
+        [field: DisableOnPlayMode]
+        [field: Tooltip("If true, it will activate the object when spawning it.")]
+        public bool ActivateOnSpawn { get; set; }
+
+        /// <summary>
+        /// If true, it will deactivate the object when despawning it.
+        /// </summary>
+        [field: SerializeField]
+        [field: DisableOnPlayMode]
+        [field: Tooltip("If true, it will deactivate the object when despawning it.")]
+        public bool DeactivateOnDespawn { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(Actor actor)
         {
             return actor.CachedGameObject;
+        }
+
+        /// <summary>
+        /// Initialize all uninitialized actors. This is called for each <see cref="SceneManager.sceneLoaded"/> but can also be used after instantiating any <see cref="Actor"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InitializeActors()
+        {
+            while (UninitializedActors.Count > 0)
+            {
+                if (UninitializedActors.Pop().TryGetTarget(out Actor actor) && actor.TryGetValid(out actor))
+                {
+                    actor.Initialize();
+                }
+            }
         }
 
         /// <summary>
@@ -263,7 +305,10 @@ namespace Coimbra
         /// </summary>
         protected virtual void OnDespawn()
         {
-            CachedGameObject.SetActive(false);
+            if (DeactivateOnDespawn)
+            {
+                CachedGameObject.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -279,23 +324,44 @@ namespace Coimbra
         /// <summary>
         /// Use this for one-time initializations on prefabs.
         /// </summary>
-        protected virtual void OnInitializePrefab() { }
+        protected virtual void OnInitializePrefab()
+        {
+            if (DeactivatePrefabOnInitialize)
+            {
+                CachedGameObject.SetActive(false);
+            }
+        }
 
         /// <summary>
         /// Called each time this object is spawned. By default, it activates the object.
         /// </summary>
         protected virtual void OnSpawn()
         {
-            CachedGameObject.SetActive(true);
+            if (ActivateOnSpawn)
+            {
+                CachedGameObject.SetActive(true);
+            }
         }
 
+#if UNITY_EDITOR
         /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
         protected void Awake()
         {
-            Initialize();
+            Debug.Assert(true);
         }
+#endif
+
+#if UNITY_ASSERTIONS
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
+        /// </summary>
+        protected void Start()
+        {
+            Debug.Assert(IsInitialized, $"{nameof(Actor)}.{nameof(Initialize)} needs to be called before the {nameof(Start)} callback!", this);
+        }
+#endif
 
         /// <summary>
         /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
@@ -394,18 +460,7 @@ namespace Coimbra
 
         private static void HandleSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
         {
-            for (int i = UninitializedActors.Count - 1; i >= 0; i--)
-            {
-                Actor actor = UninitializedActors[i];
-
-                if (actor != null)
-                {
-                    actor.Initialize();
-                }
-
-                UninitializedActors.RemoveAtSwapBack(i);
-            }
-
+            InitializeActors();
             OnSceneInitialized?.Invoke(scene, loadSceneMode);
 
             if (OnSceneInitializedOnce == null)

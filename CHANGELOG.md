@@ -3,6 +3,7 @@
 ## [9.0.1] - UNRELEASED
 
 - Added missing documentation for `AbstractServiceAttribute`.
+- Added `DespawnCancellationToken` and `DestroyCancellationToken` properties to `Actor`.
 
 ## [9.0.0] - 2022-04-26
 

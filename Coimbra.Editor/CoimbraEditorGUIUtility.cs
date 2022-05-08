@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Coimbra.Editor
@@ -10,6 +13,8 @@ namespace Coimbra.Editor
     /// </summary>
     public static class CoimbraEditorGUIUtility
     {
+        private static readonly Dictionary<int, ReorderableList> ReorderableLists = new();
+
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
         /// </summary>
@@ -85,7 +90,7 @@ namespace Coimbra.Editor
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="type">The type of message.</param>
-        /// <param name="fillLabelArea">If false, the label area will be skipped.</param>
+        /// <param name="area">The inspector area to be used.</param>
         /// <param name="defaultMinContentHeight">The default min content height when no icon is present.</param>
         /// <returns></returns>
         public static float GetMessageBoxHeight(string message, MessageBoxType type, InspectorArea area, float defaultMinContentHeight)
@@ -291,11 +296,57 @@ namespace Coimbra.Editor
             return stringBuilder.ToString();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetPersistentHashCode(this PropertyModification propertyModification)
+        {
+            return GetPersistentHashCode(propertyModification.target, propertyModification.propertyPath);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetPersistentHashCode(this SerializedProperty serializedProperty)
+        {
+            return GetPersistentHashCode(serializedProperty.serializedObject.targetObject, serializedProperty.propertyPath);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsReorderableList(this PropertyModification propertyModification, out ReorderableList reorderableList)
+        {
+            return ReorderableLists.TryGetValue(propertyModification.GetPersistentHashCode(), out reorderableList);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ReorderableList ToReorderableList(this SerializedProperty serializedProperty, Action<ReorderableList> onInitialize)
+        {
+            int persistentHashCode = serializedProperty.GetPersistentHashCode();
+
+            if (ReorderableLists.TryGetValue(persistentHashCode, out ReorderableList reorderableList))
+            {
+                reorderableList.serializedProperty = serializedProperty;
+
+                return reorderableList;
+            }
+
+            reorderableList = new ReorderableList(serializedProperty.serializedObject, serializedProperty);
+            ReorderableLists.Add(persistentHashCode, reorderableList);
+            onInitialize?.Invoke(reorderableList);
+
+            return reorderableList;
+        }
+
         private static void FitIcon(string icon, ref float contentWidth, out float minContentHeight)
         {
             GUIContent iconContent = EditorGUIUtility.IconContent(icon);
             contentWidth -= iconContent.image.width;
             minContentHeight = iconContent.image.height;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetPersistentHashCode(UnityEngine.Object target, string propertyPath)
+        {
+            int targetHash = target.GetHashCode();
+            int propertyPathHash = propertyPath.GetHashCode();
+
+            return HashCode.Combine(targetHash, propertyPathHash);
         }
     }
 }

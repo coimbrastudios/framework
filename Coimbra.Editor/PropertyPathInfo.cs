@@ -34,8 +34,8 @@ namespace Coimbra.Editor
         {
             _propertyPath = null;
             FieldInfo = fieldInfo;
-            Next = next;
             Index = index;
+            Next = next;
         }
 
         private PropertyPathInfo Next { get; }
