@@ -13,11 +13,10 @@ namespace Coimbra
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetValid<T>(this T o)
-            where T : class
         {
             if (o is Object obj)
             {
-                return obj != null ? o : null;
+                return obj != null ? o : default;
             }
 
             return o;
@@ -42,7 +41,6 @@ namespace Coimbra
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValid<T>(this T o, out T valid)
-            where T : class
         {
             valid = GetValid(o);
 

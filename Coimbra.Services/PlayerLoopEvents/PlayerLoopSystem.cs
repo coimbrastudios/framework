@@ -58,6 +58,8 @@ namespace Coimbra.Services.PlayerLoopEvents
         {
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
+            InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+            InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -153,12 +155,6 @@ namespace Coimbra.Services.PlayerLoopEvents
 
                 EventService?.Invoke(this, new PostTimeUpdateEvent(Time.deltaTime), _eventKey);
             }
-        }
-
-        private void Start()
-        {
-            InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
-            InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
         }
 
         private void FixedUpdate()
