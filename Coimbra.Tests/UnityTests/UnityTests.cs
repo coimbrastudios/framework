@@ -12,7 +12,7 @@ namespace Coimbra.Tests.UnityTests
         {
             LogAssert.Expect(LogType.Log, LogBehaviour.AwakeLog);
             LogAssert.Expect(LogType.Log, LogBehaviour.EnableLog);
-            GameObject gameObject = new();
+            GameObject gameObject = new GameObject();
             gameObject.AddComponent<LogBehaviour>();
             LogAssert.NoUnexpectedReceived();
             Object.Destroy(gameObject);
@@ -23,7 +23,7 @@ namespace Coimbra.Tests.UnityTests
         {
             LogAssert.Expect(LogType.Log, LogBehaviour.AwakeLog);
             LogAssert.Expect(LogType.Log, LogBehaviour.EnableLog);
-            GameObject gameObject = new(nameof(GivenNewGameObject_ThenAwakeIsCalledWithoutDelay), typeof(LogBehaviour));
+            GameObject gameObject = new GameObject(nameof(GivenNewGameObject_ThenAwakeIsCalledWithoutDelay), typeof(LogBehaviour));
             LogAssert.NoUnexpectedReceived();
             Object.Destroy(gameObject);
         }

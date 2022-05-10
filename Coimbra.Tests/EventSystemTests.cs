@@ -68,10 +68,10 @@ namespace Coimbra.Tests
         [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
         public void RemoveListener_WhenInvoking()
         {
-            EventHandle handle1 = new();
-            EventHandle handle2 = new();
-            EventHandle handle3 = new();
-            EventHandle handle4 = new();
+            EventHandle handle1 = new EventHandle();
+            EventHandle handle2 = new EventHandle();
+            EventHandle handle3 = new EventHandle();
+            EventHandle handle4 = new EventHandle();
 
             void callback1(ref Event<TestEvent> testEvent)
             {
@@ -210,7 +210,7 @@ namespace Coimbra.Tests
         public void Invoke_AfterSetEventKey_WithCorrectKey()
         {
             const string log = nameof(log);
-            EventKey eventKey = new();
+            EventKey eventKey = new EventKey();
             _eventService.SetEventKey<TestEvent>(eventKey);
 
             _eventService.AddListener(delegate(ref Event<TestEvent> testEvent)
@@ -237,7 +237,7 @@ namespace Coimbra.Tests
             });
 
             LogAssert.Expect(LogType.Log, log);
-            EventKey eventKey = new();
+            EventKey eventKey = new EventKey();
             _eventService.SetEventKey<TestEvent>(eventKey);
             _eventService.ResetEventKey<TestEvent>(eventKey);
 

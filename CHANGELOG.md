@@ -1,9 +1,10 @@
 # Changelog
 
-## [9.0.1] - UNRELEASED
+## [10.0.0] - 2022-05-10
 
 - Added missing documentation for `AbstractServiceAttribute`.
 - Added `DespawnCancellationToken` and `DestroyCancellationToken` properties to `Actor`.
+- Changed back the minimum Unity version to 2020.3.
 
 ## [9.0.0] - 2022-04-26
 

@@ -42,16 +42,17 @@
             EventService = null;
         }
 
-        private void HandleEventServiceChanged(IService previous, IService current)
-        {
-            EventService = current as IEventService;
-        }
-
-        void IService.OnOwningLocatorChanged(ServiceLocator previous, ServiceLocator current)
+        /// <inheritdoc/>
+        protected override void OnOwningLocatorChanged(ServiceLocator previous, ServiceLocator current)
         {
             previous?.RemoveValueChangedListener<IEventService>(HandleEventServiceChanged);
             current?.AddValueChangedListener<IEventService>(HandleEventServiceChanged);
             EventService = current?.Get<IEventService>();
+        }
+
+        private void HandleEventServiceChanged(IService previous, IService current)
+        {
+            EventService = current as IEventService;
         }
     }
 }

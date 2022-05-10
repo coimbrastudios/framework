@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEditor;
@@ -15,9 +17,8 @@ namespace Coimbra.Editor
 
         internal const string ProjectUserSettingsName = "UserSettings";
 
-        private static Settings _settings;
+        private static Settings? _settings;
 
-        [NotNull]
         internal static Settings Settings => _settings ??= new Settings(new ISettingsRepository[]
         {
             new PackageSettingsRepository(CoimbraUtility.PackageName, ProjectSettingsName),

@@ -22,7 +22,7 @@ namespace Coimbra.Services.Events
 
         private readonly Action<Type> _lastListenerRemovedHandler;
 
-        private readonly Dictionary<Type, Event> _events = new();
+        private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         private EventSystem()
         {
@@ -131,7 +131,7 @@ namespace Coimbra.Services.Events
         public bool Invoke<T>(object eventSender, EventKey eventKey = null)
             where T : IEvent
         {
-            Event<T> e = new(this, eventSender);
+            Event<T> e = new Event<T>(this, eventSender);
 
             return Invoke(ref e, eventKey);
         }
@@ -140,7 +140,7 @@ namespace Coimbra.Services.Events
         public bool Invoke<T>(object eventSender, T eventData, EventKey eventKey = null)
             where T : IEvent
         {
-            Event<T> e = new(this, eventSender, ref eventData);
+            Event<T> e = new Event<T>(this, eventSender, ref eventData);
 
             return Invoke(ref e, eventKey);
         }
@@ -149,7 +149,7 @@ namespace Coimbra.Services.Events
         public bool Invoke<T>(object eventSender, ref T eventData, EventKey eventKey = null)
             where T : IEvent
         {
-            Event<T> e = new(this, eventSender, ref eventData);
+            Event<T> e = new Event<T>(this, eventSender, ref eventData);
 
             return Invoke(ref e, eventKey);
         }

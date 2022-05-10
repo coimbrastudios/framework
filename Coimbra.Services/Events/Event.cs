@@ -1,5 +1,4 @@
-﻿#nullable enable
-
+﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -23,24 +22,27 @@ namespace Coimbra.Services.Events
         /// <summary>
         /// The <see cref="IEventService"/> used to invoke the event.
         /// </summary>
+        [NotNull]
         public readonly IEventService Service;
 
         /// <summary>
         /// The object that requested the event invocation.
         /// </summary>
-        public readonly object? Sender;
+        [CanBeNull]
+        public readonly object Sender;
 
         /// <summary>
         /// The data of the event.
         /// </summary>
-        public readonly T? Data;
+        [CanBeNull]
+        public readonly T Data;
 
         /// <summary>
         /// The handle for the current call.
         /// </summary>
         public EventHandle CurrentHandle;
 
-        public Event(IEventService service, object? sender)
+        public Event([NotNull] IEventService service, [CanBeNull] object sender)
         {
             Service = service;
             Sender = sender;
@@ -48,7 +50,7 @@ namespace Coimbra.Services.Events
             CurrentHandle = default;
         }
 
-        public Event(IEventService service, object? sender, ref T data)
+        public Event([NotNull] IEventService service, [CanBeNull] object sender, ref T data)
         {
             Service = service;
             Sender = sender;
@@ -62,9 +64,10 @@ namespace Coimbra.Services.Events
     {
         internal readonly ref struct InvokeScope
         {
+            [NotNull]
             private readonly Event _event;
 
-            internal InvokeScope(Event e)
+            internal InvokeScope([NotNull] Event e)
             {
                 _event = e;
                 _event.IsInvoking = true;
@@ -83,21 +86,28 @@ namespace Coimbra.Services.Events
             }
         }
 
-        internal event Action<Type>? OnFirstListenerAdded;
+        [CanBeNull]
+        internal event Action<Type> OnFirstListenerAdded;
 
-        internal event Action<Type>? OnLastListenerRemoved;
+        [CanBeNull]
+        internal event Action<Type> OnLastListenerRemoved;
 
-        internal EventKey? Key;
+        [CanBeNull]
+        internal EventKey Key;
 
+        [NotNull]
         private readonly Type _type;
 
-        private readonly List<EventHandle> _handles = new();
+        [NotNull]
+        private readonly List<EventHandle> _handles = new List<EventHandle>();
 
-        private readonly HashSet<EventHandle> _removeSet = new();
+        [NotNull]
+        private readonly HashSet<EventHandle> _removeSet = new HashSet<EventHandle>();
 
+        [NotNull]
         private Func<EventHandle, bool> _removeCallbackHandler;
 
-        private Event(Type type, Func<EventHandle, bool> removeCallbackHandler)
+        private Event([NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler)
         {
             _type = type;
             _removeCallbackHandler = removeCallbackHandler;
@@ -109,6 +119,7 @@ namespace Coimbra.Services.Events
 
         internal bool IsInvoking { get; private set; }
 
+        [NotNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Event Create<T>()
             where T : IEvent

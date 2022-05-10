@@ -16,11 +16,11 @@ namespace Coimbra.Editor
 
         private const string UnityObjectSerializedProperty = "_unityObject";
 
-        private static readonly GUIContent ClearLabel = new("Clear");
+        private static readonly GUIContent ClearLabel = new GUIContent("Clear");
 
-        private static readonly GUIContent EmptyLabel = new(" ");
+        private static readonly GUIContent EmptyLabel = new GUIContent(" ");
 
-        private static readonly GUIContent NewLabel = new("New");
+        private static readonly GUIContent NewLabel = new GUIContent("New");
 
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -70,11 +70,11 @@ namespace Coimbra.Editor
             Type managedType = baseType.GenericTypeArguments[0];
             string suffix = $"* {managedType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
-            GUIContent labelWithTooltip = new($"{label.text}*", label.image, tooltip);
+            GUIContent labelWithTooltip = new GUIContent($"{label.text}*", label.image, tooltip);
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
             SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
 
-            using EditorGUI.PropertyScope propertyScope = new(position, labelWithTooltip, unityObject);
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, labelWithTooltip, unityObject);
 
             position.height = EditorGUI.GetPropertyHeight(unityObject, true);
 
@@ -132,7 +132,7 @@ namespace Coimbra.Editor
                 {
                     float buttonWidth = EditorStyles.miniButton.CalcSize(ClearLabel).x;
                     string separator = typename.Contains(".") ? "." : " ";
-                    GUIContent value = new(typename.Substring(typename.LastIndexOf(separator, StringComparison.Ordinal) + 1));
+                    GUIContent value = new GUIContent(typename.Substring(typename.LastIndexOf(separator, StringComparison.Ordinal) + 1));
                     Rect labelPosition = position;
                     labelPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
                     EditorGUI.LabelField(labelPosition, EmptyLabel, value);
@@ -169,7 +169,7 @@ namespace Coimbra.Editor
                 systemObject.serializedObject.ApplyModifiedProperties();
             }
 
-            GenericMenu menu = new()
+            GenericMenu menu = new GenericMenu()
             {
                 allowDuplicateNames = false,
             };
@@ -202,7 +202,7 @@ namespace Coimbra.Editor
 
         private static void DrawUnityField(Rect position, Type managedType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects, bool useManagedType)
         {
-            using EditorGUI.ChangeCheckScope changeCheckScope = new();
+            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
             UnityEngine.Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, useManagedType ? managedType : typeof(UnityEngine.Object), allowSceneObjects);
 

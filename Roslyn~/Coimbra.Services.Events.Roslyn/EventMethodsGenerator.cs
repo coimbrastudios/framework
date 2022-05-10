@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Coimbra.Services.Events.Roslyn
@@ -12,10 +13,23 @@ namespace Coimbra.Services.Events.Roslyn
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            EventContextReceiver contextReceiver = (EventContextReceiver)context.SyntaxContextReceiver;
+            static IEnumerable<TypeDeclarationSyntax> getTypes(GeneratorExecutionContext context)
+            {
+                EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
+
+                foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
+                {
+                    if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
+                     && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
+                    {
+                        yield return syntaxNode;
+                    }
+                }
+            }
+
             SourceBuilder sourceBuilder = new();
 
-            foreach (TypeDeclarationSyntax typeDeclarationSyntax in contextReceiver!.Types)
+            foreach (TypeDeclarationSyntax typeDeclarationSyntax in getTypes(context))
             {
                 sourceBuilder.Initialize();
 
@@ -82,7 +96,7 @@ namespace Coimbra.Services.Events.Roslyn
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new EventContextReceiver());
+            context.RegisterForSyntaxNotifications(() => new EventSyntaxReceiver());
         }
 
         private static void AddMethods(SourceBuilder sourceBuilder, string typeName)

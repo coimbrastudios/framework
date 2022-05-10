@@ -9,7 +9,7 @@ namespace Coimbra.Services.ApplicationStateEvents
     [AddComponentMenu("")]
     public sealed class ApplicationStateSystem : EventServiceActorBase<ApplicationStateSystem, IApplicationStateService>, IApplicationStateService
     {
-        private readonly EventKey _eventKey = new(EventKey.RestrictionOptions.DisallowInvoke);
+        private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
 
         private ApplicationStateSystem() { }
 

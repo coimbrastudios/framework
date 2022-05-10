@@ -498,7 +498,7 @@ namespace Coimbra
                 {
                     instance = await operationHandle.Task.AsUniTask().AttachExternalCancellation(cancellationToken);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception e) when (!(e is OperationCanceledException))
                 {
                     Debug.LogException(e);
                 }

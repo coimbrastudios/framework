@@ -13,7 +13,7 @@ namespace Coimbra.Editor
     /// </summary>
     public static class CoimbraEditorGUIUtility
     {
-        private static readonly Dictionary<int, ReorderableList> ReorderableLists = new();
+        private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
 
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
@@ -95,7 +95,7 @@ namespace Coimbra.Editor
         /// <returns></returns>
         public static float GetMessageBoxHeight(string message, MessageBoxType type, InspectorArea area, float defaultMinContentHeight)
         {
-            GUIContent content = new(message);
+            GUIContent content = new GUIContent(message);
             float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
             float minContentHeight;
 
@@ -133,7 +133,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            Rect rect = new(0, 0, contentWidth, 0);
+            Rect rect = new Rect(0, 0, contentWidth, 0);
             AdjustPosition(ref rect, area);
 
             float height = EditorStyles.helpBox.CalcHeight(content, rect.width);
@@ -185,7 +185,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            StringBuilder stringBuilder = new(value.Length * 2);
+            StringBuilder stringBuilder = new StringBuilder(value.Length * 2);
 
             char currentInput = value[i];
             char lastOutput = char.ToUpper(currentInput);
@@ -346,7 +346,11 @@ namespace Coimbra.Editor
             int targetHash = target.GetHashCode();
             int propertyPathHash = propertyPath.GetHashCode();
 
+#if UNITY_2021_3_OR_NEWER
             return HashCode.Combine(targetHash, propertyPathHash);
+#else
+            return ((targetHash << 5) + targetHash) ^ propertyPathHash;
+#endif
         }
     }
 }

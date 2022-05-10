@@ -22,7 +22,7 @@ namespace Coimbra.Editor
         private const string EditorStartupSceneCategory = "Editor Startup Scene";
 
         [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
-        private static readonly ProjectSetting<int> StartupSceneIndex = new("General.EditorStartupSceneIndex", -1);
+        private static readonly ProjectSetting<int> StartupSceneIndex = new ProjectSetting<int>("General.EditorStartupSceneIndex", -1);
 
         static CoimbraEditorUtility()
         {
@@ -139,7 +139,11 @@ namespace Coimbra.Editor
             }
         }
 
+#if  UNITY_2021_3_OR_NEWER
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
+#else
+        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+#endif
         {
             using (SharedManagedPools.Pop(out List<UnityEngine.Object> pooledList))
             {

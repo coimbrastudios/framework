@@ -37,7 +37,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Last<T>(this List<T> list)
         {
-            return list[^1];
+            return list[list.Count - 1];
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Pop<T>(this List<T> list)
         {
-            T item = list[^1];
+            T item = Last(list);
             RemoveLast(list);
 
             return item;
@@ -85,7 +85,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveAtSwapBack<T>(this List<T> list, int index)
         {
-            list[index] = list[^1];
+            list[index] = Last(list);
             RemoveLast(list);
         }
 

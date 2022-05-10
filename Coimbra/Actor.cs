@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Events;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
@@ -54,14 +53,19 @@ namespace Coimbra
         public delegate void DestroyHandler(Actor sender, DestroyReason reason);
 
         /// <summary>
+        /// Delegate for handling a <see cref="SceneManager.sceneLoaded"/> event after all <see cref="Actor"/> got initialized.
+        /// </summary>
+        public delegate void SceneInitializedHandler(Scene scene, LoadSceneMode mode);
+
+        /// <summary>
         /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. Use <see cref="OnSceneInitializedOnce"/> if you need to only fire it once.
         /// </summary>
-        public static event UnityAction<Scene, LoadSceneMode> OnSceneInitialized;
+        public static event SceneInitializedHandler OnSceneInitialized;
 
         /// <summary>
         /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. It resets after each call and is called after <see cref="OnSceneInitialized"/>.
         /// </summary>
-        public static event UnityAction<Scene, LoadSceneMode> OnSceneInitializedOnce;
+        public static event SceneInitializedHandler OnSceneInitializedOnce;
 
         /// <summary>
         /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
@@ -73,11 +77,11 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroying;
 
-        private static readonly List<Actor> PooledActors = new();
+        private static readonly List<Actor> PooledActors = new List<Actor>();
 
-        private static readonly List<WeakReference<Actor>> UninitializedActors = new();
+        private static readonly List<WeakReference<Actor>> UninitializedActors = new List<WeakReference<Actor>>();
 
-        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new();
+        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
         private bool _isUnloadingScene;
 

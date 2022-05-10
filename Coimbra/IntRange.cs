@@ -172,7 +172,11 @@ namespace Coimbra
         [Pure]
         public override int GetHashCode()
         {
-            return HashCode.Combine(Min, + Max);
+#if UNITY_2021_3_OR_NEWER
+            return HashCode.Combine(Min, Max);
+#else
+            return ((Vector2Int)this).GetHashCode();
+#endif
         }
 
         [NotNull]

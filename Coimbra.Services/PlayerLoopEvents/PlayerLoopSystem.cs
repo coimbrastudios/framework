@@ -1,5 +1,6 @@
 ﻿using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 namespace Coimbra.Services.PlayerLoopEvents
@@ -10,7 +11,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     [AddComponentMenu("")]
     public sealed class PlayerLoopSystem : EventServiceActorBase<PlayerLoopSystem, IPlayerLoopService>, IPlayerLoopService
     {
-        private readonly EventKey _eventKey = new(EventKey.RestrictionOptions.DisallowInvoke);
+        private readonly EventKey _eventKey = new EventKey(EventKey.RestrictionOptions.DisallowInvoke);
 
         private PlayerLoopSystem() { }
 
@@ -58,8 +59,16 @@ namespace Coimbra.Services.PlayerLoopEvents
         {
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
-            InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
-            InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+
+            IEnumerator coroutine()
+            {
+                yield return null;
+
+                InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+            }
+
+            StartCoroutine(coroutine());
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -81,11 +90,11 @@ namespace Coimbra.Services.PlayerLoopEvents
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
 
                 float deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new FirstFixedUpdateEvent(deltaTime), _eventKey);
+                new FirstFixedUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate);
 
-                EventService?.Invoke(this, new LastFixedUpdateEvent(deltaTime), _eventKey);
+                new LastFixedUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
             }
         }
 
@@ -96,64 +105,70 @@ namespace Coimbra.Services.PlayerLoopEvents
                 await UniTask.Yield(PlayerLoopTiming.Initialization);
 
                 float deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new FirstInitializationEvent(deltaTime), _eventKey);
+
+                new FirstInitializationEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastInitialization);
 
-                EventService?.Invoke(this, new LastInitializationEvent(deltaTime), _eventKey);
+                new LastInitializationEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.EarlyUpdate);
 
                 deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new FirstEarlyUpdateEvent(deltaTime), _eventKey);
+
+                new FirstEarlyUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastEarlyUpdate);
 
-                EventService?.Invoke(this, new LastEarlyUpdateEvent(deltaTime), _eventKey);
+                new LastEarlyUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.PreUpdate);
 
                 deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new FirstPreUpdateEvent(deltaTime), _eventKey);
+
+                new FirstPreUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastPreUpdate);
 
-                EventService?.Invoke(this, new LastPreUpdateEvent(deltaTime), _eventKey);
+                new LastPreUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.Update);
 
                 deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new FirstUpdateEvent(deltaTime), _eventKey);
+
+                new FirstUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastUpdate);
 
-                EventService?.Invoke(this, new LastUpdateEvent(deltaTime), _eventKey);
+                new LastUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.PreLateUpdate);
 
                 deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new PreLateUpdateEvent(deltaTime), _eventKey);
+
+                new PreLateUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate);
 
-                EventService?.Invoke(this, new FirstPostLateUpdateEvent(deltaTime), _eventKey);
+                new FirstPostLateUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
 
                 deltaTime = Time.deltaTime;
-                EventService?.Invoke(this, new PostLateUpdateEvent(deltaTime), _eventKey);
+
+                new PostLateUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
-                EventService?.Invoke(this, new LastPostLateUpdateEvent(deltaTime), _eventKey);
+                new LastPostLateUpdateEvent(deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.TimeUpdate);
 
-                EventService?.Invoke(this, new PreTimeUpdateEvent(Time.deltaTime), _eventKey);
+                new PreTimeUpdateEvent(Time.deltaTime).InvokeAt(EventService, this, _eventKey);
 
                 await UniTask.Yield(PlayerLoopTiming.LastTimeUpdate);
 
-                EventService?.Invoke(this, new PostTimeUpdateEvent(Time.deltaTime), _eventKey);
+                new PostTimeUpdateEvent(Time.deltaTime).InvokeAt(EventService, this, _eventKey);
             }
         }
 
