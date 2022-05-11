@@ -11,7 +11,8 @@ namespace Coimbra.Services.Events.Roslyn
     public sealed class EventDeclarationAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial,
-                                                                                                           Diagnostics.ConcreteEventShouldNotBeNested);
+                                                                                                           Diagnostics.ConcreteEventShouldNotBeNested,
+                                                                                                           Diagnostics.ClassEventShouldBeEitherAbstractOrSealed);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -38,6 +39,11 @@ namespace Coimbra.Services.Events.Roslyn
             if (!typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldBePartial, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
+            }
+
+            if (typeDeclarationSyntax is ClassDeclarationSyntax && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword) && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ClassEventShouldBeEitherAbstractOrSealed, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }
         }
     }

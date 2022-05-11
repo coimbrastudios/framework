@@ -12,12 +12,9 @@ Package of general utilities to be used with Unity development.
     - `Disable`: To disable a field so that it can't be edited. There is also `OnEditMode` and `OnPlayMode` versions.
     - `Indent`: To indent a field by the amount of steps specified.
     - `MessageBox`: To display a message above a field. There is also `OnEditMode` and `OnPlayMode` versions.
-- GameObject Extensions: Easily check if a GameObject `IsPersistent` or fake-cast it to `Actor`.
 - GameObject Pools: Specialized pooling implementation for GameObjects with auto resizing functionality.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
-- List Extensions: A few useful methods for common operations.
-- Object Extensions: Methods to have a safe way to use `?.` and `??` operators in Unity Objects.
 - Property Attributes: Property attributes fully compatible with Unity's standard workflow:
     - `IntRange`: Draws a property as if it was a `IntRange`.
     - `FloatRange`: Draws a property as if it was a `FloatRange`.
@@ -40,6 +37,7 @@ Package of general utilities to be used with Unity development.
     - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
     - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
 - Scriptable Settings: Easily access ScriptableObjects from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute`.
+- Utilities & Extensions: Check if a GameObject `IsPersistent` or fake-cast it to `Actor`, use `?.` and `??` safely wth Unity Objects, and much more.
 
 ## Dependencies
 
@@ -51,10 +49,11 @@ Package of general utilities to be used with Unity development.
 |-------------|:------------------------------------------------------------------------------------------------------|----------|----------|
 | COIMBRA0001 | Concrete IEvent should be partial.                                                                    | Warning  | Yes      |
 | COIMBRA0002 | Concrete IEvent should not be a nested type.                                                          | Warning  | Yes      |
-| COIMBRA0003 | Concrete IEvent parameterless constructor should be public.                                           | Error    | Yes      |
+| COIMBRA0003 | Class events should be either abstract or sealed.                                                     | Warning  | No       |
 | COIMBRA0004 | ServiceLocator APIs requires an interface type as generic parameter.                                  | Error    | No       |
 | COIMBRA0005 | ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter. | Error    | No       |
 | COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |
 | COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
 | COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | No       |
+| COIMBRA0009 | IEventService generic APIs should not be used directly.                                               | Error    | No       |
 

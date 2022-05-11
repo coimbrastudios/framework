@@ -1,8 +1,11 @@
 ﻿using JetBrains.Annotations;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -54,7 +57,7 @@ namespace Coimbra
         public event Action<T> OnPop;
 
         /// <summary>
-        /// Called when returning an instance from the pool.
+        /// Called when returning an instance to the pool.
         /// </summary>
         public event Action<T> OnPush;
 
@@ -212,6 +215,125 @@ namespace Coimbra
 
             OnDelete?.Invoke(instance);
             _disposeCallback?.Invoke(instance);
+        }
+    }
+
+    /// <summary>
+    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor. It also has special treatment for <see cref="IDictionary"/>, <see cref="IList"/>, <see cref="IDisposable"/>, and <see cref="Object"/>.
+    /// </summary>
+    [Preserve]
+    public static class ManagedPool
+    {
+        [Preserve]
+        internal static class Instance<T>
+            where T : class, new()
+        {
+            internal static readonly ManagedPool<T> Value;
+
+            static Instance()
+            {
+                static T createCallback()
+                {
+                    return new T();
+                }
+
+                Action<T> disposeCallback = null;
+
+                if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        if (obj.TryGetValid(out T valid))
+                        {
+                            ((IDisposable)valid).Dispose();
+                        }
+                    };
+                }
+
+                if (typeof(Object).IsAssignableFrom(typeof(T)))
+                {
+                    disposeCallback += delegate(T obj)
+                    {
+                        if ((obj as Object).TryGetValid(out Object valid))
+                        {
+                            if (CoimbraUtility.IsPlayMode)
+                            {
+                                Object.Destroy(valid);
+                            }
+                            else
+                            {
+                                Object.DestroyImmediate(valid);
+                            }
+                        }
+                    };
+                }
+
+                Value = new ManagedPool<T>(createCallback, disposeCallback);
+
+                if (typeof(IDictionary).IsAssignableFrom(typeof(T)))
+                {
+                    Value.OnPush += delegate(T obj)
+                    {
+                        ((IDictionary)obj).Clear();
+                    };
+                }
+
+                if (typeof(IList).IsAssignableFrom(typeof(T)))
+                {
+                    Value.OnPush += delegate(T obj)
+                    {
+                        ((IList)obj).Clear();
+                    };
+                }
+            }
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.MaxCapacity"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetMaxCapacity<T>()
+            where T : class, new()
+        {
+            return Instance<T>.Value.MaxCapacity;
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.PreloadCount"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetPreloadCount<T>()
+            where T : class, new()
+        {
+            return Instance<T>.Value.PreloadCount;
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.Initialize"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Initialize<T>(int? preloadCount = null, int? maxCapacity = null)
+            where T : class, new()
+        {
+            Instance<T>.Value.Initialize(preloadCount, maxCapacity);
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.Pop()"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Pop<T>()
+            where T : class, new()
+        {
+            return Instance<T>.Value.Pop();
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.Pop()"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ManagedPool<T>.Instance Pop<T>([NotNull] out T instance)
+            where T : class, new()
+        {
+            return Instance<T>.Value.Pop(out instance);
+        }
+
+        /// <inheritdoc cref="ManagedPool{T}.Push"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Push<T>([NotNull] in T instance)
+            where T : class, new()
+        {
+            Instance<T>.Value.Push(in instance);
         }
     }
 }

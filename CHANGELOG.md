@@ -1,10 +1,14 @@
 # Changelog
 
-## [10.0.0] - 2022-05-10
+## [10.0.0] - 2022-05-11
 
+- Added new diagnostics to identify wrong usage of `IEventService`.
 - Added missing documentation for `AbstractServiceAttribute`.
 - Added `DespawnCancellationToken` and `DestroyCancellationToken` properties to `Actor`.
+- Added `GetListenerCount` to event-related APIs.
 - Changed back the minimum Unity version to 2020.3.
+- Changed for each system to be in its own assembly.
+- Removed `HasAnyListeners` from event-related APIs.
 
 ## [9.0.0] - 2022-04-26
 

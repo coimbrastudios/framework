@@ -37,6 +37,7 @@ namespace Coimbra.Services.Events.Roslyn
                 {
                     sourceBuilder.AddUsing("Coimbra.Services");
                     sourceBuilder.AddUsing("Coimbra.Services.Events");
+                    sourceBuilder.AddUsing("System.CodeDom.Compiler");
                     sourceBuilder.AddUsing("System.Collections.Generic");
                     sourceBuilder.AddUsing("System.Runtime.CompilerServices");
                     sourceBuilder.SkipLine();
@@ -105,40 +106,45 @@ namespace Coimbra.Services.Events.Roslyn
             const string atService = "eventService";
             const string sharedMethod = "Shared(";
             const string sharedService = "ServiceLocator.Shared.Get<IEventService>()";
+            string generatedCodeAttribute = $"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]";
 
             void addInvokeMethods()
             {
-                const string prefix = "bool";
-                const string name = "Invoke";
+                const string returnType = "bool";
+                const string serviceMethod = "Invoke";
 
                 void addMethod(string method, string service)
                 {
                     sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}(object, EventKey)\"/>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
                     sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
                     sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"public new {prefix} {method}object sender, EventKey key = null)");
+                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender)");
 
                     using (new BracesScope(sourceBuilder))
                     {
-                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>(sender, this, key);");
+                        sourceBuilder.AddLine($"return {service}?.{serviceMethod}<{typeName}>(sender, this) ?? false;");
                     }
                 }
 
-                addMethod($"{name}{atMethod}, ", atService);
+                addMethod($"Try{serviceMethod}{atMethod}, ", atService);
                 sourceBuilder.SkipLine();
-                addMethod($"{name}{sharedMethod}", sharedService);
+                addMethod($"Try{serviceMethod}{sharedMethod}", sharedService);
             }
 
-            void addMethods0(string prefix, string name)
+            void addMethods0(string prefix, string name, string access)
             {
                 void addMethod(string method, string service)
                 {
                     sourceBuilder.AddLine("/// <summary>");
                     sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}\"/>");
                     sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
                     sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"public new {prefix} {method})");
+                    sourceBuilder.AddLine($"{access} new {prefix} {method})");
 
                     using (new BracesScope(sourceBuilder))
                     {
@@ -158,6 +164,8 @@ namespace Coimbra.Services.Events.Roslyn
                     sourceBuilder.AddLine("/// <summary>");
                     sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType)})\"/>");
                     sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
                     sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
                     sourceBuilder.AddLine($"public new {prefix} {method}{paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
 
@@ -179,6 +187,8 @@ namespace Coimbra.Services.Events.Roslyn
                     sourceBuilder.AddLine("/// <summary>");
                     sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType1)}, {validateComment(paramType2)})\"/>");
                     sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
                     sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
                     sourceBuilder.AddLine($"public new {prefix} {method}{paramType1} {paramName1}, {paramType2} {paramName2}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
 
@@ -193,6 +203,52 @@ namespace Coimbra.Services.Events.Roslyn
                 addMethod($"{name}{sharedMethod}", sharedService);
             }
 
+            void addStaticInvokeMethods()
+            {
+                const string returnType = "static bool";
+                const string serviceMethod = "Invoke";
+
+                void addMethod0(string method, string service)
+                {
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{serviceMethod}<{typeName}>(sender);");
+                    }
+                }
+
+                void addMethod1(string method, string service)
+                {
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine("[CompilerGenerated]");
+                    sourceBuilder.AddLine(generatedCodeAttribute);
+                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender, ref {typeName} data)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {service}.{serviceMethod}<{typeName}>(sender, ref data);");
+                    }
+                }
+
+                addMethod0($"{serviceMethod}{atMethod}, ", atService);
+                sourceBuilder.SkipLine();
+                addMethod1($"{serviceMethod}{atMethod}, ", atService);
+                sourceBuilder.SkipLine();
+                addMethod0($"{serviceMethod}{sharedMethod}", sharedService);
+                sourceBuilder.SkipLine();
+                addMethod1($"{serviceMethod}{sharedMethod}", sharedService);
+            }
+
             string validateComment(string value)
             {
                 return value.Replace('<', '{').Replace('>', '}').Replace(typeName, "T");
@@ -202,17 +258,13 @@ namespace Coimbra.Services.Events.Roslyn
             sourceBuilder.SkipLine();
             addMethods2("static bool", "AddListener", $"Event<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
             sourceBuilder.SkipLine();
-            addMethods1("static bool", "CompareEventKey", "EventKey", "eventKey");
+            addMethods0("static int", "GetListenerCount", "public");
             sourceBuilder.SkipLine();
-            addMethods0("static bool", "HasAnyListeners");
+            addMethods0("static bool", "IsInvoking", "public");
             sourceBuilder.SkipLine();
-            addMethods0("static bool", "IsInvoking");
+            addStaticInvokeMethods();
             sourceBuilder.SkipLine();
-            addMethods1("static bool", "RemoveAllListeners", "EventKey", "eventKey", "null");
-            sourceBuilder.SkipLine();
-            addMethods1("static bool", "ResetEventKey", "EventKey", "eventKey");
-            sourceBuilder.SkipLine();
-            addMethods1("static bool", "SetEventKey", "EventKey", "eventKey");
+            addMethods0("static bool", "RemoveAllListeners", "internal");
             sourceBuilder.SkipLine();
             addInvokeMethods();
         }

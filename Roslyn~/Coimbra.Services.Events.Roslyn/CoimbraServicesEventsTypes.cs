@@ -4,6 +4,8 @@
     {
         public const string EventInterface = "IEvent";
 
+        public const string EventServiceInterface = "IEventService";
+
         public const string Namespace = "Coimbra.Services.Events";
     }
 }

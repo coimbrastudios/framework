@@ -24,12 +24,12 @@ namespace Coimbra.Roslyn
                                                                                          DiagnosticSeverity.Warning,
                                                                                          true);
 
-        public static readonly DiagnosticDescriptor C0003 = new("COIMBRA0003",
-                                                                      "",
-                                                                      "",
-                                                                      "",
-                                                                      DiagnosticSeverity.Hidden,
-                                                                      true);
+        public static readonly DiagnosticDescriptor ClassEventShouldBeEitherAbstractOrSealed = new("COIMBRA0003",
+                                                                                                   "Class events should be either abstract or sealed.",
+                                                                                                   "Add sealed or abstract keyword to {0}.",
+                                                                                                   EventsCategory,
+                                                                                                   DiagnosticSeverity.Warning,
+                                                                                                   true);
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",
                                                                                           "ServiceLocator APIs requires an interface type as generic parameter.",
@@ -65,6 +65,13 @@ namespace Coimbra.Roslyn
                                                                                                            ServicesCategory,
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
+
+        public static readonly DiagnosticDescriptor EventServiceGenericAPIsSholdNotBeUsed = new("COIMBRA0009",
+                                                                                                "IEventService generic APIs should not be used directly.",
+                                                                                                "Use {0}.{1} instead.",
+                                                                                                EventsCategory,
+                                                                                                DiagnosticSeverity.Error,
+                                                                                                true);
     }
 }
 

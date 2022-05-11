@@ -1,8 +1,12 @@
 {
-    "name": "Coimbra.Services",
+    "name": "Coimbra.Services.Pooling",
     "rootNamespace": "",
     "references": [
-        "GUID:6aabbee860c32c64d9bbd52d0704ed2c"
+        "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
+        "GUID:d2bbca7254de5e746857b04cfb560876",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:84651a3751eca9349aac36a66bba901b"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
