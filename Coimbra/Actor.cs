@@ -218,6 +218,15 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Is the <see cref="Actor"/> representation of specified <see cref="GameObject"/> cached?
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasCachedActor(GameObject gameObject, out Actor actor)
+        {
+            return CachedActors.TryGetValue(gameObject, out actor);
+        }
+
+        /// <summary>
         /// Initialize all uninitialized actors. This is called for each <see cref="SceneManager.sceneLoaded"/> but can also be used after instantiating any <see cref="Actor"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -230,15 +239,6 @@ namespace Coimbra
                     actor.Initialize();
                 }
             }
-        }
-
-        /// <summary>
-        /// Is the <see cref="Actor"/> representation of specified <see cref="GameObject"/> cached?
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasCachedActor(GameObject gameObject, out Actor actor)
-        {
-            return CachedActors.TryGetValue(gameObject, out actor);
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace Coimbra.Services.Timers
         /// </summary>
         public static ITimerService Create()
         {
-            return new GameObject(nameof(TimerSystem)).AddComponent<TimerSystem>();
+            return new GameObject(nameof(TimerSystem)).AsActor<TimerSystem>();
         }
 
         /// <inheritdoc/>

@@ -21,6 +21,8 @@ namespace Coimbra.Editor
 
         private const string EditorStartupSceneCategory = "Editor Startup Scene";
 
+        private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
+
         [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
         private static readonly ProjectSetting<int> StartupSceneIndex = new ProjectSetting<int>("General.EditorStartupSceneIndex", -1);
 
@@ -95,6 +97,21 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(asset, path);
         }
 
+        /// <summary>
+        /// Reset the <see cref="EditorSceneManager.playModeStartScene"/> back to null.
+        /// </summary>
+        [MenuItem(ResetPlayModeStartSceneMenuItem)]
+        public static void ResetPlayModeStartScene()
+        {
+            EditorSceneManager.playModeStartScene = null;
+        }
+
+        [MenuItem(ResetPlayModeStartSceneMenuItem, true)]
+        private static bool CanResetPlayModeStartScene()
+        {
+            return EditorSceneManager.playModeStartScene != null;
+        }
+
         private static void HandleBeforeAssemblyReload()
         {
             CoimbraUtility.IsReloadingScripts = true;
@@ -102,7 +119,18 @@ namespace Coimbra.Editor
 
         private static void ConfigureStartupScene(PlayModeStateChange state)
         {
-            if (StartupSceneIndex.value < 0 || StartupSceneIndex.value >= SceneManager.sceneCountInBuildSettings)
+            switch (state)
+            {
+                case PlayModeStateChange.ExitingPlayMode:
+                case PlayModeStateChange.EnteredEditMode:
+                {
+                    EditorSceneManager.playModeStartScene = null;
+
+                    break;
+                }
+            }
+
+            if (StartupSceneIndex.value < 0 || StartupSceneIndex.value >= SceneManager.sceneCountInBuildSettings || EditorSceneManager.playModeStartScene != null)
             {
                 return;
             }
@@ -139,11 +167,7 @@ namespace Coimbra.Editor
             }
         }
 
-#if  UNITY_2021_3_OR_NEWER
-        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
-#else
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
-#endif
         {
             using (ManagedPool.Pop(out List<UnityEngine.Object> pooledList))
             {

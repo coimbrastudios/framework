@@ -15,7 +15,7 @@ namespace Coimbra.Services.Coroutines
         /// </summary>
         public static ICoroutineService Create()
         {
-            return new GameObject(nameof(CoroutineSystem)).AddComponent<CoroutineSystem>();
+            return new GameObject(nameof(CoroutineSystem)).AsActor<CoroutineSystem>();
         }
 
         /// <inheritdoc/>

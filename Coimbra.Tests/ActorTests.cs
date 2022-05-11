@@ -10,32 +10,13 @@ namespace Coimbra.Tests
     public class GameObjectBehaviourTests
     {
         [Test]
-        public void GivenActivePrefab_WhenInstantiated_ThenCachesAreValid()
-        {
-            Actor prefab = new GameObject().AddComponent<Actor>();
-            Actor instance = Object.Instantiate(prefab);
-            Assert.That(instance.CachedGameObject, Is.Not.Null);
-            Assert.That(instance.CachedTransform, Is.Not.Null);
-        }
-
-        [Test]
-        public void GivenInactivePrefab_WhenInstantiated_ThenCachesAreInvalid()
-        {
-            GameObject prefab = new GameObject();
-            prefab.SetActive(false);
-
-            Actor prefabBehaviour = prefab.AddComponent<Actor>();
-            Actor instance = Object.Instantiate(prefabBehaviour);
-            Assert.That(instance.CachedGameObject, Is.Null);
-            Assert.That(instance.CachedTransform, Is.Null);
-        }
-
-        [Test]
         public void GivenActiveInstance_WhenDisabled_ThenActiveStateChangedTriggers_AndStateIsFalse()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            Actor prefab = new GameObject().AddComponent<Actor>();
+            Actor prefab = new GameObject().AsActor();
             Actor instance = Object.Instantiate(prefab);
+            instance.Initialize();
+
             instance.OnActiveStateChanged += delegate(Actor _, bool state)
             {
                 Debug.LogFormat(logFormat, state);
@@ -49,9 +30,11 @@ namespace Coimbra.Tests
         public void GivenInactiveInstance_AndWasActive_WhenEnabled_ThenActivateStateChangedTriggers_AndStateIsTrue()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            Actor prefab = new GameObject().AddComponent<Actor>();
+            Actor prefab = new GameObject().AsActor();
             Actor instance = Object.Instantiate(prefab);
+            instance.Initialize();
             instance.CachedGameObject.SetActive(false);
+
             instance.OnActiveStateChanged += delegate(Actor _, bool state)
             {
                 Debug.LogFormat(logFormat, state);
@@ -64,11 +47,12 @@ namespace Coimbra.Tests
         [Test]
         public void GivenActivePrefab_AndHasPool_WhenInstantiated_ThenIsNotPooled()
         {
-            Actor prefab = new GameObject().AddComponent<Actor>();
-            GameObjectPool pool = new GameObject().AddComponent<GameObjectPool>();
+            Actor prefab = new GameObject().AsActor();
+            GameObjectPool pool = new GameObject().AsActor<GameObjectPool>();
             prefab.Initialize(pool, default);
 
             Actor instance = Object.Instantiate(prefab);
+            instance.Initialize();
             Assert.That(instance.IsPooled, Is.False);
         }
 
@@ -76,7 +60,8 @@ namespace Coimbra.Tests
         public IEnumerator GivenActiveInstance_WhenDestroyedByDestroyCall_ThenResultIsExplicitCall()
         {
             const string logFormat = "OnDestroyed.reason = {0}";
-            Actor instance = new GameObject().AddComponent<Actor>();
+            Actor instance = new GameObject().AsActor();
+
             instance.OnDestroying += delegate(Actor _, Actor.DestroyReason reason)
             {
                 Debug.LogFormat(logFormat, reason);

@@ -24,15 +24,19 @@ namespace Coimbra.Services.ApplicationStateEvents
         /// </summary>
         public static IApplicationStateService Create()
         {
-            return new GameObject(nameof(ApplicationStateSystem)).AddComponent<ApplicationStateSystem>();
+            return new GameObject(nameof(ApplicationStateSystem)).AsActor<ApplicationStateSystem>();
         }
 
         /// <inheritdoc/>
         protected override void OnDestroyed()
         {
-            ApplicationFocusEvent.RemoveAllListenersAt(EventService);
-            ApplicationPauseEvent.RemoveAllListenersAt(EventService);
-            ApplicationQuitEvent.RemoveAllListenersAt(EventService);
+            if (EventService != null)
+            {
+                ApplicationFocusEvent.RemoveAllListenersAt(EventService);
+                ApplicationPauseEvent.RemoveAllListenersAt(EventService);
+                ApplicationQuitEvent.RemoveAllListenersAt(EventService);
+            }
+
             base.OnDestroyed();
         }
 

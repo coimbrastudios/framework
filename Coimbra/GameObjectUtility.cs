@@ -13,14 +13,26 @@ namespace Coimbra
         private const string DontDestroyOnLoadScene = "DontDestroyOnLoad";
 
         /// <summary>
-        /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
+        /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, initializing it as the specified type if no <see cref="Actor"/> component is found.
         /// </summary>
         [CanBeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TActor AsActor<TActor>(this GameObject gameObject)
             where TActor : Actor
         {
-            return AsActor(gameObject) as TActor;
+            if (Actor.HasCachedActor(gameObject, out Actor actor))
+            {
+                return actor as TActor;
+            }
+
+            if (!gameObject.TryGetComponent(out actor))
+            {
+                actor = gameObject.AddComponent<TActor>();
+            }
+
+            actor.Initialize();
+
+            return actor as TActor;
         }
 
         /// <summary>

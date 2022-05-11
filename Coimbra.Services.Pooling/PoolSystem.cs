@@ -32,7 +32,7 @@ namespace Coimbra.Services.Pooling
         /// </summary>
         public static IPoolService Create()
         {
-            return new GameObject(nameof(PoolSystem)).AddComponent<PoolSystem>();
+            return new GameObject(nameof(PoolSystem)).AsActor<PoolSystem>();
         }
 
         /// <inheritdoc/>
