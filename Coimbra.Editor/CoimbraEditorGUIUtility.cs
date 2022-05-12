@@ -297,27 +297,27 @@ namespace Coimbra.Editor
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int GetPersistentHashCode(this PropertyModification propertyModification)
+        internal static int GetPersistentHashCode(this PropertyModification propertyModification, bool isInstanceSpecific)
         {
-            return GetPersistentHashCode(propertyModification.target, propertyModification.propertyPath);
+            return GetPersistentHashCode(propertyModification.target, propertyModification.propertyPath, isInstanceSpecific);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int GetPersistentHashCode(this SerializedProperty serializedProperty)
+        internal static int GetPersistentHashCode(this SerializedProperty serializedProperty, bool isInstanceSpecific)
         {
-            return GetPersistentHashCode(serializedProperty.serializedObject.targetObject, serializedProperty.propertyPath);
+            return GetPersistentHashCode(serializedProperty.serializedObject.targetObject, serializedProperty.propertyPath, isInstanceSpecific);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsReorderableList(this PropertyModification propertyModification, out ReorderableList reorderableList)
         {
-            return ReorderableLists.TryGetValue(propertyModification.GetPersistentHashCode(), out reorderableList);
+            return ReorderableLists.TryGetValue(propertyModification.GetPersistentHashCode(true), out reorderableList);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ReorderableList ToReorderableList(this SerializedProperty serializedProperty, Action<ReorderableList> onInitialize)
         {
-            int persistentHashCode = serializedProperty.GetPersistentHashCode();
+            int persistentHashCode = serializedProperty.GetPersistentHashCode(true);
 
             if (ReorderableLists.TryGetValue(persistentHashCode, out ReorderableList reorderableList))
             {
@@ -341,9 +341,9 @@ namespace Coimbra.Editor
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetPersistentHashCode(UnityEngine.Object target, string propertyPath)
+        private static int GetPersistentHashCode(UnityEngine.Object target, string propertyPath, bool isInstanceSpecific)
         {
-            int targetHash = target.GetHashCode();
+            int targetHash = isInstanceSpecific ? target.GetHashCode() : target.GetType().GetHashCode();
             int propertyPathHash = propertyPath.GetHashCode();
 
 #if UNITY_2021_3_OR_NEWER

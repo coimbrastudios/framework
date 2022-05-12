@@ -35,7 +35,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
         {
-            if (PropertyPathInfoMap.TryGetValue(property.GetPersistentHashCode(), out PropertyPathInfo propertyPathInfo))
+            if (PropertyPathInfoMap.TryGetValue(property.GetPersistentHashCode(false), out PropertyPathInfo propertyPathInfo))
             {
                 return propertyPathInfo;
             }
@@ -49,7 +49,7 @@ namespace Coimbra.Editor
                 propertyPathInfo = GetPropertyPathInfoRecursive(rootTargetType, splitPropertyPath);
             }
 
-            PropertyPathInfoMap.Add(property.GetPersistentHashCode(), propertyPathInfo);
+            PropertyPathInfoMap.Add(property.GetPersistentHashCode(false), propertyPathInfo);
 
             return propertyPathInfo;
         }
