@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Coimbra.Services.Events.Roslyn
@@ -32,6 +33,7 @@ namespace Coimbra.Services.Events.Roslyn
             foreach (TypeDeclarationSyntax typeDeclarationSyntax in getTypes(context))
             {
                 sourceBuilder.Initialize();
+                sourceBuilder.AddLine("#nullable enable");
 
                 using (new PragmaWarningDisableScope(sourceBuilder, "0109"))
                 {
@@ -102,200 +104,179 @@ namespace Coimbra.Services.Events.Roslyn
             context.RegisterForSyntaxNotifications(() => new EventSyntaxReceiver());
         }
 
+        private static void AddMethodBoilerplate(SourceBuilder sourceBuilder, string originalMethod, string originalParameters)
+        {
+            sourceBuilder.AddLine("/// <summary>");
+            sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{originalMethod}{{T}}({originalParameters})\"/>");
+            sourceBuilder.AddLine("/// </summary>");
+            sourceBuilder.AddLine("[CompilerGenerated]");
+            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
+            sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+        }
+
         private static void AddMethods(SourceBuilder sourceBuilder, string typeName)
         {
-            const string atMethod = "At(IEventService eventService";
-            const string atService = "eventService";
-            const string sharedMethod = "Shared(";
-            const string sharedService = "ServiceLocator.Shared.Get<IEventService>()";
-            string generatedCodeAttribute = $"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]";
-
-            void addActions1(string prefix, string name, string paramType, string paramName, string defaultValue = null)
-            {
-                void addFunction(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType)})\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"public new {prefix} {method}{paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"{service}.{name}<{typeName}>({paramName});");
-                    }
-                }
-
-                addFunction($"{name}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction($"{name}{sharedMethod}", sharedService);
-            }
-
-            void addInvokeFunctions()
-            {
-                const string returnType = "bool";
-                const string serviceMethod = "Invoke";
-
-                void addFunction(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender)");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}?.{serviceMethod}<{typeName}>(sender, this) ?? false;");
-                    }
-                }
-
-                addFunction($"Try{serviceMethod}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction($"Try{serviceMethod}{sharedMethod}", sharedService);
-            }
-
-            void addFunctions0(string prefix, string name, string access)
-            {
-                void addFunction(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"{access} new {prefix} {method})");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>();");
-                    }
-                }
-
-                addFunction($"{name}{atMethod}", atService);
-                sourceBuilder.SkipLine();
-                addFunction($"{name}{sharedMethod}", sharedService);
-            }
-
-            void addFunctions1(string prefix, string name, string paramType, string paramName, string defaultValue = null)
-            {
-                void addFunction(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType)})\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"public new {prefix} {method}{paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>({paramName});");
-                    }
-                }
-
-                addFunction($"{name}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction($"{name}{sharedMethod}", sharedService);
-            }
-
-            void addFunctions2(string prefix, string name, string paramType1, string paramName1, string paramType2, string paramName2, string defaultValue = null)
-            {
-                void addFunction(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{name}{{T}}({validateComment(paramType1)}, {validateComment(paramType2)})\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"public new {prefix} {method}{paramType1} {paramName1}, {paramType2} {paramName2}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}.{name}<{typeName}>({paramName1}, {paramName2});");
-                    }
-                }
-
-                addFunction($"{name}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction($"{name}{sharedMethod}", sharedService);
-            }
-
-            void addStaticInvokeFunctions()
-            {
-                const string returnType = "static bool";
-                const string serviceMethod = "Invoke";
-
-                void addFunction0(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender)");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}.{serviceMethod}<{typeName}>(sender);");
-                    }
-                }
-
-                void addFunction1(string method, string service)
-                {
-                    sourceBuilder.AddLine("/// <summary>");
-                    sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{serviceMethod}{{T}}(object)\"/>");
-                    sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine("[CompilerGenerated]");
-                    sourceBuilder.AddLine(generatedCodeAttribute);
-                    sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                    sourceBuilder.AddLine($"internal new {returnType} {method}object sender, ref {typeName} data)");
-
-                    using (new BracesScope(sourceBuilder))
-                    {
-                        sourceBuilder.AddLine($"return {service}.{serviceMethod}<{typeName}>(sender, ref data);");
-                    }
-                }
-
-                addFunction0($"{serviceMethod}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction1($"{serviceMethod}{atMethod}, ", atService);
-                sourceBuilder.SkipLine();
-                addFunction0($"{serviceMethod}{sharedMethod}", sharedService);
-                sourceBuilder.SkipLine();
-                addFunction1($"{serviceMethod}{sharedMethod}", sharedService);
-            }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             string validateComment(string value)
             {
                 return value.Replace('<', '{').Replace('>', '}').Replace(typeName, "T");
             }
 
-            addFunctions1("static EventHandle", "AddListener", $"Event<{typeName}>.Handler", "eventCallback");
+            const string atMethodReturn = "";
+            const string atMethodService = "eventService";
+            const string atMethodSuffix = "At(IEventService eventService";
+            const string sharedMethodReturn = " ?? default";
+            const string sharedMethodService = "ServiceLocator.Shared.Get<IEventService>()?";
+            const string sharedMethodSuffix = "Shared(";
+
+            void addActions1(string generatedPrefix, string originalMethod, string paramType, string paramName, string defaultValue = null)
+            {
+                void addAction(string generatedMethod, string targetService)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, validateComment(paramType));
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}{paramType} {paramName}{(defaultValue != null ? $" = {defaultValue}" : string.Empty)})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"{targetService}.{originalMethod}<{typeName}>({paramName});");
+                    }
+                }
+
+                addAction($"{originalMethod}{atMethodSuffix}, ", atMethodService);
+                sourceBuilder.SkipLine();
+                addAction($"{originalMethod}{sharedMethodSuffix}", sharedMethodService);
+            }
+
+            void addFunctions0(string generatedPrefix, string originalMethod)
+            {
+                void addFunction(string generatedMethod, string targetService, string bodySuffix)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, string.Empty);
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>(){bodySuffix};");
+                    }
+                }
+
+                addFunction($"{originalMethod}{atMethodSuffix}", atMethodService, atMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction($"{originalMethod}{sharedMethodSuffix}", sharedMethodService, sharedMethodReturn);
+            }
+
+            void addFunctions1(string generatedPrefix, string originalMethod, string paramType, string paramName)
+            {
+                void addFunction(string generatedMethod, string targetService, string bodySuffix)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, validateComment(paramType));
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}{paramType} {paramName})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>({paramName}){bodySuffix};");
+                    }
+                }
+
+                addFunction($"{originalMethod}{atMethodSuffix}, ", atMethodService, atMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction($"{originalMethod}{sharedMethodSuffix}", sharedMethodService, sharedMethodReturn);
+            }
+
+            void addFunctions2(string generatedPrefix, string originalMethod, string paramType1, string paramName1, string paramType2, string paramName2)
+            {
+                void addFunction(string generatedMethod, string targetService, string bodySuffix)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, $"{validateComment(paramType1)}, {validateComment(paramType2)}");
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}{paramType1} {paramName1}, {paramType2} {paramName2})");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>({paramName1}, {paramName2}){bodySuffix};");
+                    }
+                }
+
+                addFunction($"{originalMethod}{atMethodSuffix}, ", atMethodService, atMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction($"{originalMethod}{sharedMethodSuffix}", sharedMethodService, sharedMethodReturn);
+            }
+
+            addFunctions1("public new static EventHandle", "AddListener", $"Event<{typeName}>.Handler", "eventCallback");
             sourceBuilder.SkipLine();
-            addFunctions2("static bool", "AddListener", $"Event<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
+            addFunctions2("public new static bool", "AddListener", $"Event<{typeName}>.Handler", "eventCallback", "List<EventHandle>", "appendList");
             sourceBuilder.SkipLine();
-            addActions1("static void", "AddRelevancyListener", "IEventService.EventRelevancyChangedHandler", "relevancyChangedHandler");
+            addActions1("public new static void", "AddRelevancyListener", "IEventService.EventRelevancyChangedHandler", "relevancyChangedHandler");
             sourceBuilder.SkipLine();
-            addFunctions0("static int", "GetListenerCount", "public");
+            addFunctions0("public new static int", "GetListenerCount");
             sourceBuilder.SkipLine();
-            addFunctions0("static bool", "IsInvoking", "public");
+            addFunctions0("public new static bool", "IsInvoking");
             sourceBuilder.SkipLine();
-            addActions1("static void", "RemoveRelevancyListener", "IEventService.EventRelevancyChangedHandler", "relevancyChangedHandler");
+            addActions1("public new static void", "RemoveRelevancyListener", "IEventService.EventRelevancyChangedHandler", "relevancyChangedHandler");
             sourceBuilder.SkipLine();
+
+            void addStaticInvokeFunctions()
+            {
+                const string generatedPrefix = "internal new static bool";
+                const string originalMethod = "Invoke";
+
+                void addFunction0(string generatedMethod, string targetService, string bodySuffix)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, "object");
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}object sender)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>(sender){bodySuffix};");
+                    }
+                }
+
+                void addFunction1(string generatedMethod, string targetService, string bodySuffix)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, "object");
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}object sender, ref {typeName} data)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>(sender, ref data){bodySuffix};");
+                    }
+                }
+
+                addFunction0($"{originalMethod}{atMethodSuffix}, ", atMethodService, atMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction1($"{originalMethod}{atMethodSuffix}, ", atMethodService, atMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction0($"{originalMethod}{sharedMethodSuffix}", sharedMethodService, sharedMethodReturn);
+                sourceBuilder.SkipLine();
+                addFunction1($"{originalMethod}{sharedMethodSuffix}", sharedMethodService, sharedMethodReturn);
+            }
+
             addStaticInvokeFunctions();
             sourceBuilder.SkipLine();
-            addFunctions0("static bool", "RemoveAllListeners", "internal");
+            addFunctions0("internal new static bool", "RemoveAllListeners");
             sourceBuilder.SkipLine();
-            addInvokeFunctions();
+
+            void addTryInvokeFunctions()
+            {
+                const string generatedPrefix = "internal new bool";
+                const string originalMethod = "Invoke";
+
+                void addFunction(string generatedMethod, string targetService)
+                {
+                    AddMethodBoilerplate(sourceBuilder, originalMethod, "object");
+                    sourceBuilder.AddLine($"{generatedPrefix} {generatedMethod}object sender)");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        sourceBuilder.AddLine($"return {targetService}.{originalMethod}<{typeName}>(sender, this) ?? false;");
+                    }
+                }
+
+                addFunction($"Try{originalMethod}At(IEventService? eventService, ", $"{atMethodService}?");
+                sourceBuilder.SkipLine();
+                addFunction($"Try{originalMethod}{sharedMethodSuffix}", sharedMethodService);
+            }
+
+            addTryInvokeFunctions();
         }
     }
 }

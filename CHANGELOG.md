@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.2.0] - UNRELEASED
+
+- Added `GameObject.Destroy` extension method for safely destroy objects that can be either already destroyed, already an actor or outside play mode.
+- Added null check inside `IEvent` generated `Shared` methods.
+- Fixed `IEvent` generated `At` methods not requiring non-null service.
+- Fixed `PropertyPathInfo` cache not being shared between different instances of same type.
+- Fixed conditional expressions being ignored in the `IEventService` usage analyzer.
+
 ## [10.1.0] - 2022-05-12
 
 - Added `IApplicationStateService.RemoveAllListeners` method.

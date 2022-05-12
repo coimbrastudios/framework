@@ -10,6 +10,7 @@ namespace Coimbra.Roslyn
             {
                 MemberAccessExpressionSyntax memberAccessExpressionSyntax => memberAccessExpressionSyntax.Name,
                 SimpleNameSyntax simpleNameSyntax => simpleNameSyntax,
+                MemberBindingExpressionSyntax memberBindingExpressionSyntax => memberBindingExpressionSyntax.Name,
                 _ => null,
             };
         }
