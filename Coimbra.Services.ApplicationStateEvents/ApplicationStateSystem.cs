@@ -28,16 +28,16 @@ namespace Coimbra.Services.ApplicationStateEvents
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroyed()
+        public void RemoveAllListeners()
         {
-            if (EventService != null)
+            if (EventService == null)
             {
-                ApplicationFocusEvent.RemoveAllListenersAt(EventService);
-                ApplicationPauseEvent.RemoveAllListenersAt(EventService);
-                ApplicationQuitEvent.RemoveAllListenersAt(EventService);
+                return;
             }
 
-            base.OnDestroyed();
+            ApplicationFocusEvent.RemoveAllListenersAt(EventService);
+            ApplicationPauseEvent.RemoveAllListenersAt(EventService);
+            ApplicationQuitEvent.RemoveAllListenersAt(EventService);
         }
 
         /// <inheritdoc/>

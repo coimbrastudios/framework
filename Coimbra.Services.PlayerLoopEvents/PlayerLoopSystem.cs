@@ -24,32 +24,32 @@ namespace Coimbra.Services.PlayerLoopEvents
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroyed()
+        public void RemoveAllListeners()
         {
-            if (EventService != null)
+            if (EventService == null)
             {
-                FixedUpdateEvent.RemoveAllListenersAt(EventService);
-                LateUpdateEvent.RemoveAllListenersAt(EventService);
-                UpdateEvent.RemoveAllListenersAt(EventService);
-                FirstEarlyUpdateEvent.RemoveAllListenersAt(EventService);
-                FirstFixedUpdateEvent.RemoveAllListenersAt(EventService);
-                FirstInitializationEvent.RemoveAllListenersAt(EventService);
-                FirstPostLateUpdateEvent.RemoveAllListenersAt(EventService);
-                FirstPreUpdateEvent.RemoveAllListenersAt(EventService);
-                FirstUpdateEvent.RemoveAllListenersAt(EventService);
-                LastEarlyUpdateEvent.RemoveAllListenersAt(EventService);
-                LastFixedUpdateEvent.RemoveAllListenersAt(EventService);
-                LastInitializationEvent.RemoveAllListenersAt(EventService);
-                LastPostLateUpdateEvent.RemoveAllListenersAt(EventService);
-                LastPreUpdateEvent.RemoveAllListenersAt(EventService);
-                LastUpdateEvent.RemoveAllListenersAt(EventService);
-                PostLateUpdateEvent.RemoveAllListenersAt(EventService);
-                PostTimeUpdateEvent.RemoveAllListenersAt(EventService);
-                PreLateUpdateEvent.RemoveAllListenersAt(EventService);
-                PreTimeUpdateEvent.RemoveAllListenersAt(EventService);
+                return;
             }
 
-            base.OnDestroyed();
+            FixedUpdateEvent.RemoveAllListenersAt(EventService);
+            LateUpdateEvent.RemoveAllListenersAt(EventService);
+            UpdateEvent.RemoveAllListenersAt(EventService);
+            FirstEarlyUpdateEvent.RemoveAllListenersAt(EventService);
+            FirstFixedUpdateEvent.RemoveAllListenersAt(EventService);
+            FirstInitializationEvent.RemoveAllListenersAt(EventService);
+            FirstPostLateUpdateEvent.RemoveAllListenersAt(EventService);
+            FirstPreUpdateEvent.RemoveAllListenersAt(EventService);
+            FirstUpdateEvent.RemoveAllListenersAt(EventService);
+            LastEarlyUpdateEvent.RemoveAllListenersAt(EventService);
+            LastFixedUpdateEvent.RemoveAllListenersAt(EventService);
+            LastInitializationEvent.RemoveAllListenersAt(EventService);
+            LastPostLateUpdateEvent.RemoveAllListenersAt(EventService);
+            LastPreUpdateEvent.RemoveAllListenersAt(EventService);
+            LastUpdateEvent.RemoveAllListenersAt(EventService);
+            PostLateUpdateEvent.RemoveAllListenersAt(EventService);
+            PostTimeUpdateEvent.RemoveAllListenersAt(EventService);
+            PreLateUpdateEvent.RemoveAllListenersAt(EventService);
+            PreTimeUpdateEvent.RemoveAllListenersAt(EventService);
         }
 
         /// <inheritdoc/>

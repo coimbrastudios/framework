@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.1.0] - UNRELEASED
+
+- Added `IApplicationStateService.RemoveAllListeners` method.
+- Added `IPlayerLoopService.RemoveAllListeners` method.
+- Changed to not remove all listeners by default during `ApplicationStateSystem.OnDestroyed`.
+- Changed to not remove all listeners by default during `PlayerLoopSystem.OnDestroyed`.
+
 ## [10.0.0] - 2022-05-11
 
 - Added new diagnostics to identify wrong usage of `IEventService`.
