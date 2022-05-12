@@ -28,7 +28,7 @@ namespace Coimbra.Services.Events
         /// <summary>
         /// The object that requested the event invocation.
         /// </summary>
-        [CanBeNull]
+        [NotNull]
         public readonly object Sender;
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Coimbra.Services.Events
         /// </summary>
         public EventHandle CurrentHandle;
 
-        public Event([NotNull] IEventService service, [CanBeNull] object sender)
+        public Event([NotNull] IEventService service, [NotNull] object sender)
         {
             Service = service;
             Sender = sender;
@@ -50,7 +50,7 @@ namespace Coimbra.Services.Events
             CurrentHandle = default;
         }
 
-        public Event([NotNull] IEventService service, [CanBeNull] object sender, ref T data)
+        public Event([NotNull] IEventService service, [NotNull] object sender, ref T data)
         {
             Service = service;
             Sender = sender;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -13,7 +15,7 @@ namespace Coimbra.Services.Events
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         /// <inheritdoc/>
-        public ServiceLocator OwningLocator { get; set; }
+        public ServiceLocator? OwningLocator { get; set; }
 
         /// <summary>
         /// Create a new <see cref="IEventService"/>.
@@ -41,7 +43,7 @@ namespace Coimbra.Services.Events
                 return false;
             }
 
-            appendList?.Add(eventHandle);
+            appendList.Add(eventHandle);
 
             return true;
         }
@@ -171,11 +173,6 @@ namespace Coimbra.Services.Events
         private EventHandle AddListener<T>(ref Event<T>.Handler eventCallback)
             where T : IEvent
         {
-            if (eventCallback == null)
-            {
-                return default;
-            }
-
             EventHandle handle = EventHandle.Create(typeof(T));
             EventCallbacks<T>.Value.Add(handle, eventCallback);
 
