@@ -1,4 +1,6 @@
-﻿using Coimbra.Services.Events;
+﻿#nullable enable
+
+using Coimbra.Services.Events;
 using UnityEngine;
 
 namespace Coimbra.Services.ApplicationStateEvents
@@ -17,14 +19,14 @@ namespace Coimbra.Services.ApplicationStateEvents
         /// <inheritdoc/>
         public bool IsPaused { get; private set; }
 
-        private IEventService EventService => OwningLocator?.Get<IEventService>();
+        private IEventService? EventService => OwningLocator?.Get<IEventService>();
 
         /// <summary>
         /// Create a new <see cref="IApplicationStateService"/>.
         /// </summary>
         public static IApplicationStateService Create()
         {
-            return new GameObject(nameof(ApplicationStateSystem)).AsActor<ApplicationStateSystem>();
+            return new GameObject(nameof(ApplicationStateSystem)).AsActor<ApplicationStateSystem>()!;
         }
 
         /// <inheritdoc/>
