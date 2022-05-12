@@ -58,6 +58,30 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Destroys the <see cref="GameObject"/> correctly.
+        /// </summary>
+        public static void Destroy(this GameObject gameObject)
+        {
+            if (!gameObject.TryGetValid(out gameObject))
+            {
+                return;
+            }
+
+            if (Actor.HasCachedActor(gameObject, out Actor actor))
+            {
+                actor.Destroy();
+            }
+            else if (CoimbraUtility.IsPlayMode)
+            {
+                Object.Destroy(gameObject);
+            }
+            else
+            {
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        /// <summary>
         /// Checks if the <see cref="Actor"/> representing a <see cref="GameObject"/> if of the specified type.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
