@@ -1,4 +1,6 @@
-﻿using Coimbra.Services.Events;
+﻿#nullable enable
+
+using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
@@ -13,14 +15,14 @@ namespace Coimbra.Services.PlayerLoopEvents
     {
         private PlayerLoopSystem() { }
 
-        private IEventService EventService => OwningLocator?.Get<IEventService>();
+        private IEventService? EventService => OwningLocator?.Get<IEventService>();
 
         /// <summary>
         /// Create a new <see cref="IPlayerLoopService"/>.
         /// </summary>
         public static IPlayerLoopService Create()
         {
-            return new GameObject(nameof(PlayerLoopSystem)).AsActor<PlayerLoopSystem>();
+            return new GameObject(nameof(PlayerLoopSystem)).AsActor<PlayerLoopSystem>()!;
         }
 
         /// <inheritdoc/>
