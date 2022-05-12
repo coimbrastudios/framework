@@ -6,6 +6,7 @@
 - Added `IPlayerLoopService.RemoveAllListeners` method.
 - Changed to not remove all listeners by default during `ApplicationStateSystem.OnDestroyed`.
 - Changed to not remove all listeners by default during `PlayerLoopSystem.OnDestroyed`.
+- Fixed generic events not being correctly generated.
 
 ## [10.0.0] - 2022-05-11
 

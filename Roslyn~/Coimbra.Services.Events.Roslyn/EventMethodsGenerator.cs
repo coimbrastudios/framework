@@ -44,6 +44,8 @@ namespace Coimbra.Services.Events.Roslyn
 
                     using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                     {
+                        string typeName;
+
                         using (LineScope lineScope = sourceBuilder.BeginLine())
                         {
                             lineScope.AddContent(typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal");
@@ -57,19 +59,19 @@ namespace Coimbra.Services.Events.Roslyn
                                         lineScope.AddContent(" sealed");
                                     }
 
-                                    lineScope.AddContent(" partial class");
+                                    lineScope.AddContent(" partial class ");
 
                                     break;
                                 }
 
                                 case StructDeclarationSyntax _:
                                 {
-                                    if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword))
+                                    if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
                                     {
                                         lineScope.AddContent(" readonly");
                                     }
 
-                                    lineScope.AddContent(" partial struct");
+                                    lineScope.AddContent(" partial struct ");
 
                                     break;
                                 }
@@ -80,12 +82,12 @@ namespace Coimbra.Services.Events.Roslyn
                                 }
                             }
 
-                            lineScope.AddContent($" {typeDeclarationSyntax.GetTypeName()}");
+                            typeName = typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName();
+                            lineScope.AddContent(typeName);
                         }
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            string typeName = typeDeclarationSyntax.GetTypeName();
                             AddMethods(sourceBuilder, typeName);
                         }
                     }
