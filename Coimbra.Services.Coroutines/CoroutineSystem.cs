@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#nullable enable
+
+using UnityEngine;
 
 namespace Coimbra.Services.Coroutines
 {
@@ -15,7 +17,7 @@ namespace Coimbra.Services.Coroutines
         /// </summary>
         public static ICoroutineService Create()
         {
-            return new GameObject(nameof(CoroutineSystem)).AsActor<CoroutineSystem>();
+            return new GameObject(nameof(CoroutineSystem)).AsActor<CoroutineSystem>()!;
         }
 
         /// <inheritdoc/>

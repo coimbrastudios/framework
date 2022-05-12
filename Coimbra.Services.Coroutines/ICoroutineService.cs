@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Scripting;
 
