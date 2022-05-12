@@ -4,9 +4,11 @@
 
 - Added `IApplicationStateService.RemoveAllListeners` method.
 - Added `IPlayerLoopService.RemoveAllListeners` method.
+- Added `IEventService.AddRelevancyListener` and `IEventService.RemoveRelevancyListener` methods.
 - Changed to not remove all listeners by default during `ApplicationStateSystem.OnDestroyed`.
 - Changed to not remove all listeners by default during `PlayerLoopSystem.OnDestroyed`.
 - Fixed generic events not being correctly generated.
+- Removed `IEventService.OnFirstListenerAdded` and `IEventService.OnLastListenerRemoved`.
 
 ## [10.0.0] - 2022-05-11
 

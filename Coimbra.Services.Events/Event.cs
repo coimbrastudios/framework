@@ -87,10 +87,10 @@ namespace Coimbra.Services.Events
         }
 
         [CanBeNull]
-        internal event Action<Type> OnFirstListenerAdded;
+        internal event IEventService.EventRelevancyChangedHandler OnRelevancyChanged;
 
-        [CanBeNull]
-        internal event Action<Type> OnLastListenerRemoved;
+        [NotNull]
+        private readonly IEventService _service;
 
         [NotNull]
         private readonly Type _type;
@@ -104,8 +104,9 @@ namespace Coimbra.Services.Events
         [NotNull]
         private Func<EventHandle, bool> _removeCallbackHandler;
 
-        private Event([NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler)
+        private Event([NotNull] IEventService service, [NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler)
         {
+            _service = service;
             _type = type;
             _removeCallbackHandler = removeCallbackHandler;
         }
@@ -118,10 +119,10 @@ namespace Coimbra.Services.Events
 
         [NotNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Event Create<T>()
+        internal static Event Create<T>([NotNull] IEventService eventService)
             where T : IEvent
         {
-            return new Event(typeof(T), EventCallbacks<T>.RemoveHandler);
+            return new Event(eventService, typeof(T), EventCallbacks<T>.RemoveHandler);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,7 +132,7 @@ namespace Coimbra.Services.Events
 
             if (_handles.Count == 1)
             {
-                OnFirstListenerAdded?.Invoke(_type);
+                OnRelevancyChanged?.Invoke(_service, _type, true);
             }
         }
 
@@ -170,7 +171,7 @@ namespace Coimbra.Services.Events
 
                 if (result)
                 {
-                    OnLastListenerRemoved?.Invoke(_type);
+                    OnRelevancyChanged?.Invoke(_service, _type, false);
                 }
             }
 
@@ -193,7 +194,7 @@ namespace Coimbra.Services.Events
 
             if (_handles.Remove(handle) && _handles.Count == 0)
             {
-                OnLastListenerRemoved?.Invoke(_type);
+                OnRelevancyChanged?.Invoke(_service, _type, false);
             }
 
             return true;
@@ -201,8 +202,7 @@ namespace Coimbra.Services.Events
 
         void IDisposable.Dispose()
         {
-            OnFirstListenerAdded = null;
-            OnLastListenerRemoved = null;
+            OnRelevancyChanged = null;
             _removeCallbackHandler = null!;
         }
     }

@@ -10,30 +10,7 @@ namespace Coimbra.Services.Events
     /// </summary>
     public sealed class EventSystem : IEventService
     {
-        /// <inheritdoc/>
-        public event IEventService.EventHandler OnFirstListenerAdded;
-
-        /// <inheritdoc/>
-        public event IEventService.EventHandler OnLastListenerRemoved;
-
-        private readonly Action<Type> _firstListenerAddedHandler;
-
-        private readonly Action<Type> _lastListenerRemovedHandler;
-
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
-
-        private EventSystem()
-        {
-            _firstListenerAddedHandler = delegate(Type type)
-            {
-                OnFirstListenerAdded?.Invoke(this, type);
-            };
-
-            _lastListenerRemovedHandler = delegate(Type type)
-            {
-                OnLastListenerRemoved?.Invoke(this, type);
-            };
-        }
 
         /// <inheritdoc/>
         public ServiceLocator OwningLocator { get; set; }
@@ -47,17 +24,17 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public EventHandle AddListener<T>(Event<T>.Handler eventCallback)
+        public EventHandle AddListener<T>(Event<T>.Handler eventHandler)
             where T : IEvent
         {
-            return AddListener(ref eventCallback);
+            return AddListener(ref eventHandler);
         }
 
         /// <inheritdoc/>
-        public bool AddListener<T>(Event<T>.Handler eventCallback, List<EventHandle> appendList)
+        public bool AddListener<T>(Event<T>.Handler eventHandler, List<EventHandle> appendList)
             where T : IEvent
         {
-            EventHandle eventHandle = AddListener(ref eventCallback);
+            EventHandle eventHandle = AddListener(ref eventHandler);
 
             if (!eventHandle.IsValid)
             {
@@ -67,6 +44,18 @@ namespace Coimbra.Services.Events
             appendList?.Add(eventHandle);
 
             return true;
+        }
+
+        /// <inheritdoc/>
+        public void AddRelevancyListener<T>(IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+            where T : IEvent
+        {
+            if (!_events.TryGetValue(typeof(T), out Event e))
+            {
+                e = Create<T>();
+            }
+
+            e.OnRelevancyChanged += relevancyChangedHandler;
         }
 
         /// <inheritdoc/>
@@ -152,6 +141,16 @@ namespace Coimbra.Services.Events
             return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) && e.RemoveListener(in eventHandle);
         }
 
+        /// <inheritdoc/>
+        public void RemoveRelevancyListener<T>(IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+            where T : IEvent
+        {
+            if (_events.TryGetValue(typeof(T), out Event e))
+            {
+                e.OnRelevancyChanged -= relevancyChangedHandler;
+            }
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void HandleSubsystemRegistration()
         {
@@ -162,9 +161,7 @@ namespace Coimbra.Services.Events
         private Event Create<T>()
             where T : IEvent
         {
-            Event e = Event.Create<T>();
-            e.OnFirstListenerAdded += _firstListenerAddedHandler;
-            e.OnLastListenerRemoved += _lastListenerRemovedHandler;
+            Event e = Event.Create<T>(this);
             _events.Add(typeof(T), e);
 
             return e;

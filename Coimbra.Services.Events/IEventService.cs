@@ -11,36 +11,34 @@ namespace Coimbra.Services.Events
     public interface IEventService : IService
     {
         /// <summary>
-        /// Delegate for events related to a specific event type of an <see cref="IEventService"/>.
+        /// Delegate for listening when an event type starts/stops being relevant.
         /// </summary>
-        public delegate void EventHandler(IEventService eventService, Type eventType);
-
-        /// <summary>
-        /// Invoked when the first listener of an event is added.
-        /// </summary>
-        event EventHandler OnFirstListenerAdded;
-
-        /// <summary>
-        /// Invoked when the last listener of an event is removed.
-        /// </summary>
-        event EventHandler OnLastListenerRemoved;
+        public delegate void EventRelevancyChangedHandler(IEventService eventService, Type eventType, bool isRelevant);
 
         /// <summary>
         /// Adds a listener to an event type.
         /// </summary>
-        /// <param name="eventCallback">The callback to be added.</param>
+        /// <param name="eventHandler">The callback to be added.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
-        EventHandle AddListener<TEvent>(Event<TEvent>.Handler eventCallback)
+        EventHandle AddListener<TEvent>(Event<TEvent>.Handler eventHandler)
             where TEvent : IEvent;
 
         /// <summary>
         /// Adds a listener to an event type.
         /// </summary>
-        /// <param name="eventCallback">The callback to be added.</param>
+        /// <param name="eventHandler">The callback to be added.</param>
         /// <param name="appendList">List to add the event handle if generated a valid one.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if a valid <see cref="EventHandle"/> was generated.</returns>
-        bool AddListener<TEvent>(Event<TEvent>.Handler eventCallback, List<EventHandle> appendList)
+        bool AddListener<TEvent>(Event<TEvent>.Handler eventHandler, List<EventHandle> appendList)
+            where TEvent : IEvent;
+
+        /// <summary>
+        /// Adds a listener for when an event starts/stops being relevant.
+        /// </summary>
+        /// <param name="relevancyChangedHandler">The handler to add.</param>
+        /// <typeparam name="TEvent">The event type.</typeparam>
+        void AddRelevancyListener<TEvent>(EventRelevancyChangedHandler relevancyChangedHandler)
             where TEvent : IEvent;
 
         /// <summary>
@@ -123,5 +121,13 @@ namespace Coimbra.Services.Events
         /// <param name="eventHandle">The event handle.</param>
         /// <returns>True if the event handle was a valid listener for this service.</returns>
         bool RemoveListener(in EventHandle eventHandle);
+
+        /// <summary>
+        /// Removes a listener for when an event starts/stops being relevant.
+        /// </summary>
+        /// <param name="relevancyChangedHandler">The handler to remove.</param>
+        /// <typeparam name="TEvent">The event type.</typeparam>
+        void RemoveRelevancyListener<TEvent>(EventRelevancyChangedHandler relevancyChangedHandler)
+            where TEvent : IEvent;
     }
 }
