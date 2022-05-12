@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.1.0] - UNRELEASED
+## [10.1.0] - 2022-05-12
 
 - Added `IApplicationStateService.RemoveAllListeners` method.
 - Added `IPlayerLoopService.RemoveAllListeners` method.
