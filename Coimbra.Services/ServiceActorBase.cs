@@ -49,9 +49,9 @@ namespace Coimbra.Services
                 return;
             }
 
-            if (OwningLocator.IsCreated(out TService value) && value == this as TService)
+            if (OwningLocator.IsCreated(out TService? value) && value == this as TService)
             {
-                OwningLocator.Set<TService>(null!, false);
+                OwningLocator.Set<TService>(null, false);
             }
 
             OwningLocator = null;
