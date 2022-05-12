@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using UnityEngine.Scripting;
 
 namespace Coimbra.Services
@@ -13,6 +15,6 @@ namespace Coimbra.Services
         /// <summary>
         /// The <see cref="ServiceLocator"/> that owns this service. <see cref="set_OwningLocator"/> is for internal use only.
         /// </summary>
-        ServiceLocator OwningLocator { get; set; }
+        ServiceLocator? OwningLocator { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#nullable enable
+
+using UnityEngine;
 
 namespace Coimbra.Services
 {
@@ -12,10 +14,10 @@ namespace Coimbra.Services
     {
         [SerializeReference]
         [Disable]
-        private ServiceLocator _owningLocator;
+        private ServiceLocator? _owningLocator;
 
         /// <inheritdoc/>
-        public ServiceLocator OwningLocator
+        public ServiceLocator? OwningLocator
         {
             get => _owningLocator;
             set
@@ -25,7 +27,7 @@ namespace Coimbra.Services
                     return;
                 }
 
-                ServiceLocator previous = _owningLocator;
+                ServiceLocator? previous = _owningLocator;
                 _owningLocator = value;
                 OnOwningLocatorChanged(previous, value);
             }
@@ -49,7 +51,7 @@ namespace Coimbra.Services
 
             if (OwningLocator.IsCreated(out TService value) && value == this as TService)
             {
-                OwningLocator.Set<TService>(null, false);
+                OwningLocator.Set<TService>(null!, false);
             }
 
             OwningLocator = null;
@@ -60,6 +62,6 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="previous">The value before.</param>
         /// <param name="current">The value after. Is the same as the current <see cref="OwningLocator"/>.</param>
-        protected virtual void OnOwningLocatorChanged(ServiceLocator previous, ServiceLocator current) { }
+        protected virtual void OnOwningLocatorChanged(ServiceLocator? previous, ServiceLocator? current) { }
     }
 }

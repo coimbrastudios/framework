@@ -1,3 +1,5 @@
+#nullable enable
+
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -18,24 +20,24 @@ namespace Coimbra.Services
         /// <summary>
         /// Delegate for listener for service instance changes.
         /// </summary>
-        public delegate void ServiceChangeHandler([CanBeNull] IService previous, [CanBeNull] IService current);
+        public delegate void ServiceChangeHandler(IService? previous, IService? current);
 
         private sealed class Service
         {
             internal bool ResetCreateCallbackOnSet;
 
-            internal IService Value;
+            internal IService? Value;
 
-            internal Func<IService> CreateCallback;
+            internal Func<IService>? CreateCallback;
 
-            internal ServiceChangeHandler ValueChangedCallback;
+            internal ServiceChangeHandler? ValueChangedCallback;
 
             internal Service()
             {
                 ValueChangedCallback = HandleValueChanged;
             }
 
-            internal void HandleValueChanged(IService previous, IService current)
+            internal void HandleValueChanged(IService? previous, IService? current)
             {
                 {
                     if (current is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
@@ -64,12 +66,11 @@ namespace Coimbra.Services
         /// <summary>
         /// Called when this <see cref="ServiceLocator"/> is about to be disposed.
         /// </summary>
-        public event Action<ServiceLocator> OnDispose;
+        public event Action<ServiceLocator>? OnDispose;
 
         /// <summary>
         /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
         /// </summary>
-        [NotNull]
         public static readonly ServiceLocator Shared = new ServiceLocator($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
 
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
@@ -102,7 +103,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void AddValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
+        public void AddValueChangedListener<T>(ServiceChangeHandler callback)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -119,11 +120,11 @@ namespace Coimbra.Services
             {
                 service.ValueChangedCallback = service.HandleValueChanged;
 
-                if (service.Value.TryGetValid(out service.Value))
+                if (service.Value.TryGetValid(out service.Value!))
                 {
                     service.Value.Dispose();
 
-                    if (service.Value.TryGetValid(out service.Value))
+                    if (service.Value.TryGetValid(out service.Value!))
                     {
                         service.Value.OwningLocator = null;
                     }
@@ -141,8 +142,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The service instance.</returns>
-        [CanBeNull]
-        public T Get<T>()
+        public T? Get<T>()
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -157,7 +157,7 @@ namespace Coimbra.Services
                 return AllowFallbackToShared ? Shared.Get<T>() : null;
             }
 
-            IService value = service.CreateCallback.Invoke();
+            IService? value = service.CreateCallback.Invoke();
 
             switch (value)
             {
@@ -186,8 +186,7 @@ namespace Coimbra.Services
         /// <param name="willResetOnSet">If the create callback will reset when the service is set.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The create callback, if set.</returns>
-        [CanBeNull]
-        public Func<IService> GetCreateCallback<T>(out bool willResetOnSet)
+        public Func<IService>? GetCreateCallback<T>(out bool willResetOnSet)
             where T : class, IService
         {
             return GetCreateCallback(typeof(T), out willResetOnSet);
@@ -199,8 +198,7 @@ namespace Coimbra.Services
         /// <param name="type">The service type.</param>
         /// <param name="willResetOnSet">If the create callback will reset when the service is set.</param>
         /// <returns>The create callback, if set.</returns>
-        [CanBeNull]
-        public Func<IService> GetCreateCallback(Type type, out bool willResetOnSet)
+        public Func<IService>? GetCreateCallback(Type type, out bool willResetOnSet)
         {
             if (_services.TryGetValue(type, out Service service))
             {
@@ -232,7 +230,7 @@ namespace Coimbra.Services
         /// <param name="type">The service type.</param>
         /// <returns>False if the service has no create callback set or the service type is not found.</returns>
         [Pure]
-        public bool HasCreateCallback([NotNull] Type type)
+        public bool HasCreateCallback(Type type)
         {
             return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
         }
@@ -255,7 +253,7 @@ namespace Coimbra.Services
         /// <param name="type">The service type.</param>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         [Pure]
-        public bool IsCreated([NotNull] Type type)
+        public bool IsCreated(Type type)
         {
             return _services.TryGetValue(type, out Service service) && service.Value != null;
         }
@@ -267,10 +265,10 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         [Pure]
-        public bool IsCreated<T>(out T value)
+        public bool IsCreated<T>(out T? value)
             where T : class, IService
         {
-            if (IsCreated(typeof(T), out IService service))
+            if (IsCreated(typeof(T), out IService? service))
             {
                 value = service as T;
 
@@ -289,7 +287,7 @@ namespace Coimbra.Services
         /// <param name="value">The service value, if created.</param>
         /// <returns>False if the service wasn't created or the service type is not found.</returns>
         [Pure]
-        public bool IsCreated([NotNull] Type type, out IService value)
+        public bool IsCreated(Type type, out IService? value)
         {
             if (_services.TryGetValue(type, out Service service) && service.Value != null)
             {
@@ -308,7 +306,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void RemoveValueChangedListener<T>([NotNull] ServiceChangeHandler callback)
+        public void RemoveValueChangedListener<T>(ServiceChangeHandler callback)
             where T : class, IService
         {
             if (_services.TryGetValue(typeof(T), out Service service))
@@ -323,7 +321,7 @@ namespace Coimbra.Services
         /// <param name="value">The service instance.</param>
         /// <param name="disposePrevious">If true, the last set instance will have their <see cref="IDisposable.Dispose"/> method called.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void Set<T>([CanBeNull] T value, bool disposePrevious)
+        public void Set<T>(T? value, bool disposePrevious)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -333,9 +331,9 @@ namespace Coimbra.Services
                 return;
             }
 
-            T oldValue = (service.Value as T).GetValid();
+            T? oldValue = (service.Value as T).GetValid();
 
-            if (value.TryGetValid(out value))
+            if (value.TryGetValid(out value!))
             {
                 if (value.OwningLocator != null)
                 {
@@ -372,14 +370,14 @@ namespace Coimbra.Services
                 oldValue = Shared.Get<T>();
             }
 
-            service.ValueChangedCallback(oldValue, value);
+            service.ValueChangedCallback!(oldValue, value);
         }
 
         /// <summary>
         /// Sets the callback for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        public void SetCreateCallback<T>([CanBeNull] Func<T> createCallback, bool resetOnSet)
+        public void SetCreateCallback<T>(Func<T>? createCallback, bool resetOnSet)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -394,7 +392,7 @@ namespace Coimbra.Services
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service does not exists.</returns>
-        public bool TryGet<T>([CanBeNull] out T value)
+        public bool TryGet<T>(out T? value)
             where T : class, IService
         {
             value = Get<T>();
@@ -415,7 +413,7 @@ namespace Coimbra.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Initialize(Type type, out Service service, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
+        private void Initialize(Type type, out Service service)
         {
             if (_services.TryGetValue(type, out service))
             {

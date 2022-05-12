@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.2.0] - UNRELEASED
+## [10.1.1] - UNRELEASED
 
 - Added `GameObject.Destroy` extension method for safely destroy objects that can be either already destroyed, already an actor or outside play mode.
 - Added null check inside `IEvent` generated `Shared` methods.
