@@ -58,13 +58,13 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Destroys the <see cref="GameObject"/> correctly.
+        /// Destroys the <see cref="GameObject"/> correctly by checking if it isn't already an <see cref="Actor"/> first.
         /// </summary>
-        public static void Destroy(this GameObject gameObject)
+        public static bool Destroy(this GameObject gameObject)
         {
             if (!gameObject.TryGetValid(out gameObject))
             {
-                return;
+                return false;
             }
 
             if (Actor.HasCachedActor(gameObject, out Actor actor))
@@ -79,6 +79,8 @@ namespace Coimbra
             {
                 Object.DestroyImmediate(gameObject);
             }
+
+            return true;
         }
 
         /// <summary>

@@ -542,7 +542,14 @@ namespace Coimbra
 
             if (callObjectDestroy)
             {
-                Object.Destroy(CachedGameObject);
+                if (CoimbraUtility.IsPlayMode)
+                {
+                    Object.Destroy(CachedGameObject);
+                }
+                else
+                {
+                    DestroyImmediate(gameObject);
+                }
             }
 
             OnActiveStateChanged = null;

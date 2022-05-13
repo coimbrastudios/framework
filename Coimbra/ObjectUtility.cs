@@ -46,5 +46,45 @@ namespace Coimbra
 
             return valid != null;
         }
+
+        /// <summary>
+        /// Destroys the <see cref="Object"/> correctly by checking if it isn't already an <see cref="Actor"/> first.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Destroy(this Object o)
+        {
+            if (o is GameObject gameObject)
+            {
+                return gameObject.Destroy();
+            }
+
+            if (o is Actor actor)
+            {
+                if (actor.IsDestroyed)
+                {
+                    return false;
+                }
+
+                actor.Destroy();
+
+                return true;
+            }
+
+            if (!o.TryGetValid(out o))
+            {
+                return false;
+            }
+
+            if (CoimbraUtility.IsPlayMode)
+            {
+                Object.Destroy(o);
+            }
+            else
+            {
+                Object.DestroyImmediate(o);
+            }
+
+            return true;
+        }
     }
 }

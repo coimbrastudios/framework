@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.1.2] - 2022-05-13
+
+- Added `Object.Destroy` extension method for safely destroy object that could be a `GameObject` or an `Actor`.
+
 ## [10.1.1] - 2022-05-12
 
 - Added `GameObject.Destroy` extension method for safely destroy objects that can be either already destroyed, already an actor or outside play mode.

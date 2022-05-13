@@ -254,17 +254,7 @@ namespace Coimbra
                 {
                     disposeCallback += delegate(T obj)
                     {
-                        if ((obj as Object).TryGetValid(out Object valid))
-                        {
-                            if (CoimbraUtility.IsPlayMode)
-                            {
-                                Object.Destroy(valid);
-                            }
-                            else
-                            {
-                                Object.DestroyImmediate(valid);
-                            }
-                        }
+                        (obj as Object).Destroy();
                     };
                 }
 
