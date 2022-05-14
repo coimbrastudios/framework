@@ -5,6 +5,7 @@
 - Added easy way to add new shared `ManagedPool` instances through `SharedManagedPoolAttribute`.
 - Added some specific pool collections: `DictionaryPool`, `HashSetPool`, `ListPool`, `QueuePool`, `StackPool`, `StringBuilderPool`.
 - Removed support for `IList` and `IDictionary` in `ManagedPool` class, use the respective specific pool instead (see `COIMBRA0010`).
+- Removed duplicated Roslyn assemblies.
 
 ## [10.1.2] - 2022-05-13
 

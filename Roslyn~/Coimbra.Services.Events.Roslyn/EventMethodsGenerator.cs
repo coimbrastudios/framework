@@ -14,23 +14,9 @@ namespace Coimbra.Services.Events.Roslyn
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            static IEnumerable<TypeDeclarationSyntax> getTypes(GeneratorExecutionContext context)
-            {
-                EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
-
-                foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
-                {
-                    if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
-                     && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
-                    {
-                        yield return syntaxNode;
-                    }
-                }
-            }
-
             SourceBuilder sourceBuilder = new();
 
-            foreach (TypeDeclarationSyntax typeDeclarationSyntax in getTypes(context))
+            foreach (TypeDeclarationSyntax typeDeclarationSyntax in EnumerateTypes(context))
             {
                 sourceBuilder.Initialize();
                 sourceBuilder.AddLine("#nullable enable");
@@ -277,6 +263,20 @@ namespace Coimbra.Services.Events.Roslyn
             }
 
             addTryInvokeFunctions();
+        }
+
+        private static IEnumerable<TypeDeclarationSyntax> EnumerateTypes(GeneratorExecutionContext context)
+        {
+            EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
+
+            foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
+            {
+                if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
+                 && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
+                {
+                    yield return syntaxNode;
+                }
+            }
         }
     }
 }
