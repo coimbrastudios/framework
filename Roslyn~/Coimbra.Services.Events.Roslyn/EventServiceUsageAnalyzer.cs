@@ -9,9 +9,9 @@ using System.Linq;
 namespace Coimbra.Services.Events.Roslyn
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class EventServiceUsageAnalyzer : DiagnosticAnalyzer
+    public sealed class EventServiceUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.EventServiceGenericAPIsSholdNotBeUsed);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -43,7 +43,7 @@ namespace Coimbra.Services.Events.Roslyn
             }
 
             ITypeSymbol typeSymbol = methodSymbol.TypeArguments.First();
-            context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericAPIsSholdNotBeUsed, methodNameSyntax.GetLocation(), typeSymbol.Name, methodNameSyntax.Identifier.Text));
+            context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, methodNameSyntax.GetLocation(), typeSymbol.Name, methodNameSyntax.Identifier.Text));
         }
     }
 }

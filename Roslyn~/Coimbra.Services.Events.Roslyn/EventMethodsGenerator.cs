@@ -34,6 +34,7 @@ namespace Coimbra.Services.Events.Roslyn
             {
                 sourceBuilder.Initialize();
                 sourceBuilder.AddLine("#nullable enable");
+                sourceBuilder.SkipLine();
 
                 using (new PragmaWarningDisableScope(sourceBuilder, "0109"))
                 {
@@ -46,7 +47,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                     using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                     {
-                        string typeName;
+                        string typeName = typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName();
 
                         using (LineScope lineScope = sourceBuilder.BeginLine())
                         {
@@ -84,7 +85,6 @@ namespace Coimbra.Services.Events.Roslyn
                                 }
                             }
 
-                            typeName = typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName();
                             lineScope.AddContent(typeName);
                         }
 

@@ -39,7 +39,7 @@ namespace Coimbra.Services.Roslyn
                     continue;
                 }
 
-                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace))
+                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace, out _))
                 {
                     abstractServiceCount++;
                 }

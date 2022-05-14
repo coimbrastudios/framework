@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Configurations>Release</Configurations>
+        <Configurations>Release;Debug</Configurations>
         <Platforms>AnyCPU</Platforms>
         <LangVersion>9</LangVersion>
         <RootNamespace>Coimbra.Roslyn</RootNamespace>

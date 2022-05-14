@@ -1,4 +1,4 @@
-﻿namespace Coimbra.Inspectors
+﻿namespace Coimbra
 {
     /// <summary>
     /// Implement this interface to make the type compatible with <see cref="SortableComparer"/>.

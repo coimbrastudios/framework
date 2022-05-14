@@ -1,18 +1,15 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Coimbra.Roslyn
 {
     public class SourceBuilder
     {
-        public readonly SourceIndent Indent;
+        public readonly SourceIndent Indent = new();
 
-        private readonly StringBuilder _stringBuilder;
+        private readonly StringBuilder _stringBuilder = new();
 
-        public SourceBuilder()
-        {
-            Indent = new SourceIndent();
-            _stringBuilder = new StringBuilder();
-        }
+        private readonly HashSet<string> _usingSet = new();
 
         public void Initialize()
         {
@@ -20,6 +17,7 @@ namespace Coimbra.Roslyn
             _stringBuilder.Clear();
             _stringBuilder.AppendLine("// This file is auto-generated!");
             _stringBuilder.AppendLine();
+            _usingSet.Clear();
         }
 
         public void AddLine(string lineContent, bool skipIndent = false)
@@ -29,7 +27,10 @@ namespace Coimbra.Roslyn
 
         public void AddUsing(string value)
         {
-            AddLine($"using {value};");
+            if (_usingSet.Add(value))
+            {
+                AddLine($"using {value};");
+            }
         }
 
         public LineScope BeginLine(bool skipIndent = false)

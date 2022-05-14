@@ -12,7 +12,7 @@ namespace Coimbra.Editor
         [SettingsProviderGroup]
         private static SettingsProvider[] CreatePoolingSettingsProvider()
         {
-            using (ManagedPool.Pop(out Dictionary<Type, SettingsProvider> dictionary))
+            using (DictionaryPool.Pop(out Dictionary<Type, SettingsProvider> dictionary))
             {
                 foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
                 {

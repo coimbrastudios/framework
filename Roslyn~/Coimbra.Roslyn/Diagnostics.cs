@@ -6,6 +6,8 @@ namespace Coimbra.Roslyn
 {
     public static class Diagnostics
     {
+        private const string DefaultCategory = "Coimbra";
+
         private const string EventsCategory = "Coimbra.Services.Events";
 
         private const string ServicesCategory = "Coimbra.Services";
@@ -66,12 +68,19 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
-        public static readonly DiagnosticDescriptor EventServiceGenericAPIsSholdNotBeUsed = new("COIMBRA0009",
-                                                                                                "IEventService generic APIs should not be used directly.",
-                                                                                                "Use {0}.{1} instead.",
-                                                                                                EventsCategory,
-                                                                                                DiagnosticSeverity.Error,
-                                                                                                true);
+        public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",
+                                                                                                    "IEventService generic APIs should not be used directly.",
+                                                                                                    "Use {0}.{1} instead.",
+                                                                                                    EventsCategory,
+                                                                                                    DiagnosticSeverity.Error,
+                                                                                                    true);
+
+        public static readonly DiagnosticDescriptor SpecifiedTypeShouldBeUsedWithAnotherSharedPool = new("COIMBRA0010",
+                                                                                                         "Specified type should be used with another SharedManagedPool.",
+                                                                                                         "Use {0}Pool instead.",
+                                                                                                         DefaultCategory,
+                                                                                                         DiagnosticSeverity.Error,
+                                                                                                         true);
     }
 }
 

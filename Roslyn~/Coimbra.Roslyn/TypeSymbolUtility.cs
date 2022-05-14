@@ -6,25 +6,29 @@ namespace Coimbra.Roslyn
     public static class TypeSymbolUtility
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasAttribute(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool HasAttribute(this ITypeSymbol typeSymbol, string name, string containingNamespace, out AttributeData attributeData)
         {
-            foreach (AttributeData attributeData in namedTypeSymbol.GetAttributes())
+            foreach (AttributeData attribute in typeSymbol.GetAttributes())
             {
-                if (attributeData.AttributeClass is not null && attributeData.AttributeClass.Is(name, containingNamespace))
+                if (attribute.AttributeClass is not null && attribute.AttributeClass.Is(name, containingNamespace))
                 {
+                    attributeData = attribute;
+
                     return true;
                 }
             }
+
+            attributeData = null;
 
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ImplementsInterface(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool ImplementsInterface(this ITypeSymbol typeSymbol, string name, string containingNamespace)
         {
-            while (namedTypeSymbol != null)
+            while (typeSymbol != null)
             {
-                foreach (INamedTypeSymbol interfaceSymbol in namedTypeSymbol.Interfaces)
+                foreach (INamedTypeSymbol interfaceSymbol in typeSymbol.Interfaces)
                 {
                     if (interfaceSymbol.IsOrImplementsInterface(name, containingNamespace))
                     {
@@ -32,22 +36,22 @@ namespace Coimbra.Roslyn
                     }
                 }
 
-                namedTypeSymbol = namedTypeSymbol.BaseType;
+                typeSymbol = typeSymbol.BaseType;
             }
 
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Is(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool Is(this ITypeSymbol typeSymbol, string name, string containingNamespace)
         {
-            return namedTypeSymbol.Name == name && namedTypeSymbol.ContainingNamespace.ToString() == containingNamespace;
+            return typeSymbol.Name == name && typeSymbol.ContainingNamespace.ToString() == containingNamespace;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsOrImplementsInterface(this ITypeSymbol namedTypeSymbol, string name, string containingNamespace)
+        public static bool IsOrImplementsInterface(this ITypeSymbol typeSymbol, string name, string containingNamespace)
         {
-            return namedTypeSymbol.Is(name, containingNamespace) || namedTypeSymbol.ImplementsInterface(name, containingNamespace);
+            return typeSymbol.Is(name, containingNamespace) || typeSymbol.ImplementsInterface(name, containingNamespace);
         }
     }
 }

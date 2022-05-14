@@ -1,18 +1,27 @@
-﻿using Coimbra.Roslyn;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Coimbra.Services.Roslyn
+namespace Coimbra.Roslyn
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ServiceLocatorUsageAnalyzer : DiagnosticAnalyzer
+    public sealed class ManagedPoolUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ServiceLocatorRequiresInterface,
-                                                                                                           Diagnostics.ServiceLocatorRequiresNonAbstractInterface);
+        private static readonly HashSet<string> SpecificTypes = new()
+        {
+            "Dictionary",
+            "HashSet",
+            "List",
+            "Queue",
+            "Stack",
+            "StringBuilder",
+        };
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.SpecifiedTypeShouldBeUsedWithAnotherSharedPool);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -29,7 +38,8 @@ namespace Coimbra.Services.Roslyn
             }
 
             if (context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol is not IMethodSymbol methodSymbol
-             || !methodSymbol.ContainingType.Is(CoimbraServicesTypes.ServiceLocatorClass, CoimbraServicesTypes.Namespace)
+             || methodSymbol.ContainingType.IsGenericType
+             || !methodSymbol.ContainingType.Is(CoimbraTypes.ManagedPoolClass, CoimbraTypes.Namespace)
              || !methodSymbol.IsGenericMethod)
             {
                 return;
@@ -44,16 +54,9 @@ namespace Coimbra.Services.Roslyn
 
             ITypeSymbol typeSymbol = methodSymbol.TypeArguments.First();
 
-            if (typeSymbol.TypeKind is not TypeKind.Interface)
+            if (SpecificTypes.Contains(typeSymbol.Name))
             {
-                if (typeSymbol.TypeKind is not TypeKind.TypeParameter)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
-                }
-            }
-            else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace, out _))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.SpecifiedTypeShouldBeUsedWithAnotherSharedPool, methodNameSyntax.GetLocation(), typeSymbol.Name));
             }
         }
     }

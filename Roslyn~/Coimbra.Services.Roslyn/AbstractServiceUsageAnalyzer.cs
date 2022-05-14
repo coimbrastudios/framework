@@ -23,7 +23,7 @@ namespace Coimbra.Services.Roslyn
         {
             if (context.Node is not InterfaceDeclarationSyntax interfaceDeclarationSyntax
              || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace))
+             || !typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace, out _))
             {
                 return;
             }

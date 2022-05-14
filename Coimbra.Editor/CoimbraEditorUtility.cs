@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEditor.SettingsManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -77,7 +78,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Create an asset alongside its folder hierarchy if needed.
         /// </summary>
-        public static void CreateAssetWithFolderHierarchy(UnityEngine.Object asset, string path)
+        public static void CreateAssetWithFolderHierarchy(Object asset, string path)
         {
             string[] folders = path.Split('/');
             string current = folders[0];
@@ -169,7 +170,7 @@ namespace Coimbra.Editor
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            using (ManagedPool.Pop(out List<UnityEngine.Object> pooledList))
+            using (ListPool.Pop(out List<Object> pooledList))
             {
                 pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
 

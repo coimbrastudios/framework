@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Coimbra.Inspectors
+namespace Coimbra
 {
     /// <summary>
     /// Default comparer for any <see cref="ISortable"/>.
