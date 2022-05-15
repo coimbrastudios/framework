@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.2.2] - UNRELEASED
+
+- Added back the menu item `Tools/Coimbra Framework/Preferences/Clear Console On Reload` for Unity 2020.3.
+
 ## [10.2.1] - 2022-05-14
 
 - Fixed compatibility with 2020.3 by removing duplicated Roslyn assemblies.
