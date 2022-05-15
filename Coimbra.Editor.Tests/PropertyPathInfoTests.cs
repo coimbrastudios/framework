@@ -85,6 +85,12 @@ namespace Coimbra.Editor.Tests
         {
             GetScopeWorks(_assetArray);
             GetScopeWorks(_behaviourArray);
+
+            using SerializedObject serializedObject = new SerializedObject(_assetArray[0]);
+            using SerializedProperty managedFieldProperty = serializedObject.FindProperty("_interfaceField");
+            using SerializedProperty unityObjectProperty = managedFieldProperty.FindPropertyRelative("_unityObject");
+            Assert.That(unityObjectProperty.GetScope(), Is.EqualTo(managedFieldProperty.GetValue()));
+            Assert.That(managedFieldProperty.GetScope(), Is.EqualTo(_assetArray[0]));
         }
 
         [Test]

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Coimbra
 {
     [Serializable]
-    public class SerializableMap<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableMap, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableMap, ISerializationCallbackReceiver
     {
         [Serializable]
         private sealed class SerializablePair
@@ -29,33 +29,27 @@ namespace Coimbra
         }
 
         [SerializeField]
-        private List<SerializablePair> _pairs = new();
+        private List<SerializablePair> _pairs = new List<SerializablePair>();
 
         [SerializeField]
         [UsedImplicitly]
-        private SerializablePair _pair;
+        private SerializablePair _pair = new SerializablePair();
 
-        public SerializableMap() { }
+        public SerializableDictionary() { }
 
-        public SerializableMap(IDictionary<TKey, TValue> dictionary)
+        public SerializableDictionary(IDictionary<TKey, TValue> dictionary)
             : base(dictionary) { }
 
-        public SerializableMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+        public SerializableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
             : base(dictionary, comparer) { }
 
-        public SerializableMap(IEnumerable<KeyValuePair<TKey, TValue>> collection)
-            : base(collection) { }
-
-        public SerializableMap(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
-            : base(collection, comparer) { }
-
-        public SerializableMap(IEqualityComparer<TKey> comparer)
+        public SerializableDictionary(IEqualityComparer<TKey> comparer)
             : base(comparer) { }
 
-        public SerializableMap(int capacity)
+        public SerializableDictionary(int capacity)
             : base(capacity) { }
 
-        public SerializableMap(int capacity, IEqualityComparer<TKey> comparer)
+        public SerializableDictionary(int capacity, IEqualityComparer<TKey> comparer)
             : base(capacity, comparer) { }
 
         bool ISerializableMap.IsPairValid => _pair.Key != null && !ContainsKey(_pair.Key);

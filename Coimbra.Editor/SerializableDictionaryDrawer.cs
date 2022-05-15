@@ -7,13 +7,15 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Drawer for <see cref="SerializableMap{TKey,TValue}"/>.
+    /// Drawer for <see cref="SerializableDictionary{TKey,TValue}"/>.
     /// </summary>
     [InitializeOnLoad]
-    [CustomPropertyDrawer(typeof(SerializableMap<,>), true)]
-    public class SerializableMapDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
+    public class SerializableDictionaryDrawer : PropertyDrawer
     {
         private const float CountFieldSize = 50;
+
+        private const float KeyViewWidthPercent = 0.4f;
 
         private const string KeyProperty = "Key";
 
@@ -23,9 +25,13 @@ namespace Coimbra.Editor
 
         private const string ValueProperty = "Value";
 
-        private const string ModifyDisabledMessage = "Can't resize map while editing multiple objects!";
+        private const string ModifyDisabledMessage = "Can't resize while editing multiple objects!";
 
-        static SerializableMapDrawer()
+        private const string NestedModifyDisabledMessage = "Can't modify before adding the element!";
+
+        private static bool _isNested;
+
+        static SerializableDictionaryDrawer()
         {
             Undo.postprocessModifications -= HandlePostprocessModifications;
             Undo.postprocessModifications += HandlePostprocessModifications;
@@ -62,7 +68,7 @@ namespace Coimbra.Editor
 
                 static bool shouldShowMixedValue(SerializedProperty property)
                 {
-                    using (SharedManagedPools.Pop(out List<ICollection> collections))
+                    using (ListPool.Pop(out List<ICollection> collections))
                     {
                         property.GetValues(collections);
 
@@ -91,29 +97,32 @@ namespace Coimbra.Editor
                 return;
             }
 
-            ReorderableList list = pairsProperty.ToReorderableList(InitializeReorderableList);
-            position.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
-            list.DoList(position);
-
-            if (CanModifyList(list))
+            using (new LabelWidthScope(position.width * KeyViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                return;
+                ReorderableList list = pairsProperty.ToReorderableList(InitializeReorderableList);
+                position.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
+                list.DoList(position);
+
+                if (CanModifyList(list))
+                {
+                    return;
+                }
             }
 
             position.yMin += position.height - EditorGUIUtility.singleLineHeight;
-            EditorGUI.LabelField(position, ModifyDisabledMessage);
+            EditorGUI.LabelField(position, _isNested ? NestedModifyDisabledMessage :ModifyDisabledMessage);
         }
 
         private static bool CanModifyList(ReorderableList list)
         {
-            return !list.serializedProperty.serializedObject.isEditingMultipleObjects;
+            return !list.serializedProperty.serializedObject.isEditingMultipleObjects && !_isNested;
         }
 
         private static void DrawKeyValuePair(Rect position, SerializedProperty property, bool disableKeyField)
         {
             static void draw(Rect position, SerializedProperty property)
             {
-                if (property.isArray)
+                if (property.isArray && property.propertyType != SerializedPropertyType.String)
                 {
                     EditorGUI.PropertyField(position, property);
                 }
@@ -163,16 +172,11 @@ namespace Coimbra.Editor
 
         private static void InitializeReorderableList(ReorderableList list)
         {
-            static void drawNoneElement(Rect position)
-            {
-                EditorGUI.LabelField(position, "Map is Empty");
-            }
-
             static void handleAddDropdown(Rect position, ReorderableList list)
             {
-                Vector2 windowScrollPosition = new();
+                Vector2 windowScrollPosition = new Vector2();
                 string mapPropertyPath = list.serializedProperty.propertyPath;
-                mapPropertyPath = mapPropertyPath[..mapPropertyPath.LastIndexOf('.')];
+                mapPropertyPath = mapPropertyPath.Substring(0, mapPropertyPath.LastIndexOf('.'));
 
                 SerializedObject serializedObject = list.serializedProperty.serializedObject;
                 SerializedProperty mapProperty = serializedObject.FindProperty(mapPropertyPath);
@@ -180,10 +184,9 @@ namespace Coimbra.Editor
 
                 void guiCallback(TemporaryWindow window)
                 {
-                    using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * 0.5f, LabelWidthScope.MagnitudeMode.Absolute))
+                    using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * KeyViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                     {
-
-                        using EditorGUILayout.ScrollViewScope scrollViewScope = new(windowScrollPosition);
+                        using EditorGUILayout.ScrollViewScope scrollViewScope = new EditorGUILayout.ScrollViewScope(windowScrollPosition);
                         windowScrollPosition = scrollViewScope.scrollPosition;
 
                         ISerializableMap serializableMap = list.serializedProperty.GetScope<ISerializableMap>();
@@ -197,9 +200,12 @@ namespace Coimbra.Editor
 
                         EditorGUILayout.LabelField($"Key ({serializableMap.KeyType})", $"Value ({serializableMap.ValueType})");
 
-                        using EditorGUI.ChangeCheckScope changeCheckScope = new();
+                        using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
                         Rect position = EditorGUILayout.GetControlRect(false, GetKeyValuePairHeight(pairProperty));
+
+                        _isNested = true;
                         DrawKeyValuePair(position, pairProperty, false);
+                        _isNested = false;
 
                         if (changeCheckScope.changed)
                         {
@@ -240,7 +246,22 @@ namespace Coimbra.Editor
                 window.position = position;
             }
 
-            void drawHeader(Rect position)
+#if UNITY_2021_3_OR_NEWER
+            list.multiSelect = true;
+#endif
+            list.onCanAddCallback = CanModifyList;
+            list.onCanRemoveCallback = CanModifyList;
+
+            list.drawElementCallback = delegate(Rect position, int index, bool active, bool focused)
+            {
+                Rect drawPosition = position;
+                drawPosition.yMin += EditorGUIUtility.standardVerticalSpacing;
+
+                SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
+                DrawKeyValuePair(drawPosition, elementProperty, true);
+            };
+
+            list.drawHeaderCallback = delegate(Rect position)
             {
                 float labelWidth = EditorGUIUtility.labelWidth;
                 ISerializableMap serializableMap = list.serializedProperty.GetScope<ISerializableMap>()!;
@@ -248,9 +269,14 @@ namespace Coimbra.Editor
                 EditorGUI.LabelField(position, $"Keys ({serializableMap.KeyType})", $"Values ({serializableMap.ValueType})");
 
                 EditorGUIUtility.labelWidth = labelWidth;
-            }
+            };
 
-            float getElementHeight(int index)
+            list.drawNoneElementCallback = delegate(Rect position)
+            {
+                EditorGUI.LabelField(position, "Map is Empty");
+            };
+
+            list.elementHeightCallback = delegate(int index)
             {
                 if (list.serializedProperty.arraySize == 0)
                 {
@@ -260,24 +286,9 @@ namespace Coimbra.Editor
                 SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
 
                 return GetKeyValuePairHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing;
-            }
-
-            list.multiSelect = true;
-            list.drawHeaderCallback = drawHeader;
-            list.drawNoneElementCallback = drawNoneElement;
-            list.elementHeightCallback = getElementHeight;
-            list.onAddDropdownCallback = handleAddDropdown;
-            list.onCanAddCallback = CanModifyList;
-            list.onCanRemoveCallback = CanModifyList;
-
-            list.drawElementCallback = delegate(Rect position, int index, bool _, bool _)
-            {
-                Rect drawPosition = position;
-                drawPosition.yMin += EditorGUIUtility.standardVerticalSpacing;
-
-                SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
-                DrawKeyValuePair(drawPosition, elementProperty, true);
             };
+
+            list.onAddDropdownCallback = handleAddDropdown;
         }
     }
 }

@@ -185,86 +185,67 @@ namespace Coimbra.Editor
                 }
             }
 
-            StringBuilder stringBuilder = new StringBuilder(value.Length * 2);
-
-            char currentInput = value[i];
-            char lastOutput = char.ToUpper(currentInput);
-            stringBuilder.Append(lastOutput);
-            i++;
-
-            int underscoreSequence = 0;
-            int letterSequence = char.IsNumber(lastOutput) ? 0 : 1;
-
-            for (; i < value.Length; i++)
+            using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
             {
-                char lastInput = currentInput;
-                currentInput = value[i];
+                stringBuilder.EnsureCapacity(value.Length * 2);
 
-                if (currentInput == underscore)
+                char currentInput = value[i];
+                char lastOutput = char.ToUpper(currentInput);
+                stringBuilder.Append(lastOutput);
+                i++;
+
+                int underscoreSequence = 0;
+                int letterSequence = char.IsNumber(lastOutput) ? 0 : 1;
+
+                for (; i < value.Length; i++)
                 {
-                    letterSequence = 0;
-                    underscoreSequence++;
+                    char lastInput = currentInput;
+                    currentInput = value[i];
 
-                    continue;
-                }
-
-                bool hasUnderscoreSequence = underscoreSequence > 1;
-                underscoreSequence = 0;
-
-                if (char.IsNumber(currentInput))
-                {
-                    letterSequence = 0;
-
-                    if (char.IsNumber(lastOutput))
+                    if (currentInput == underscore)
                     {
-                        if (lastInput == underscore)
+                        letterSequence = 0;
+                        underscoreSequence++;
+
+                        continue;
+                    }
+
+                    bool hasUnderscoreSequence = underscoreSequence > 1;
+                    underscoreSequence = 0;
+
+                    if (char.IsNumber(currentInput))
+                    {
+                        letterSequence = 0;
+
+                        if (char.IsNumber(lastOutput))
                         {
-                            stringBuilder.Append(hasUnderscoreSequence ? ' ' : '.');
+                            if (lastInput == underscore)
+                            {
+                                stringBuilder.Append(hasUnderscoreSequence ? ' ' : '.');
+                            }
                         }
-                    }
-                    else
-                    {
-                        stringBuilder.Append(' ');
-                    }
+                        else
+                        {
+                            stringBuilder.Append(' ');
+                        }
 
-                    lastOutput = currentInput;
-                    stringBuilder.Append(lastOutput);
-
-                    continue;
-                }
-
-                if (char.IsUpper(currentInput))
-                {
-                    if (char.IsNumber(lastOutput) || char.IsLower(lastOutput))
-                    {
-                        stringBuilder.Append(' ');
-                    }
-                    else if (char.IsUpper(lastOutput) && i + 1 < value.Length && char.IsLower(value[i + 1]))
-                    {
-                        stringBuilder.Append(' ');
-                    }
-
-                    lastOutput = currentInput;
-                    stringBuilder.Append(lastOutput);
-                    letterSequence++;
-
-                    continue;
-                }
-
-                if (char.IsLower(currentInput))
-                {
-                    if (char.IsNumber(lastOutput) || lastInput == underscore)
-                    {
-                        lastOutput = char.ToUpper(currentInput);
-                        stringBuilder.Append(' ');
+                        lastOutput = currentInput;
                         stringBuilder.Append(lastOutput);
-                        letterSequence++;
 
                         continue;
                     }
 
-                    if (char.IsLower(lastOutput))
+                    if (char.IsUpper(currentInput))
                     {
+                        if (char.IsNumber(lastOutput) || char.IsLower(lastOutput))
+                        {
+                            stringBuilder.Append(' ');
+                        }
+                        else if (char.IsUpper(lastOutput) && i + 1 < value.Length && char.IsLower(value[i + 1]))
+                        {
+                            stringBuilder.Append(' ');
+                        }
+
                         lastOutput = currentInput;
                         stringBuilder.Append(lastOutput);
                         letterSequence++;
@@ -272,28 +253,50 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    if (letterSequence == 0)
+                    if (char.IsLower(currentInput))
                     {
-                        lastOutput = char.ToUpper(currentInput);
-                        stringBuilder.Append(lastOutput);
-                    }
-                    else
-                    {
-                        lastOutput = currentInput;
-                        stringBuilder.Append(lastOutput);
+                        if (char.IsNumber(lastOutput) || lastInput == underscore)
+                        {
+                            lastOutput = char.ToUpper(currentInput);
+                            stringBuilder.Append(' ');
+                            stringBuilder.Append(lastOutput);
+                            letterSequence++;
+
+                            continue;
+                        }
+
+                        if (char.IsLower(lastOutput))
+                        {
+                            lastOutput = currentInput;
+                            stringBuilder.Append(lastOutput);
+                            letterSequence++;
+
+                            continue;
+                        }
+
+                        if (letterSequence == 0)
+                        {
+                            lastOutput = char.ToUpper(currentInput);
+                            stringBuilder.Append(lastOutput);
+                        }
+                        else
+                        {
+                            lastOutput = currentInput;
+                            stringBuilder.Append(lastOutput);
+                        }
+
+                        letterSequence++;
+
+                        continue;
                     }
 
-                    letterSequence++;
+                    Debug.LogWarning($"Invalid char {currentInput}! The only supported chars are digits, letters and underscore.");
 
-                    continue;
+                    currentInput = lastInput;
                 }
 
-                Debug.LogWarning($"Invalid char {currentInput}! The only supported chars are digits, letters and underscore.");
-
-                currentInput = lastInput;
+                return stringBuilder.ToString();
             }
-
-            return stringBuilder.ToString();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -349,7 +352,7 @@ namespace Coimbra.Editor
 #if UNITY_2021_3_OR_NEWER
             return HashCode.Combine(targetHash, propertyPathHash);
 #else
-            return ((targetHash << 5) + targetHash) ^ propertyPathHash;
+            return (targetHash, propertyPathHash).GetHashCode();
 #endif
         }
     }

@@ -16,7 +16,7 @@ namespace Coimbra.Editor
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static readonly Dictionary<int, PropertyPathInfo> PropertyPathInfoMap = new Dictionary<int, PropertyPathInfo>();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
 
         /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
@@ -35,21 +35,29 @@ namespace Coimbra.Editor
         /// </summary>
         public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
         {
-            if (PropertyPathInfoMap.TryGetValue(property.GetPersistentHashCode(false), out PropertyPathInfo propertyPathInfo))
+            Type targetType = property.serializedObject.targetObject.GetType();
+
+            if (!PropertyPathInfoMapFromType.TryGetValue(targetType, out Dictionary<string, PropertyPathInfo> propertyPathInfoMap))
+            {
+                propertyPathInfoMap = new Dictionary<string, PropertyPathInfo>();
+                PropertyPathInfoMapFromType.Add(targetType, propertyPathInfoMap);
+            }
+
+            string propertyPath = property.propertyPath;
+
+            if (propertyPathInfoMap.TryGetValue(propertyPath, out PropertyPathInfo propertyPathInfo))
             {
                 return propertyPathInfo;
             }
 
-            Type rootTargetType = property.serializedObject.targetObject.GetType();
-
             using (ListPool.Pop(out List<string> splitPropertyPath))
             {
-                splitPropertyPath.AddRange(property.propertyPath.Split('.'));
+                splitPropertyPath.AddRange(propertyPath.Split('.'));
 
-                propertyPathInfo = GetPropertyPathInfoRecursive(rootTargetType, splitPropertyPath);
+                propertyPathInfo = GetPropertyPathInfoRecursive(targetType, splitPropertyPath);
             }
 
-            PropertyPathInfoMap.Add(property.GetPersistentHashCode(false), propertyPathInfo);
+            propertyPathInfoMap.Add(propertyPath, propertyPathInfo);
 
             return propertyPathInfo;
         }
@@ -198,7 +206,14 @@ namespace Coimbra.Editor
                 }
             }
 
-            return type.GetField(field, PropertyPathInfoFlags);
+            FieldInfo result = null;
+
+            for (; result == null && type != null; type = type.BaseType)
+            {
+                result = type.GetField(field, PropertyPathInfoFlags);
+            }
+
+            return result;
         }
 
         [CanBeNull]

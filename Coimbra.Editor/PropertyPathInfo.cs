@@ -47,32 +47,34 @@ namespace Coimbra.Editor
                 return _propertyPath;
             }
 
-            StringBuilder builder = new StringBuilder();
-            PropertyPathInfo current = this;
-
-            do
+            using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
             {
-                builder.Append($"{current.FieldInfo.Name}");
+                PropertyPathInfo current = this;
 
-                if (current.Index.HasValue)
+                do
                 {
-                    builder.Append($"[{current.Index}]");
+                    stringBuilder.Append($"{current.FieldInfo.Name}");
+
+                    if (current.Index.HasValue)
+                    {
+                        stringBuilder.Append($"[{current.Index}]");
+                    }
+
+                    current = current.Next;
+
+                    if (current == null)
+                    {
+                        break;
+                    }
+
+                    stringBuilder.Append(".");
                 }
+                while (true);
 
-                current = current.Next;
+                _propertyPath = stringBuilder.ToString();
 
-                if (current == null)
-                {
-                    break;
-                }
-
-                builder.Append(".");
+                return _propertyPath;
             }
-            while (true);
-
-            _propertyPath = builder.ToString();
-
-            return _propertyPath;
         }
 
         /// <summary>

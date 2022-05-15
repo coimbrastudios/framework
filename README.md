@@ -30,6 +30,7 @@ Package of general utilities to be used with Unity development.
     - `StackPool`
     - `StringBuilderPool`
 - References: Create a `Reference` for any value or even another reference.
+- `SerializableDictionary`: view, edit and save dictionaries from the inspector. Also supports nesting and lists.
 - Service Locator: Enable a service-based architecture easily. It comes with a few services already:
     - `IApplicationStateService`: Responsible for some built-in events:
         - `ApplicationFocusEvent`

@@ -3,6 +3,7 @@
 ## [10.2.2] - UNRELEASED
 
 - Added back the menu item `Tools/Coimbra Framework/Preferences/Clear Console On Reload` for Unity 2020.3.
+- Added `SerializableDictionary` to allow viewing and modifying dictionaries in the inspector (with nesting support).
 
 ## [10.2.1] - 2022-05-14
 
