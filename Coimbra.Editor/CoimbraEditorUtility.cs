@@ -16,6 +16,12 @@ namespace Coimbra.Editor
     [InitializeOnLoad]
     public sealed class CoimbraEditorUtility : AssetPostprocessor
     {
+#if !UNITY_2021_3_OR_NEWER
+        private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
+
+        private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
+#endif
+
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
 
         private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
@@ -33,7 +39,7 @@ namespace Coimbra.Editor
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
             EditorApplication.playModeStateChanged -= ConfigureStartupScene;
             EditorApplication.playModeStateChanged += ConfigureStartupScene;
-            EditorApplication.delayCall += () => CoimbraUtility.IsReloadingScripts = false;
+            EditorApplication.delayCall += HandleDelayCall;
         }
 
         /// <summary>
@@ -68,6 +74,28 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
+        /// Reset the <see cref="EditorSceneManager.playModeStartScene"/> back to null.
+        /// </summary>
+        [MenuItem(ResetPlayModeStartSceneMenuItem)]
+        public static void ResetPlayModeStartScene()
+        {
+            EditorSceneManager.playModeStartScene = null;
+        }
+
+#if !UNITY_2021_3_OR_NEWER
+        /// <summary>
+        /// Toggles the option set for clearing the console on script reloads.
+        /// </summary>
+        [MenuItem(ClearConsoleOnReloadItem)]
+        public static void ToggleClearConsoleOnReload()
+        {
+            bool value = !EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
+            EditorPrefs.SetBool(ClearConsoleOnReloadKey, value);
+            Menu.SetChecked(ClearConsoleOnReloadItem, value);
+        }
+#endif
+
+        /// <summary>
         /// Clears the console windows.
         /// </summary>
         public static void ClearConsoleWindow()
@@ -98,24 +126,10 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        /// <summary>
-        /// Reset the <see cref="EditorSceneManager.playModeStartScene"/> back to null.
-        /// </summary>
-        [MenuItem(ResetPlayModeStartSceneMenuItem)]
-        public static void ResetPlayModeStartScene()
-        {
-            EditorSceneManager.playModeStartScene = null;
-        }
-
         [MenuItem(ResetPlayModeStartSceneMenuItem, true)]
         private static bool CanResetPlayModeStartScene()
         {
             return EditorSceneManager.playModeStartScene != null;
-        }
-
-        private static void HandleBeforeAssemblyReload()
-        {
-            CoimbraUtility.IsReloadingScripts = true;
         }
 
         private static void ConfigureStartupScene(PlayModeStateChange state)
@@ -166,6 +180,26 @@ namespace Coimbra.Editor
                     break;
                 }
             }
+        }
+
+        private static void HandleBeforeAssemblyReload()
+        {
+#if !UNITY_2021_3_OR_NEWER
+            if (EditorPrefs.GetBool(ClearConsoleOnReloadKey, false))
+            {
+                ClearConsoleWindow();
+            }
+#endif
+            CoimbraUtility.IsReloadingScripts = true;
+        }
+
+        private static void HandleDelayCall()
+        {
+#if !UNITY_2021_3_OR_NEWER
+            bool value = EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
+            Menu.SetChecked(ClearConsoleOnReloadItem, value);
+#endif
+            CoimbraUtility.IsReloadingScripts = false;
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
