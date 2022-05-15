@@ -2,7 +2,7 @@
 
 namespace Coimbra
 {
-    internal interface ISerializableMap
+    internal interface ISerializableDictionary
     {
         bool IsPairValid { get; }
 

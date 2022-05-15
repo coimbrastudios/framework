@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Coimbra
 {
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableMap, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary, ISerializationCallbackReceiver
     {
         [Serializable]
         private sealed class SerializablePair
@@ -52,11 +52,11 @@ namespace Coimbra
         public SerializableDictionary(int capacity, IEqualityComparer<TKey> comparer)
             : base(capacity, comparer) { }
 
-        bool ISerializableMap.IsPairValid => _pair.Key != null && !ContainsKey(_pair.Key);
+        bool ISerializableDictionary.IsPairValid => _pair.Key != null && !ContainsKey(_pair.Key);
 
-        Type ISerializableMap.KeyType => typeof(TKey);
+        Type ISerializableDictionary.KeyType => typeof(TKey);
 
-        Type ISerializableMap.ValueType => typeof(TValue);
+        Type ISerializableDictionary.ValueType => typeof(TValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Deserialize()
@@ -72,13 +72,13 @@ namespace Coimbra
             }
         }
 
-        void ISerializableMap.ProcessAdd()
+        void ISerializableDictionary.ProcessAdd()
         {
             _pairs.Add(_pair);
             Add(_pair.Key, _pair.Value);
         }
 
-        void ISerializableMap.ProcessUndo()
+        void ISerializableDictionary.ProcessUndo()
         {
             if (_pairs.Count != Count)
             {

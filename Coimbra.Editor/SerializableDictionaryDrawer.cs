@@ -163,7 +163,7 @@ namespace Coimbra.Editor
 
                 if (modification.currentValue.IsReorderableList(out ReorderableList list))
                 {
-                    list.serializedProperty.GetScope<ISerializableMap>()!.ProcessUndo();
+                    list.serializedProperty.GetScope<ISerializableDictionary>()!.ProcessUndo();
                 }
             }
 
@@ -189,16 +189,16 @@ namespace Coimbra.Editor
                         using EditorGUILayout.ScrollViewScope scrollViewScope = new EditorGUILayout.ScrollViewScope(windowScrollPosition);
                         windowScrollPosition = scrollViewScope.scrollPosition;
 
-                        ISerializableMap serializableMap = list.serializedProperty.GetScope<ISerializableMap>();
+                        ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>();
 
-                        if (serializableMap == null)
+                        if (serializableDictionary == null)
                         {
                             window.Close();
 
                             return;
                         }
 
-                        EditorGUILayout.LabelField($"Key ({serializableMap.KeyType})", $"Value ({serializableMap.ValueType})");
+                        EditorGUILayout.LabelField($"Key ({serializableDictionary.KeyType})", $"Value ({serializableDictionary.ValueType})");
 
                         using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
                         Rect position = EditorGUILayout.GetControlRect(false, GetKeyValuePairHeight(pairProperty));
@@ -217,12 +217,12 @@ namespace Coimbra.Editor
                         {
                             GUILayout.FlexibleSpace();
 
-                            using (new EditorGUI.DisabledScope(!serializableMap.IsPairValid))
+                            using (new EditorGUI.DisabledScope(!serializableDictionary.IsPairValid))
                             {
                                 if (GUILayout.Button("Add"))
                                 {
                                     Undo.RecordObject(serializedObject.targetObject, "Add Element To Map");
-                                    serializableMap.ProcessAdd();
+                                    serializableDictionary.ProcessAdd();
                                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                                     serializedObject.UpdateIfRequiredOrScript();
                                     EditorUtility.SetDirty(serializedObject.targetObject);
@@ -264,9 +264,9 @@ namespace Coimbra.Editor
             list.drawHeaderCallback = delegate(Rect position)
             {
                 float labelWidth = EditorGUIUtility.labelWidth;
-                ISerializableMap serializableMap = list.serializedProperty.GetScope<ISerializableMap>()!;
+                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>()!;
                 EditorGUIUtility.labelWidth += ReorderableList.Defaults.dragHandleWidth * 0.5f;
-                EditorGUI.LabelField(position, $"Keys ({serializableMap.KeyType})", $"Values ({serializableMap.ValueType})");
+                EditorGUI.LabelField(position, $"Keys ({serializableDictionary.KeyType})", $"Values ({serializableDictionary.ValueType})");
 
                 EditorGUIUtility.labelWidth = labelWidth;
             };
