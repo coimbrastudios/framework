@@ -113,15 +113,6 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, T eventData)
-            where T : IEvent
-        {
-            Event<T> e = new Event<T>(this, eventSender, ref eventData);
-
-            return Invoke(ref e);
-        }
-
-        /// <inheritdoc/>
         public bool Invoke<T>(object eventSender, ref T eventData)
             where T : IEvent
         {

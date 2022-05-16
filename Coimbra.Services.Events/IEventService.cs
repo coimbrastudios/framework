@@ -96,16 +96,6 @@ namespace Coimbra.Services.Events
         /// <param name="eventData">The event data to be sent.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<TEvent>(object eventSender, TEvent eventData)
-            where TEvent : IEvent;
-
-        /// <summary>
-        /// Invokes the specified event type for all its listeners.
-        /// </summary>
-        /// <param name="eventSender">The object invoking the event.</param>
-        /// <param name="eventData">The event data to be sent.</param>
-        /// <typeparam name="TEvent">The event type.</typeparam>
-        /// <returns>True if the event was actually invoked.</returns>
         bool Invoke<TEvent>(object eventSender, ref TEvent eventData)
             where TEvent : IEvent;
 
