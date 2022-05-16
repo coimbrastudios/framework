@@ -40,16 +40,21 @@ namespace Coimbra.Editor
             float totalWidth = position.width;
             float fieldWith = totalWidth / 2 - spacing / 2 - labelWidth;
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(FloatRange.Min)), minProperty))
+            using (GUIContentPool.Pop(out GUIContent label))
             {
-                position.width = labelWidth;
-                EditorGUI.LabelField(position, propertyScope.content);
+                label.text = nameof(FloatRange.Min);
 
-                position.x += position.width;
-                position.width = fieldWith;
+                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, minProperty);
 
-                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 {
+                    position.width = labelWidth;
+                    EditorGUI.LabelField(position, propertyScope.content);
+
+                    position.x += position.width;
+                    position.width = fieldWith;
+
+                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+
                     float value = delayed
                                       ? EditorGUI.DelayedFloatField(position, minProperty.floatValue)
                                       : EditorGUI.FloatField(position, minProperty.floatValue);
@@ -62,17 +67,22 @@ namespace Coimbra.Editor
                 }
             }
 
-            using (EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, new GUIContent(nameof(FloatRange.Max)), maxProperty))
+            using (GUIContentPool.Pop(out GUIContent label))
             {
-                position.x += position.width + spacing;
-                position.width = labelWidth;
-                EditorGUI.LabelField(position, propertyScope.content);
+                label.text = nameof(FloatRange.Max);
 
-                position.x += position.width;
-                position.width = fieldWith;
+                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, maxProperty);
 
-                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 {
+                    position.x += position.width + spacing;
+                    position.width = labelWidth;
+                    EditorGUI.LabelField(position, propertyScope.content);
+
+                    position.x += position.width;
+                    position.width = fieldWith;
+
+                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+
                     float value = delayed
                                       ? EditorGUI.DelayedFloatField(position, maxProperty.floatValue)
                                       : EditorGUI.FloatField(position, maxProperty.floatValue);

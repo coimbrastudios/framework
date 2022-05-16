@@ -95,50 +95,54 @@ namespace Coimbra.Editor
         /// <returns></returns>
         public static float GetMessageBoxHeight(string message, MessageBoxType type, InspectorArea area, float defaultMinContentHeight)
         {
-            GUIContent content = new GUIContent(message);
-            float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
-            float minContentHeight;
-
-            switch (type)
+            using (GUIContentPool.Pop(out GUIContent content))
             {
-                case MessageBoxType.Info:
-                {
-                    // ReSharper disable once StringLiteralTypo
-                    FitIcon("console.infoicon", ref contentWidth, out minContentHeight);
+                content.text = message;
 
-                    break;
+                float contentWidth = EditorGUIUtility.currentViewWidth - EditorStyles.foldout.CalcSize(GUIContent.none).x - EditorStyles.inspectorDefaultMargins.padding.horizontal;
+                float minContentHeight;
+
+                switch (type)
+                {
+                    case MessageBoxType.Info:
+                    {
+                        // ReSharper disable once StringLiteralTypo
+                        FitIcon("console.infoicon", ref contentWidth, out minContentHeight);
+
+                        break;
+                    }
+
+                    case MessageBoxType.Warning:
+                    {
+                        // ReSharper disable once StringLiteralTypo
+                        FitIcon("console.warnicon", ref contentWidth, out minContentHeight);
+
+                        break;
+                    }
+
+                    case MessageBoxType.Error:
+                    {
+                        // ReSharper disable once StringLiteralTypo
+                        FitIcon("console.erroricon", ref contentWidth, out minContentHeight);
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        minContentHeight = defaultMinContentHeight;
+
+                        break;
+                    }
                 }
 
-                case MessageBoxType.Warning:
-                {
-                    // ReSharper disable once StringLiteralTypo
-                    FitIcon("console.warnicon", ref contentWidth, out minContentHeight);
+                Rect rect = new Rect(0, 0, contentWidth, 0);
+                AdjustPosition(ref rect, area);
 
-                    break;
-                }
+                float height = EditorStyles.helpBox.CalcHeight(content, rect.width);
 
-                case MessageBoxType.Error:
-                {
-                    // ReSharper disable once StringLiteralTypo
-                    FitIcon("console.erroricon", ref contentWidth, out minContentHeight);
-
-                    break;
-                }
-
-                default:
-                {
-                    minContentHeight = defaultMinContentHeight;
-
-                    break;
-                }
+                return Mathf.Max(height, minContentHeight);
             }
-
-            Rect rect = new Rect(0, 0, contentWidth, 0);
-            AdjustPosition(ref rect, area);
-
-            float height = EditorStyles.helpBox.CalcHeight(content, rect.width);
-
-            return Mathf.Max(height, minContentHeight);
         }
 
         /// <summary>

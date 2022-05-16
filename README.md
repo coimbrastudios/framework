@@ -4,6 +4,10 @@
 
 Package of general utilities to be used with Unity development.
 
+## Known Issues
+
+- Source generators on 2020.3 don't run on the first time you open the editor after deleting the `Library`. Restarting the editor fixes the issue.
+
 ## List of Content
 
 - `Actor`: Meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself.

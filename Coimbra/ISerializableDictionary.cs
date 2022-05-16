@@ -2,9 +2,9 @@
 
 namespace Coimbra
 {
-    internal interface ISerializableDictionary
+    internal interface ISerializableDictionary : ISerializableCollection
     {
-        bool IsPairValid { get; }
+        bool IsNewEntryValid { get; }
 
         Type KeyType { get; }
 

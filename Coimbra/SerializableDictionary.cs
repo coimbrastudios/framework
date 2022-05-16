@@ -6,11 +6,14 @@ using UnityEngine;
 
 namespace Coimbra
 {
+    /// <summary>
+    /// <see cref="Dictionary{TKey,TValue}"/> that can be viewed, modified and saved from the inspector.
+    /// </summary>
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary, ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary
     {
         [Serializable]
-        private sealed class SerializablePair
+        private sealed class SerializableItem
         {
             [SerializeField]
             internal TKey Key;
@@ -18,9 +21,9 @@ namespace Coimbra
             [SerializeField]
             internal TValue Value;
 
-            public static implicit operator SerializablePair(KeyValuePair<TKey, TValue> pair)
+            public static implicit operator SerializableItem(KeyValuePair<TKey, TValue> pair)
             {
-                return new SerializablePair
+                return new SerializableItem
                 {
                     Key = pair.Key,
                     Value = pair.Value,
@@ -29,11 +32,11 @@ namespace Coimbra
         }
 
         [SerializeField]
-        private List<SerializablePair> _pairs = new List<SerializablePair>();
+        private List<SerializableItem> _items = new List<SerializableItem>();
 
         [SerializeField]
         [UsedImplicitly]
-        private SerializablePair _pair = new SerializablePair();
+        private SerializableItem _newEntry = new SerializableItem();
 
         public SerializableDictionary() { }
 
@@ -52,7 +55,7 @@ namespace Coimbra
         public SerializableDictionary(int capacity, IEqualityComparer<TKey> comparer)
             : base(capacity, comparer) { }
 
-        bool ISerializableDictionary.IsPairValid => _pair.Key != null && !ContainsKey(_pair.Key);
+        bool ISerializableDictionary.IsNewEntryValid => _newEntry.Key != null && !ContainsKey(_newEntry.Key);
 
         Type ISerializableDictionary.KeyType => typeof(TKey);
 
@@ -63,24 +66,24 @@ namespace Coimbra
         {
             Clear();
 
-            foreach (SerializablePair pair in _pairs)
+            foreach (SerializableItem item in _items)
             {
-                if (pair.Key.TryGetValid(out TKey key))
+                if (item.Key.TryGetValid(out TKey key))
                 {
-                    Add(key, pair.Value);
+                    Add(key, item.Value);
                 }
             }
         }
 
         void ISerializableDictionary.ProcessAdd()
         {
-            _pairs.Add(_pair);
-            Add(_pair.Key, _pair.Value);
+            _items.Add(_newEntry);
+            Add(_newEntry.Key, _newEntry.Value);
         }
 
         void ISerializableDictionary.ProcessUndo()
         {
-            if (_pairs.Count != Count)
+            if (_items.Count != Count)
             {
                 Deserialize();
             }
@@ -93,11 +96,11 @@ namespace Coimbra
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            _pairs.Clear();
+            _items.Clear();
 
-            foreach (KeyValuePair<TKey, TValue> pair in this)
+            foreach (KeyValuePair<TKey, TValue> item in this)
             {
-                _pairs.Add(pair);
+                _items.Add(item);
             }
         }
     }

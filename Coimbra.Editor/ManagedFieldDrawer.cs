@@ -70,86 +70,97 @@ namespace Coimbra.Editor
             Type managedType = baseType.GenericTypeArguments[0];
             string suffix = $"* {managedType.FullName}";
             string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
-            GUIContent labelWithTooltip = new GUIContent($"{label.text}*", label.image, tooltip);
-            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
-            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, labelWithTooltip, unityObject);
-
-            position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-
-            if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
+            using (GUIContentPool.Pop(out GUIContent labelWithTooltip))
             {
-                DrawUnityField(position, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
-            }
-            else if (unityObject.objectReferenceValue != null)
-            {
-                float buttonWidth = EditorStyles.miniPullDown.CalcSize(ClearLabel).x;
-                Rect unityFieldPosition = position;
-                unityFieldPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+                labelWithTooltip.image = label.image;
+                labelWithTooltip.text = $"{label.text}*";
+                labelWithTooltip.tooltip = tooltip;
+                SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
+                SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
 
-                Rect buttonPosition = position;
-                buttonPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, labelWithTooltip, unityObject);
 
-                if (GUI.Button(buttonPosition, ClearLabel, EditorStyles.miniButton))
+                position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+
+                if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
                 {
-                    systemObject.serializedObject.Update();
-                    unityObject.objectReferenceValue = null;
-                    systemObject.serializedObject.ApplyModifiedProperties();
+                    DrawUnityField(position, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
                 }
-            }
-            else
-            {
-                string typename = systemObject.managedReferenceFullTypename;
-
-                if (string.IsNullOrWhiteSpace(typename))
+                else if (unityObject.objectReferenceValue != null)
                 {
-                    if (managedType.IsInterface)
-                    {
-                        float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
-                        Rect unityFieldPosition = position;
-                        unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
-                        DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
-
-                        Rect systemDropdownPosition = position;
-                        systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
-                        DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
-                    }
-                    else
-                    {
-                        Rect valuePosition = position;
-                        valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-
-                        Rect systemDropdownPosition = position;
-                        systemDropdownPosition.x += EditorGUIUtility.labelWidth;
-                        systemDropdownPosition.width -= EditorGUIUtility.labelWidth;
-                        DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
-                    }
-                }
-                else
-                {
-                    float buttonWidth = EditorStyles.miniButton.CalcSize(ClearLabel).x;
-                    string separator = typename.Contains(".") ? "." : " ";
-                    GUIContent value = new GUIContent(typename.Substring(typename.LastIndexOf(separator, StringComparison.Ordinal) + 1));
-                    Rect labelPosition = position;
-                    labelPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                    EditorGUI.LabelField(labelPosition, EmptyLabel, value);
+                    float buttonWidth = EditorStyles.miniPullDown.CalcSize(ClearLabel).x;
+                    Rect unityFieldPosition = position;
+                    unityFieldPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
+                    DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
 
                     Rect buttonPosition = position;
-                    buttonPosition.xMin = labelPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+                    buttonPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
 
                     if (GUI.Button(buttonPosition, ClearLabel, EditorStyles.miniButton))
                     {
                         systemObject.serializedObject.Update();
-                        systemObject.managedReferenceValue = null;
+                        unityObject.objectReferenceValue = null;
                         systemObject.serializedObject.ApplyModifiedProperties();
                     }
+                }
+                else
+                {
+                    string typename = systemObject.managedReferenceFullTypename;
 
-                    Rect valuePosition = position;
-                    valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                    EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+                    if (string.IsNullOrWhiteSpace(typename))
+                    {
+                        if (managedType.IsInterface)
+                        {
+                            float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
+                            Rect unityFieldPosition = position;
+                            unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
+                            DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+
+                            Rect systemDropdownPosition = position;
+                            systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+                            DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
+                        }
+                        else
+                        {
+                            Rect valuePosition = position;
+                            valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                            EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+
+                            Rect systemDropdownPosition = position;
+                            systemDropdownPosition.x += EditorGUIUtility.labelWidth;
+                            systemDropdownPosition.width -= EditorGUIUtility.labelWidth;
+                            DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
+                        }
+                    }
+                    else
+                    {
+                        float buttonWidth = EditorStyles.miniButton.CalcSize(ClearLabel).x;
+                        string separator = typename.Contains(".") ? "." : " ";
+
+                        using (GUIContentPool.Pop(out GUIContent value))
+                        {
+                            value.text = typename.Substring(typename.LastIndexOf(separator, StringComparison.Ordinal) + 1);
+
+                            Rect labelPosition = position;
+                            labelPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
+                            EditorGUI.LabelField(labelPosition, EmptyLabel, value);
+
+                            Rect buttonPosition = position;
+                            buttonPosition.xMin = labelPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+
+                            if (GUI.Button(buttonPosition, ClearLabel, EditorStyles.miniButton))
+                            {
+                                systemObject.serializedObject.Update();
+                                systemObject.managedReferenceValue = null;
+                                systemObject.serializedObject.ApplyModifiedProperties();
+                            }
+
+                            Rect valuePosition = position;
+                            valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                            EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+                        }
+                    }
                 }
             }
         }

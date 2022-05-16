@@ -13,23 +13,19 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
     public class SerializableDictionaryDrawer : PropertyDrawer
     {
-        private const float CountFieldSize = 50;
+        protected const float CountFieldSize = 50;
 
-        private const float KeyViewWidthPercent = 0.4f;
+        protected const float LabelViewWidthPercent = 0.4f;
 
-        private const string KeyProperty = "Key";
+        protected const string ItemsProperty = "_items";
 
-        private const string PairProperty = "_pair";
+        protected const string KeyProperty = "Key";
 
-        private const string PairsProperty = "_pairs";
+        protected const string NewEntryProperty = "_newEntry";
 
-        private const string ValueProperty = "Value";
+        protected const string ValueProperty = "Value";
 
         private const string ModifyDisabledMessage = "Can't resize while editing multiple objects!";
-
-        private const string NestedModifyDisabledMessage = "Can't modify before adding the element!";
-
-        private static bool _isNested;
 
         static SerializableDictionaryDrawer()
         {
@@ -47,9 +43,16 @@ namespace Coimbra.Editor
                 return height;
             }
 
-            SerializedProperty pairsProperty = property.FindPropertyRelative(PairsProperty);
+            ReorderableList list = property.FindPropertyRelative(ItemsProperty).ToReorderableList(InitializeReorderableList);
+            bool enabled = GUI.enabled;
+            list.displayAdd = enabled;
+            list.displayRemove = enabled;
+            list.footerHeight = enabled ? EditorGUIUtility.singleLineHeight : 0;
+            height += EditorGUIUtility.standardVerticalSpacing + list.GetHeight();
 
-            return height + EditorGUIUtility.standardVerticalSpacing + pairsProperty.ToReorderableList(InitializeReorderableList).GetHeight();
+            SerializedProperty newEntryProperty = property.FindPropertyRelative(NewEntryProperty);
+
+            return newEntryProperty.isExpanded ? height + GetItemHeight(newEntryProperty) + EditorGUIUtility.standardVerticalSpacing : height;
         }
 
         /// <inheritdoc/>
@@ -60,7 +63,7 @@ namespace Coimbra.Editor
             headerPosition.height = EditorGUIUtility.singleLineHeight;
             EditorGUI.PropertyField(headerPosition, property, label, false);
 
-            SerializedProperty pairsProperty = property.FindPropertyRelative(PairsProperty);
+            SerializedProperty itemsProperty = property.FindPropertyRelative(ItemsProperty);
 
             using (new EditorGUI.DisabledScope(true))
             {
@@ -86,9 +89,9 @@ namespace Coimbra.Editor
                     }
                 }
 
-                using (new ShowMixedValueScope(isEditingMultipleObjects && shouldShowMixedValue(pairsProperty)))
+                using (new ShowMixedValueScope(isEditingMultipleObjects && shouldShowMixedValue(itemsProperty)))
                 {
-                    EditorGUI.IntField(headerPosition, pairsProperty.arraySize);
+                    EditorGUI.IntField(headerPosition, itemsProperty.arraySize);
                 }
             }
 
@@ -97,32 +100,61 @@ namespace Coimbra.Editor
                 return;
             }
 
-            using (new LabelWidthScope(position.width * KeyViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
-            {
-                ReorderableList list = pairsProperty.ToReorderableList(InitializeReorderableList);
-                position.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
-                list.DoList(position);
+            ReorderableList list = itemsProperty.ToReorderableList(InitializeReorderableList);
+            Rect listPosition = position;
+            bool enabled = GUI.enabled;
+            list.displayAdd = enabled;
+            list.displayRemove = enabled;
+            list.footerHeight = enabled ? EditorGUIUtility.singleLineHeight : 0;
+            listPosition.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
+            listPosition.height = list.GetHeight();
 
-                if (CanModifyList(list))
+            using (new LabelWidthScope(position.width * LabelViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+            {
+                list.DoList(listPosition);
+            }
+
+            position.y += headerPosition.height + EditorGUIUtility.standardVerticalSpacing + listPosition.height - EditorGUIUtility.singleLineHeight;
+            position.height = EditorGUIUtility.singleLineHeight;
+
+            if (CanModifyList(list))
+            {
+                SerializedProperty newEntryProperty = property.FindPropertyRelative(NewEntryProperty);
+                position.xMin += ReorderableList.Defaults.dragHandleWidth;
+
+                if (!EditorGUI.PropertyField(position, newEntryProperty, false))
                 {
                     return;
                 }
-            }
 
-            position.yMin += position.height - EditorGUIUtility.singleLineHeight;
-            EditorGUI.LabelField(position, _isNested ? NestedModifyDisabledMessage :ModifyDisabledMessage);
+                position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                position.height = GetItemHeight(newEntryProperty);
+
+                using (new LabelWidthScope((position.width + ReorderableList.Defaults.dragHandleWidth) * LabelViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                {
+                    DrawItem(position, newEntryProperty, false);
+                }
+            }
+            else if (GUI.enabled)
+            {
+                EditorGUI.LabelField(position, ModifyDisabledMessage);
+            }
         }
 
         private static bool CanModifyList(ReorderableList list)
         {
-            return !list.serializedProperty.serializedObject.isEditingMultipleObjects && !_isNested;
+            return !list.serializedProperty.serializedObject.isEditingMultipleObjects && GUI.enabled;
         }
 
-        private static void DrawKeyValuePair(Rect position, SerializedProperty property, bool disableKeyField)
+        private static void DrawItem(Rect position, SerializedProperty property, bool disableKeyField)
         {
             static void draw(Rect position, SerializedProperty property)
             {
                 if (property.isArray && property.propertyType != SerializedPropertyType.String)
+                {
+                    EditorGUI.PropertyField(position, property);
+                }
+                else if (property.GetValue() is ISerializableCollection)
                 {
                     EditorGUI.PropertyField(position, property);
                 }
@@ -147,7 +179,7 @@ namespace Coimbra.Editor
             draw(valuePosition, valueProperty);
         }
 
-        private static float GetKeyValuePairHeight(SerializedProperty property)
+        private static float GetItemHeight(SerializedProperty property)
         {
             float keyPropertyHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(KeyProperty), GUIContent.none);
             float valuePropertyHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(ValueProperty), GUIContent.none);
@@ -161,9 +193,9 @@ namespace Coimbra.Editor
             {
                 ref UndoPropertyModification modification = ref modifications[i];
 
-                if (modification.currentValue.IsReorderableList(out ReorderableList list))
+                if (modification.currentValue.IsReorderableList(out ReorderableList list) && list.serializedProperty.GetScope() is ISerializableDictionary serializableDictionary)
                 {
-                    list.serializedProperty.GetScope<ISerializableDictionary>()!.ProcessUndo();
+                    serializableDictionary.ProcessUndo();
                 }
             }
 
@@ -172,94 +204,27 @@ namespace Coimbra.Editor
 
         private static void InitializeReorderableList(ReorderableList list)
         {
-            static void handleAddDropdown(Rect position, ReorderableList list)
+            static void add(ReorderableList list)
             {
-                Vector2 windowScrollPosition = new Vector2();
-                string mapPropertyPath = list.serializedProperty.propertyPath;
-                mapPropertyPath = mapPropertyPath.Substring(0, mapPropertyPath.LastIndexOf('.'));
+                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>()!;
+                Undo.RecordObject(list.serializedProperty.serializedObject.targetObject, "Add Element To Dictionary");
+                serializableDictionary.ProcessAdd();
+                list.serializedProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                list.serializedProperty.serializedObject.UpdateIfRequiredOrScript();
+                EditorUtility.SetDirty(list.serializedProperty.serializedObject.targetObject);
+            }
 
-                SerializedObject serializedObject = list.serializedProperty.serializedObject;
-                SerializedProperty mapProperty = serializedObject.FindProperty(mapPropertyPath);
-                SerializedProperty pairProperty = mapProperty.FindPropertyRelative(PairProperty);
-
-                void guiCallback(TemporaryWindow window)
-                {
-                    using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * KeyViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
-                    {
-                        using EditorGUILayout.ScrollViewScope scrollViewScope = new EditorGUILayout.ScrollViewScope(windowScrollPosition);
-                        windowScrollPosition = scrollViewScope.scrollPosition;
-
-                        ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>();
-
-                        if (serializableDictionary == null)
-                        {
-                            window.Close();
-
-                            return;
-                        }
-
-                        EditorGUILayout.LabelField($"Key ({serializableDictionary.KeyType})", $"Value ({serializableDictionary.ValueType})");
-
-                        using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-                        Rect position = EditorGUILayout.GetControlRect(false, GetKeyValuePairHeight(pairProperty));
-
-                        _isNested = true;
-                        DrawKeyValuePair(position, pairProperty, false);
-                        _isNested = false;
-
-                        if (changeCheckScope.changed)
-                        {
-                            serializedObject.ApplyModifiedProperties();
-                            serializedObject.UpdateIfRequiredOrScript();
-                        }
-
-                        using (new EditorGUILayout.HorizontalScope())
-                        {
-                            GUILayout.FlexibleSpace();
-
-                            using (new EditorGUI.DisabledScope(!serializableDictionary.IsPairValid))
-                            {
-                                if (GUILayout.Button("Add"))
-                                {
-                                    Undo.RecordObject(serializedObject.targetObject, "Add Element To Map");
-                                    serializableDictionary.ProcessAdd();
-                                    serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                                    serializedObject.UpdateIfRequiredOrScript();
-                                    EditorUtility.SetDirty(serializedObject.targetObject);
-                                    window.Close();
-                                }
-                            }
-
-                            if (GUILayout.Button("Cancel"))
-                            {
-                                window.Close();
-                            }
-                        }
-                    }
-                }
-
-                float windowHeight = GetKeyValuePairHeight(pairProperty) + EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing * 6;
-                string windowTitle = $"Add Element To {mapProperty.displayName}";
-                position.size = new Vector2(EditorGUIUtility.currentViewWidth, windowHeight);
-
-                TemporaryWindow window = TemporaryWindow.Get(windowTitle, guiCallback);
-                window.position = position;
+            static bool canAdd(ReorderableList list)
+            {
+                return CanModifyList(list) && list.serializedProperty.GetScope() is ISerializableDictionary { IsNewEntryValid: true };
             }
 
 #if UNITY_2021_3_OR_NEWER
             list.multiSelect = true;
 #endif
-            list.onCanAddCallback = CanModifyList;
+            list.onAddCallback = add;
+            list.onCanAddCallback = canAdd;
             list.onCanRemoveCallback = CanModifyList;
-
-            list.drawElementCallback = delegate(Rect position, int index, bool active, bool focused)
-            {
-                Rect drawPosition = position;
-                drawPosition.yMin += EditorGUIUtility.standardVerticalSpacing;
-
-                SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
-                DrawKeyValuePair(drawPosition, elementProperty, true);
-            };
 
             list.drawHeaderCallback = delegate(Rect position)
             {
@@ -273,7 +238,16 @@ namespace Coimbra.Editor
 
             list.drawNoneElementCallback = delegate(Rect position)
             {
-                EditorGUI.LabelField(position, "Map is Empty");
+                EditorGUI.LabelField(position, "Dictionary is Empty");
+            };
+
+            list.drawElementCallback = delegate(Rect position, int index, bool active, bool focused)
+            {
+                Rect drawPosition = position;
+                drawPosition.yMin += EditorGUIUtility.standardVerticalSpacing;
+
+                SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
+                DrawItem(drawPosition, elementProperty, true);
             };
 
             list.elementHeightCallback = delegate(int index)
@@ -285,10 +259,8 @@ namespace Coimbra.Editor
 
                 SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
 
-                return GetKeyValuePairHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing;
+                return GetItemHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing;
             };
-
-            list.onAddDropdownCallback = handleAddDropdown;
         }
     }
 }
