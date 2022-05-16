@@ -15,16 +15,6 @@ namespace Coimbra
         /// </summary>
         public readonly Type[] All;
 
-        /// <summary>
-        /// The <see cref="GameObject"/> need to have at least one of those components.
-        /// </summary>
-        public readonly Type[] Any;
-
-        /// <summary>
-        /// The <see cref="GameObject"/> should not have any of those components.
-        /// </summary>
-        public readonly Type[] None;
-
         public AssetReferenceComponentRestriction(params Type[] all)
         {
             All = all;
@@ -32,12 +22,15 @@ namespace Coimbra
             None = null;
         }
 
-        public AssetReferenceComponentRestriction(Type[] all, Type[] any, Type[] none)
-        {
-            All = all;
-            Any = any;
-            None = none;
-        }
+        /// <summary>
+        /// The <see cref="GameObject"/> need to have at least one of those components.
+        /// </summary>
+        public Type[] Any { get; set; }
+
+        /// <summary>
+        /// The <see cref="GameObject"/> should not have any of those components.
+        /// </summary>
+        public Type[] None { get; set; }
 
         public override bool ValidateAsset(string path)
         {
@@ -86,7 +79,7 @@ namespace Coimbra
                 }
             }
 
-            if (Any != null)
+            if (Any != null && Any.Length > 0)
             {
                 foreach (Type type in Any)
                 {
