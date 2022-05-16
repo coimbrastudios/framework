@@ -39,7 +39,7 @@ namespace Coimbra.Tests
             });
 
             LogAssert.Expect(LogType.Log, log);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Coimbra.Tests
 
             LogAssert.Expect(LogType.Log, logA);
             LogAssert.Expect(LogType.Log, logB);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
         }
 
         [Test]
@@ -105,9 +105,9 @@ namespace Coimbra.Tests
             LogAssert.Expect(LogType.Log, nameof(callback2));
             LogAssert.Expect(LogType.Log, nameof(callback3));
             LogAssert.Expect(LogType.Log, nameof(callback4));
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -115,7 +115,7 @@ namespace Coimbra.Tests
         public void RemoveListener_Empty()
         {
             _eventService.RemoveListener(EventHandle.Create(typeof(TestEvent)));
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -131,7 +131,7 @@ namespace Coimbra.Tests
 
             EventHandle handle = TestEvent.AddListenerAt(_eventService, callback);
             _eventService.RemoveListener(handle);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -156,7 +156,7 @@ namespace Coimbra.Tests
             _eventService.RemoveListener(handle);
 
             LogAssert.Expect(LogType.Log, logB);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -164,7 +164,7 @@ namespace Coimbra.Tests
         public void RemoveAllListeners_Empty()
         {
             TestEvent.RemoveAllListenersAt(_eventService);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -185,7 +185,7 @@ namespace Coimbra.Tests
             });
 
             TestEvent.RemoveAllListenersAt(_eventService);
-            new TestEvent().TryInvokeAt(_eventService, this);
+            new TestEvent().InvokeAt(_eventService, this);
             LogAssert.NoUnexpectedReceived();
         }
     }

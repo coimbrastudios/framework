@@ -85,7 +85,7 @@ namespace Coimbra.Services.PlayerLoopEvents
 
         private async UniTask InvokeFixedUpdateEvents()
         {
-            while (this != null)
+            while (!DestroyCancellationToken.IsCancellationRequested)
             {
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
 
@@ -100,7 +100,7 @@ namespace Coimbra.Services.PlayerLoopEvents
 
         private async UniTask InvokeMainUpdateEvents()
         {
-            while (this != null)
+            while (!DestroyCancellationToken.IsCancellationRequested)
             {
                 await UniTask.Yield(PlayerLoopTiming.Initialization);
 
