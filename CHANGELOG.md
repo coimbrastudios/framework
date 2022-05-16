@@ -1,9 +1,13 @@
 # Changelog
 
-## [10.2.2] - UNRELEASED
+## [10.2.2] - 2022-05-16
 
 - Added back the menu item `Tools/Coimbra Framework/Preferences/Clear Console On Reload` for Unity 2020.3.
 - Added `SerializableDictionary` to allow viewing and modifying dictionaries in the inspector (with nesting support).
+- Added `GeneratedExtensions` class with `InvokeAt`, `TryInvokeAt`, and `TryInvokeShared` methods.
+- Added `Try` prefix for all `Shared` method versions to better indicate the implicit null-check.
+- Added `Try` variant for all `At` method versions to better indicate the implicit null-check.
+- Removed `TryInvokeAt` and `TryInvokeShared` instance methods as `GeneratedExtensions` made those obsolete.
 
 ## [10.2.1] - 2022-05-14
 
@@ -93,22 +97,22 @@
 - Changed name of `FrameworkXXX` classes to `CoimbraXXX`.
 - Changed `DestroyReason` to be a nested enum of `Actor`.
 - Changed `GameObjectPool` and `Actor` implementation quite a bit:
-  - Added public `Actor.Despawn()` to be used instead of `GameObjectPool.Despawn(Actor)`.
-  - Added new `GameObjectPool.DesiredAvailableInstancesRange` property.
-  - Changed `GameObjectPool.AutoLoad` property to `GameObjectPool.LoadOnInitialize` to make its behaviour more explicit.
-  - Changed `Actor.OnObjectDespawn()` to `Actor.OnDespawn()`.
-  - Changed `Actor.OnObjectDestroy()` to `Actor.OnDestroying()`.
-  - Changed `Actor.OnObjectInitialize()` to `Actor.OnInitialize()`.
-  - Changed `Actor.OnObjectSpawn()` to `Actor.OnSpawn()`.
-  - Changed `Actor.OnPrefabInitialize()` to `Actor.OnInitializePrefab()`.
-  - Changed `GameObjectPool.OnObjectInstantiated` event to `GameObjectPool.OnInstanceCreated`, renaming also its matching delegate.
-  - Changed `GameObjectPool.OnStateChanged` event to `GameObjectPool.OnPoolStateChanged`, renaming also its matching delegate.
-  - Changed `GameObjectPool.Spawn` to assume that all available instances are valid.
-  - Removed protected `Actor.Spawn()` and `Actor.Despawn()` methods.
-  - Removed `GameObjectPool.Despawn` methods in favor of `Actor.Despawn()`.
-  - Removed `GameObjectPool.DespawnResult` enum completely as now a despawn will always either return the object to its pool or destroy it.
-  - Removed `GameObjectPool.MaxCapacity` property in favor of `GameObjectPool.DesiredAvailableInstancesRange.Max` property.
-  - Removed `GameObjectPool.PreloadCount` property, with `GameObjectPool.DesiredAvailableInstancesRange.Max` property being used for the same purpose now.
+    - Added public `Actor.Despawn()` to be used instead of `GameObjectPool.Despawn(Actor)`.
+    - Added new `GameObjectPool.DesiredAvailableInstancesRange` property.
+    - Changed `GameObjectPool.AutoLoad` property to `GameObjectPool.LoadOnInitialize` to make its behaviour more explicit.
+    - Changed `Actor.OnObjectDespawn()` to `Actor.OnDespawn()`.
+    - Changed `Actor.OnObjectDestroy()` to `Actor.OnDestroying()`.
+    - Changed `Actor.OnObjectInitialize()` to `Actor.OnInitialize()`.
+    - Changed `Actor.OnObjectSpawn()` to `Actor.OnSpawn()`.
+    - Changed `Actor.OnPrefabInitialize()` to `Actor.OnInitializePrefab()`.
+    - Changed `GameObjectPool.OnObjectInstantiated` event to `GameObjectPool.OnInstanceCreated`, renaming also its matching delegate.
+    - Changed `GameObjectPool.OnStateChanged` event to `GameObjectPool.OnPoolStateChanged`, renaming also its matching delegate.
+    - Changed `GameObjectPool.Spawn` to assume that all available instances are valid.
+    - Removed protected `Actor.Spawn()` and `Actor.Despawn()` methods.
+    - Removed `GameObjectPool.Despawn` methods in favor of `Actor.Despawn()`.
+    - Removed `GameObjectPool.DespawnResult` enum completely as now a despawn will always either return the object to its pool or destroy it.
+    - Removed `GameObjectPool.MaxCapacity` property in favor of `GameObjectPool.DesiredAvailableInstancesRange.Max` property.
+    - Removed `GameObjectPool.PreloadCount` property, with `GameObjectPool.DesiredAvailableInstancesRange.Max` property being used for the same purpose now.
 - Fixed completely broken `PoolingSettings.DefaultPersistentPools` feature.
 - Removed `IPoolingService.Despawn` methods in favor of new `Actor.Despawn()`.
 - Removed `IPoolingService.PoolsLoading` property, if this information is needed it is still possible to use `IPoolingService.GetAllPools` and iterate it to check the `GameObjectPool.CurrentState`.
@@ -216,9 +220,9 @@
 - Changed the ScriptableSettings APIs to require ScriptableSettings objects.
 - Fixed code stripping issues with the services.
 - Removed obsolete APIs:
-  - Removed IFixedUpdateService in favor of FixedUpdateEvent.
-  - Removed ILateUpdateService in favor of LateUpdateEvent.
-  - Removed IUpdateService in favor of UpdateEvent.
+    - Removed IFixedUpdateService in favor of FixedUpdateEvent.
+    - Removed ILateUpdateService in favor of LateUpdateEvent.
+    - Removed IUpdateService in favor of UpdateEvent.
 - Removed Coimbra.Systems, moving all systems to Coimbra assembly as internal classes.
 
 ## [2.2.0] - 2022-03-19
@@ -252,15 +256,15 @@
 - Changed all services to implement the Dispose method to allow per-service cleanup.
 - Fixed ServiceLocator not being compatible with Enter Play Mode Options.
 - Refactored IEventService and its default implementation:
-  - Added HasAnyListeners and HasListener APIs.
-  - Added Invoke API that accepts a type and constructs a default event data to be used.
-  - Added option to ignore the exception when the event key doesn't match.
-  - Changed AddListener API to return an EventHandle.
-  - Changed RemoveListener to use an EventHandle, allowing to remove anonymous method too.
+    - Added HasAnyListeners and HasListener APIs.
+    - Added Invoke API that accepts a type and constructs a default event data to be used.
+    - Added option to ignore the exception when the event key doesn't match.
+    - Changed AddListener API to return an EventHandle.
+    - Changed RemoveListener to use an EventHandle, allowing to remove anonymous method too.
 - Refactored ITimerService and its default implementation:
-  - Changed ITimerService to not have ref params to simplify its usage.
-  - Changed TimerHandle to use System.Guid to better ensure uniqueness and made it a readonly struct.
-  - Fixed TimerService not working for concurrent timers and added test cases to ensure minimum stability.
+    - Changed ITimerService to not have ref params to simplify its usage.
+    - Changed TimerHandle to use System.Guid to better ensure uniqueness and made it a readonly struct.
+    - Fixed TimerService not working for concurrent timers and added test cases to ensure minimum stability.
 - Removed IApplicationService and its default implementation.
 - Renamed all default implementations to `System` instead of `Service`.
 - Renamed Coimbra.Services to Coimbra.Systems.
