@@ -8,14 +8,16 @@ using UnityEngine;
 
 namespace Coimbra.Editor.UPM
 {
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
     internal sealed class UPMAuthenticator : ScriptableSettings
     {
         [Serializable]
         private struct Entry
         {
+            [UsedImplicitly]
             public string Address;
 
+            [UsedImplicitly]
             public SerializableDictionary<string, string> Values;
         }
 
@@ -42,6 +44,13 @@ namespace Coimbra.Editor.UPM
             try
             {
                 UPMAuthenticator authenticator = GetOrFind<UPMAuthenticator>();
+
+                if (authenticator == null)
+                {
+                    EditorApplication.delayCall += Update;
+
+                    return;
+                }
 
                 if (authenticator.IsInitialized)
                 {

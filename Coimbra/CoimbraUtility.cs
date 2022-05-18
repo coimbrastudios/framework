@@ -15,7 +15,9 @@ namespace Coimbra
 
         internal const string PreferencesMenuPath = ToolsMenuPath + "Preferences/";
 
-        internal const string ProjectAssetsFolderPath = "Assets/com.coimbrastudios.core";
+        internal const string ProjectAssetsFolderPath = "Assets/" + PackageName;
+
+        internal const string ProjectSettingsFilePath = "ProjectSettings/Packages/" + PackageName;
 
         internal const string ProjectSettingsPath = "Project/Coimbra Framework";
 

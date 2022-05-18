@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.SettingsManagement;
 
@@ -27,24 +25,12 @@ namespace Coimbra.Editor
         });
 
         [SettingsProvider]
-        private static SettingsProvider CreateEditorUserSettingsProvider()
-        {
-            return new UserSettingsProvider(CoimbraUtility.EditorUserPreferencesPath, Settings, Array.Empty<Assembly>(), SettingsScope.User);
-        }
-
-        [SettingsProvider]
         private static SettingsProvider CreateProjectSettingsProvider()
         {
             return new UserSettingsProvider(CoimbraUtility.ProjectSettingsPath, Settings, new[]
             {
                 typeof(CoimbraSettingsProviderRegister).Assembly,
             }, SettingsScope.Project);
-        }
-
-        [SettingsProvider]
-        private static SettingsProvider CreateProjectUserSettingsProvider()
-        {
-            return new UserSettingsProvider(CoimbraUtility.ProjectUserPreferencesPath, Settings, Array.Empty<Assembly>(), SettingsScope.User);
         }
     }
 }

@@ -25,6 +25,8 @@ namespace Coimbra.Editor
         protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath)
             : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type))
         {
+            CreateOrLoadScriptableSettings(type, editorFilePath, scope);
+
             FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             Debug.Assert(field != null);
             field!.SetValue(this, scope);
@@ -37,6 +39,8 @@ namespace Coimbra.Editor
         protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath, IEnumerable<string>? keywords)
             : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(CreateOrLoadScriptableSettings(type, editorFilePath, scope)), keywords)
         {
+            CreateOrLoadScriptableSettings(type, editorFilePath, scope);
+
             FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             Debug.Assert(field != null);
             field!.SetValue(this, scope);
@@ -136,7 +140,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            ScriptableSettings.Set(type, value);
+            ScriptableSettings.SetOrOverwrite(type, value);
 
             return value;
         }
@@ -173,22 +177,7 @@ namespace Coimbra.Editor
             AssetDatabase.CreateAsset(settings, relativePath);
             EditorGUIUtility.PingObject(settings);
             ScriptableSettings.Set(_type, settings);
-
-            if (settingsEditor != null)
-            {
-                Object.DestroyImmediate(settingsEditor);
-            }
-
-            PropertyInfo? property = typeof(AssetSettingsProvider).GetProperty(nameof(settingsEditor), BindingFlags.Instance | BindingFlags.Public);
-            Debug.Assert(property != null);
-
-            MethodInfo? setter = property!.GetSetMethod(true);
-            Debug.Assert(setter != null);
-
-            setter!.Invoke(this, new object[]
-            {
-                UnityEditor.Editor.CreateEditor(settings)
-            });
+            SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
         }
 
         private void SaveScriptableObjectSettings()
@@ -217,6 +206,25 @@ namespace Coimbra.Editor
             {
                 ScriptableSettings.GetOrFind(_type)
             }, _editorFilePath, true);
+        }
+
+        private void SetSettingsEditor(UnityEditor.Editor value)
+        {
+            if (settingsEditor != null)
+            {
+                Object.DestroyImmediate(settingsEditor);
+            }
+
+            PropertyInfo? property = typeof(AssetSettingsProvider).GetProperty(nameof(settingsEditor), BindingFlags.Instance | BindingFlags.Public);
+            Debug.Assert(property != null);
+
+            MethodInfo? setter = property!.GetSetMethod(true);
+            Debug.Assert(setter != null);
+
+            setter!.Invoke(this, new object[]
+            {
+                value
+            });
         }
     }
 }

@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.2.5] - UNRELEASED
+## [10.2.5] - 2022-05-18
 
 - Added `UPMAuthenticator` to automatically update the `.upmconfig.toml` for all users of a team.
 - Fixed one of the `ProjectSettingsAttribute` and `PreferencesAttribute` constructors overload not working as expected.
