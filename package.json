@@ -2,7 +2,7 @@
   "name": "com.coimbrastudios.core",
   "displayName": "Coimbra Framework",
   "author": "Bruno Coimbra",
-  "version": "10.2.6",
+  "version": "10.2.7",
   "type": "tool",
   "unity": "2020.3",
   "unityRelease": "30f1",
@@ -11,6 +11,7 @@
     "com.cysharp.unitask": "2.3.1",
     "com.unity.addressables": "1.18.19",
     "com.unity.roslyn": "0.2.2-preview",
-    "com.unity.settings-manager": "2.0.1"
+    "com.unity.settings-manager": "2.0.1",
+    "com.unity.ugui": "1.0.0"
   }
 }

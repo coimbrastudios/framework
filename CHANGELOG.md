@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.2.7] - 2022-05-18
+
+- Fixed missing dependency on `com.unity.ugui` package.
+
 ## [10.2.6] - 2022-05-18
 
 - Fixed missing reference to `UnityEngine.UI` in `Coimbra` assembly.
