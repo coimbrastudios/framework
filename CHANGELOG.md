@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.2.3] - 2022-05-18
+
+- Added option to make a `ScriptableSettings` editor-only through the `ProjecSettingsAttribute`.
+
 ## [10.2.2] - 2022-05-16
 
 - Added back the menu item `Tools/Coimbra Framework/Preferences/Clear Console On Reload` for Unity 2020.3.
