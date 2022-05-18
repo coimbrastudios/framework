@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿#nullable enable
+
+using JetBrains.Annotations;
 using System;
 
 namespace Coimbra
@@ -10,14 +12,31 @@ namespace Coimbra
     [BaseTypeRequired(typeof(ScriptableSettings))]
     public sealed class ProjectSettingsAttribute : Attribute
     {
-        public readonly string PathOverride;
+        public readonly bool IsEditorOnly;
 
-        public readonly string NameOverride;
+        public readonly string? NameOverride;
 
-        public ProjectSettingsAttribute(string pathOverride = null, string nameOverride = null)
+        public readonly string ProjectSettingsPath;
+
+        public ProjectSettingsAttribute(bool isEditorOnly)
+            : this("", null, isEditorOnly) { }
+
+        public ProjectSettingsAttribute(string projectSettingsPath, bool isEditorOnly)
+            : this(projectSettingsPath, projectSettingsPath, isEditorOnly) { }
+
+        public ProjectSettingsAttribute(string projectSettingsPath = "", string? nameOverride = null, bool isEditorOnly = false)
         {
-            PathOverride = pathOverride;
+            ProjectSettingsPath = projectSettingsPath;
+            IsEditorOnly = isEditorOnly;
             NameOverride = nameOverride;
         }
+
+        public string EditorFileDirectory { get; set; } = "ProjectSettings";
+
+        public string? EditorFileNameOverride { get; set; } = null;
+
+        public string ProjectSettingsSection { get; set; } = "Project";
+
+        public string[]? Keywords { get; set; } = null;
     }
 }

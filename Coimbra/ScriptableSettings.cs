@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -68,6 +69,14 @@ namespace Coimbra
             Application.quitting += HandleApplicationQuitting;
         }
 
+        protected ScriptableSettings()
+        {
+            if (IsEditorOnly)
+            {
+                Preload = false;
+            }
+        }
+
         /// <summary>
         /// Should this setting be included in the preloaded assets?
         /// </summary>
@@ -77,30 +86,14 @@ namespace Coimbra
         public bool Preload { get; protected set; } = true;
 
         /// <summary>
+        /// True if the asset will not be included in the build.
+        /// </summary>
+        public bool IsEditorOnly => GetType().GetCustomAttribute<ProjectSettingsAttribute>() is { IsEditorOnly: true };
+
+        /// <summary>
         /// True when application is quitting.
         /// </summary>
         protected static bool IsQuitting { get; private set; }
-
-        /// <summary>
-        /// Gets the last set value for the specified type.
-        /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <returns>The settings if set and still valid.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptableSettings Get(Type type)
-        {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
-            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
-        }
-
-        /// <inheritdoc cref="Get"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Get<T>()
-            where T : ScriptableSettings
-        {
-            return Get(typeof(T)) as T;
-        }
 
         /// <summary>
         /// Gets the last set value for the specified type, but also tries to find one if not set.
@@ -199,7 +192,7 @@ namespace Coimbra
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
 
-            result = Get(type);
+            result = Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
 
             return result != null;
         }
@@ -209,9 +202,16 @@ namespace Coimbra
         public static bool TryGet<T>(out T result)
             where T : ScriptableSettings
         {
-            result = Get(typeof(T)) as T;
+            if (TryGet(typeof(T), out ScriptableSettings rawResult))
+            {
+                result = (T)rawResult;
 
-            return result != null;
+                return true;
+            }
+
+            result = null;
+
+            return false;
         }
 
         /// <summary>
@@ -244,6 +244,11 @@ namespace Coimbra
         protected virtual void Reset()
         {
 #if UNITY_EDITOR
+            if (IsEditorOnly)
+            {
+                Preload = false;
+            }
+
             if (Preload)
             {
                 EnsurePreload(false);
@@ -254,6 +259,11 @@ namespace Coimbra
         protected virtual void OnValidate()
         {
 #if UNITY_EDITOR
+            if (IsEditorOnly)
+            {
+                Preload = false;
+            }
+
             if (Preload)
             {
                 EnsurePreload(true);
@@ -354,8 +364,6 @@ namespace Coimbra
 
                 if (pooledList.Contains(this))
                 {
-                    pooledList.Clear();
-
                     return;
                 }
 

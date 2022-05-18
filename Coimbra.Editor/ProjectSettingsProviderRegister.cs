@@ -1,7 +1,10 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,26 +15,45 @@ namespace Coimbra.Editor
         [SettingsProviderGroup]
         private static SettingsProvider[] CreatePoolingSettingsProvider()
         {
-            using (DictionaryPool.Pop(out Dictionary<Type, SettingsProvider> dictionary))
+            using (StringBuilderPool.Pop(out StringBuilder pathBuilder))
             {
-                foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
+                using (DictionaryPool.Pop(out Dictionary<Type, SettingsProvider> dictionary))
                 {
-                    if (dictionary.ContainsKey(type))
+                    foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
                     {
-                        continue;
+                        if (dictionary.ContainsKey(type))
+                        {
+                            continue;
+                        }
+
+                        Debug.Assert(!type.IsAbstract, $"{nameof(ProjectSettingsAttribute)} should not be used on abstract type {type.FullName}!");
+                        Debug.Assert(!type.IsGenericType, $"{nameof(ProjectSettingsAttribute)} should not be used on generic type {type.FullName}!");
+                        Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type), $"{type.FullName} should be a {nameof(ScriptableSettings)} to use {nameof(ProjectSettingsAttribute)}!");
+
+                        ProjectSettingsAttribute attribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
+                        pathBuilder.Append($"{attribute.ProjectSettingsSection}/");
+
+                        if (!string.IsNullOrWhiteSpace(attribute.ProjectSettingsPath))
+                        {
+                            pathBuilder.Append($"{attribute.ProjectSettingsPath}/");
+                        }
+
+                        pathBuilder.Append(attribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name));
+
+                        if (attribute.IsEditorOnly)
+                        {
+                            dictionary.Add(type, new ScriptableSettingsProvider($"{pathBuilder}", type, $"{attribute.EditorFileDirectory}/{(attribute.EditorFileNameOverride ?? $"{type.Name}.asset")}", attribute.Keywords));
+                        }
+                        else
+                        {
+                            dictionary.Add(type, new ScriptableSettingsProvider($"{pathBuilder}", type, attribute.Keywords));
+                        }
+
+                        pathBuilder.Clear();
                     }
 
-                    Debug.Assert(!type.IsAbstract, $"{nameof(ProjectSettingsAttribute)} should not be used on abstract type {type.FullName}!");
-                    Debug.Assert(!type.IsGenericType, $"{nameof(ProjectSettingsAttribute)} should not be used on generic type {type.FullName}!");
-                    Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type), $"{type.FullName} should be a {nameof(ScriptableSettings)} to use {nameof(ProjectSettingsAttribute)}!");
-
-                    ProjectSettingsAttribute attribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
-                    string path = attribute.PathOverride ?? CoimbraUtility.ProjectSettingsPath;
-                    string name = attribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name);
-                    dictionary.Add(type, new ScriptableSettingsProvider($"{path}/{name}", type));
+                    return dictionary.Values.ToArray();
                 }
-
-                return dictionary.Values.ToArray();
             }
         }
     }
