@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.2.6] - 2022-05-18
+
+- Fixed missing reference to `UnityEngine.UI` in `Coimbra` assembly.
+
 ## [10.2.5] - 2022-05-18
 
 - Added `UPMAuthenticator` to automatically update the `.upmconfig.toml` for all users of a team.
