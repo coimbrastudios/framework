@@ -17,6 +17,8 @@ namespace Coimbra.Editor
 
         protected const float LabelViewWidthPercent = 0.4f;
 
+        protected const float NestedLabelViewWidthPercent = 0.3f;
+
         protected const string ItemsProperty = "_items";
 
         protected const string KeyProperty = "Key";
@@ -150,7 +152,7 @@ namespace Coimbra.Editor
         {
             static void draw(Rect position, SerializedProperty property)
             {
-                using (new LabelWidthScope(EditorGUIUtility.labelWidth / 2, LabelWidthScope.MagnitudeMode.Absolute))
+                using (new LabelWidthScope(EditorGUIUtility.labelWidth * NestedLabelViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                 {
                     if (property.isArray && property.propertyType != SerializedPropertyType.String)
                     {
