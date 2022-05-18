@@ -71,6 +71,8 @@ namespace Coimbra
 
         protected ScriptableSettings()
         {
+            Type = GetType(GetType());
+
             if (IsEditorOnly)
             {
                 Preload = false;
@@ -85,10 +87,14 @@ namespace Coimbra
         [PublicAPI]
         public bool Preload { get; protected set; } = true;
 
+        [field: SerializeField]
+        [field: HideInInspector]
+        public ScriptableSettingsType Type { get; private set; }
+
         /// <summary>
-        /// True if the asset will not be included in the build.
+        /// True if the asset will never be included in the build.
         /// </summary>
-        public bool IsEditorOnly => GetType().GetCustomAttribute<ProjectSettingsAttribute>() is { IsEditorOnly: true };
+        public bool IsEditorOnly => Type != ScriptableSettingsType.Custom && Type != ScriptableSettingsType.RuntimeProjectSettings;
 
         /// <summary>
         /// True when application is quitting.
@@ -104,8 +110,6 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptableSettings GetOrFind(Type type, FindHandler findCallback = null)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
             if (Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
             {
                 return value;
@@ -123,6 +127,36 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Gets the <see cref="ScriptableSettingsType"/> for the specified <paramref name="type"/>.
+        /// </summary>
+        public static ScriptableSettingsType GetType(Type type)
+        {
+            PreferencesAttribute preferencesAttribute = type.GetCustomAttribute<PreferencesAttribute>();
+
+            if (preferencesAttribute != null)
+            {
+                return preferencesAttribute.UseEditorPrefs ? ScriptableSettingsType.EditorUserPreferences : ScriptableSettingsType.ProjectUserPreferences;
+            }
+
+            ProjectSettingsAttribute projectSettingsAttribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
+
+            if (projectSettingsAttribute != null)
+            {
+                return projectSettingsAttribute.IsEditorOnly ? ScriptableSettingsType.EditorProjectSettings : ScriptableSettingsType.RuntimeProjectSettings;
+            }
+
+            return ScriptableSettingsType.Custom;
+        }
+
+        /// <inheritdoc cref="GetType(System.Type)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScriptableSettingsType GetType<T>()
+            where T : ScriptableSettings
+        {
+            return GetType(typeof(T));
+        }
+
+        /// <summary>
         /// Checks if the value for the specified type has been set and is still valid.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
@@ -130,8 +164,6 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has(Type type)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
             return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
         }
 
@@ -151,6 +183,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Set(Type type, ScriptableSettings value)
         {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             Set(false, type, value);
         }
 
@@ -170,6 +203,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetOrOverwrite(Type type, ScriptableSettings value)
         {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             Set(true, type, value);
         }
 
@@ -190,8 +224,6 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGet(Type type, out ScriptableSettings result)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
             result = Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
 
             return result != null;
@@ -224,8 +256,6 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetOrFind(Type type, out ScriptableSettings result, FindHandler findCallback = null)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
             result = GetOrFind(type, findCallback);
 
             return result != null;
@@ -312,8 +342,6 @@ namespace Coimbra
 
         private static void Set(bool forceSet, Type type, ScriptableSettings value)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-
             value = value.GetValid();
 
             if (TryGet(type, out ScriptableSettings currentValue) && value != currentValue)

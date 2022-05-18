@@ -16,32 +16,44 @@ namespace Coimbra.Editor
     /// </summary>
     public class ScriptableSettingsProvider : AssetSettingsProvider
     {
+        private const string EditorPrefsFormat = "Coimbra.Editor.ScriptableSettingsProvider.{0}";
+
         private readonly string? _editorFilePath;
 
         private readonly Type _type;
 
-        public ScriptableSettingsProvider(string settingsWindowPath, Type type, string editorFilePath, IEnumerable<string>? keywords)
-            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(CreateOrLoadScriptableSettings(type, editorFilePath)), keywords)
+        protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath)
+            : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type))
         {
+            FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            Debug.Assert(field != null);
+            field!.SetValue(this, scope);
+
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             _editorFilePath = editorFilePath;
             _type = type;
         }
 
-        public ScriptableSettingsProvider(string settingsWindowPath, Type type, IEnumerable<string>? keywords)
-            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(ScriptableSettings.GetOrFind(type)), keywords)
+        protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath, IEnumerable<string>? keywords)
+            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(CreateOrLoadScriptableSettings(type, editorFilePath, scope)), keywords)
         {
+            FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            Debug.Assert(field != null);
+            field!.SetValue(this, scope);
+
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-            _editorFilePath = null;
+            _editorFilePath = editorFilePath;
             _type = type;
         }
 
-        public ScriptableSettingsProvider(string settingsWindowPath, Type type)
-            : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type))
+        public static ScriptableSettingsProvider GetPreferencesProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
         {
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-            _editorFilePath = null;
-            _type = type;
+            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.User, editorFilePath, keywords);
+        }
+
+        public static ScriptableSettingsProvider GetProjectSettingsProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
+        {
+            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.Project, editorFilePath, keywords);
         }
 
         /// <inheritdoc/>
@@ -71,35 +83,25 @@ namespace Coimbra.Editor
 
                 base.OnGUI(searchContext);
 
-                if (!changeCheckScope.changed || _editorFilePath == null)
+                if (!changeCheckScope.changed)
                 {
-                    return;
+                    SaveScriptableObjectSettings();
                 }
-
-                string? directoryName = Path.GetDirectoryName(_editorFilePath);
-
-                if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
-                {
-                    Directory.CreateDirectory(directoryName);
-                }
-
-                InternalEditorUtility.SaveToSerializedFileAndForget(new Object[]
-                {
-                    ScriptableSettings.GetOrFind(_type)
-                }, _editorFilePath, true);
             }
             else
             {
-                if (_editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
+                if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
                 {
                     CreateScriptableSettings();
                 }
             }
         }
 
-        private static ScriptableSettings CreateOrLoadScriptableSettings(Type type, string filePath)
+        private static ScriptableSettings CreateOrLoadScriptableSettings(Type type, string? filePath, SettingsScope scope)
         {
-            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value))
+            ScriptableSettingsType filter = ScriptableSettings.GetType(type);
+
+            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value) && value.Type == filter)
             {
                 return value;
             }
@@ -110,18 +112,30 @@ namespace Coimbra.Editor
 
                 foreach (Object o in objects)
                 {
-                    if (!(o is ScriptableSettings match))
+                    if (o is ScriptableSettings match && match.Type == filter)
                     {
-                        continue;
+                        ScriptableSettings.Set(type, match);
+
+                        return match;
                     }
+                }
 
-                    ScriptableSettings.Set(type, match);
+                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+            }
+            else if (scope == SettingsScope.User)
+            {
+                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
 
-                    return match;
+                string defaultValue = EditorJsonUtility.ToJson(value, false);
+                string newValue = EditorPrefs.GetString(string.Format(EditorPrefsFormat, type.FullName), defaultValue);
+                EditorJsonUtility.FromJsonOverwrite(newValue, value);
+
+                if (value.Type != filter)
+                {
+                    value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
                 }
             }
 
-            value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
             ScriptableSettings.Set(type, value);
 
             return value;
@@ -175,6 +189,34 @@ namespace Coimbra.Editor
             {
                 UnityEditor.Editor.CreateEditor(settings)
             });
+        }
+
+        private void SaveScriptableObjectSettings()
+        {
+            if (_editorFilePath == null)
+            {
+                if (scope == SettingsScope.Project)
+                {
+                    return;
+                }
+
+                string value = EditorJsonUtility.ToJson(settingsEditor.target, true);
+                EditorPrefs.SetString(string.Format(EditorPrefsFormat, _type.FullName), value);
+
+                return;
+            }
+
+            string? directoryName = Path.GetDirectoryName(_editorFilePath);
+
+            if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
+            {
+                Directory.CreateDirectory(directoryName);
+            }
+
+            InternalEditorUtility.SaveToSerializedFileAndForget(new Object[]
+            {
+                ScriptableSettings.GetOrFind(_type)
+            }, _editorFilePath, true);
         }
     }
 }

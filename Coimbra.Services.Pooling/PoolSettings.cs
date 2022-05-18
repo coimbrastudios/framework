@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Coimbra.Services.Pooling
 {
-    [ProjectSettings]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath)]
     public sealed class PoolSettings : ScriptableSettings
     {
         [SerializeField]
