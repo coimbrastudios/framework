@@ -32,11 +32,11 @@ namespace Coimbra.Editor
 
                     if (attribute.IsEditorOnly)
                     {
-                        dictionary.Add(type, ScriptableSettingsProvider.GetProjectSettingsProvider(path, type, $"{attribute.FileDirectory}/{(attribute.FileNameOverride ?? $"{type.Name}.asset")}", attribute.Keywords));
+                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(path, type, $"{attribute.FileDirectory}/{(attribute.FileNameOverride ?? $"{type.Name}.asset")}", attribute.Keywords));
                     }
                     else
                     {
-                        dictionary.Add(type, ScriptableSettingsProvider.GetProjectSettingsProvider(path, type, null, attribute.Keywords));
+                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(path, type, null, attribute.Keywords));
                     }
                 }
 

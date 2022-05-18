@@ -46,16 +46,6 @@ namespace Coimbra.Editor
             _type = type;
         }
 
-        public static ScriptableSettingsProvider GetPreferencesProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
-        {
-            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.User, editorFilePath, keywords);
-        }
-
-        public static ScriptableSettingsProvider GetProjectSettingsProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
-        {
-            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.Project, editorFilePath, keywords);
-        }
-
         /// <inheritdoc/>
         public override void OnFooterBarGUI()
         {
@@ -95,6 +85,16 @@ namespace Coimbra.Editor
                     CreateScriptableSettings();
                 }
             }
+        }
+
+        internal static ScriptableSettingsProvider CreatePreferencesProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
+        {
+            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.User, editorFilePath, keywords);
+        }
+
+        internal static ScriptableSettingsProvider CreateProjectSettingsProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
+        {
+            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.Project, editorFilePath, keywords);
         }
 
         private static ScriptableSettings CreateOrLoadScriptableSettings(Type type, string? filePath, SettingsScope scope)

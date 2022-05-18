@@ -44,7 +44,7 @@ namespace Coimbra
         /// <param name="windowPath">The path on the project settings window.</param>
         /// <param name="isEditorOnly">If true, the saved data will not be available on builds. You can still define default values for the <see cref="ScriptableSettings"/>.</param>
         public ProjectSettingsAttribute(string windowPath, bool isEditorOnly)
-            : this(windowPath, windowPath, isEditorOnly) { }
+            : this(windowPath, null, isEditorOnly) { }
 
         /// <param name="windowPath">The path on the project settings window.</param>
         /// <param name="nameOverride">If null, the name in the project settings window will be the display name of the type.</param>
