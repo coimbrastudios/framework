@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.2.5] - UNRELEASED
+
+- Added `UPMAuthenticator` to automatically update the `.upmconfig.toml` for all users of a team.
+- Fixed one of the `ProjectSettingsAttribute` and `PreferencesAttribute` constructors overload not working as expected.
+
 ## [10.2.4] - 2022-05-18
 
 - Added `PreferencesAttribute` that can be applied to any `ScriptableSettings` to make it editor-only and show up in the `Preferences` window.
