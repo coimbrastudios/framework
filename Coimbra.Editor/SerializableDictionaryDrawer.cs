@@ -150,17 +150,20 @@ namespace Coimbra.Editor
         {
             static void draw(Rect position, SerializedProperty property)
             {
-                if (property.isArray && property.propertyType != SerializedPropertyType.String)
+                using (new LabelWidthScope(EditorGUIUtility.labelWidth / 2, LabelWidthScope.MagnitudeMode.Absolute))
                 {
-                    EditorGUI.PropertyField(position, property);
-                }
-                else if (property.GetValue() is ISerializableCollection)
-                {
-                    EditorGUI.PropertyField(position, property);
-                }
-                else
-                {
-                    EditorGUI.PropertyField(position, property, GUIContent.none);
+                    if (property.isArray && property.propertyType != SerializedPropertyType.String)
+                    {
+                        EditorGUI.PropertyField(position, property);
+                    }
+                    else if (property.GetValue() is ISerializableCollection)
+                    {
+                        EditorGUI.PropertyField(position, property);
+                    }
+                    else
+                    {
+                        EditorGUI.PropertyField(position, property, true);
+                    }
                 }
             }
 
@@ -219,22 +222,13 @@ namespace Coimbra.Editor
                 return CanModifyList(list) && list.serializedProperty.GetScope() is ISerializableDictionary { IsNewEntryValid: true };
             }
 
+            list.headerHeight = 0;
 #if UNITY_2021_3_OR_NEWER
             list.multiSelect = true;
 #endif
             list.onAddCallback = add;
             list.onCanAddCallback = canAdd;
             list.onCanRemoveCallback = CanModifyList;
-
-            list.drawHeaderCallback = delegate(Rect position)
-            {
-                float labelWidth = EditorGUIUtility.labelWidth;
-                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>()!;
-                EditorGUIUtility.labelWidth += ReorderableList.Defaults.dragHandleWidth * 0.5f;
-                EditorGUI.LabelField(position, $"Keys ({serializableDictionary.KeyType})", $"Values ({serializableDictionary.ValueType})");
-
-                EditorGUIUtility.labelWidth = labelWidth;
-            };
 
             list.drawNoneElementCallback = delegate(Rect position)
             {

@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.2.4] - 2022-05-18
+
+- Added `PreferencesAttribute` that can be applied to any `ScriptableSettings` to make it editor-only and show up in the `Preferences` window.
+- Fixed `SerializableDictionary` not showing custom structs without a `CustomPropertyDrawer` correctly.
+
 ## [10.2.3] - 2022-05-18
 
 - Added option to make a `ScriptableSettings` editor-only through the `ProjecSettingsAttribute`.

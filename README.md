@@ -49,7 +49,7 @@ Package of general utilities to be used with Unity development.
         - [PlayerLoopTiming](https://github.com/Cysharp/UniTask#playerloop) Events
     - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
     - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
-- Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute`.
+- Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`.
 - Utilities & Extensions: Check if a `GameObject` `IsPersistent`, `Destroy` any Unity `Object` safely, fake-cast a `GameObject` to `Actor`, use `?.` and `??` safely wth any Unity `Object`, and much more.
 
 ## Dependencies
