@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Services.Events
 {
@@ -216,7 +217,8 @@ namespace Coimbra.Services.Events
                 }
                 catch (Exception exception)
                 {
-                    Debug.LogException(new Exception($"An exception occurred while invoking {typeof(T)}!", exception));
+                    Debug.LogError($"An exception occurred while invoking {typeof(T)}!", eventRef.Sender as Object);
+                    Debug.LogException(exception);
                 }
             }
 
