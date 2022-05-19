@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.3.0] - UNRELEASED
+## [10.2.8] - 2022-05-19
 
 - Added `ISharedManagedPoolHandler` and make it required for the default shared `ManagedPool` implementation.
 - Changed `try/catch` block on `EventSystem` to first log the the event type that emitted the error then the exception itself.

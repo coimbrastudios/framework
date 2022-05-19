@@ -27,12 +27,14 @@ Package of general utilities to be used with Unity development.
     - `RangeSlider`: Draws a property using the Unity's `MinMaxSlider`.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - Object Pooling: Use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
-    - `DictionaryPool`
-    - `HashSetPool`
-    - `ListPool`
-    - `QueuePool`
-    - `StackPool`
-    - `StringBuilderPool`
+    - `DictionaryPool`: clears the `Dictionary`.
+    - `GUIContentPool`: clears the `GUIContet`.
+    - `HashSetPool`: : clears the `HashSet`.
+    - `ListPool`: clears the `List`.
+    - `ManagedPool`: allows custom clearing through the `ISharedManagedPoolHandler` interface, while also deleting `IDisposable` and `UnityEngine.Object` instances correctly.
+    - `QueuePool`: clears the `Queue`.
+    - `StackPool`: clears the `Stack`.
+    - `StringBuilderPool`: clears the `StringBuilder`.
 - References: Create a `Reference` for any value or even another reference.
 - `SerializableDictionary`: view, edit and save dictionaries from the inspector. Also supports nesting and lists.
 - Service Locator: Enable a service-based architecture easily. It comes with a few services already:
