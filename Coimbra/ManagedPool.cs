@@ -217,7 +217,7 @@ namespace Coimbra
     }
 
     /// <summary>
-    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor. It also has special treatment <see cref="IDisposable"/> and <see cref="Object"/> types to correctly delete those.
+    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="ISharedManagedPoolHandler"/>. It also has special treatment for <see cref="IDisposable"/> and <see cref="Object"/> types.
     /// </summary>
     [Preserve]
     [SharedManagedPool("Value", "Instance")]
@@ -225,7 +225,7 @@ namespace Coimbra
     {
         [Preserve]
         private static class Instance<T>
-            where T : class, new()
+            where T : class, ISharedManagedPoolHandler, new()
         {
             internal static readonly ManagedPool<T> Value;
 
@@ -240,9 +240,9 @@ namespace Coimbra
 
                 if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
                 {
-                    disposeCallback += delegate(T obj)
+                    disposeCallback += delegate(T instance)
                     {
-                        if (obj.TryGetValid(out T valid))
+                        if (instance.TryGetValid(out T valid))
                         {
                             ((IDisposable)valid).Dispose();
                         }
@@ -251,13 +251,23 @@ namespace Coimbra
 
                 if (typeof(Object).IsAssignableFrom(typeof(T)))
                 {
-                    disposeCallback += delegate(T obj)
+                    disposeCallback += delegate(T instance)
                     {
-                        (obj as Object).Destroy();
+                        (instance as Object).Destroy();
                     };
                 }
 
                 Value = new ManagedPool<T>(createCallback, disposeCallback);
+
+                Value.OnPop += delegate(T instance)
+                {
+                    instance.OnPop();
+                };
+
+                Value.OnPush += delegate(T instance)
+                {
+                    instance.OnPush();
+                };
             }
         }
     }
