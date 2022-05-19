@@ -73,7 +73,7 @@ namespace Coimbra
         {
             Type = GetType(GetType());
 
-            if (IsEditorOnly)
+            if (Type.IsEditorOnly())
             {
                 Preload = false;
             }
@@ -87,14 +87,12 @@ namespace Coimbra
         [PublicAPI]
         public bool Preload { get; protected set; } = true;
 
+        /// <summary>
+        /// The type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
+        /// </summary>
         [field: SerializeField]
         [field: HideInInspector]
         public ScriptableSettingsType Type { get; private set; }
-
-        /// <summary>
-        /// True if the asset will never be included in the build.
-        /// </summary>
-        public bool IsEditorOnly => Type != ScriptableSettingsType.Custom && Type != ScriptableSettingsType.RuntimeProjectSettings;
 
         /// <summary>
         /// True when application is quitting.
@@ -274,7 +272,7 @@ namespace Coimbra
         protected virtual void Reset()
         {
 #if UNITY_EDITOR
-            if (IsEditorOnly)
+            if (Type.IsEditorOnly())
             {
                 Preload = false;
             }
@@ -289,7 +287,7 @@ namespace Coimbra
         protected virtual void OnValidate()
         {
 #if UNITY_EDITOR
-            if (IsEditorOnly)
+            if (Type.IsEditorOnly())
             {
                 Preload = false;
             }
