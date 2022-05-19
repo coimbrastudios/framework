@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.3.0] - UNRELEASED
+
+- Added `ISharedManagedPoolHandler` and make it required for the default shared `ManagedPool` implementation.
+
 ## [10.2.7] - 2022-05-18
 
 - Fixed missing dependency on `com.unity.ugui` package.
