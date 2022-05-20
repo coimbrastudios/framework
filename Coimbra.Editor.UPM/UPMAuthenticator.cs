@@ -14,11 +14,13 @@ namespace Coimbra.Editor.UPM
         [Serializable]
         private struct Entry
         {
+#pragma warning disable CS0649
             [UsedImplicitly]
             public string Address;
 
             [UsedImplicitly]
             public SerializableDictionary<string, string> Values;
+#pragma warning restore CS0649
         }
 
         private const string BackupFormat = FileName + ".{0:yyyyMMddHHmmss}";

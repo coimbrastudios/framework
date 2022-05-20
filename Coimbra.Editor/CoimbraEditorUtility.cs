@@ -30,8 +30,8 @@ namespace Coimbra.Editor
 
         private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
 
-        [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene Index", "The scene index to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
-        private static readonly ProjectSetting<int> StartupSceneIndex = new ProjectSetting<int>("General.EditorStartupSceneIndex", -1);
+        [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene", "The scene to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
+        private static readonly ProjectSetting<SceneAsset> StartupScene = new ProjectSetting<SceneAsset>("General.EditorStartupScene", null);
 
         static CoimbraEditorUtility()
         {
@@ -145,7 +145,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            if (StartupSceneIndex.value < 0 || StartupSceneIndex.value >= SceneManager.sceneCountInBuildSettings || EditorSceneManager.playModeStartScene != null)
+            if (StartupScene.value == null || EditorSceneManager.playModeStartScene != null)
             {
                 return;
             }
@@ -154,14 +154,15 @@ namespace Coimbra.Editor
             {
                 case PlayModeStateChange.ExitingEditMode:
                 {
-                    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+                    Scene currentScene = SceneManager.GetActiveScene();
 
-                    if (currentSceneIndex >= 0 && currentSceneIndex != StartupSceneIndex.value)
+                    if (currentScene.buildIndex < 0 || currentScene.path == AssetDatabase.GetAssetPath(StartupScene.value))
                     {
-                        SessionState.SetString(PlayModeStartSceneKey, AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
-                        EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(SceneManager.GetSceneByBuildIndex(StartupSceneIndex.value).path);
-                        Debug.LogWarning($"Editor Startup Scene: \"{EditorSceneManager.playModeStartScene}\"");
+                        break;
                     }
+
+                    EditorSceneManager.playModeStartScene = StartupScene.value;
+                    Debug.LogWarning($"Editor Startup Scene: \"{EditorSceneManager.playModeStartScene}\"");
 
                     break;
                 }

@@ -346,7 +346,7 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting)
+                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
                     {
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
                         Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
@@ -354,6 +354,11 @@ namespace Coimbra
                 }
                 else
                 {
+                    if (GetType(type).IsEditorOnly())
+                    {
+                        return;
+                    }
+
                     Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{currentValue}\"!", currentValue);
                     Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
 

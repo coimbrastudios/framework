@@ -1,7 +1,9 @@
 # Changelog
 
-## [10.2.9] - UNRELEASED
+## [10.2.9] - 2022-05.20
 
+- Changed `Startup Scene Index` to `Startup Scene` instead, becoming a hard-reference and allowing disabled scenes too.
+- Fixed unnecessary warnings on `UPMAuthenticator`.
 - Removed generated `static Invoke` overloads that took the data by ref as all use cases could use the instance methods instead.
 
 ## [10.2.8] - 2022-05-19
