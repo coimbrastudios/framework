@@ -160,7 +160,7 @@ namespace Coimbra.Services.Events.Roslyn
                     const string generatedPrefix = "internal new static bool";
                     const string originalMethod = "Invoke";
 
-                    void addFunction0(string generatedMethod, string targetService)
+                    void addFunction(string generatedMethod, string targetService)
                     {
                         AddMethodBoilerplate(sourceBuilder, originalMethod, "object");
                         sourceBuilder.AddLine($"{generatedPrefix} {methodPrefix}{generatedMethod}object sender)");
@@ -171,20 +171,7 @@ namespace Coimbra.Services.Events.Roslyn
                         }
                     }
 
-                    void addFunction1(string generatedMethod, string targetService)
-                    {
-                        AddMethodBoilerplate(sourceBuilder, originalMethod, "object");
-                        sourceBuilder.AddLine($"{generatedPrefix} {methodPrefix}{generatedMethod}object sender, ref {typeName} data)");
-
-                        using (new BracesScope(sourceBuilder))
-                        {
-                            sourceBuilder.AddLine($"return {targetService}{specialSymbol}.{originalMethod}<{typeName}>(sender, ref data){bodySuffix};");
-                        }
-                    }
-
-                    addFunction0($"{originalMethod}{string.Format(AtMethodSuffixFormat, specialSymbol)}, ", AtMethodService);
-                    sourceBuilder.SkipLine();
-                    addFunction1($"{originalMethod}{string.Format(AtMethodSuffixFormat, specialSymbol)}, ", AtMethodService);
+                    addFunction($"{originalMethod}{string.Format(AtMethodSuffixFormat, specialSymbol)}, ", AtMethodService);
 
                     if (string.IsNullOrWhiteSpace(specialSymbol))
                     {
@@ -192,9 +179,7 @@ namespace Coimbra.Services.Events.Roslyn
                     }
 
                     sourceBuilder.SkipLine();
-                    addFunction0($"{originalMethod}{SharedMethodSuffix}", SharedMethodService);
-                    sourceBuilder.SkipLine();
-                    addFunction1($"{originalMethod}{SharedMethodSuffix}", SharedMethodService);
+                    addFunction($"{originalMethod}{SharedMethodSuffix}", SharedMethodService);
                 }
 
                 void addFunctions0(string generatedPrefix, string originalMethod)
