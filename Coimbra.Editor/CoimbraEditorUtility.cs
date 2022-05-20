@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -14,7 +13,7 @@ namespace Coimbra.Editor
     /// General editor utilities.
     /// </summary>
     [InitializeOnLoad]
-    public sealed class CoimbraEditorUtility : AssetPostprocessor
+    public static class CoimbraEditorUtility
     {
 #if !UNITY_2021_3_OR_NEWER
         private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
@@ -201,29 +200,6 @@ namespace Coimbra.Editor
             Menu.SetChecked(ClearConsoleOnReloadItem, value);
 #endif
             CoimbraUtility.IsReloadingScripts = false;
-        }
-
-        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
-        {
-            using (ListPool.Pop(out List<Object> pooledList))
-            {
-                pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
-
-                int count = pooledList.Count;
-
-                for (int i = count - 1; i >= 0; i--)
-                {
-                    if (pooledList[i] == null)
-                    {
-                        pooledList.RemoveAt(i);
-                    }
-                }
-
-                if (count != pooledList.Count)
-                {
-                    PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
-                }
-            }
         }
     }
 }
