@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.2.9] - UNRELEASED
+
+- Removed generated `static Invoke` overloads that took the data by ref as all use cases could use the instance methods instead.
+
 ## [10.2.8] - 2022-05-19
 
 - Added `ISharedManagedPoolHandler` and make it required for the default shared `ManagedPool` implementation.
