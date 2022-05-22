@@ -18,19 +18,9 @@ namespace Coimbra.Editor
         /// </summary>
         public delegate T SetValueHandler<T>(T oldValue);
 
-        /// <summary>
-        /// The field info for this property.
-        /// </summary>
-        public readonly FieldInfo FieldInfo;
-
-        /// <summary>
-        /// Null if not an array element.
-        /// </summary>
-        public readonly int? Index;
-
         private string _propertyPath;
 
-        internal PropertyPathInfo(FieldInfo fieldInfo, PropertyPathInfo next, int? index = null)
+        internal PropertyPathInfo([NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo next, int? index = null)
         {
             _propertyPath = null;
             FieldInfo = fieldInfo;
@@ -38,6 +28,12 @@ namespace Coimbra.Editor
             Next = next;
         }
 
+        [NotNull]
+        private FieldInfo FieldInfo { get; }
+
+        private int? Index { get; }
+
+        [CanBeNull]
         private PropertyPathInfo Next { get; }
 
         public override string ToString()
@@ -75,6 +71,37 @@ namespace Coimbra.Editor
 
                 return _propertyPath;
             }
+        }
+
+        /// <summary>
+        /// The field info for this property.
+        /// </summary>
+        [NotNull]
+        public FieldInfo GetFieldInfo([NotNull] Object context)
+        {
+            PropertyPathInfo current = this;
+
+            while (Next != null)
+            {
+                current = Next;
+            }
+
+            return current.FieldInfo;
+        }
+
+        /// <summary>
+        /// Null if not an array element.
+        /// </summary>
+        public int? GetIndex([NotNull] Object context)
+        {
+            PropertyPathInfo current = this;
+
+            while (Next != null)
+            {
+                current = Next;
+            }
+
+            return current.Index;
         }
 
         /// <summary>

@@ -18,16 +18,17 @@ namespace Coimbra.Editor
 
         private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
 
-        /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetFieldInfo"/>
+        [NotNull]
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
         {
-            return property.GetPropertyPathInfo().FieldInfo;
+            return property.GetPropertyPathInfo().GetFieldInfo(property.serializedObject.targetObject);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.Index"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetIndex"/>
         public static int? GetIndex(this SerializedProperty property)
         {
-            return property.GetPropertyPathInfo().Index;
+            return property.GetPropertyPathInfo().GetIndex(property.serializedObject.targetObject);
         }
 
         /// <summary>

@@ -29,69 +29,69 @@ namespace Coimbra.Tests
         [Test]
         public void ModifyOriginalAffectsReference_SystemObject([ValueSource(nameof(_systemObjects))] IDummyInterface dummy, [Random(1, int.MaxValue, 1)] int value)
         {
-            Assert.That(_asset.InterfaceField.HasValue, Is.False);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            Assert.That(_asset.ManagedField.HasValue, Is.False);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new ManagedField<IDummyInterface>(dummy);
-            Assert.That(_asset.InterfaceField.HasValue, Is.True);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.True);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            _asset.ManagedField = new ManagedField<IDummyInterface>(dummy);
+            Assert.That(_asset.ManagedField.HasValue, Is.True);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.True);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
             dummy.Integer = value;
-            Assert.That(_asset.InterfaceField.Value.Integer, Is.EqualTo(value));
-            Assert.That(_asset.InterfaceField, Is.EqualTo(dummy));
+            Assert.That(_asset.ManagedField.Value.Integer, Is.EqualTo(value));
+            Assert.That(_asset.ManagedField, Is.EqualTo(dummy));
         }
 
         [Test]
         public void ModifyOriginalAffectsReference_UnityObject([Random(1, int.MaxValue, 1)] int value)
         {
-            Assert.That(_asset.InterfaceField.HasValue, Is.False);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            Assert.That(_asset.ManagedField.HasValue, Is.False);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new ManagedField<IDummyInterface>(_asset);
-            Assert.That(_asset.InterfaceField.HasValue, Is.True);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.True);
+            _asset.ManagedField = new ManagedField<IDummyInterface>(_asset);
+            Assert.That(_asset.ManagedField.HasValue, Is.True);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.True);
 
             _asset.Integer = value;
-            Assert.That(_asset.InterfaceField.Value.Integer, Is.EqualTo(value));
-            Assert.That(_asset.InterfaceField, Is.EqualTo(_asset));
+            Assert.That(_asset.ManagedField.Value.Integer, Is.EqualTo(value));
+            Assert.That(_asset.ManagedField, Is.EqualTo(_asset));
         }
 
         [Test]
         public void ModifyReferenceAffectsOriginal_SystemObject([ValueSource(nameof(_systemObjects))] IDummyInterface dummy, [Random(1, int.MaxValue, 1)] int value)
         {
-            Assert.That(_asset.InterfaceField.HasValue, Is.False);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            Assert.That(_asset.ManagedField.HasValue, Is.False);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new ManagedField<IDummyInterface>(dummy);
-            Assert.That(_asset.InterfaceField.HasValue, Is.True);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.True);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            _asset.ManagedField = new ManagedField<IDummyInterface>(dummy);
+            Assert.That(_asset.ManagedField.HasValue, Is.True);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.True);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField.Value.Integer = value;
+            _asset.ManagedField.Value.Integer = value;
             Assert.That(dummy.Integer, Is.EqualTo(value));
-            Assert.That(dummy, Is.EqualTo(_asset.InterfaceField));
+            Assert.That(dummy, Is.EqualTo(_asset.ManagedField));
         }
 
         [Test]
         public void ModifyReferenceAffectsOriginal_UnityObject([Random(1, int.MaxValue, 1)] int value)
         {
-            Assert.That(_asset.InterfaceField.HasValue, Is.False);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.False);
+            Assert.That(_asset.ManagedField.HasValue, Is.False);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
-            _asset.InterfaceField = new ManagedField<IDummyInterface>(_asset);
-            Assert.That(_asset.InterfaceField.HasValue, Is.True);
-            Assert.That(_asset.InterfaceField.IsSystemObject, Is.False);
-            Assert.That(_asset.InterfaceField.IsUnityObject, Is.True);
+            _asset.ManagedField = new ManagedField<IDummyInterface>(_asset);
+            Assert.That(_asset.ManagedField.HasValue, Is.True);
+            Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
+            Assert.That(_asset.ManagedField.IsUnityObject, Is.True);
 
-            _asset.InterfaceField.Value.Integer = value;
+            _asset.ManagedField.Value.Integer = value;
             Assert.That(_asset.Integer, Is.EqualTo(value));
-            Assert.That(_asset, Is.EqualTo(_asset.InterfaceField));
+            Assert.That(_asset, Is.EqualTo(_asset.ManagedField));
         }
     }
 }

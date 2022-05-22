@@ -4,7 +4,7 @@ namespace Coimbra.Tests
 {
     public class DummyBehaviour : MonoBehaviour, IDummyInterface
     {
-        [SerializeField] private ManagedField<IDummyInterface> _interfaceField;
+        [SerializeField] private ManagedField<IDummyInterface> _managedField;
         [SerializeField] private int _integer;
         [SerializeField] private string _string;
         [SerializeField] private Vector3Int _vector;
@@ -22,10 +22,10 @@ namespace Coimbra.Tests
         [SerializeField] private DummyClass[] _classArray;
         [SerializeField] private Texture[] _textureArray;
 
-        public ManagedField<IDummyInterface> InterfaceField
+        public ManagedField<IDummyInterface> ManagedField
         {
-            get => _interfaceField;
-            set => _interfaceField = value;
+            get => _managedField;
+            set => _managedField = value;
         }
 
         public DummyAsset Asset

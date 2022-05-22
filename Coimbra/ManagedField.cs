@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System;
 using UnityEngine;
 using UnityEngine.Scripting;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -18,7 +19,7 @@ namespace Coimbra
         private T _systemObject;
 
         [SerializeField]
-        private UnityEngine.Object _unityObject;
+        private Object _unityObject;
 
         public ManagedField([CanBeNull] T value)
             : this()
@@ -47,7 +48,7 @@ namespace Coimbra
             get => _systemObject ?? (_unityObject as T).GetValid();
             set
             {
-                if (value is UnityEngine.Object o)
+                if (value is Object o)
                 {
                     _unityObject = o;
                     _systemObject = null;

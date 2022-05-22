@@ -294,7 +294,7 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    Debug.LogWarning($"Invalid char {currentInput}! The only supported chars are digits, letters and underscore.");
+                    Debug.LogWarning($"Invalid char {currentInput} on {value}! The only supported chars are digits, letters and underscore.");
 
                     currentInput = lastInput;
                 }

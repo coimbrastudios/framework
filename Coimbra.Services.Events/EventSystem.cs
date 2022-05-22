@@ -11,6 +11,7 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// Default implementation for <see cref="IEventService"/>.
     /// </summary>
+    [Serializable]
     public sealed class EventSystem : IEventService
     {
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
