@@ -1,69 +1,27 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Coimbra
 {
-    /// <summary>
-    /// Utility methods for <see cref="Type"/> type.
-    /// </summary>
-    public static class TypeUtility
+    internal static class TypeUtility
     {
-        /// <summary>
-        /// Asserts that the type meets all the following requirements:
-        /// <para>
-        /// - Is an interface<br/>
-        /// - Is not equal to the generic argument<br/>
-        /// - Does implement the generic argument
-        /// </para>
-        /// </summary>
-        [Conditional("UNITY_ASSERTIONS")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AssertInterfaceImplementsNotEqual<TInterface>(this Type type, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
-            where TInterface : class
+        internal static Type GetType(in string fullTypeName)
         {
-            if (!type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires an interface type argument!");
-            }
+            int index = fullTypeName.IndexOf(' ');
+            string assemblyName = fullTypeName.Substring(0, index);
+            string typeName = fullTypeName.Substring(index + 1);
 
-            if (type == typeof(TInterface))
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a type different than \"{typeof(TInterface)}\" itself!");
-            }
-
-            if (!typeof(TInterface).IsAssignableFrom(type))
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a type that implements \"{typeof(TInterface)}\"!");
-            }
+            return GetType(assemblyName, typeName);
         }
 
-        /// <summary>
-        /// Asserts that the type meets all the following requirements:
-        /// <para>
-        /// - is not an interface<br/>
-        /// - does implement the generic argument
-        /// </para>
-        /// </summary>
-        [Conditional("UNITY_ASSERTIONS")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AssertNonInterfaceImplements<TInterface>(this Type type, [CallerMemberName] string memberName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
-            where TInterface : class
+        internal static Type GetType(in string assemblyName, in string typeName)
         {
-            if (type.IsAbstract)
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a non-abstract type argument!");
-            }
+            Assembly assembly = Assembly.Load(assemblyName);
 
-            if (type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a non-interface type argument!");
-            }
-
-            if (!typeof(TInterface).IsAssignableFrom(type))
-            {
-                throw new ArgumentOutOfRangeException($"\"{memberName}\" at \"{filePath}({lineNumber})\" requires a type that implements \"{typeof(TInterface)}\"!");
-            }
+            return assembly.GetType(typeName);
         }
     }
 }

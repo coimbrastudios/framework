@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -17,10 +15,6 @@ namespace Coimbra.Editor
     {
         private const int MinButtonSize = 50;
 
-        private const int MinDropdownLineCount = 10;
-
-        private const float MinDropdownWidth = 400;
-
         private const string ClearUndoKey = "Clear Field Value";
 
         private const string NewUndoKey = "New Field Value";
@@ -33,7 +27,7 @@ namespace Coimbra.Editor
 
         private static readonly GUIContent NewLabel = new GUIContent("New");
 
-        private static SerializedProperty _current;
+        private static readonly TypeDropdownDrawer TypeDropdownDrawer = new TypeDropdownDrawer();
 
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -127,32 +121,24 @@ namespace Coimbra.Editor
                     unityObject.serializedObject.UpdateIfRequiredOrScript();
                 }
             }
-            else
+            else if (type.IsInterface)
             {
                 string typename = systemObject.managedReferenceFullTypename;
 
                 if (string.IsNullOrWhiteSpace(typename))
                 {
-                    if (type.IsInterface)
-                    {
-                        position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-                        position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
-                        DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
+                    position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+                    position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+                    DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
 
-                        position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
-                        position.width = MinButtonSize;
-                        position.height = EditorGUIUtility.singleLineHeight;
-                        DrawTypeDropdown(position, type, systemObject);
-                    }
-                    else
-                    {
-                        position.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                        EditorGUI.PropertyField(position, systemObject, propertyScope.content, true);
+                    position.x = position.xMax + EditorGUIUtility.standardVerticalSpacing;
+                    position.width = MinButtonSize;
+                    position.height = EditorGUIUtility.singleLineHeight;
 
-                        position.xMin += EditorGUIUtility.labelWidth;
-                        position.height = EditorGUIUtility.singleLineHeight;
-                        DrawTypeDropdown(position, type, systemObject);
-                    }
+                    TypeDropdown.Draw(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
+                    {
+                        TypeDropdown.FilterTypes(property.serializedObject.targetObjects, systemObject.GetScope(), list);
+                    });
                 }
                 else
                 {
@@ -161,11 +147,12 @@ namespace Coimbra.Editor
                     position.xMin += EditorGUIUtility.labelWidth;
                     position.height = EditorGUIUtility.singleLineHeight;
 
-                    using (GUIContentPool.Pop(out GUIContent value))
+                    using (GUIContentPool.Pop(out GUIContent typeLabel))
                     {
-                        value.text = TypeString.Get(GetType(typename));
-                        value.tooltip = value.text;
-                        EditorGUI.LabelField(position, value);
+                        Type selectedType = TypeUtility.GetType(in typename);
+                        typeLabel.text = TypeString.Get(selectedType);
+                        typeLabel.tooltip = typeLabel.text;
+                        EditorGUI.LabelField(position, typeLabel);
                     }
 
                     position.xMin = position.xMax - MinButtonSize;
@@ -183,6 +170,10 @@ namespace Coimbra.Editor
                     // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
                     GUI.Button(position, ClearLabel);
                 }
+            }
+            else
+            {
+                TypeDropdownDrawer.OnGUI(position, systemObject, propertyScope.content);
             }
         }
 
@@ -208,128 +199,6 @@ namespace Coimbra.Editor
             }
 
             property.objectReferenceValue = value;
-        }
-
-        private static void DrawTypeDropdown(Rect position, Type type, SerializedProperty property)
-        {
-            if (!EditorGUI.DropdownButton(position, NewLabel, FocusType.Keyboard))
-            {
-                return;
-            }
-
-            using (ListPool.Pop(out List<Type> types))
-            {
-                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(type))
-                {
-                    if (derivedType.IsAbstract
-                     || derivedType.IsGenericType
-                     || typeof(Object).IsAssignableFrom(derivedType)
-                     || derivedType.IsDefined(typeof(CompilerGeneratedAttribute))
-                     || !derivedType.IsDefined(typeof(SerializableAttribute)))
-                    {
-                        continue;
-                    }
-
-                    const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-                    if (!derivedType.IsValueType && derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) == null)
-                    {
-                        continue;
-                    }
-
-                    types.Add(derivedType);
-                }
-
-                FilterTypes(property, types);
-
-                _current = property;
-
-                static void handleItemSelected(TypeDropdownItem item)
-                {
-                    Undo.RecordObjects(_current.serializedObject.targetObjects, NewUndoKey);
-
-                    if (item.Type == null)
-                    {
-                        _current.SetValues(null);
-                    }
-                    else
-                    {
-                        _current.SetValues(true, delegate
-                        {
-                            return Activator.CreateInstance(item.Type);
-                        });
-                    }
-
-                    _current.isExpanded = item.Type != null;
-                    _current.serializedObject.ApplyModifiedProperties();
-                    _current.serializedObject.Update();
-                }
-
-                TypeDropdown dropdown = new TypeDropdown(types, MinDropdownWidth, MinDropdownLineCount, new AdvancedDropdownState());
-                dropdown.OnItemSelected += handleItemSelected;
-                dropdown.Show(position);
-            }
-        }
-
-        private static void FilterTypes(SerializedProperty property, List<Type> types)
-        {
-            PropertyPathInfo scope = property.GetScope()!;
-            TypeFilterAttribute typeFilterAttribute = scope.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
-
-            if (typeFilterAttribute == null)
-            {
-                scope = scope.Scope;
-
-                if (scope != null && scope.FieldInfo.FieldType!.GetGenericTypeDefinition() == typeof(Reference<>))
-                {
-                    typeFilterAttribute = scope.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
-                }
-            }
-
-            if (typeFilterAttribute == null)
-            {
-                return;
-            }
-
-            MethodInfo methodInfo = scope.FieldInfo.DeclaringType!.FindMethodBySignature(typeFilterAttribute.MethodName, typeof(List<Type>));
-
-            if (methodInfo == null)
-            {
-                return;
-            }
-
-            object[] parameters =
-            {
-                types,
-            };
-
-            if (scope.Scope == null)
-            {
-                foreach (Object o in property.serializedObject.targetObjects)
-                {
-                    methodInfo.Invoke(o, parameters);
-                }
-            }
-            else
-            {
-                using (ListPool.Pop(out List<object> list))
-                {
-                    scope.Scope.GetValues(property.serializedObject.targetObjects, list);
-
-                    foreach (object o in list)
-                    {
-                        methodInfo.Invoke(o, parameters);
-                    }
-                }
-            }
-        }
-
-        private static Type GetType(string typeName)
-        {
-            int index = typeName.IndexOf(' ');
-            Assembly assembly = Assembly.Load(typeName.Substring(0, index));
-
-            return assembly.GetType(typeName.Substring(index + 1));
         }
     }
 }

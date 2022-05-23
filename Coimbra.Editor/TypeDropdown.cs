@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -11,13 +14,144 @@ namespace Coimbra.Editor
     {
         internal event Action<TypeDropdownItem> OnItemSelected;
 
+        private const int MinLineCount = 10;
+
+        private const float MinWidth = 400;
+
+        private static SerializedProperty _current;
+
         private readonly Type[] _types;
 
-        public TypeDropdown(IEnumerable<Type> types, float minWidth, int minLineCount, AdvancedDropdownState state)
+        public TypeDropdown(IEnumerable<Type> types, AdvancedDropdownState state)
             : base(state)
         {
             _types = types.ToArray();
-            minimumSize = new Vector2(minWidth, EditorGUIUtility.singleLineHeight * minLineCount + EditorGUIUtility.singleLineHeight * 2);
+            minimumSize = new Vector2(MinWidth, EditorGUIUtility.singleLineHeight * MinLineCount + EditorGUIUtility.singleLineHeight * 2);
+        }
+
+        internal static void Draw(Rect position, Type type, SerializedProperty property, GUIContent label, string undoKey, Action<List<Type>> filterCallback)
+        {
+            if (!EditorGUI.DropdownButton(position, label, FocusType.Keyboard))
+            {
+                return;
+            }
+
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            using (ListPool.Pop(out List<Type> types))
+            {
+                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(type))
+                {
+                    if (derivedType.IsAbstract
+                     || derivedType.IsGenericType
+                     || typeof(Object).IsAssignableFrom(derivedType)
+                     || derivedType.IsDefined(typeof(CompilerGeneratedAttribute))
+                     || !derivedType.IsDefined(typeof(SerializableAttribute)))
+                    {
+                        continue;
+                    }
+
+                    if (!derivedType.IsValueType && derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) == null)
+                    {
+                        continue;
+                    }
+
+                    types.Add(derivedType);
+                }
+
+                _current = property;
+
+                void handleItemSelected(TypeDropdownItem item)
+                {
+                    Undo.RecordObjects(_current.serializedObject.targetObjects, undoKey);
+
+                    if (item.Type == null)
+                    {
+                        _current.SetValues(null);
+                    }
+                    else
+                    {
+                        _current.SetValues(true, delegate
+                        {
+                            try
+                            {
+                                return Activator.CreateInstance(item.Type);
+                            }
+                            catch
+                            {
+                                return item.Type.GetConstructor(bindingFlags, null, Type.EmptyTypes, null)!.Invoke(null);
+                            }
+                        });
+                    }
+
+                    _current.isExpanded = item.Type != null;
+                    _current.serializedObject.ApplyModifiedProperties();
+                    _current.serializedObject.Update();
+                }
+
+                filterCallback(types);
+
+                TypeDropdown dropdown = new TypeDropdown(types, new AdvancedDropdownState());
+                dropdown.OnItemSelected += handleItemSelected;
+                dropdown.Show(position);
+            }
+        }
+
+        internal static void FilterTypes(Object[] targets, PropertyPathInfo propertyPathInfo, List<Type> types)
+        {
+            TypeFilterAttribute typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
+
+            if (typeFilterAttribute == null)
+            {
+                propertyPathInfo = propertyPathInfo.Scope;
+
+                if (propertyPathInfo != null)
+                {
+                    Type fieldType = propertyPathInfo.FieldInfo.FieldType!;
+
+                    if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Reference<>))
+                    {
+                        typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
+                    }
+                }
+            }
+
+            if (typeFilterAttribute == null)
+            {
+                return;
+            }
+
+            MethodInfo methodInfo = propertyPathInfo.FieldInfo.DeclaringType!.FindMethodBySignature(typeFilterAttribute.MethodName, typeof(List<Type>));
+
+            if (methodInfo == null)
+            {
+                return;
+            }
+
+            object[] parameters =
+            {
+                types,
+            };
+
+            if (propertyPathInfo.Scope == null)
+            {
+                foreach (Object o in targets)
+                {
+                    methodInfo.Invoke(o, parameters);
+                }
+            }
+            else
+            {
+                using (ListPool.Pop(out List<object> list))
+                {
+                    propertyPathInfo.Scope.GetValues(targets, list);
+
+                    foreach (object o in list)
+                    {
+                        methodInfo.Invoke(o, parameters);
+                    }
+                }
+            }
         }
 
         protected override AdvancedDropdownItem BuildRoot()
