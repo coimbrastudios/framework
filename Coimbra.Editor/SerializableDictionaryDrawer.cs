@@ -211,9 +211,9 @@ namespace Coimbra.Editor
         {
             static void add(ReorderableList list)
             {
-                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope()!.GetValue<ISerializableDictionary>(list.GetTargetObject())!;
                 Undo.RecordObject(list.serializedProperty.serializedObject.targetObject, "Add Element To Dictionary");
-                serializableDictionary.ProcessAdd();
+                list.serializedProperty.GetScope()!.TryGetValue(list.GetTargetObject(), out ISerializableDictionary serializableDictionary);
+                serializableDictionary!.ProcessAdd();
                 list.serializedProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 list.serializedProperty.serializedObject.UpdateIfRequiredOrScript();
                 EditorUtility.SetDirty(list.serializedProperty.serializedObject.targetObject);

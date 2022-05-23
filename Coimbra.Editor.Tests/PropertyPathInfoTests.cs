@@ -338,12 +338,10 @@ namespace Coimbra.Editor.Tests
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
-                serializedProperty.SetValues(delegate(Object context, string current)
+                serializedProperty.SetValues(false, delegate(PropertyPathInfo sender, Object target)
                 {
-                    Assert.IsTrue(string.IsNullOrWhiteSpace(current));
-
-                    return $"{testString}{context.name}";
-                }, false);
+                    return $"{testString}{target.name}";
+                });
 
                 object[] values = serializedProperty.GetValues();
 

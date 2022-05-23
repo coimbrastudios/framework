@@ -36,7 +36,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
         /// </summary>
-        public static PropertyPathInfo GetPropertyPathInfo(this SerializedObject serializedObject, string propertyPath)
+        public static PropertyPathInfo GetPropertyPathInfo(this SerializedObject serializedObject, in string propertyPath)
         {
             Type rootType = serializedObject.targetObject.GetType();
 
@@ -120,32 +120,40 @@ namespace Coimbra.Editor
             property.GetPropertyPathInfo().GetValues(property.serializedObject.targetObjects, append);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.SetValue{T}(UnityEngine.Object,T)"/>
+        /// <inheritdoc cref="PropertyPathInfo.SetValue(UnityEngine.Object,object)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetValue<T>(this SerializedProperty property, [CanBeNull] T value)
+        public static void SetValue(this SerializedProperty property, [CanBeNull] object value)
         {
             property.GetPropertyPathInfo().SetValue(property.serializedObject.targetObject, value);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.SetValue{T}(UnityEngine.Object,T)"/>
+        /// <inheritdoc cref="PropertyPathInfo.SetValues(UnityEngine.Object[],object)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetValue<T>(this SerializedProperty property, [NotNull] PropertyPathInfo.SetValueHandler<T> onSetValue)
-        {
-            property.GetPropertyPathInfo().SetValue(property.serializedObject.targetObject, onSetValue);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.SetValues{T}(UnityEngine.Object[],T)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetValues<T>(this SerializedProperty property, [CanBeNull] T value)
+        public static void SetValues(this SerializedProperty property, [CanBeNull] object value)
         {
             property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, value);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.SetValues{T}(UnityEngine.Object[],T)"/>
+        /// <inheritdoc cref="PropertyPathInfo.SetValues(UnityEngine.Object[],object)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetValues<T>(this SerializedProperty property, [NotNull] PropertyPathInfo.SetValueHandler<T> onSetValue, bool isThreadSafe)
+        public static void SetValues(this SerializedProperty property, bool isThreadSafe, [NotNull] PropertyPathInfo.SetValuesHandler<object> setter)
         {
-            property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, onSetValue, isThreadSafe);
+            property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, isThreadSafe, setter);
+        }
+
+
+        /// <inheritdoc cref="PropertyPathInfo.SetValues(UnityEngine.Object[],object)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetValues<T>(this SerializedProperty property, bool isThreadSafe, [NotNull] PropertyPathInfo.SetValuesHandler<T> setter)
+        {
+            property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, isThreadSafe, setter);
+        }
+
+        /// <inheritdoc cref="PropertyPathInfo.GetValue"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetValue<T>(this SerializedProperty property, [CanBeNull] out T value)
+        {
+            return property.GetPropertyPathInfo().TryGetValue(property.serializedObject.targetObject, out value);
         }
 
         internal static void ClearCaches()

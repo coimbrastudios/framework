@@ -16,9 +16,9 @@ namespace Coimbra.Editor
     public sealed class PropertyPathInfo
     {
         /// <summary>
-        /// Receives the current value and returns the new value.
+        /// Delegate for <see cref="PropertyPathInfo.SetValues{T}(UnityEngine.Object[],bool,SetValuesHandler{T})"/>.
         /// </summary>
-        public delegate T SetValueHandler<T>(Object context, T current);
+        public delegate T SetValuesHandler<out T>(PropertyPathInfo sender, Object target);
 
         /// <inheritdoc cref="SerializedProperty.depth"/>
         public readonly int Depth;
@@ -67,20 +67,7 @@ namespace Coimbra.Editor
         {
             get
             {
-                if (_chainBackingField != null)
-                {
-                    return _chainBackingField;
-                }
-
-                PropertyPathInfo current = this;
-                _chainBackingField = new PropertyPathInfo[Depth + 1];
-
-                do
-                {
-                    _chainBackingField[current.Depth] = current;
-                    current = current.Scope;
-                }
-                while (current != null);
+                InitializeChain();
 
                 return _chainBackingField;
             }
@@ -113,26 +100,24 @@ namespace Coimbra.Editor
         [Pure]
         public T GetValue<T>([NotNull] Object target)
         {
-            object value = GetValue(target);
+            TryGetValue(target, out T value);
 
-            return value != null ? (T)value : default;
+            return value;
         }
 
         /// <summary>
-        /// Get the field value for each context.
+        /// Get the field value for each target.
         /// </summary>
         [NotNull]
         [Pure]
         public object[] GetValues([NotNull] Object[] targets)
         {
-            object[] values = new object[targets.Length];
-
-            Parallel.For(0, targets.Length, delegate(int i)
+            using (ListPool.Pop(out List<object> list))
             {
-                values[i] = GetValue(targets[i]);
-            });
+                GetValues(targets, list);
 
-            return values;
+                return list.ToArray();
+            }
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
@@ -140,19 +125,18 @@ namespace Coimbra.Editor
         [Pure]
         public T[] GetValues<T>([NotNull] Object[] targets)
         {
-            T[] values = new T[targets.Length];
-
-            Parallel.For(0, targets.Length, delegate(int i)
+            using (ListPool.Pop(out List<T> list))
             {
-                values[i] = GetValue<T>(targets[i]);
-            });
+                GetValues(targets, list);
 
-            return values;
+                return list.ToArray();
+            }
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
         public void GetValues([NotNull] Object[] targets, [NotNull] List<object> append)
         {
+            InitializeChain();
             append.EnsureCapacity(append.Count + targets.Length);
 
             Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
@@ -164,11 +148,13 @@ namespace Coimbra.Editor
         /// <inheritdoc cref="GetValues(Object[])"/>
         public void GetValues<T>([NotNull] Object[] targets, [NotNull] List<T> append)
         {
+            InitializeChain();
             append.EnsureCapacity(append.Count + targets.Length);
 
             Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                append.Add(GetValue<T>(targets[i]));
+                TryGetValue(targets[i], out T value);
+                append.Add(value);
             });
         }
 
@@ -199,7 +185,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Set the field value.
         /// </summary>
-        public void SetValue<T>([NotNull] Object target, [CanBeNull] T value)
+        public void SetValue([NotNull] Object target, [CanBeNull] object value)
         {
             PropertyPathInfo propertyPathInfo = this;
             object currentValue = value;
@@ -226,42 +212,95 @@ namespace Coimbra.Editor
             while (propertyPathInfo != null);
         }
 
-        /// <inheritdoc cref="SetValue{T}(Object,T)"/>
-        public void SetValue<T>([NotNull] Object target, [NotNull] SetValueHandler<T> callback)
-        {
-            T current = GetValue<T>(target);
-            current = callback.Invoke(target, current);
-            SetValue(target, current);
-        }
-
         /// <summary>
-        /// Set the field value for each context.
+        /// Set the field value for each target.
         /// </summary>
-        public void SetValues<T>([NotNull] Object[] targets, [CanBeNull] T value)
+        public void SetValues([NotNull] Object[] targets, [CanBeNull] object value)
         {
+            InitializeChain();
+
             Parallel.ForEach(targets, delegate(Object target)
             {
                 SetValue(target, value);
             });
         }
 
-        /// <inheritdoc cref="SetValues{T}(Object[],T)"/>
-        public void SetValues<T>([NotNull] Object[] targets, [NotNull] SetValueHandler<T> callback, bool isThreadSafe)
+        /// <inheritdoc cref="SetValues(UnityEngine.Object[],object)"/>
+        public void SetValues([NotNull] Object[] targets, bool isThreadSafe, [NotNull] SetValuesHandler<object> setter)
         {
             if (isThreadSafe)
             {
+                InitializeChain();
+
                 Parallel.ForEach(targets, delegate(Object target)
                 {
-                    SetValue(target, callback);
+                    SetValue(target, setter(this, target));
                 });
             }
             else
             {
                 foreach (Object target in targets)
                 {
-                    SetValue(target, callback);
+                    SetValue(target, setter(this, target));
                 }
             }
+        }
+
+        /// <inheritdoc cref="SetValues(UnityEngine.Object[],object)"/>
+        public void SetValues<T>([NotNull] Object[] targets, bool isThreadSafe, [NotNull] SetValuesHandler<T> setter)
+        {
+            if (isThreadSafe)
+            {
+                InitializeChain();
+
+                Parallel.ForEach(targets, delegate(Object target)
+                {
+                    SetValue(target, setter(this, target));
+                });
+            }
+            else
+            {
+                foreach (Object target in targets)
+                {
+                    SetValue(target, setter(this, target));
+                }
+            }
+        }
+
+        /// <inheritdoc cref="GetValue"/>
+        [Pure]
+        public bool TryGetValue<T>([NotNull] Object target, [CanBeNull] out T value)
+        {
+            try
+            {
+                value = (T)GetValue(target);
+
+                return true;
+            }
+            catch
+            {
+                value = default;
+
+                return false;
+            }
+        }
+
+        private void InitializeChain()
+        {
+            if (_chainBackingField != null)
+            {
+                return;
+            }
+
+            PropertyPathInfo current = this;
+            _chainBackingField = new PropertyPathInfo[Depth + 1];
+
+            do
+            {
+                _chainBackingField[current.Depth] = current;
+                current = current.Scope;
+            }
+            while (current != null);
         }
     }
 }
