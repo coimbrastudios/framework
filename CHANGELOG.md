@@ -5,6 +5,7 @@
 - Added check for editor-only `ScriptableSettings` in the `Assets` folder.
 - Added many test cases for `PropertyPathInfo` to ensure its stability.
 - Changed `PropertyPathInfo` internal implementation, improving its performance, memory usage, and exposing some new APIs.
+- Changed `ManagedFieldDrawer` implementation to use a better dropdown menu that supports searching.
 
 ## [10.2.9] - 2022-05.20
 

@@ -1,46 +1,57 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using UnityEngine.Assertions;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
     /// <summary>
     /// Drawer for <see cref="ManagedField{T}"/>.
     /// </summary>
-    [CustomPropertyDrawer(typeof(ManagedField<>), true)]
+    [CustomPropertyDrawer(typeof(ManagedField<>))]
     public sealed class ManagedFieldDrawer : PropertyDrawer
     {
-        private const string SystemObjectSerializedProperty = "_systemObject";
+        private const int MinButtonSize = 50;
 
-        private const string UnityObjectSerializedProperty = "_unityObject";
+        private const int MinDropdownLineCount = 10;
+
+        private const float MinDropdownWidth = 400;
+
+        private const string ClearUndoKey = "Clear Field Value";
+
+        private const string NewUndoKey = "New Field Value";
+
+        private const string SystemObjectProperty = "_systemObject";
+
+        private const string UnityObjectProperty = "_unityObject";
 
         private static readonly GUIContent ClearLabel = new GUIContent("Clear");
 
-        private static readonly GUIContent EmptyLabel = new GUIContent(" ");
-
         private static readonly GUIContent NewLabel = new GUIContent("New");
+
+        private static SerializedProperty _current;
 
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
+            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
 
             if (unityObject.objectReferenceValue != null)
             {
                 return EditorGUI.GetPropertyHeight(unityObject, true);
             }
 
-            Type baseType = fieldInfo.FieldType.IsArray ? fieldInfo.FieldType.GetElementType() : fieldInfo.FieldType;
-            Assert.IsNotNull(baseType);
+            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
+            Type type = systemObject.GetFieldInfo().FieldType;
 
-            if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
+            if (typeof(Object).IsAssignableFrom(type) || systemObject.hasMultipleDifferentValues)
             {
-                return EditorGUI.GetPropertyHeight(unityObject, true);
+                return EditorGUIUtility.singleLineHeight;
             }
-
-            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
 
             return string.IsNullOrWhiteSpace(systemObject.managedReferenceFullTypename) ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight(systemObject, true);
         }
@@ -56,184 +67,215 @@ namespace Coimbra.Editor
         /// </summary>
         public void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
-            object[] tooltipAttributeArray = fieldInfo.GetCustomAttributes(typeof(TooltipAttribute), true);
+            TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
 
-            if (tooltipAttributeArray.Length > 0)
+            if (tooltipAttribute != null)
             {
-                TooltipAttribute tooltipAttribute = (TooltipAttribute)tooltipAttributeArray[0];
                 label.tooltip = tooltipAttribute.tooltip;
             }
 
-            Type baseType = fieldInfo.FieldType.IsArray ? fieldInfo.FieldType.GetElementType() : fieldInfo.FieldType;
-            Assert.IsNotNull(baseType);
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
+            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
 
-            Type managedType = baseType.GenericTypeArguments[0];
-            string suffix = $"* {managedType.FullName}";
-            string tooltip = string.IsNullOrEmpty(label.tooltip) ? suffix : $"{label.tooltip}{Environment.NewLine}{suffix}";
-
-            using (GUIContentPool.Pop(out GUIContent labelWithTooltip))
+            if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
             {
-                labelWithTooltip.image = label.image;
-                labelWithTooltip.text = $"{label.text}*";
-                labelWithTooltip.tooltip = tooltip;
-                SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectSerializedProperty);
-                SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectSerializedProperty);
-
-                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, labelWithTooltip, unityObject);
-
-                position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-
-                if (typeof(UnityEngine.Object).IsAssignableFrom(baseType.GenericTypeArguments[0]))
+                using (GUIContentPool.Pop(out GUIContent value))
                 {
-                    DrawUnityField(position, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
-                }
-                else if (unityObject.objectReferenceValue != null)
-                {
-                    float buttonWidth = EditorStyles.miniPullDown.CalcSize(ClearLabel).x;
-                    Rect unityFieldPosition = position;
-                    unityFieldPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                    DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+                    value.text = "Editing multiple different values!";
+                    value.tooltip = value.text;
+                    position.height = EditorGUIUtility.singleLineHeight;
+                    EditorGUI.LabelField(position, propertyScope.content, value);
 
-                    Rect buttonPosition = position;
-                    buttonPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
+                    position.xMin = position.xMax - MinButtonSize;
 
-                    if (GUI.Button(buttonPosition, ClearLabel, EditorStyles.miniButton))
+                    if (GUI.Button(position, ClearLabel))
                     {
-                        systemObject.serializedObject.Update();
-                        unityObject.objectReferenceValue = null;
-                        systemObject.serializedObject.ApplyModifiedProperties();
+                        Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                        systemObject.SetValues(null);
+                        unityObject.SetValues(null);
+                        unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                        unityObject.serializedObject.UpdateIfRequiredOrScript();
+                    }
+
+                    return;
+                }
+            }
+
+            Type type = systemObject.GetFieldInfo().FieldType;
+
+            if (typeof(Object).IsAssignableFrom(type))
+            {
+                position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+                DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
+            }
+            else if (unityObject.objectReferenceValue != null)
+            {
+                position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+                position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+                DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+
+                position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+                position.width = MinButtonSize;
+                position.height = EditorGUIUtility.singleLineHeight;
+
+                if (GUI.Button(position, ClearLabel))
+                {
+                    Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                    unityObject.SetValues(null);
+                    unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                    unityObject.serializedObject.UpdateIfRequiredOrScript();
+                }
+            }
+            else
+            {
+                string typename = systemObject.managedReferenceFullTypename;
+
+                if (string.IsNullOrWhiteSpace(typename))
+                {
+                    if (type.IsInterface)
+                    {
+                        position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+                        position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+                        DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+
+                        position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+                        position.width = MinButtonSize;
+                        position.height = EditorGUIUtility.singleLineHeight;
+                        DrawTypeDropdown(position, type, systemObject);
+                    }
+                    else
+                    {
+                        position.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                        EditorGUI.PropertyField(position, systemObject, propertyScope.content, true);
+
+                        position.xMin += EditorGUIUtility.labelWidth;
+                        position.height = EditorGUIUtility.singleLineHeight;
+                        DrawTypeDropdown(position, type, systemObject);
                     }
                 }
                 else
                 {
-                    string typename = systemObject.managedReferenceFullTypename;
+                    Rect valuePosition = position;
+                    valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                    position.xMin += EditorGUIUtility.labelWidth;
+                    position.height = EditorGUIUtility.singleLineHeight;
 
-                    if (string.IsNullOrWhiteSpace(typename))
+                    using (GUIContentPool.Pop(out GUIContent value))
                     {
-                        if (managedType.IsInterface)
-                        {
-                            float dropdownWidth = EditorStyles.miniPullDown.CalcSize(NewLabel).x;
-                            Rect unityFieldPosition = position;
-                            unityFieldPosition.xMax -= dropdownWidth + EditorGUIUtility.standardVerticalSpacing;
-                            DrawUnityField(unityFieldPosition, managedType, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
-
-                            Rect systemDropdownPosition = position;
-                            systemDropdownPosition.xMin = unityFieldPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
-                            DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
-                        }
-                        else
-                        {
-                            Rect valuePosition = position;
-                            valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                            EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-
-                            Rect systemDropdownPosition = position;
-                            systemDropdownPosition.x += EditorGUIUtility.labelWidth;
-                            systemDropdownPosition.width -= EditorGUIUtility.labelWidth;
-                            DrawSystemDropdown(systemDropdownPosition, managedType, systemObject);
-                        }
+                        value.text = TypeString.Get(GetType(typename));
+                        value.tooltip = value.text;
+                        EditorGUI.LabelField(position, value);
                     }
-                    else
+
+                    position.xMin = position.xMax - MinButtonSize;
+
+                    if (GUI.Button(position, ClearLabel))
                     {
-                        float buttonWidth = EditorStyles.miniButton.CalcSize(ClearLabel).x;
-                        string separator = typename.Contains(".") ? "." : " ";
-
-                        using (GUIContentPool.Pop(out GUIContent value))
-                        {
-                            value.text = typename.Substring(typename.LastIndexOf(separator, StringComparison.Ordinal) + 1);
-
-                            Rect labelPosition = position;
-                            labelPosition.xMax -= buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-                            EditorGUI.LabelField(labelPosition, EmptyLabel, value);
-
-                            Rect buttonPosition = position;
-                            buttonPosition.xMin = labelPosition.xMax + EditorGUIUtility.standardVerticalSpacing;
-
-                            if (GUI.Button(buttonPosition, ClearLabel, EditorStyles.miniButton))
-                            {
-                                systemObject.serializedObject.Update();
-                                systemObject.managedReferenceValue = null;
-                                systemObject.serializedObject.ApplyModifiedProperties();
-                            }
-
-                            Rect valuePosition = position;
-                            valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                            EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-                        }
+                        Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                        systemObject.SetValues(null);
+                        systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                        systemObject.serializedObject.UpdateIfRequiredOrScript();
                     }
+
+                    EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+
+                    // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
+                    GUI.Button(position, ClearLabel);
                 }
             }
         }
 
-        private static void DrawSystemDropdown(Rect position, Type managedType, SerializedProperty systemObject)
-        {
-            if (!EditorGUI.DropdownButton(position, NewLabel, FocusType.Passive))
-            {
-                return;
-            }
-
-            void handleItemClicked(object parameter)
-            {
-                systemObject.serializedObject.Update();
-                systemObject.managedReferenceValue = Activator.CreateInstance((Type)parameter, true);
-                systemObject.isExpanded = true;
-                systemObject.serializedObject.ApplyModifiedProperties();
-            }
-
-            GenericMenu menu = new GenericMenu()
-            {
-                allowDuplicateNames = false,
-            };
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (Type type in assembly.GetTypes())
-                {
-                    if (type.IsAbstract || !managedType.IsAssignableFrom(type) || type.IsSubclassOf(typeof(UnityEngine.Object)))
-                    {
-                        continue;
-                    }
-
-                    if (type.IsValueType || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) != null)
-                    {
-                        menu.AddItem(new GUIContent(type.FullName), false, handleItemClicked, type);
-                    }
-                }
-            }
-
-            if (menu.GetItemCount() == 0)
-            {
-                Debug.LogWarning($"No type that implements {managedType} was found! The type also needs to be a non-abstract type with parameterless constructor and can't be a subclass of UnityEngine.Object.");
-            }
-            else
-            {
-                menu.DropDown(position);
-            }
-        }
-
-        private static void DrawUnityField(Rect position, Type managedType, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects, bool useManagedType)
+        private static void DrawObjectField(Rect position, Type type, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects, bool isUnityObjectType)
         {
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
-            UnityEngine.Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, useManagedType ? managedType : typeof(UnityEngine.Object), allowSceneObjects);
+            Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, isUnityObjectType ? type : typeof(Object), allowSceneObjects);
 
             if (!changeCheckScope.changed)
             {
                 return;
             }
 
-            if (value != null && managedType.IsInstanceOfType(value) == false)
+            if (value != null && type.IsInstanceOfType(value) == false)
             {
-                value = value is GameObject gameObject ? gameObject.GetComponent(managedType) : null;
+                value = value is GameObject gameObject ? gameObject.GetComponent(type) : null;
 
                 if (value == null)
                 {
-                    Debug.LogError($"Neither the object or one of its components implement {managedType.FullName}!", value);
+                    Debug.LogError($"Neither the object or one of its components implement {TypeString.Get(type)}!", value);
                 }
             }
 
             unityObject.objectReferenceValue = value;
             systemObject.managedReferenceValue = null;
+        }
+
+        private static void DrawTypeDropdown(Rect position, Type type, SerializedProperty systemObject)
+        {
+            if (!EditorGUI.DropdownButton(position, NewLabel, FocusType.Keyboard))
+            {
+                return;
+            }
+
+            using (ListPool.Pop(out List<Type> types))
+            {
+                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(type))
+                {
+                    if (derivedType.IsAbstract
+                     || derivedType.IsGenericType
+                     || typeof(Object).IsAssignableFrom(derivedType)
+                     || derivedType.IsDefined(typeof(CompilerGeneratedAttribute))
+                     || !derivedType.IsDefined(typeof(SerializableAttribute)))
+                    {
+                        continue;
+                    }
+
+                    const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+                    if (!derivedType.IsValueType && derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) == null)
+                    {
+                        continue;
+                    }
+
+                    types.Add(derivedType);
+                }
+
+                _current = systemObject;
+
+                static void handleItemSelected(TypeDropdownItem item)
+                {
+                    Undo.RecordObjects(_current.serializedObject.targetObjects, NewUndoKey);
+
+                    if (item.Type == null)
+                    {
+                        _current.SetValues(null);
+                    }
+                    else
+                    {
+                        _current.SetValues(true, delegate
+                        {
+                            return Activator.CreateInstance(item.Type);
+                        });
+                    }
+
+                    _current.isExpanded = item.Type != null;
+                    _current.serializedObject.ApplyModifiedProperties();
+                    _current.serializedObject.Update();
+                }
+
+                TypeDropdown dropdown = new TypeDropdown(types, MinDropdownWidth, MinDropdownLineCount, new AdvancedDropdownState());
+                dropdown.OnItemSelected += handleItemSelected;
+                dropdown.Show(position);
+            }
+        }
+
+        private static Type GetType(string typeName)
+        {
+            int index = typeName.IndexOf(' ');
+            Assembly assembly = Assembly.Load(typeName.Substring(0, index));
+
+            return assembly.GetType(typeName.Substring(index + 1));
         }
     }
 }

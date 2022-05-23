@@ -53,7 +53,7 @@ namespace Coimbra
         [NotNull]
         public override string ToString()
         {
-            return $"Reference({_value})";
+            return $"ref({_value})";
         }
 
         public bool TryGetValue([CanBeNull] out T value)
