@@ -29,7 +29,7 @@ namespace Coimbra.Editor
             minimumSize = new Vector2(MinWidth, EditorGUIUtility.singleLineHeight * MinLineCount + EditorGUIUtility.singleLineHeight * 2);
         }
 
-        internal static void Draw(Rect position, Type type, SerializedProperty property, GUIContent label, string undoKey, Action<List<Type>> filterCallback)
+        internal static void DrawReferenceField(Rect position, Type type, SerializedProperty property, GUIContent label, string undoKey, Action<List<Type>> filterCallback)
         {
             if (!EditorGUI.DropdownButton(position, label, FocusType.Keyboard))
             {

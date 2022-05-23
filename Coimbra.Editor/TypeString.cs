@@ -17,7 +17,7 @@ namespace Coimbra.Editor
 
             using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
             {
-                stringBuilder.Append(CoimbraEditorGUIUtility.ToDisplayName(type.Name));
+                stringBuilder.Append(type.Name);
 
                 if (!string.IsNullOrWhiteSpace(type.Namespace))
                 {

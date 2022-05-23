@@ -135,7 +135,7 @@ namespace Coimbra.Editor
                     position.width = MinButtonSize;
                     position.height = EditorGUIUtility.singleLineHeight;
 
-                    TypeDropdown.Draw(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
+                    TypeDropdown.DrawReferenceField(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
                     {
                         TypeDropdown.FilterTypes(property.serializedObject.targetObjects, systemObject.GetScope(), list);
                     });
