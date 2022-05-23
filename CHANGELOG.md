@@ -2,6 +2,8 @@
 
 ## [10.2.10] - 2022-05-23
 
+- Added `ReferenceDrawer` to correctly expose a `Reference<T>` in the inspector.
+- Added `TypeFilterAttribute` to filter available types for `ManagedField<T>` dropdown.
 - Added check for editor-only `ScriptableSettings` in the `Assets` folder.
 - Added many test cases for `PropertyPathInfo` to ensure its stability.
 - Changed `PropertyPathInfo` internal implementation, improving its performance, memory usage, and exposing some new APIs.
