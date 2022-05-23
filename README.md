@@ -20,7 +20,7 @@ Package of general utilities to be used with Unity development.
     - `MessageBox`: To display a message above a field. There is also `OnEditMode` and `OnPlayMode` versions.
 - GameObject Pools: Specialized pooling implementation for `GameObject` with auto resizing functionality.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
-- Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it.
+- Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
 - Property Attributes: Property attributes fully compatible with Unity's standard workflow:
     - `IntRange`: Draws a property as if it was a `IntRange`.
     - `FloatRange`: Draws a property as if it was a `FloatRange`.
@@ -52,6 +52,7 @@ Package of general utilities to be used with Unity development.
     - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
     - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`.
+- Type Dropdown: Use `TypeDropdownAttribute` in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `TypeFilterAttribute`.
 - Utilities & Extensions: Check if a `GameObject` `IsPersistent`, `Destroy` any Unity `Object` safely, fake-cast a `GameObject` to `Actor`, use `?.` and `??` safely wth any Unity `Object`, and much more.
 
 ## Dependencies
