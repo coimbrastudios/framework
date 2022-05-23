@@ -17,6 +17,8 @@ namespace Coimbra.Services.Events
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         /// <inheritdoc/>
+        [field: SerializeReference]
+        [field: Disable]
         public ServiceLocator? OwningLocator { get; set; }
 
         /// <summary>

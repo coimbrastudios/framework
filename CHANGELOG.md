@@ -2,6 +2,7 @@
 
 ## [10.2.10] - 2022-05-23
 
+- Added check for editor-only `ScriptableSettings` in the `Assets` folder.
 - Added many test cases for `PropertyPathInfo` to ensure its stability.
 - Changed `PropertyPathInfo` internal implementation, improving its performance, memory usage, and exposing some new APIs.
 

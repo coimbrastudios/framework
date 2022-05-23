@@ -217,7 +217,7 @@ namespace Coimbra.Editor
                 }
                 else
                 {
-                    FieldInfo.SetValue(currentScope, currentValue);
+                    propertyPathInfo.FieldInfo.SetValue(currentScope, currentValue);
                 }
 
                 currentValue = currentScope;
