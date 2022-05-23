@@ -4,7 +4,7 @@ namespace Coimbra.Editor.Tests
 {
     [TestFixture]
     [TestOf(typeof(CoimbraEditorGUIUtility))]
-    internal class FrameworkEditorGUIUtilityTests
+    internal sealed class CoimbraEditorGUIUtilityTests
     {
         [TestCase("m_1_CSEditorGUIUtility2020_3LTS", "1 CS Editor GUI Utility 2020.3 LTS")]
         [TestCase("m_", "")]
@@ -16,7 +16,7 @@ namespace Coimbra.Editor.Tests
         [TestCase("ui2", "Ui 2")]
         [TestCase("_guiCanvas", "Gui Canvas")]
         [TestCase("_gui_ui_Canvas", "Gui Ui Canvas")]
-        public void ToDisplayNameWorks(string input, string expected)
+        public void ToDisplayName_TestCases(string input, string expected)
         {
             Assert.AreEqual(expected, CoimbraEditorGUIUtility.ToDisplayName(input));
         }

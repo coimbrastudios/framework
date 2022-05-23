@@ -198,7 +198,7 @@ namespace Coimbra.Editor
             {
                 ref UndoPropertyModification modification = ref modifications[i];
 
-                if (modification.currentValue.IsReorderableList(out ReorderableList list) && list.serializedProperty.GetScope() is ISerializableDictionary serializableDictionary)
+                if (modification.currentValue.IsReorderableList(out ReorderableList list) && list.serializedProperty.GetScope()!.GetValue(list.GetTargetObject()) is ISerializableDictionary serializableDictionary)
                 {
                     serializableDictionary.ProcessUndo();
                 }
@@ -211,7 +211,7 @@ namespace Coimbra.Editor
         {
             static void add(ReorderableList list)
             {
-                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope<ISerializableDictionary>()!;
+                ISerializableDictionary serializableDictionary = list.serializedProperty.GetScope()!.GetValue<ISerializableDictionary>(list.GetTargetObject())!;
                 Undo.RecordObject(list.serializedProperty.serializedObject.targetObject, "Add Element To Dictionary");
                 serializableDictionary.ProcessAdd();
                 list.serializedProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
@@ -221,7 +221,7 @@ namespace Coimbra.Editor
 
             static bool canAdd(ReorderableList list)
             {
-                return CanModifyList(list) && list.serializedProperty.GetScope() is ISerializableDictionary { IsNewEntryValid: true };
+                return CanModifyList(list) && list.serializedProperty.GetScope()!.GetValue(list.GetTargetObject()) is ISerializableDictionary { IsNewEntryValid: true };
             }
 
             list.headerHeight = 0;

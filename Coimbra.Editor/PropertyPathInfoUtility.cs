@@ -1,112 +1,77 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Extensions to make easier to use the <see cref="PropertyPathInfo"/>.
+    /// Utility methods for <see cref="PropertyPathInfo"/> type.
     /// </summary>
     public static class PropertyPathInfoUtility
     {
         private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
 
-        private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromRootType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
 
-        /// <inheritdoc cref="PropertyPathInfo.GetFieldInfo"/>
+        /// <inheritdoc cref="PropertyPathInfo.FieldInfo"/>
         [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FieldInfo GetFieldInfo(this SerializedProperty property)
         {
-            return property.GetPropertyPathInfo().GetFieldInfo(property.serializedObject.targetObject);
+            return property.GetPropertyPathInfo().FieldInfo;
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetIndex"/>
+        /// <inheritdoc cref="PropertyPathInfo.Index"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int? GetIndex(this SerializedProperty property)
         {
-            return property.GetPropertyPathInfo().GetIndex(property.serializedObject.targetObject);
+            return property.GetPropertyPathInfo().Index;
         }
 
         /// <summary>
         /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
         /// </summary>
-        public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
+        public static PropertyPathInfo GetPropertyPathInfo(this SerializedObject serializedObject, string propertyPath)
         {
-            Type targetType = property.serializedObject.targetObject.GetType();
+            Type rootType = serializedObject.targetObject.GetType();
 
-            if (!PropertyPathInfoMapFromType.TryGetValue(targetType, out Dictionary<string, PropertyPathInfo> propertyPathInfoMap))
+            if (!PropertyPathInfoMapFromRootType.TryGetValue(rootType, out Dictionary<string, PropertyPathInfo> propertyPathInfoMap))
             {
                 propertyPathInfoMap = new Dictionary<string, PropertyPathInfo>();
-                PropertyPathInfoMapFromType.Add(targetType, propertyPathInfoMap);
+                PropertyPathInfoMapFromRootType.Add(rootType, propertyPathInfoMap);
             }
-
-            string propertyPath = property.propertyPath;
 
             if (propertyPathInfoMap.TryGetValue(propertyPath, out PropertyPathInfo propertyPathInfo))
             {
                 return propertyPathInfo;
             }
 
-            using (ListPool.Pop(out List<string> splitPropertyPath))
-            {
-                splitPropertyPath.AddRange(propertyPath.Split('.'));
-
-                propertyPathInfo = GetPropertyPathInfoRecursive(targetType, splitPropertyPath);
-            }
-
-            propertyPathInfoMap.Add(propertyPath, propertyPathInfo);
+            propertyPathInfo = GetPropertyPathInfo(rootType, propertyPath.Split('.'), propertyPathInfoMap);
+            propertyPathInfoMap[propertyPath] = propertyPathInfo;
 
             return propertyPathInfo;
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetScope"/>
+        /// <summary>
+        /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PropertyPathInfo GetPropertyPathInfo(this SerializedProperty property)
+        {
+            return property.serializedObject.GetPropertyPathInfo(property.propertyPath);
+        }
+
+        /// <inheritdoc cref="PropertyPathInfo.Scope"/>
         [CanBeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object GetScope(this SerializedProperty property)
+        public static PropertyPathInfo GetScope(this SerializedProperty property)
         {
-            return property.GetPropertyPathInfo().GetScope(property.serializedObject.targetObject);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.GetScope"/>
-        [CanBeNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetScope<T>(this SerializedProperty property)
-        {
-            return property.GetPropertyPathInfo().GetScope<T>(property.serializedObject.targetObject);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
-        [NotNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object[] GetScopes(this SerializedProperty property)
-        {
-            return property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
-        [NotNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] GetScopes<T>(this SerializedProperty property)
-        {
-            return property.GetPropertyPathInfo().GetScopes<T>(property.serializedObject.targetObjects);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetScopes(this SerializedProperty property, [NotNull] List<object> append)
-        {
-            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append);
-        }
-
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetScopes<T>(this SerializedProperty property, [NotNull] List<T> append)
-        {
-            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append);
+            return property.GetPropertyPathInfo().Scope;
         }
 
         /// <inheritdoc cref="PropertyPathInfo.GetValue"/>
@@ -178,12 +143,17 @@ namespace Coimbra.Editor
 
         /// <inheritdoc cref="PropertyPathInfo.SetValues{T}(UnityEngine.Object[],T)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetValues<T>(this SerializedProperty property, [NotNull] PropertyPathInfo.SetValueHandler<T> onSetValue)
+        public static void SetValues<T>(this SerializedProperty property, [NotNull] PropertyPathInfo.SetValueHandler<T> onSetValue, bool isThreadSafe)
         {
-            property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, onSetValue);
+            property.GetPropertyPathInfo().SetValues(property.serializedObject.targetObjects, onSetValue, isThreadSafe);
         }
 
-        private static Type GetCollectionType(this Type type)
+        internal static void ClearCaches()
+        {
+            PropertyPathInfoMapFromRootType.Clear();
+        }
+
+        private static Type GetCollectionType(Type type)
         {
             Type value = type.GetElementType();
 
@@ -217,38 +187,80 @@ namespace Coimbra.Editor
             return result;
         }
 
-        [CanBeNull]
-        private static PropertyPathInfo GetPropertyPathInfoRecursive(Type targetType, List<string> splitPropertyPath)
+        private static PropertyPathInfo GetPropertyPathInfo(Type rootType, IEnumerable<string> splitPropertyPathArray, IDictionary<string, PropertyPathInfo> cache)
         {
-            if (splitPropertyPath.Count == 0)
+            using (StringBuilderPool.Pop(out StringBuilder propertyPathBuilder))
             {
-                return null;
-            }
-
-            FieldInfo fieldInfo = GetField(targetType, splitPropertyPath[0]);
-
-            if (fieldInfo == null)
-            {
-                return null;
-            }
-
-            if (splitPropertyPath.Count > 2 && splitPropertyPath[1] == "Array")
-            {
-                string index = new string(splitPropertyPath[2].Where(char.IsDigit).ToArray());
-
-                if (splitPropertyPath[2].Replace(index, "") == "data[]")
+                using (ListPool.Pop(out List<string> splitPropertyPath))
                 {
-                    splitPropertyPath.RemoveRange(0, 3);
+                    splitPropertyPath.AddRange(splitPropertyPathArray);
 
-                    PropertyPathInfo nextInfo = GetPropertyPathInfoRecursive(fieldInfo.FieldType.GetCollectionType(), splitPropertyPath);
+                    const char separator = '.';
+                    PropertyPathInfo currentPropertyPathInfo = null;
+                    Type currentType = rootType;
+                    int currentDepth = 0;
 
-                    return new PropertyPathInfo(fieldInfo, nextInfo, Convert.ToInt32(index));
+                    while (splitPropertyPath.Count > 0)
+                    {
+                        if (propertyPathBuilder.Length > 0)
+                        {
+                            propertyPathBuilder.Append(".");
+                        }
+
+                        FieldInfo fieldInfo = GetField(currentType, splitPropertyPath[0]);
+                        propertyPathBuilder.Append(splitPropertyPath[0]);
+                        splitPropertyPath.RemoveAt(0);
+
+                        if (fieldInfo == null)
+                        {
+                            currentPropertyPathInfo = null;
+
+                            break;
+                        }
+
+                        string propertyPath = propertyPathBuilder.ToString();
+
+                        if (!cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
+                        {
+                            cachedPropertyPathInfo = new PropertyPathInfo(rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath);
+                            cache.Add(propertyPath, cachedPropertyPathInfo);
+                        }
+
+                        currentPropertyPathInfo = cachedPropertyPathInfo;
+                        currentType = fieldInfo.FieldType;
+                        currentDepth++;
+
+                        if (splitPropertyPath.Count <= 1
+                         || splitPropertyPath[0] != "Array"
+                         || splitPropertyPath[1].Length <= 6
+                         || !splitPropertyPath[1].StartsWith("data[")
+                         || !splitPropertyPath[1].EndsWith("]")
+                         || !int.TryParse(splitPropertyPath[1].Substring(5, splitPropertyPath[1].Length - 6), out int index))
+                        {
+                            continue;
+                        }
+
+                        propertyPathBuilder.Append(separator);
+                        propertyPathBuilder.Append(splitPropertyPath[0]);
+                        propertyPathBuilder.Append(separator);
+                        propertyPathBuilder.Append(splitPropertyPath[1]);
+                        splitPropertyPath.RemoveRange(0, 2);
+                        propertyPath = propertyPathBuilder.ToString();
+
+                        if (!cache.TryGetValue(propertyPath, out cachedPropertyPathInfo))
+                        {
+                            cachedPropertyPathInfo = new PropertyPathInfo(rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath);
+                            cache.Add(propertyPath, cachedPropertyPathInfo);
+                        }
+
+                        currentPropertyPathInfo = cachedPropertyPathInfo;
+                        currentType = GetCollectionType(fieldInfo.FieldType);
+                        currentDepth++;
+                    }
+
+                    return currentPropertyPathInfo;
                 }
             }
-
-            splitPropertyPath.RemoveAt(0);
-
-            return new PropertyPathInfo(fieldInfo, GetPropertyPathInfoRecursive(fieldInfo.FieldType, splitPropertyPath));
         }
     }
 }

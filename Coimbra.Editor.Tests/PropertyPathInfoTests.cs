@@ -1,354 +1,361 @@
-using Coimbra.Tests;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor.Tests
 {
     [TestFixture]
     [TestOf(typeof(PropertyPathInfo))]
-    internal class PropertyPathInfoTests
+    internal sealed class PropertyPathInfoTests
     {
-        private const int ArrayLenght = 10;
-        private DummyAsset[] _assetArray;
-        private DummyBehaviour[] _behaviourArray;
-
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
-            int[] integerArray =
+            PropertyPathInfoUtility.ClearCaches();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            PropertyPathInfoUtility.ClearCaches();
+        }
+
+        [TestCase(0, nameof(PropertyPathInfoTestBehaviour.Integer))]
+        [TestCase(2, nameof(PropertyPathInfoTestBehaviourBase.StructList) + ".Array.data[0]", nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String))]
+        [TestCase(1, nameof(PropertyPathInfoTestBehaviourBase.StringArray) + ".Array.data[4]")]
+        [TestCase(0, nameof(PropertyPathInfoTestBehaviourBase.StringArray))]
+        [TestCase(2, nameof(PropertyPathInfoTestBehaviourBase.Reference), nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue), nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String))]
+        [TestCase(1, nameof(PropertyPathInfoTestBehaviourBase.Reference), nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue))]
+        [TestCase(0, nameof(PropertyPathInfoTestBehaviourBase.Reference))]
+        [TestCase(2, PropertyPathInfoTestBehaviourBase.FieldName, nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue), nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String))]
+        [TestCase(1, PropertyPathInfoTestBehaviourBase.FieldName, nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue))]
+        [TestCase(0, PropertyPathInfoTestBehaviourBase.FieldName)]
+        public void PropertyPathInfo_Depth_TestCases_TestBehaviour(int depth, params string[] propertyPath)
+        {
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+
+            try
             {
-                10,
-                30,
-                41023,
-                65904709,
-                -1230213,
-            };
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(propertyPath[0]);
+                Assert.That(serializedProperty, Is.Not.Null);
 
-            string[] stringArray =
+                SerializedProperty target = serializedProperty;
+
+                for (int i = 1; i < propertyPath.Length; i++)
+                {
+                    target = target.FindPropertyRelative(propertyPath[i]);
+                }
+
+                Assert.That(target, Is.Not.Null);
+                Assert.That(target.depth, Is.EqualTo(depth));
+                Assert.That(target.GetPropertyPathInfo().Depth, Is.EqualTo(depth));
+            }
+            finally
             {
-                "faa",
-                "foo",
-                "bar",
-            };
-
-            Vector3Int[] vectorArray =
-            {
-                Vector3Int.down,
-                Vector3Int.left,
-                Vector3Int.right,
-                Vector3Int.one,
-            };
-
-            Texture[] textureArray =
-            {
-                Texture2D.blackTexture,
-                Texture2D.whiteTexture,
-            };
-
-            _assetArray = new DummyAsset[ArrayLenght];
-            _behaviourArray = new DummyBehaviour[ArrayLenght];
-
-            for (int i = 0; i < ArrayLenght; i++)
-            {
-                _assetArray[i] = ScriptableObject.CreateInstance<DummyAsset>();
-                _assetArray[i].name = $"Dummy Asset {i}";
-                _assetArray[i].Initialize(_assetArray, _behaviourArray, integerArray, stringArray, textureArray, vectorArray);
-
-                _behaviourArray[i] = new GameObject($"Dummy Object {i}").AddComponent<DummyBehaviour>();
-                _behaviourArray[i].Initialize(_assetArray, _behaviourArray, integerArray, stringArray, textureArray, vectorArray);
+                Object.DestroyImmediate(testBehaviour);
             }
         }
 
-        [TearDown]
-        public void TearDown()
+        [TestCase(1, nameof(PropertyPathInfoTestObject.OtherClassNestedStruct), nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String))]
+        [TestCase(0, nameof(PropertyPathInfoTestObject.OtherClassNestedStruct))]
+        [TestCase(0, nameof(PropertyPathInfoTestObject.Float))]
+        public void PropertyPathInfo_Depth_TestCases_TestObject(int depth, params string[] propertyPath)
         {
-            foreach (DummyAsset asset in _assetArray)
+            PropertyPathInfoTestObject testObject = ScriptableObject.CreateInstance<PropertyPathInfoTestObject>();
+
+            try
             {
-                if (asset != null)
+                using SerializedObject serializedObject = new SerializedObject(testObject);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(propertyPath[0]);
+                SerializedProperty target = serializedProperty;
+
+                for (int i = 1; i < propertyPath.Length; i++)
                 {
-                    UnityEngine.Object.DestroyImmediate(asset);
+                    target = target.FindPropertyRelative(propertyPath[i]);
+                }
+
+                Assert.That(target.depth, Is.EqualTo(depth));
+                Assert.That(target.GetPropertyPathInfo().Depth, Is.EqualTo(depth));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testObject);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetValue_Depth0()
+        {
+            const int testInt = 42;
+
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.Integer = testInt;
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviour.Integer));
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testInt));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetValue_Depth1_Array()
+        {
+            const int testSize = 3;
+            const int testIndex = 1;
+            const string testString = "Test";
+
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.StringArray = new string[testSize];
+            testBehaviour.StringArray[testIndex] = testString;
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviourBase.StringArray));
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                string[] stringArray = serializedProperty.GetValue() as string[];
+                Assert.That(stringArray, Is.Not.Null);
+                Assert.That(stringArray.Length, Is.EqualTo(testSize));
+                Assert.That(stringArray[testIndex], Is.EqualTo(testString));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetValue_Depth1_Field()
+        {
+            const int testInt = 42;
+
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+
+            testBehaviour.Field = new PropertyPathInfoTestBehaviourBase.NestedClass
+            {
+                Integer = testInt,
+            };
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty($"{PropertyPathInfoTestBehaviourBase.FieldName}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.Integer)}");
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testInt));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetValue_Depth2_Array()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+            const string testString = "Test";
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+
+            testBehaviour.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
+            {
+                String = testString,
+            };
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetValue_Depth2_Reference()
+        {
+            const string testString = "Test";
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.Reference)}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue)}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+
+            testBehaviour.Reference = new PropertyPathInfoTestBehaviourBase.NestedClass
+            {
+                NestedStructValue = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
+                {
+                    String = testString,
+                },
+            };
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_HasMultipleDifferentValues_ReturnsFalse()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour1 = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            PropertyPathInfoTestBehaviour testBehaviour2 = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour1.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+            testBehaviour2.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                {
+                    testBehaviour1,
+                    testBehaviour2
+                });
+
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetPropertyPathInfo().HasMultipleDifferentValues(serializedObject.targetObjects), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour2);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_HasMultipleDifferentValues_ReturnsTrue()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour1 = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            PropertyPathInfoTestBehaviour testBehaviour2 = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour1.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+            testBehaviour2.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+
+            testBehaviour1.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
+            {
+                String = $"1",
+            };
+
+            testBehaviour2.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
+            {
+                String = $"2",
+            };
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                {
+                    testBehaviour1,
+                    testBehaviour2
+                });
+
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+                Assert.That(serializedProperty.GetPropertyPathInfo().HasMultipleDifferentValues(serializedObject.targetObjects), Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour2);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_SetValue()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+            const string testString = "Test";
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject("1").AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+                serializedProperty.SetValue(testString);
+                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_SetValues()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+            const string testString = "Test";
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour1 = new GameObject("1").AddComponent<PropertyPathInfoTestBehaviour>();
+            PropertyPathInfoTestBehaviour testBehaviour2 = new GameObject("2").AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour1.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+            testBehaviour2.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                {
+                    testBehaviour1,
+                    testBehaviour2
+                });
+
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                serializedProperty.SetValues(delegate(Object context, string current)
+                {
+                    Assert.IsTrue(string.IsNullOrWhiteSpace(current));
+
+                    return $"{testString}{context.name}";
+                }, false);
+
+                object[] values = serializedProperty.GetValues();
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    Assert.That(values[i], Is.EqualTo($"{testString}{serializedObject.targetObjects[i].name}"));
                 }
             }
-
-            foreach (DummyBehaviour behaviour in _behaviourArray)
+            finally
             {
-                UnityEngine.Object.DestroyImmediate(behaviour.gameObject);
-            }
-        }
-
-        [Test]
-        public void GetScopeWorks()
-        {
-            GetScopeWorks(_assetArray);
-            GetScopeWorks(_behaviourArray);
-
-            using SerializedObject serializedObject = new SerializedObject(_assetArray[0]);
-            using SerializedProperty managedFieldProperty = serializedObject.FindProperty("_interfaceField");
-            using SerializedProperty unityObjectProperty = managedFieldProperty.FindPropertyRelative("_unityObject");
-            Assert.That(unityObjectProperty.GetScope(), Is.EqualTo(managedFieldProperty.GetValue()));
-            Assert.That(managedFieldProperty.GetScope(), Is.EqualTo(_assetArray[0]));
-        }
-
-        [Test]
-        public void GetValueWorks()
-        {
-            GetValueWorks(_assetArray);
-            GetValueWorks(_behaviourArray);
-        }
-
-        [Test]
-        public void SetValueWorks()
-        {
-            SetValueWorks(_assetArray);
-            SetValueWorks(_behaviourArray);
-        }
-
-        private static void GetScopeWorks<T>(T[] targets)
-            where T : UnityEngine.Object, IDummyInterface
-        {
-            using SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>());
-
-            Assert.That(serializedObject, Is.Not.Null);
-            GetScopeWorks(serializedObject, "_integer", targets);
-            GetScopeWorks(serializedObject, "_integerArray", targets);
-            GetScopeWorks(serializedObject, "_string", targets);
-            GetScopeWorks(serializedObject, "_stringArray", targets);
-            GetScopeWorks(serializedObject, "_vector", targets);
-            GetScopeWorks(serializedObject, "_vectorArray", targets);
-            GetScopeWorks(serializedObject, "_vector.x", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vector.y", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vector.z", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vector", "x", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vector", "y", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vector", "z", targets.Select(x => x.Vector).ToArray());
-            GetScopeWorks(serializedObject, "_vectorArray", "x", targets.Select(x => x.VectorArray.Select(y => y).ToArray()).ToArray());
-            GetScopeWorks(serializedObject, "_vectorArray", "y", targets.Select(x => x.VectorArray.Select(y => y).ToArray()).ToArray());
-            GetScopeWorks(serializedObject, "_vectorArray", "z", targets.Select(x => x.VectorArray.Select(y => y).ToArray()).ToArray());
-            GetScopeWorks(serializedObject, "_asset", targets);
-            GetScopeWorks(serializedObject, "_assetArray", targets);
-            GetScopeWorks(serializedObject, "_behaviour", targets);
-            GetScopeWorks(serializedObject, "_behaviourArray", targets);
-            GetScopeWorks(serializedObject, "_texture", targets);
-            GetScopeWorks(serializedObject, "_textureArray", targets);
-        }
-
-        private static void GetScopeWorks<T>(SerializedObject serializedObject, string property, IReadOnlyList<T> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            GetScopeWorks(serializedObject, serializedProperty, comparers);
-        }
-
-        private static void GetScopeWorks<T>(SerializedObject serializedObject, string property, string relativeProperty, IReadOnlyList<T> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-
-            using SerializedProperty relativeSerializedProperty = serializedProperty.FindPropertyRelative(relativeProperty);
-
-            Assert.That(relativeSerializedProperty, Is.Not.Null);
-            GetScopeWorks(serializedObject, relativeSerializedProperty, comparers);
-        }
-
-        private static void GetScopeWorks<T>(SerializedObject serializedObject, string property, string relativeProperty, IReadOnlyList<T[]> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            Assert.That(serializedProperty.isArray, Is.True);
-
-            for (int i = 0; i < serializedProperty.arraySize; i++)
-            {
-                using SerializedProperty elementSerializedProperty = serializedProperty.GetArrayElementAtIndex(i);
-
-                Assert.That(elementSerializedProperty, Is.Not.Null);
-
-                using SerializedProperty relativeSerializedProperty = elementSerializedProperty.FindPropertyRelative(relativeProperty);
-
-                Assert.That(relativeSerializedProperty, Is.Not.Null);
-                GetScopeWorks(serializedObject, relativeSerializedProperty, comparers.Select(x => x[i]).ToArray());
-            }
-        }
-
-        private static void GetScopeWorks<T>(SerializedObject serializedObject, SerializedProperty serializedProperty, IReadOnlyList<T> comparers)
-        {
-            UnityEngine.Object[] targets = serializedObject.targetObjects;
-            object[] scopeArray = serializedProperty.GetScopes();
-            T[] scopeArrayT = serializedProperty.GetScopes<T>();
-            List<object> scopeList = new List<object>();
-            List<T> scopeListT = new List<T>();
-            serializedProperty.GetScopes(scopeList);
-            serializedProperty.GetScopes(scopeListT);
-
-            for (int i = 0; i < targets.Length; i++)
-            {
-                Assert.That(scopeArray[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeArrayT[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeList[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeListT[i], Is.EqualTo(comparers[i]));
-            }
-        }
-
-        private static void GetValueWorks<T>(T[] targets)
-            where T : UnityEngine.Object, IDummyInterface
-        {
-            using SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>());
-
-            Assert.That(serializedObject, Is.Not.Null);
-            GetValueWorks(serializedObject, "_integer", targets.Select(x => x.Integer).ToArray());
-            GetValueWorks(serializedObject, "_integerArray", targets.Select(x => x.IntegerArray).ToArray());
-            GetValueWorks(serializedObject, "_string", targets.Select(x => x.String).ToArray());
-            GetValueWorks(serializedObject, "_stringArray", targets.Select(x => x.StringArray).ToArray());
-            GetValueWorks(serializedObject, "_vector", targets.Select(x => x.Vector).ToArray());
-            GetValueWorks(serializedObject, "_vectorArray", targets.Select(x => x.VectorArray).ToArray());
-            GetValueWorks(serializedObject, "_vector.x", targets.Select(x => x.Vector.x).ToArray());
-            GetValueWorks(serializedObject, "_vector.y", targets.Select(x => x.Vector.y).ToArray());
-            GetValueWorks(serializedObject, "_vector.z", targets.Select(x => x.Vector.z).ToArray());
-            GetValueWorks(serializedObject, "_vector", "x", targets.Select(x => x.Vector.x).ToArray());
-            GetValueWorks(serializedObject, "_vector", "y", targets.Select(x => x.Vector.y).ToArray());
-            GetValueWorks(serializedObject, "_vector", "z", targets.Select(x => x.Vector.z).ToArray());
-            GetValueWorks(serializedObject, "_vectorArray", "x", targets.Select(x => x.VectorArray.Select(y => y.x).ToArray()).ToArray());
-            GetValueWorks(serializedObject, "_vectorArray", "y", targets.Select(x => x.VectorArray.Select(y => y.y).ToArray()).ToArray());
-            GetValueWorks(serializedObject, "_vectorArray", "z", targets.Select(x => x.VectorArray.Select(y => y.z).ToArray()).ToArray());
-            GetValueWorks(serializedObject, "_asset", targets.Select(x => x.Asset).ToArray());
-            GetValueWorks(serializedObject, "_assetArray", targets.Select(x => x.AssetArray).ToArray());
-            GetValueWorks(serializedObject, "_behaviour", targets.Select(x => x.Behaviour).ToArray());
-            GetValueWorks(serializedObject, "_behaviourArray", targets.Select(x => x.BehaviourArray).ToArray());
-            GetValueWorks(serializedObject, "_texture", targets.Select(x => x.Texture).ToArray());
-            GetValueWorks(serializedObject, "_textureArray", targets.Select(x => x.TextureArray).ToArray());
-        }
-
-        private static void GetValueWorks<T>(SerializedObject serializedObject, string property, IReadOnlyList<T> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            GetValueWorks(serializedObject, serializedProperty, comparers);
-        }
-
-        private static void GetValueWorks<T>(SerializedObject serializedObject, string property, IReadOnlyList<T[]> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            Assert.That(serializedProperty.isArray, Is.True);
-
-            for (int i = 0; i < serializedProperty.arraySize; i++)
-            {
-                using SerializedProperty elementSerializedProperty = serializedProperty.GetArrayElementAtIndex(i);
-
-                Assert.That(elementSerializedProperty, Is.Not.Null);
-                GetValueWorks(serializedObject, elementSerializedProperty, comparers.Select(x => x[i]).ToArray());
-            }
-        }
-
-        private static void GetValueWorks<T>(SerializedObject serializedObject, string property, string relativeProperty, IReadOnlyList<T> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-
-            using SerializedProperty relativeSerializedProperty = serializedProperty.FindPropertyRelative(relativeProperty);
-
-            Assert.That(relativeSerializedProperty, Is.Not.Null);
-            GetValueWorks(serializedObject, relativeSerializedProperty, comparers);
-        }
-
-        private static void GetValueWorks<T>(SerializedObject serializedObject, string property, string relativeProperty, IReadOnlyList<T[]> comparers)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            Assert.That(serializedProperty.isArray, Is.True);
-
-            for (int i = 0; i < serializedProperty.arraySize; i++)
-            {
-                using SerializedProperty elementSerializedProperty = serializedProperty.GetArrayElementAtIndex(i);
-
-                Assert.That(elementSerializedProperty, Is.Not.Null);
-
-                using SerializedProperty relativeSerializedProperty = elementSerializedProperty.FindPropertyRelative(relativeProperty);
-
-                Assert.That(relativeSerializedProperty, Is.Not.Null);
-                GetValueWorks(serializedObject, relativeSerializedProperty, comparers.Select(x => x[i]).ToArray());
-            }
-        }
-
-        private static void GetValueWorks<T>(SerializedObject serializedObject, SerializedProperty serializedProperty, IReadOnlyList<T> comparers)
-        {
-            UnityEngine.Object[] targets = serializedObject.targetObjects;
-            object[] scopeArray = serializedProperty.GetValues();
-            T[] scopeArrayT = serializedProperty.GetValues<T>();
-            List<object> scopeList = new List<object>();
-            List<T> scopeListT = new List<T>();
-            serializedProperty.GetValues(scopeList);
-            serializedProperty.GetValues(scopeListT);
-
-            for (int i = 0; i < targets.Length; i++)
-            {
-                Assert.That(scopeArray[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeArrayT[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeList[i], Is.EqualTo(comparers[i]));
-                Assert.That(scopeListT[i], Is.EqualTo(comparers[i]));
-            }
-        }
-
-        private static void SetValueWorks<T>(T[] targets)
-            where T : UnityEngine.Object, IDummyInterface
-        {
-            using SerializedObject serializedObject = new SerializedObject(targets.ToArray<UnityEngine.Object>());
-
-            Assert.That(serializedObject, Is.Not.Null);
-            SetValueWorks<int>(serializedObject, "_integer", x => int.MaxValue, (i, x) => targets[i].Integer == x);
-            SetValueWorks<int[]>(serializedObject, "_integerArray", x => null, (i, x) => targets[i].IntegerArray == x);
-            SetValueWorks<string>(serializedObject, "_string", x => string.Empty, (i, x) => targets[i].String == x);
-            SetValueWorks<string[]>(serializedObject, "_stringArray", x => null, (i, x) => targets[i].StringArray == x);
-            SetValueWorks<Vector3Int>(serializedObject, "_vector", x => Vector3Int.zero, (i, x) => targets[i].Vector == x);
-            SetValueWorks<Vector3Int[]>(serializedObject, "_vectorArray", x => null, (i, x) => targets[i].VectorArray == x);
-            SetValueWorks<int>(serializedObject, "_vector.x", x => int.MaxValue, (i, x) => targets[i].Vector.x == x);
-            SetValueWorks<int>(serializedObject, "_vector.y", x => int.MaxValue, (i, x) => targets[i].Vector.y == x);
-            SetValueWorks<int>(serializedObject, "_vector.z", x => int.MaxValue, (i, x) => targets[i].Vector.z == x);
-            SetValueWorks<int>(serializedObject, "_vector", "x", x => int.MaxValue, (i, x) => targets[i].Vector.x == x);
-            SetValueWorks<int>(serializedObject, "_vector", "y", x => int.MaxValue, (i, x) => targets[i].Vector.y == x);
-            SetValueWorks<int>(serializedObject, "_vector", "z", x => int.MaxValue, (i, x) => targets[i].Vector.z == x);
-        }
-
-        private static void SetValueWorks<T>(SerializedObject serializedObject, string property, PropertyPathInfo.SetValueHandler<T> onSetValue, Func<int, T, bool> onValidate)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-            SetValueWorks(serializedProperty, onSetValue, onValidate);
-        }
-
-        private static void SetValueWorks<T>(SerializedObject serializedObject, string property, string relativeProperty, PropertyPathInfo.SetValueHandler<T> onSetValue, Func<int, T, bool> onValidate)
-        {
-            using SerializedProperty serializedProperty = serializedObject.FindProperty(property);
-
-            Assert.That(serializedProperty, Is.Not.Null);
-
-            using SerializedProperty relativeSerializedProperty = serializedProperty.FindPropertyRelative(relativeProperty);
-
-            Assert.That(relativeSerializedProperty, Is.Not.Null);
-            SetValueWorks(relativeSerializedProperty, onSetValue, onValidate);
-        }
-
-        private static void SetValueWorks<T>(SerializedProperty serializedProperty, PropertyPathInfo.SetValueHandler<T> onSetValue, Func<int, T, bool> onValidate)
-        {
-            serializedProperty.SetValues(onSetValue);
-
-            T[] values = serializedProperty.GetValues<T>();
-
-            for (int i = 0; i < values.Length; i++)
-            {
-                T value = values[i];
-                Assert.That(onValidate(i, value), Is.True);
+                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour2);
             }
         }
     }

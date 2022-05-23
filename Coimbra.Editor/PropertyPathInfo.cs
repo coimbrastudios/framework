@@ -1,9 +1,11 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using UnityEngine;
+using System.Threading.Tasks;
+using UnityEditor;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -14,181 +16,79 @@ namespace Coimbra.Editor
     public sealed class PropertyPathInfo
     {
         /// <summary>
-        /// Receives the old value and expects the new value.
+        /// Receives the current value and returns the new value.
         /// </summary>
-        public delegate T SetValueHandler<T>(T oldValue);
+        public delegate T SetValueHandler<T>(Object context, T current);
 
-        private string _propertyPath;
+        /// <inheritdoc cref="SerializedProperty.depth"/>
+        public readonly int Depth;
 
-        internal PropertyPathInfo([NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo next, int? index = null)
-        {
-            _propertyPath = null;
-            FieldInfo = fieldInfo;
-            Index = index;
-            Next = next;
-        }
-
-        [NotNull]
-        private FieldInfo FieldInfo { get; }
-
-        private int? Index { get; }
-
-        [CanBeNull]
-        private PropertyPathInfo Next { get; }
-
-        public override string ToString()
-        {
-            if (_propertyPath != null)
-            {
-                return _propertyPath;
-            }
-
-            using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
-            {
-                PropertyPathInfo current = this;
-
-                do
-                {
-                    stringBuilder.Append($"{current.FieldInfo.Name}");
-
-                    if (current.Index.HasValue)
-                    {
-                        stringBuilder.Append($"[{current.Index}]");
-                    }
-
-                    current = current.Next;
-
-                    if (current == null)
-                    {
-                        break;
-                    }
-
-                    stringBuilder.Append(".");
-                }
-                while (true);
-
-                _propertyPath = stringBuilder.ToString();
-
-                return _propertyPath;
-            }
-        }
+        /// <summary>
+        /// Null if not an array element.
+        /// </summary>
+        public readonly int? Index;
 
         /// <summary>
         /// The field info for this property.
         /// </summary>
         [NotNull]
-        public FieldInfo GetFieldInfo([NotNull] Object context)
-        {
-            PropertyPathInfo current = this;
-
-            while (Next != null)
-            {
-                current = Next;
-            }
-
-            return current.FieldInfo;
-        }
+        public readonly FieldInfo FieldInfo;
 
         /// <summary>
-        /// Null if not an array element.
-        /// </summary>
-        public int? GetIndex([NotNull] Object context)
-        {
-            PropertyPathInfo current = this;
-
-            while (Next != null)
-            {
-                current = Next;
-            }
-
-            return current.Index;
-        }
-
-        /// <summary>
-        /// Get the object that contains that field.
-        /// </summary>
-        [CanBeNull]
-        [Pure]
-        public object GetScope([NotNull] Object context)
-        {
-            PropertyPathInfo propertyPathInfo = this;
-
-            return GetScopeInternal(ref propertyPathInfo, context);
-        }
-
-        /// <inheritdoc cref="GetScope"/>
-        [CanBeNull]
-        public T GetScope<T>([NotNull] Object context)
-        {
-            object value = GetScope(context);
-
-            return value != null ? (T)value : default;
-        }
-
-        /// <summary>
-        /// Get the object that contains that field for each context.
+        /// The root type of this property.
         /// </summary>
         [NotNull]
-        [Pure]
-        public object[] GetScopes([NotNull] Object[] context)
+        public readonly Type RootType;
+
+        /// <summary>
+        /// The <see cref="PropertyPathInfo"/> that contains this property. Will always be null if <see cref="Depth"/> is 0, but never null otherwise.
+        /// </summary>
+        [CanBeNull]
+        public readonly PropertyPathInfo Scope;
+
+        private readonly string _propertyPath;
+
+        private PropertyPathInfo[] _chainBackingField;
+
+        internal PropertyPathInfo([NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scope, int depth, int? index, string propertyPath)
         {
-            object[] values = new object[context.Length];
-
-            for (int i = 0; i < context.Length; i++)
-            {
-                values[i] = GetScope(context[i]);
-            }
-
-            return values;
+            _propertyPath = propertyPath;
+            Depth = depth;
+            Index = index;
+            FieldInfo = fieldInfo;
+            RootType = rootType;
+            Scope = scope;
         }
 
-        /// <inheritdoc cref="GetScopes(Object[])"/>
-        [NotNull]
-        [Pure]
-        public T[] GetScopes<T>([NotNull] Object[] context)
+        /// <summary>
+        /// The chain of <see cref="PropertyPathInfo"/> to reach this one.
+        /// </summary>
+        public IReadOnlyList<PropertyPathInfo> Chain
         {
-            T[] values = new T[context.Length];
-
-            for (int i = 0; i < context.Length; i++)
+            get
             {
-                values[i] = GetScope<T>(context[i]);
-            }
+                if (_chainBackingField != null)
+                {
+                    return _chainBackingField;
+                }
 
-            return values;
-        }
+                PropertyPathInfo current = this;
+                _chainBackingField = new PropertyPathInfo[Depth + 1];
 
-        /// <inheritdoc cref="GetScopes(Object[])"/>
-        public void GetScopes([NotNull] Object[] context, [NotNull] List<object> append)
-        {
-            int capacity = append.Count + context.Length;
+                do
+                {
+                    _chainBackingField[current.Depth] = current;
+                    current = current.Scope;
+                }
+                while (current != null);
 
-            if (append.Capacity < capacity)
-            {
-                append.Capacity = capacity;
-            }
-
-            foreach (Object target in context)
-            {
-                object result = GetScope(target);
-                append.Add(result);
+                return _chainBackingField;
             }
         }
 
-        /// <inheritdoc cref="GetScopes(Object[])"/>
-        public void GetScopes<T>([NotNull] Object[] context, [NotNull] List<T> append)
+        public override string ToString()
         {
-            int capacity = append.Count + context.Length;
-
-            if (append.Capacity < capacity)
-            {
-                append.Capacity = capacity;
-            }
-
-            foreach (Object target in context)
-            {
-                T result = GetScope<T>(target);
-                append.Add(result);
-            }
+            return $"{RootType.FullName}.{_propertyPath}";
         }
 
         /// <summary>
@@ -196,20 +96,24 @@ namespace Coimbra.Editor
         /// </summary>
         [CanBeNull]
         [Pure]
-        public object GetValue([NotNull] Object context)
+        public object GetValue([NotNull] Object target)
         {
-            PropertyPathInfo propertyPathInfo = this;
-            object scope = GetScopeInternal(ref propertyPathInfo, context);
+            object current = target;
 
-            return GetValueInternal(propertyPathInfo, scope);
+            for (int i = 0; i < Chain.Count; i++)
+            {
+                current = Chain[i].Index.HasValue ? ((IList)current)[Chain[i].Index.Value] : Chain[i].FieldInfo.GetValue(current);
+            }
+
+            return current;
         }
 
         /// <inheritdoc cref="GetValue"/>
         [CanBeNull]
         [Pure]
-        public T GetValue<T>([NotNull] Object context)
+        public T GetValue<T>([NotNull] Object target)
         {
-            object value = GetValue(context);
+            object value = GetValue(target);
 
             return value != null ? (T)value : default;
         }
@@ -219,14 +123,14 @@ namespace Coimbra.Editor
         /// </summary>
         [NotNull]
         [Pure]
-        public object[] GetValues([NotNull] Object[] context)
+        public object[] GetValues([NotNull] Object[] targets)
         {
-            object[] values = new object[context.Length];
+            object[] values = new object[targets.Length];
 
-            for (int i = 0; i < context.Length; i++)
+            Parallel.For(0, targets.Length, delegate(int i)
             {
-                values[i] = GetValue(context[i]);
-            }
+                values[i] = GetValue(targets[i]);
+            });
 
             return values;
         }
@@ -234,110 +138,100 @@ namespace Coimbra.Editor
         /// <inheritdoc cref="GetValues(Object[])"/>
         [NotNull]
         [Pure]
-        public T[] GetValues<T>([NotNull] Object[] context)
+        public T[] GetValues<T>([NotNull] Object[] targets)
         {
-            T[] values = new T[context.Length];
+            T[] values = new T[targets.Length];
 
-            for (int i = 0; i < context.Length; i++)
+            Parallel.For(0, targets.Length, delegate(int i)
             {
-                values[i] = GetValue<T>(context[i]);
-            }
+                values[i] = GetValue<T>(targets[i]);
+            });
 
             return values;
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        public void GetValues([NotNull] Object[] context, [NotNull] List<object> append)
+        public void GetValues([NotNull] Object[] targets, [NotNull] List<object> append)
         {
-            int capacity = append.Count + context.Length;
+            append.EnsureCapacity(append.Count + targets.Length);
 
-            if (append.Capacity < capacity)
+            Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                append.Capacity = capacity;
-            }
-
-            for (int i = 0; i < context.Length; i++)
-            {
-                append.Add(GetValue(context[i]));
-            }
+                append.Add(GetValue(targets[i]));
+            });
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        public void GetValues<T>([NotNull] Object[] context, [NotNull] List<T> append)
+        public void GetValues<T>([NotNull] Object[] targets, [NotNull] List<T> append)
         {
-            int capacity = append.Count + context.Length;
+            append.EnsureCapacity(append.Count + targets.Length);
 
-            if (append.Capacity < capacity)
+            Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                append.Capacity = capacity;
-            }
+                append.Add(GetValue<T>(targets[i]));
+            });
+        }
 
-            for (int i = 0; i < context.Length; i++)
+        /// <see cref="SerializedProperty.hasMultipleDifferentValues"/>
+        public bool HasMultipleDifferentValues([NotNull] Object[] targets)
+        {
+            using (ListPool.Pop(out List<object> list))
             {
-                append.Add(GetValue<T>(context[i]));
+                GetValues(targets, list);
+
+                using (HashSetPool.Pop(out HashSet<object> hashSet))
+                {
+                    hashSet.Add(list[0]);
+
+                    for (int i = 1; i < list.Count; i++)
+                    {
+                        if (hashSet.Add(list[i]))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
             }
         }
 
         /// <summary>
         /// Set the field value.
         /// </summary>
-        public void SetValue<T>([NotNull] Object context, [CanBeNull] T value)
+        public void SetValue<T>([NotNull] Object target, [CanBeNull] T value)
         {
-            object target = context;
-            PropertyPathInfo current = this;
+            PropertyPathInfo propertyPathInfo = this;
+            object currentValue = value;
 
-            while (current.Next != null)
+            do
             {
-                if (current.Index.HasValue == false)
+                object currentScope = propertyPathInfo.Scope?.GetValue(target) ?? target;
+
+                if (propertyPathInfo.Index.HasValue)
                 {
-                    target = current.FieldInfo.GetValue(target);
+                    ((IList)currentScope)[propertyPathInfo.Index.Value] = currentValue;
+
+                    propertyPathInfo = propertyPathInfo.Scope!;
+                    currentScope = propertyPathInfo.GetValue(target);
                 }
                 else
                 {
-                    IEnumerator enumerator = ((IEnumerable)current.FieldInfo.GetValue(target)).GetEnumerator();
-
-                    for (int i = 0; enumerator.MoveNext(); i++)
-                    {
-                        if (current.Index == i)
-                        {
-                            target = enumerator.Current;
-
-                            break;
-                        }
-                    }
+                    FieldInfo.SetValue(currentScope, currentValue);
                 }
 
-                current = current.Next;
+                currentValue = currentScope;
+                propertyPathInfo = propertyPathInfo.Scope;
             }
-
-            if (current.Index.HasValue == false)
-            {
-                current.FieldInfo.SetValue(target, value);
-            }
-            else if (current.FieldInfo.GetValue(target) is T[] array)
-            {
-                if (array.Length > current.Index)
-                {
-                    array[current.Index.Value] = value;
-                }
-                else
-                {
-                    T[] temp = new T[array.Length + 1];
-                    array.CopyTo(temp, 0);
-                    temp[array.Length] = value;
-                    array = temp;
-                }
-
-                current.FieldInfo.SetValue(target, array);
-            }
+            while (propertyPathInfo != null);
         }
 
         /// <inheritdoc cref="SetValue{T}(Object,T)"/>
         public void SetValue<T>([NotNull] Object target, [NotNull] SetValueHandler<T> callback)
         {
-            T oldValue = GetValue<T>(target);
-            T newValue = callback.Invoke(oldValue);
-            SetValue(target, newValue);
+            T current = GetValue<T>(target);
+            current = callback.Invoke(target, current);
+            SetValue(target, current);
         }
 
         /// <summary>
@@ -345,49 +239,29 @@ namespace Coimbra.Editor
         /// </summary>
         public void SetValues<T>([NotNull] Object[] targets, [CanBeNull] T value)
         {
-            foreach (Object target in targets)
+            Parallel.ForEach(targets, delegate(Object target)
             {
                 SetValue(target, value);
-            }
+            });
         }
 
         /// <inheritdoc cref="SetValues{T}(Object[],T)"/>
-        public void SetValues<T>([NotNull] Object[] targets, [NotNull] SetValueHandler<T> callback)
+        public void SetValues<T>([NotNull] Object[] targets, [NotNull] SetValueHandler<T> callback, bool isThreadSafe)
         {
-            foreach (Object target in targets)
+            if (isThreadSafe)
             {
-                SetValue(target, callback);
-            }
-        }
-
-        private static object GetScopeInternal(ref PropertyPathInfo propertyPathInfo, object context)
-        {
-            for (; propertyPathInfo.Next != null; propertyPathInfo = propertyPathInfo.Next)
-            {
-                context = GetValueInternal(propertyPathInfo, context);
-            }
-
-            return context;
-        }
-
-        private static object GetValueInternal(PropertyPathInfo propertyPathInfo, object context)
-        {
-            if (propertyPathInfo.Index.HasValue == false)
-            {
-                return propertyPathInfo.FieldInfo.GetValue(context);
-            }
-
-            IEnumerator enumerator = ((IEnumerable)propertyPathInfo.FieldInfo.GetValue(context)).GetEnumerator();
-
-            for (int i = 0; enumerator.MoveNext(); i++)
-            {
-                if (propertyPathInfo.Index == i)
+                Parallel.ForEach(targets, delegate(Object target)
                 {
-                    return enumerator.Current;
+                    SetValue(target, callback);
+                });
+            }
+            else
+            {
+                foreach (Object target in targets)
+                {
+                    SetValue(target, callback);
                 }
             }
-
-            return null;
         }
     }
 }

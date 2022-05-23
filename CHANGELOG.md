@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.2.10] - 2022-05-23
+
+- Added many test cases for `PropertyPathInfo` to ensure its stability.
+- Changed `PropertyPathInfo` internal implementation, improving its performance, memory usage, and exposing some new APIs.
+
 ## [10.2.9] - 2022-05.20
 
 - Changed `Startup Scene Index` to `Startup Scene` instead, becoming a hard-reference and allowing disabled scenes too.
