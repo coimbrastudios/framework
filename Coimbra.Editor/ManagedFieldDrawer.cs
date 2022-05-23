@@ -107,13 +107,13 @@ namespace Coimbra.Editor
             if (typeof(Object).IsAssignableFrom(type))
             {
                 position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-                DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, true);
+                DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, true);
             }
             else if (unityObject.objectReferenceValue != null)
             {
                 position.height = EditorGUI.GetPropertyHeight(unityObject, true);
                 position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
-                DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+                DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
 
                 position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
                 position.width = MinButtonSize;
@@ -137,7 +137,7 @@ namespace Coimbra.Editor
                     {
                         position.height = EditorGUI.GetPropertyHeight(unityObject, true);
                         position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
-                        DrawObjectField(position, type, systemObject, unityObject, propertyScope.content, allowSceneObjects, false);
+                        DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
 
                         position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
                         position.width = MinButtonSize;
@@ -186,11 +186,11 @@ namespace Coimbra.Editor
             }
         }
 
-        private static void DrawObjectField(Rect position, Type type, SerializedProperty systemObject, SerializedProperty unityObject, GUIContent label, bool allowSceneObjects, bool isUnityObjectType)
+        private static void DrawObjectField(Rect position, Type type, SerializedProperty property, GUIContent label, bool allowSceneObjects, bool isUnityObjectType)
         {
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
-            Object value = EditorGUI.ObjectField(position, label, unityObject.objectReferenceValue, isUnityObjectType ? type : typeof(Object), allowSceneObjects);
+            Object value = EditorGUI.ObjectField(position, label, property.objectReferenceValue, isUnityObjectType ? type : typeof(Object), allowSceneObjects);
 
             if (!changeCheckScope.changed)
             {
@@ -207,11 +207,10 @@ namespace Coimbra.Editor
                 }
             }
 
-            unityObject.objectReferenceValue = value;
-            systemObject.managedReferenceValue = null;
+            property.objectReferenceValue = value;
         }
 
-        private static void DrawTypeDropdown(Rect position, Type type, SerializedProperty systemObject)
+        private static void DrawTypeDropdown(Rect position, Type type, SerializedProperty property)
         {
             if (!EditorGUI.DropdownButton(position, NewLabel, FocusType.Keyboard))
             {
@@ -241,7 +240,9 @@ namespace Coimbra.Editor
                     types.Add(derivedType);
                 }
 
-                _current = systemObject;
+                FilterTypes(property, types);
+
+                _current = property;
 
                 static void handleItemSelected(TypeDropdownItem item)
                 {
@@ -267,6 +268,59 @@ namespace Coimbra.Editor
                 TypeDropdown dropdown = new TypeDropdown(types, MinDropdownWidth, MinDropdownLineCount, new AdvancedDropdownState());
                 dropdown.OnItemSelected += handleItemSelected;
                 dropdown.Show(position);
+            }
+        }
+
+        private static void FilterTypes(SerializedProperty property, List<Type> types)
+        {
+            PropertyPathInfo scope = property.GetScope()!;
+            TypeFilterAttribute typeFilterAttribute = scope.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
+
+            if (typeFilterAttribute == null)
+            {
+                scope = scope.Scope;
+
+                if (scope != null && scope.FieldInfo.FieldType!.GetGenericTypeDefinition() == typeof(Reference<>))
+                {
+                    typeFilterAttribute = scope.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
+                }
+            }
+
+            if (typeFilterAttribute == null)
+            {
+                return;
+            }
+
+            MethodInfo methodInfo = scope.FieldInfo.DeclaringType!.FindMethodBySignature(typeFilterAttribute.MethodName, typeof(List<Type>));
+
+            if (methodInfo == null)
+            {
+                return;
+            }
+
+            object[] parameters =
+            {
+                types,
+            };
+
+            if (scope.Scope == null)
+            {
+                foreach (Object o in property.serializedObject.targetObjects)
+                {
+                    methodInfo.Invoke(o, parameters);
+                }
+            }
+            else
+            {
+                using (ListPool.Pop(out List<object> list))
+                {
+                    scope.Scope.GetValues(property.serializedObject.targetObjects, list);
+
+                    foreach (object o in list)
+                    {
+                        methodInfo.Invoke(o, parameters);
+                    }
+                }
             }
         }
 

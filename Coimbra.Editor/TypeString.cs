@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 
 namespace Coimbra.Editor
 {
     internal static class TypeString
     {
-        private static Dictionary<Type, string> Cache = new Dictionary<Type, string>();
+        private static readonly Dictionary<Type, string> Cache = new Dictionary<Type, string>();
 
         public static string Get(Type type)
         {
