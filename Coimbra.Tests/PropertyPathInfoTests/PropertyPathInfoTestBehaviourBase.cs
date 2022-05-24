@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Coimbra.Editor.Tests
+namespace Coimbra.Tests
 {
     internal abstract class PropertyPathInfoTestBehaviourBase : MonoBehaviour
     {

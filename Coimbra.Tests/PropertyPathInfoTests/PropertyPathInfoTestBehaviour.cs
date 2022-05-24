@@ -1,4 +1,4 @@
-﻿namespace Coimbra.Editor.Tests
+﻿namespace Coimbra.Tests
 {
     internal sealed class PropertyPathInfoTestBehaviour : PropertyPathInfoTestBehaviourBase
     {

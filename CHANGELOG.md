@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.2.10] - 2022-05-23
+## [10.2.10] - 2022-05-24
 
 - Added `ReferenceDrawer` to correctly expose a `Reference<T>` in the inspector.
 - Added `TypeDropdownAttribute` to be used with `SerializeReference` fields.

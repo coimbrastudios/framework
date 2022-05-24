@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Coimbra.Editor.Tests
+namespace Coimbra.Tests
 {
     internal class PropertyPathInfoTestObject : ScriptableObject
     {

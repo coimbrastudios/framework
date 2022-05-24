@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Coimbra.Editor.Tests
+namespace Coimbra.Tests.Editor
 {
     [TestFixture]
     [TestOf(typeof(PropertyPathInfo))]
@@ -50,7 +50,9 @@ namespace Coimbra.Editor.Tests
 
                 Assert.That(target, Is.Not.Null);
                 Assert.That(target.depth, Is.EqualTo(depth));
-                Assert.That(target.GetPropertyPathInfo().Depth, Is.EqualTo(depth));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(target.propertyPath);
+                Assert.That(propertyPathInfo.Depth, Is.EqualTo(depth));
             }
             finally
             {
@@ -77,7 +79,9 @@ namespace Coimbra.Editor.Tests
                 }
 
                 Assert.That(target.depth, Is.EqualTo(depth));
-                Assert.That(target.GetPropertyPathInfo().Depth, Is.EqualTo(depth));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(target.propertyPath);
+                Assert.That(propertyPathInfo.Depth, Is.EqualTo(depth));
             }
             finally
             {
@@ -98,7 +102,9 @@ namespace Coimbra.Editor.Tests
                 using SerializedObject serializedObject = new SerializedObject(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviour.Integer));
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testInt));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetValue(serializedObject.targetObject), Is.EqualTo(testInt));
             }
             finally
             {
@@ -123,7 +129,8 @@ namespace Coimbra.Editor.Tests
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviourBase.StringArray));
                 Assert.That(serializedProperty, Is.Not.Null);
 
-                string[] stringArray = serializedProperty.GetValue() as string[];
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                string[] stringArray = propertyPathInfo.GetValue(serializedObject.targetObject) as string[];
                 Assert.That(stringArray, Is.Not.Null);
                 Assert.That(stringArray.Length, Is.EqualTo(testSize));
                 Assert.That(stringArray[testIndex], Is.EqualTo(testString));
@@ -151,7 +158,9 @@ namespace Coimbra.Editor.Tests
                 using SerializedObject serializedObject = new SerializedObject(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty($"{PropertyPathInfoTestBehaviourBase.FieldName}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.Integer)}");
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testInt));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetValue(serializedObject.targetObject), Is.EqualTo(testInt));
             }
             finally
             {
@@ -180,7 +189,9 @@ namespace Coimbra.Editor.Tests
                 using SerializedObject serializedObject = new SerializedObject(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetValue(serializedObject.targetObject), Is.EqualTo(testString));
             }
             finally
             {
@@ -209,7 +220,9 @@ namespace Coimbra.Editor.Tests
                 using SerializedObject serializedObject = new SerializedObject(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetValue(serializedObject.targetObject), Is.EqualTo(testString));
             }
             finally
             {
@@ -239,7 +252,9 @@ namespace Coimbra.Editor.Tests
 
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetPropertyPathInfo().HasMultipleDifferentValues(serializedObject.targetObjects), Is.False);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.HasMultipleDifferentValues(serializedObject.targetObjects), Is.False);
             }
             finally
             {
@@ -280,7 +295,9 @@ namespace Coimbra.Editor.Tests
 
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
-                Assert.That(serializedProperty.GetPropertyPathInfo().HasMultipleDifferentValues(serializedObject.targetObjects), Is.True);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.HasMultipleDifferentValues(serializedObject.targetObjects), Is.True);
             }
             finally
             {
@@ -305,8 +322,10 @@ namespace Coimbra.Editor.Tests
                 using SerializedObject serializedObject = new SerializedObject(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
-                serializedProperty.SetValue(testString);
-                Assert.That(serializedProperty.GetValue(), Is.EqualTo(testString));
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                propertyPathInfo.SetValue(serializedObject.targetObject, testString);
+                Assert.That(propertyPathInfo.GetValue(serializedObject.targetObject), Is.EqualTo(testString));
             }
             finally
             {
@@ -338,12 +357,14 @@ namespace Coimbra.Editor.Tests
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
-                serializedProperty.SetValues(false, delegate(PropertyPathInfo sender, Object target)
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+
+                propertyPathInfo.SetValues(serializedObject.targetObjects, false, delegate(PropertyPathInfo sender, Object target)
                 {
                     return $"{testString}{target.name}";
                 });
 
-                object[] values = serializedProperty.GetValues();
+                object[] values = propertyPathInfo.GetValues(serializedObject.targetObjects);
 
                 for (int i = 0; i < values.Length; i++)
                 {
