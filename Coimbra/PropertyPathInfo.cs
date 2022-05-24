@@ -4,14 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Coimbra.Editor
+namespace Coimbra
 {
     /// <summary>
     /// Reflection information for a given <a href="https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html">SerializedProperty</a>.
-    /// To build one use <see cref="PropertyPathInfoUtility.GetPropertyPathInfo(UnityEditor.SerializedProperty)"/>.
     /// </summary>
     public sealed class PropertyPathInfo
     {
@@ -20,7 +18,9 @@ namespace Coimbra.Editor
         /// </summary>
         public delegate T SetValuesHandler<out T>(PropertyPathInfo sender, Object target);
 
-        /// <inheritdoc cref="SerializedProperty.depth"/>
+        /// <summary>
+        /// Nesting depth of the property.
+        /// </summary>
         public readonly int Depth;
 
         /// <summary>
@@ -158,7 +158,9 @@ namespace Coimbra.Editor
             });
         }
 
-        /// <see cref="SerializedProperty.hasMultipleDifferentValues"/>
+        /// <summary>
+        /// Does this property represent multiple different values due to multi-object editing?
+        /// </summary>
         public bool HasMultipleDifferentValues([NotNull] Object[] targets)
         {
             using (ListPool.Pop(out List<object> list))

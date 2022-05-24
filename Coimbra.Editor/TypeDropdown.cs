@@ -99,57 +99,37 @@ namespace Coimbra.Editor
 
         internal static void FilterTypes(Object[] targets, PropertyPathInfo propertyPathInfo, List<Type> types)
         {
-            TypeFilterAttribute typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
+            TypeFilterAttributeBase typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttributeBase>();
 
             if (typeFilterAttribute == null)
             {
                 propertyPathInfo = propertyPathInfo.Scope;
 
-                if (propertyPathInfo != null)
+                if (propertyPathInfo == null)
                 {
-                    Type fieldType = propertyPathInfo.FieldInfo.FieldType!;
+                    return;
+                }
 
-                    if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(Reference<>))
-                    {
-                        typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttribute>();
-                    }
+                Type fieldType = propertyPathInfo.FieldInfo.FieldType!;
+
+                if (!fieldType.IsGenericType || fieldType.GetGenericTypeDefinition() != typeof(Reference<>))
+                {
+                    return;
+                }
+
+                typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttributeBase>();
+
+                if (typeFilterAttribute == null)
+                {
+                    return;
                 }
             }
 
-            if (typeFilterAttribute == null)
+            for (int i = types.Count - 1; i >= 0; i--)
             {
-                return;
-            }
-
-            MethodInfo methodInfo = propertyPathInfo.FieldInfo.DeclaringType!.FindMethodBySignature(typeFilterAttribute.MethodName, typeof(List<Type>));
-
-            if (methodInfo == null)
-            {
-                return;
-            }
-
-            object[] parameters =
-            {
-                types,
-            };
-
-            if (propertyPathInfo.Scope == null)
-            {
-                foreach (Object o in targets)
+                if (!typeFilterAttribute.Validate(propertyPathInfo, targets, types[i]))
                 {
-                    methodInfo.Invoke(o, parameters);
-                }
-            }
-            else
-            {
-                using (ListPool.Pop(out List<object> list))
-                {
-                    propertyPathInfo.Scope.GetValues(targets, list);
-
-                    foreach (object o in list)
-                    {
-                        methodInfo.Invoke(o, parameters);
-                    }
+                    types.RemoveAt(i);
                 }
             }
         }
