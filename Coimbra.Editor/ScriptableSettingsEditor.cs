@@ -10,7 +10,8 @@ namespace Coimbra.Editor
         /// </summary>
         protected static readonly string[] DefaultExcludedFields = new[]
         {
-            "m_Script"
+            "m_Script",
+            "_type",
         };
 
         /// <summary>
@@ -19,8 +20,8 @@ namespace Coimbra.Editor
         protected static readonly string[] ExcludedFieldsForEditorOnly = new[]
         {
             "m_Script",
-            "Preload",
-            "<Preload>k__BackingField"
+            "_preload",
+            "_type",
         };
 
         /// <inheritdoc cref="ScriptableSettings.Type"/>

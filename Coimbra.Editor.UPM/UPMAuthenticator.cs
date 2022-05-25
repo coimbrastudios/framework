@@ -27,9 +27,11 @@ namespace Coimbra.Editor.UPM
 
         private const string FileName = ".upmconfig.toml";
 
-        [field: SerializeField]
-        [UsedImplicitly]
-        private List<Entry> Entries { get; set; } = new List<Entry>();
+        [SerializeField]
+        [FormerlySerializedAsBackingFieldOf("Entries")]
+        private List<Entry> _entries = new List<Entry>();
+
+        private IReadOnlyList<Entry> Entries => _entries;
 
         private bool IsInitialized { get; set; }
 
@@ -98,8 +100,9 @@ namespace Coimbra.Editor.UPM
 
                 string previous = table.ToString();
 
-                foreach (Entry entry in authenticator.Entries)
+                for (int i = 0; i < authenticator.Entries.Count; i++)
                 {
+                    Entry entry = authenticator.Entries[i];
                     string address = $"npmAuth.\"{entry.Address}\"";
                     table[address]["alwaysAuth"] = true;
 

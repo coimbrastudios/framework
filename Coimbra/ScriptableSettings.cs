@@ -1,10 +1,12 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Scripting;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Coimbra
@@ -63,6 +65,16 @@ namespace Coimbra
 
         private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
 
+        [SerializeField]
+        [FormerlySerializedAsBackingFieldOf("Preload")]
+        [Tooltip("Should this setting be included in the preloaded assets?")]
+        private bool _preload = true;
+
+        [SerializeField]
+        [HideInInspector]
+        [FormerlySerializedAsBackingFieldOf("Type")]
+        private ScriptableSettingsType _type;
+
         static ScriptableSettings()
         {
             Application.quitting -= HandleApplicationQuitting;
@@ -82,17 +94,25 @@ namespace Coimbra
         /// <summary>
         /// Should this setting be included in the preloaded assets?
         /// </summary>
-        [field: SerializeField]
-        [field: Tooltip("Should this setting be included in the preloaded assets?")]
         [PublicAPI]
-        public bool Preload { get; protected set; } = true;
+        public bool Preload
+        {
+            [DebuggerStepThrough]
+            get => _preload;
+            [DebuggerStepThrough]
+            protected set => _preload = value;
+        }
 
         /// <summary>
         /// The type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
         /// </summary>
-        [field: SerializeField]
-        [field: HideInInspector]
-        public ScriptableSettingsType Type { get; private set; }
+        public ScriptableSettingsType Type
+        {
+            [DebuggerStepThrough]
+            get => _type;
+            [DebuggerStepThrough]
+            private set => _type = value;
+        }
 
         /// <summary>
         /// True when application is quitting.
