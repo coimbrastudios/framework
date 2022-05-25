@@ -16,7 +16,7 @@ namespace Coimbra
         /// Disposable pattern to use with <see cref="ManagedPool{T}"/> instances.
         /// </summary>
         [Preserve]
-        public readonly ref struct Instance
+        public ref struct Instance
         {
             [CanBeNull]
             public readonly T Value;
@@ -24,14 +24,23 @@ namespace Coimbra
             [NotNull]
             public readonly ManagedPool<T> Pool;
 
+            private bool _isDisposed;
+
             public Instance([CanBeNull] in T value, [NotNull] ManagedPool<T> pool)
             {
                 Value = value;
                 Pool = pool;
+                _isDisposed = false;
             }
 
             public void Dispose()
             {
+                if (_isDisposed)
+                {
+                    return;
+                }
+
+                _isDisposed = true;
                 Pool.Push(Value);
             }
         }
