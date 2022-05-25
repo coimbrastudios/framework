@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System.ComponentModel;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace Coimbra.Services
@@ -19,7 +21,9 @@ namespace Coimbra.Services
         /// <inheritdoc/>
         public ServiceLocator? OwningLocator
         {
+            [DebuggerStepThrough]
             get => _owningLocator;
+            [EditorBrowsable(EditorBrowsableState.Never)]
             set
             {
                 if (_owningLocator == value)
