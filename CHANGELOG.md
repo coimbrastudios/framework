@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.2.11] - UNRELEASED
+
+- Added `FormerlySerializedAsBackingFieldOfAttribute` that correctly formats the name to match the format `<{propertyName}>k__BackingField`.
+- Added `DebuggerStepThroughAttribute` where applicable.
+- Added `EditorBrowsableAttribute(EditorBrowsableState.Never)` where applicable.
+- Fixed `Disposable<T>` allowing multiple `Dispose` calls.
+
 ## [10.2.10] - 2022-05-24
 
 - Added `ReferenceDrawer` to correctly expose a `Reference<T>` in the inspector.

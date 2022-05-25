@@ -43,11 +43,6 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Are scripts currently reloading?
-        /// </summary>
-        public static bool IsReloadingScripts { get; internal set; }
-
-        /// <summary>
         /// Returns true if the application is currently in Play Mode. Always return true in a build.
         /// </summary>
         public static bool IsPlayMode
@@ -61,5 +56,10 @@ namespace Coimbra
 #endif
             }
         }
+
+        /// <summary>
+        /// Are scripts currently reloading?
+        /// </summary>
+        public static bool IsReloadingScripts { get; internal set; }
     }
 }

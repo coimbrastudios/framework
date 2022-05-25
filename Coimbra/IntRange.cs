@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace Coimbra
 {
@@ -53,12 +54,12 @@ namespace Coimbra
         /// <summary>
         /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
         /// </summary>
-        public int RandomExclusive => UnityEngine.Random.Range(Min, Max);
+        public int RandomExclusive => Random.Range(Min, Max);
 
         /// <summary>
         /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
-        public int RandomInclusive => UnityEngine.Random.Range(Min, Max + 1);
+        public int RandomInclusive => Random.Range(Min, Max + 1);
 
         [Pure]
         public static implicit operator IntRange(int value)

@@ -1,6 +1,8 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
@@ -8,6 +10,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Coimbra
@@ -93,25 +96,61 @@ namespace Coimbra
 
         private CancellationTokenSource _destroyCancellationTokenSource;
 
+        [SerializeField]
+        [DisableOnPlayMode]
+        [FormerlySerializedAsBackingFieldOf("ActivateOnSpawn")]
+        [Tooltip("If true, it will activate the object when spawning it.")]
+        private bool _activateOnSpawn;
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [FormerlySerializedAsBackingFieldOf("DeactivateOnDespawn")]
+        [Tooltip("If true, it will deactivate the object when despawning it.")]
+        private bool _deactivateOnDespawn;
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [FormerlySerializedAsBackingFieldOf("DeactivatePrefabOnInitialize")]
+        [Tooltip("If true, it will deactivate the prefab when initializing it.")]
+        private bool _deactivateOnInitializePrefab;
+
         protected Actor()
         {
             UninitializedActors.Add(new WeakReference<Actor>(this));
         }
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
+        /// If true, it will activate the object when spawning it.
         /// </summary>
-        public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = gameObject).Value;
+        public bool ActivateOnSpawn
+        {
+            [DebuggerStepThrough]
+            get => _activateOnSpawn;
+            [DebuggerStepThrough]
+            set => _activateOnSpawn = value;
+        }
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
+        /// If true, it will deactivate the object when despawning it.
         /// </summary>
-        public GameObject CachedGameObject { get; private set; }
+        public bool DeactivateOnDespawn
+        {
+            [DebuggerStepThrough]
+            get => _deactivateOnDespawn;
+            [DebuggerStepThrough]
+            set => _deactivateOnDespawn = value;
+        }
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
+        /// If true, it will deactivate the prefab when initializing it.
         /// </summary>
-        public Transform CachedTransform { get; private set; }
+        public bool DeactivateOnInitializePrefab
+        {
+            [DebuggerStepThrough]
+            get => _deactivateOnInitializePrefab;
+            [DebuggerStepThrough]
+            set => _deactivateOnInitializePrefab = value;
+        }
 
         /// <summary>
         /// <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be despawned.
@@ -150,6 +189,21 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
+        /// </summary>
+        public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = gameObject).Value;
+
+        /// <summary>
+        /// Cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
+        /// </summary>
+        public GameObject CachedGameObject { get; private set; }
+
+        /// <summary>
+        /// Cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
+        /// </summary>
+        public Transform CachedTransform { get; private set; }
+
+        /// <summary>
         /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="GameObject"/>?
         /// </summary>
         public bool IsDestroyed { get; private set; }
@@ -182,34 +236,7 @@ namespace Coimbra
         /// <summary>
         /// The pool that owns this instance.
         /// </summary>
-        [field: SerializeField]
-        [field: Disable]
-        [field: Tooltip("The pool that owns this instance.")]
         public GameObjectPool Pool { get; private set; }
-
-        /// <summary>
-        /// If true, it will deactivate the prefab when initializing it.
-        /// </summary>
-        [field: SerializeField]
-        [field: DisableOnPlayMode]
-        [field: Tooltip("If true, it will deactivate the prefab when initializing it.")]
-        public bool DeactivatePrefabOnInitialize { get; set; }
-
-        /// <summary>
-        /// If true, it will activate the object when spawning it.
-        /// </summary>
-        [field: SerializeField]
-        [field: DisableOnPlayMode]
-        [field: Tooltip("If true, it will activate the object when spawning it.")]
-        public bool ActivateOnSpawn { get; set; }
-
-        /// <summary>
-        /// If true, it will deactivate the object when despawning it.
-        /// </summary>
-        [field: SerializeField]
-        [field: DisableOnPlayMode]
-        [field: Tooltip("If true, it will deactivate the object when despawning it.")]
-        public bool DeactivateOnDespawn { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(Actor actor)
@@ -330,7 +357,7 @@ namespace Coimbra
         /// </summary>
         protected virtual void OnInitializePrefab()
         {
-            if (DeactivatePrefabOnInitialize)
+            if (_deactivateOnInitializePrefab)
             {
                 CachedGameObject.SetActive(false);
             }
@@ -351,6 +378,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Awake()
         {
             Debug.Assert(true);
@@ -361,6 +389,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Start()
         {
             Debug.Assert(IsInitialized, $"{nameof(Actor)}.{nameof(Initialize)} needs to be called before the {nameof(Start)} callback!", this);
@@ -370,6 +399,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnEnable()
         {
             OnActiveStateChanged?.Invoke(this, true);
@@ -378,6 +408,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnDisable()
         {
             OnActiveStateChanged?.Invoke(this, false);
@@ -386,6 +417,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="OnDestroyed"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnDestroy()
         {
             CachedGameObject = gameObject;
@@ -396,6 +428,7 @@ namespace Coimbra
         /// <summary>
         /// Non-virtual by design, use <see cref="Application.quitting"/> instead.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnApplicationQuit()
         {
             IsQuitting = true;

@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace Coimbra
 {
@@ -53,7 +54,7 @@ namespace Coimbra
         /// <summary>
         /// Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
-        public float Random => UnityEngine.Random.Range(Min, Max);
+        public float RandomValue => Random.Range(Min, Max);
 
         [Pure]
         public static implicit operator FloatRange(float value)
@@ -89,7 +90,7 @@ namespace Coimbra
         /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
-        public bool Contains(int value)
+        public bool ContainsValue(int value)
         {
             return value >= Min && value <= Max;
         }
@@ -98,7 +99,7 @@ namespace Coimbra
         /// Returns true if the value is between min [inclusive] and max [inclusive].
         /// </summary>
         [Pure]
-        public bool Contains(float value)
+        public bool ContainsValue(float value)
         {
             return value >= Min && value <= Max;
         }

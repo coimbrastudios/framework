@@ -2,12 +2,14 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Scripting;
+using Debug = UnityEngine.Debug;
 
 namespace Coimbra
 {
@@ -143,7 +145,9 @@ namespace Coimbra
         /// </summary>
         public bool CanInstantiateOnSpawn
         {
+            [DebuggerStepThrough]
             get => _canInstantiateOnSpawn;
+            [DebuggerStepThrough]
             set => _canInstantiateOnSpawn = value;
         }
 
@@ -152,7 +156,9 @@ namespace Coimbra
         /// </summary>
         public bool ChangeNameOnInstantiate
         {
+            [DebuggerStepThrough]
             get => _changeNameOnInstantiate;
+            [DebuggerStepThrough]
             set => _changeNameOnInstantiate = value;
         }
 
@@ -161,6 +167,7 @@ namespace Coimbra
         /// </summary>
         public int ExpandStep
         {
+            [DebuggerStepThrough]
             get => _expandStep;
             set => _expandStep = Mathf.Max(value, 0);
         }
@@ -170,7 +177,9 @@ namespace Coimbra
         /// </summary>
         public bool KeepParentOnDespawn
         {
+            [DebuggerStepThrough]
             get => _keepParentOnDespawn;
+            [DebuggerStepThrough]
             set => _keepParentOnDespawn = value;
         }
 
@@ -179,6 +188,7 @@ namespace Coimbra
         /// </summary>
         public bool LoadOnInitialize
         {
+            [DebuggerStepThrough]
             get => _loadOnInitialize;
             set
             {
@@ -196,6 +206,7 @@ namespace Coimbra
         /// </summary>
         public int ShrinkStep
         {
+            [DebuggerStepThrough]
             get => _shrinkStep;
             set => _shrinkStep = Mathf.Max(value, 0);
         }
@@ -205,6 +216,7 @@ namespace Coimbra
         /// </summary>
         public IntRange DesiredAvailableInstancesRange
         {
+            [DebuggerStepThrough]
             get => _desiredAvailableInstancesRange;
             set => _desiredAvailableInstancesRange = new IntRange(Mathf.Max(value.Min, 0), Mathf.Max(value.Max, 0));
         }
@@ -214,6 +226,7 @@ namespace Coimbra
         /// </summary>
         public AssetReferenceT<GameObject> PrefabReference
         {
+            [DebuggerStepThrough]
             get => _prefabReference;
             set
             {
@@ -233,6 +246,7 @@ namespace Coimbra
         /// </summary>
         public Transform ContainerTransform
         {
+            [DebuggerStepThrough]
             get => _containerTransform;
             set
             {
