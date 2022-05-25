@@ -57,10 +57,6 @@ namespace Coimbra
 
         bool ISerializableDictionary.IsNewEntryValid => _newEntry.Key != null && !ContainsKey(_newEntry.Key);
 
-        Type ISerializableDictionary.KeyType => typeof(TKey);
-
-        Type ISerializableDictionary.ValueType => typeof(TValue);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Deserialize()
         {

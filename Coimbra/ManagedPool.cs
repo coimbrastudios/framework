@@ -1,9 +1,7 @@
 ﻿using JetBrains.Annotations;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
-using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -39,25 +37,30 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Used for executing actions on an instance of the pool. It will always be a valid instance.
+        /// </summary>
+        public delegate void ActionHandler([NotNull] T instance);
+
+        /// <summary>
         /// Used for creating a new instance for the pool. It should never return null.
         /// </summary>
         [NotNull]
         public delegate T CreateHandler();
 
         /// <summary>
-        /// Called when deleting an instance due the pool being full.
+        /// Called when deleting an instance due the pool being full. This will get called before actually disposing the instance.
         /// </summary>
-        public event Action<T> OnDelete;
+        public event ActionHandler OnDelete;
 
         /// <summary>
-        /// Called when picking an instance from the pool.
+        /// Called when picking an instance from the pool. This will be called even if the instance was just created.
         /// </summary>
-        public event Action<T> OnPop;
+        public event ActionHandler OnPop;
 
         /// <summary>
-        /// Called when returning an instance to the pool.
+        /// Called when returning an instance to the pool. This will be called even if the instance is about to be deleted.
         /// </summary>
-        public event Action<T> OnPush;
+        public event ActionHandler OnPush;
 
         private readonly object _lock = new object();
 
@@ -65,13 +68,13 @@ namespace Coimbra
 
         private readonly Stack<T> _availableStack = new Stack<T>();
 
+        private readonly ActionHandler _disposeCallback;
+
         private readonly CreateHandler _createCallback;
 
-        private readonly Action<T> _disposeCallback;
-
         /// <param name="createCallback">Called when creating a new item for the pool. It should never return null.</param>
-        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose from native resources.</param>
-        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] Action<T> disposeCallback = null)
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
+        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback = null)
         {
             _createCallback = createCallback;
             _disposeCallback = disposeCallback;
@@ -87,10 +90,10 @@ namespace Coimbra
         }
 
         /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
-        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose from native resources.</param>
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
         /// <param name="preloadCount">Amount of instances available from the beginning.</param>
         /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
-        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] Action<T> disposeCallback, int preloadCount, int maxCapacity)
+        public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback, int preloadCount, int maxCapacity)
             : this(createCallback, disposeCallback)
         {
             Initialize(preloadCount, maxCapacity);
@@ -217,7 +220,7 @@ namespace Coimbra
     }
 
     /// <summary>
-    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="ISharedManagedPoolHandler"/>. It also has special treatment for <see cref="IDisposable"/> and <see cref="Object"/> types.
+    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="ISharedManagedPoolHandler"/>
     /// </summary>
     [Preserve]
     [SharedManagedPool("Value", "Instance")]
@@ -231,33 +234,17 @@ namespace Coimbra
 
             static Instance()
             {
-                static T createCallback()
+                static T onCreate()
                 {
                     return new T();
                 }
 
-                Action<T> disposeCallback = null;
-
-                if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
+                static void onDispose(T instance)
                 {
-                    disposeCallback += delegate(T instance)
-                    {
-                        if (instance.TryGetValid(out T valid))
-                        {
-                            ((IDisposable)valid).Dispose();
-                        }
-                    };
+                    instance.Dispose();
                 }
 
-                if (typeof(Object).IsAssignableFrom(typeof(T)))
-                {
-                    disposeCallback += delegate(T instance)
-                    {
-                        (instance as Object).Destroy();
-                    };
-                }
-
-                Value = new ManagedPool<T>(createCallback, disposeCallback);
+                Value = new ManagedPool<T>(onCreate, onDispose);
 
                 Value.OnPop += delegate(T instance)
                 {

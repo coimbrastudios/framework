@@ -6,10 +6,6 @@ namespace Coimbra
     {
         bool IsNewEntryValid { get; }
 
-        Type KeyType { get; }
-
-        Type ValueType { get; }
-
         void ProcessAdd();
 
         void ProcessUndo();

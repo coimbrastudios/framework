@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Coimbra
@@ -18,6 +19,7 @@ namespace Coimbra
         /// <inheritdoc cref="Image.alphaHitTestMinimumThreshold"/>
         public float MinimumThreshold
         {
+            [DebuggerStepThrough]
             get => _minimumThreshold;
             set => _minimumThreshold = Mathf.Clamp01(value);
         }
