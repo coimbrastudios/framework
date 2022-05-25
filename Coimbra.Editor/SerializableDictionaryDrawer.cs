@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -46,11 +47,16 @@ namespace Coimbra.Editor
             }
 
             ReorderableList list = property.FindPropertyRelative(ItemsProperty).ToReorderableList(InitializeReorderableList);
-            bool enabled = GUI.enabled;
-            list.displayAdd = enabled;
-            list.displayRemove = enabled;
-            list.footerHeight = enabled ? EditorGUIUtility.singleLineHeight : 0;
+            bool displayFooter = GUI.enabled && list.serializedProperty.GetScope()!.FieldInfo.GetCustomAttribute<LockDictionarySizeAttribute>() == null;
+            list.displayAdd = displayFooter;
+            list.displayRemove = displayFooter;
+            list.footerHeight = displayFooter ? EditorGUIUtility.singleLineHeight : 0;
             height += EditorGUIUtility.standardVerticalSpacing + list.GetHeight();
+
+            if (!displayFooter)
+            {
+                return height;
+            }
 
             SerializedProperty newEntryProperty = property.FindPropertyRelative(NewEntryProperty);
 
@@ -104,10 +110,10 @@ namespace Coimbra.Editor
 
             ReorderableList list = itemsProperty.ToReorderableList(InitializeReorderableList);
             Rect listPosition = position;
-            bool enabled = GUI.enabled;
-            list.displayAdd = enabled;
-            list.displayRemove = enabled;
-            list.footerHeight = enabled ? EditorGUIUtility.singleLineHeight : 0;
+            bool displayFooter = GUI.enabled && list.serializedProperty.GetScope()!.FieldInfo.GetCustomAttribute<LockDictionarySizeAttribute>() == null;
+            list.displayAdd = displayFooter;
+            list.displayRemove = displayFooter;
+            list.footerHeight = displayFooter ? EditorGUIUtility.singleLineHeight : 0;
             listPosition.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
             listPosition.height = list.GetHeight();
 
@@ -118,6 +124,11 @@ namespace Coimbra.Editor
 
             position.y += headerPosition.height + EditorGUIUtility.standardVerticalSpacing + listPosition.height - EditorGUIUtility.singleLineHeight;
             position.height = EditorGUIUtility.singleLineHeight;
+
+            if (!displayFooter)
+            {
+                return;
+            }
 
             if (CanModifyList(list))
             {
