@@ -12,6 +12,7 @@ namespace Coimbra.Services.Pooling
     /// Default implementation for <see cref="IPoolService"/>.
     /// </summary>
     [AddComponentMenu("")]
+    [PreloadService]
     public sealed class PoolSystem : ServiceActorBase<PoolSystem, IPoolService>, IPoolService
     {
         private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
@@ -26,14 +27,6 @@ namespace Coimbra.Services.Pooling
 
         /// <inheritdoc/>
         public int LoadingPoolCount => _loadingList.Count;
-
-        /// <summary>
-        /// Create a new <see cref="IPoolService"/>.
-        /// </summary>
-        public static IPoolService Create()
-        {
-            return new GameObject(nameof(PoolSystem)).AsActor<PoolSystem>();
-        }
 
         /// <inheritdoc/>
         public bool AddPool(GameObjectPool pool)
@@ -233,18 +226,6 @@ namespace Coimbra.Services.Pooling
 
                 Addressables.InstantiateAsync(defaultPersistentPools[i], CachedTransform).Completed += handlePersistentPoolInstantiated;
             }
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void HandleBeforeSceneLoad()
-        {
-            ServiceLocator.Shared.Get<IPoolService>();
         }
 
         private void HandlePoolDestroying(Actor pool, DestroyReason reason)

@@ -7,11 +7,24 @@ namespace Coimbra.Tests
     [TestOf(typeof(ServiceLocator))]
     public class ServiceLocatorTests
     {
+        private sealed class DummyServiceFactory : IServiceFactory
+        {
+            public static readonly DummyServiceFactory Instance = new DummyServiceFactory();
+
+            private DummyServiceFactory() { }
+
+            public IService Create(ServiceLocator owningLocator)
+            {
+                return new DummyService();
+            }
+        }
+
         private interface IDummyService : IService
         {
             int Value { get; set; }
         }
 
+        [DisableDefaultFactory]
         private sealed class DummyService : IDummyService
         {
             public int Value { get; set; }
@@ -34,20 +47,13 @@ namespace Coimbra.Tests
             Assert.That(hasService, Is.False);
             Assert.That(service, Is.Null);
 
-            ServiceLocator.Shared.SetCreateCallback<IDummyService>(() => new DummyService(), true);
-            Assert.That(ServiceLocator.Shared.HasCreateCallback<IDummyService>(), Is.True);
+            ServiceLocator.Shared.SetFactory<IDummyService>(DummyServiceFactory.Instance);
+            Assert.That(ServiceLocator.Shared.HasFactory<IDummyService>(), Is.True);
             Assert.That(ServiceLocator.Shared.IsCreated<IDummyService>(), Is.False);
 
             hasService = ServiceLocator.Shared.TryGet(out service);
             Assert.That(hasService, Is.True);
             Assert.That(service, Is.Not.Null);
-            Assert.That(ServiceLocator.Shared.HasCreateCallback<IDummyService>(), Is.False);
-
-            ServiceLocator.Shared.Set<IDummyService>(null, false);
-
-            hasService = ServiceLocator.Shared.TryGet(out service);
-            Assert.That(hasService, Is.False);
-            Assert.That(service, Is.Null);
         }
 
         [Test]

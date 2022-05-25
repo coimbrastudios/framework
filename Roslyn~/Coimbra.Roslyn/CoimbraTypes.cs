@@ -2,10 +2,12 @@
 {
     public static class CoimbraTypes
     {
-        public const string ManagedPoolClass = "ManagedPool";
-
         public const string Namespace = "Coimbra";
 
-        public const string SharedManagedPoolAttribute = "SharedManagedPoolAttribute";
+        public static readonly TypeString ActorClass = new("Actor", Namespace);
+
+        public static readonly TypeString ManagedPoolClass = new("ManagedPool", Namespace);
+
+        public static readonly TypeString SharedManagedPoolAttribute = new("SharedManagedPoolAttribute", Namespace);
     }
 }

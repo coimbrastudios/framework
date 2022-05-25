@@ -1,0 +1,165 @@
+﻿using Coimbra.Roslyn;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Coimbra.Services.Roslyn
+{
+    [Generator]
+    public sealed class ServiceLoaderGenerator : ISourceGenerator
+    {
+        private struct TypeData
+        {
+            public ITypeSymbol ClassSymbol;
+
+            public INamedTypeSymbol InterfaceSymbol;
+
+            public bool DisableDefaultFactory;
+
+            public bool IsActor;
+
+            public bool PreloadService;
+        }
+
+        public void Execute(GeneratorExecutionContext context)
+        {
+            SourceBuilder sourceBuilder = new();
+
+            foreach (TypeData typeData in EnumerateTypes(context))
+            {
+                TypeString source = new($"{typeData.ClassSymbol.Name}Loader", typeData.ClassSymbol.ContainingNamespace.ToString());
+                sourceBuilder.Initialize();
+                sourceBuilder.AddUsing("Coimbra.Services");
+                sourceBuilder.AddUsing("UnityEngine");
+                sourceBuilder.AddUsing(typeData.InterfaceSymbol.ContainingNamespace.ToString());
+                sourceBuilder.SkipLine();
+
+                using (new NamespaceScope(sourceBuilder, source.Namespace))
+                {
+                    sourceBuilder.AddLine($"internal static class {source.Name}");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        if (!typeData.DisableDefaultFactory)
+                        {
+                            sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
+                            sourceBuilder.AddLine("private static void HandleSubsystemRegistration()");
+
+                            using (new BracesScope(sourceBuilder))
+                            {
+                                sourceBuilder.AddLine($"if (!ServiceLocator.Shared.HasFactory<{typeData.InterfaceSymbol.Name}>())");
+
+                                using (new BracesScope(sourceBuilder))
+                                {
+                                    TypeString factory = typeData.IsActor ? CoimbraServicesTypes.DefaultServiceActorFactoryClass : CoimbraServicesTypes.DefaultServiceFactoryClass;
+                                    sourceBuilder.AddLine($"ServiceLocator.Shared.SetFactory<{typeData.InterfaceSymbol.Name}>({factory.Name}<{typeData.ClassSymbol.Name}>.Instance);");
+                                }
+                            }
+
+                            if (typeData.PreloadService)
+                            {
+                                sourceBuilder.SkipLine();
+                            }
+                        }
+
+                        if (typeData.PreloadService)
+                        {
+                            sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
+                            sourceBuilder.AddLine("private static void HandleBeforeSceneLoad()");
+
+                            using (new BracesScope(sourceBuilder))
+                            {
+                                sourceBuilder.AddLine($"ServiceLocator.Shared.Get<{typeData.InterfaceSymbol.Name}>();");
+                            }
+                        }
+                    }
+                }
+
+                context.AddSource(source.FullName, SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+            }
+        }
+
+        public void Initialize(GeneratorInitializationContext context)
+        {
+            context.RegisterForSyntaxNotifications(() => new ServiceLoaderSyntaxReceiver());
+        }
+
+        private static IEnumerable<TypeData> EnumerateTypes(GeneratorExecutionContext context)
+        {
+            ServiceLoaderSyntaxReceiver syntaxReceiver = (ServiceLoaderSyntaxReceiver)context.SyntaxReceiver;
+
+            foreach (ClassDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
+            {
+                SemanticModel semanticModel = context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+
+                if (semanticModel.GetDeclaredSymbol(syntaxNode) is not ITypeSymbol typeSymbol
+                 || !IsValidService(typeSymbol, out INamedTypeSymbol interfaceSymbol))
+                {
+                    continue;
+                }
+
+                bool disableDefaultFactory = typeSymbol.HasAttribute(CoimbraServicesTypes.DisableDefaultFactoryAttribute, out _);
+                bool preloadService = typeSymbol.HasAttribute(CoimbraServicesTypes.PreloadServiceAttribute, out _);
+
+                if (disableDefaultFactory && !preloadService)
+                {
+                    continue;
+                }
+
+                if (typeSymbol.InheritsFrom(CoimbraTypes.ActorClass))
+                {
+                    yield return new TypeData
+                    {
+                        ClassSymbol = typeSymbol,
+                        InterfaceSymbol = interfaceSymbol,
+                        DisableDefaultFactory = disableDefaultFactory,
+                        IsActor = true,
+                        PreloadService = preloadService,
+                    };
+                }
+                else if (!typeSymbol.InheritsFrom(UnityEngineTypes.ComponentClass) && syntaxNode.HasParameterlessConstructor(out bool isPublic) && isPublic)
+                {
+                    yield return new TypeData
+                    {
+                        ClassSymbol = typeSymbol,
+                        InterfaceSymbol = interfaceSymbol,
+                        DisableDefaultFactory = disableDefaultFactory,
+                        IsActor = false,
+                        PreloadService = preloadService,
+                    };
+                }
+            }
+        }
+
+        private static bool IsValidService(ITypeSymbol typeSymbol, out INamedTypeSymbol concreteInterfaceSymbol)
+        {
+            concreteInterfaceSymbol = null;
+
+            foreach (INamedTypeSymbol interfaceSymbol in typeSymbol.Interfaces)
+            {
+                if (!interfaceSymbol.IsOrImplementsInterface(CoimbraServicesTypes.ServiceInterface))
+                {
+                    continue;
+                }
+
+                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
+                {
+                    concreteInterfaceSymbol = null;
+
+                    return false;
+                }
+
+                if (concreteInterfaceSymbol != null)
+                {
+                    return false;
+                }
+
+                concreteInterfaceSymbol = interfaceSymbol;
+            }
+
+            return concreteInterfaceSymbol != null;
+        }
+    }
+}

@@ -1,10 +1,13 @@
 # Changelog
 
-## [10.2.11] - UNRELEASED
+## [10.3.0] - 2022-05-25
 
 - Added `FormerlySerializedAsBackingFieldOfAttribute` that correctly formats the name to match the format `<{propertyName}>k__BackingField`.
 - Added `DebuggerStepThroughAttribute` where applicable.
 - Added `EditorBrowsableAttribute(EditorBrowsableState.Never)` where applicable.
+- Added `DisableDefaultFactoryAttribute` to be used with `IService` implementations.
+- Added `PreloadServiceAttribute` to be used with `IService` implementations.
+- Changed `CreateCallback` APIs to a `Factory` pattern on `ServiceLocator`.
 - Changed static `ManagedPool` to require the `IDisposable` interface indirectly through the `ISharedManagedPoolHandler` interface.
 - Fixed `Disposable<T>` allowing multiple `Dispose` calls.
 

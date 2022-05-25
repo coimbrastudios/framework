@@ -186,7 +186,7 @@ namespace Coimbra.Roslyn
                 SemanticModel semanticModel = context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
 
                 if (semanticModel.GetDeclaredSymbol(syntaxNode) is { } typeSymbol
-                 && typeSymbol.HasAttribute(CoimbraTypes.SharedManagedPoolAttribute, CoimbraTypes.Namespace, out AttributeData attributeData))
+                 && typeSymbol.HasAttribute(CoimbraTypes.SharedManagedPoolAttribute, out AttributeData attributeData))
                 {
                     yield return (semanticModel, syntaxNode, attributeData);
                 }
@@ -200,7 +200,7 @@ namespace Coimbra.Roslyn
                 if (nestedClassDeclarationSyntaxChild is FieldDeclarationSyntax fieldDeclarationSyntax
                  && fieldDeclarationSyntax.Declaration.Type is GenericNameSyntax genericNameSyntax
                  && genericNameSyntax.TypeArgumentList.Arguments.Count == 1
-                 && genericNameSyntax.Identifier.ToString() == CoimbraTypes.ManagedPoolClass)
+                 && genericNameSyntax.Identifier.ToString() == CoimbraTypes.ManagedPoolClass.Name)
                 {
                     return genericNameSyntax;
                 }

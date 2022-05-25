@@ -11,19 +11,12 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// Default implementation for <see cref="IPlayerLoopService"/>.
     /// </summary>
     [AddComponentMenu("")]
+    [PreloadService]
     public sealed class PlayerLoopSystem : ServiceActorBase<PlayerLoopSystem, IPlayerLoopService>, IPlayerLoopService
     {
         private PlayerLoopSystem() { }
 
         private IEventService? EventService => OwningLocator?.Get<IEventService>();
-
-        /// <summary>
-        /// Create a new <see cref="IPlayerLoopService"/>.
-        /// </summary>
-        public static IPlayerLoopService Create()
-        {
-            return new GameObject(nameof(PlayerLoopSystem)).AsActor<PlayerLoopSystem>()!;
-        }
 
         /// <inheritdoc/>
         public void RemoveAllListeners()
@@ -69,18 +62,6 @@ namespace Coimbra.Services.PlayerLoopEvents
             }
 
             StartCoroutine(coroutine());
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void HandleBeforeSceneLoad()
-        {
-            ServiceLocator.Shared.Get<IPlayerLoopService>();
         }
 
         private async UniTask InvokeFixedUpdateEvents()

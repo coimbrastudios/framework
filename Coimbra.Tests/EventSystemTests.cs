@@ -17,7 +17,7 @@ namespace Coimbra.Tests
         [SetUp]
         public void SetUp()
         {
-            _eventService = EventSystem.Create();
+            _eventService = new EventSystem();
             Assert.IsNotNull(_eventService);
         }
 

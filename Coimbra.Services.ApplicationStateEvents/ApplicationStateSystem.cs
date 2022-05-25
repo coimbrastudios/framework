@@ -9,6 +9,7 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// Default implementation for <see cref="IApplicationStateService"/>.
     /// </summary>
     [AddComponentMenu("")]
+    [PreloadService]
     public sealed class ApplicationStateSystem : ServiceActorBase<ApplicationStateSystem, IApplicationStateService>, IApplicationStateService
     {
         private ApplicationStateSystem() { }
@@ -20,14 +21,6 @@ namespace Coimbra.Services.ApplicationStateEvents
         public bool IsPaused { get; private set; }
 
         private IEventService? EventService => OwningLocator?.Get<IEventService>();
-
-        /// <summary>
-        /// Create a new <see cref="IApplicationStateService"/>.
-        /// </summary>
-        public static IApplicationStateService Create()
-        {
-            return new GameObject(nameof(ApplicationStateSystem)).AsActor<ApplicationStateSystem>()!;
-        }
 
         /// <inheritdoc/>
         public void RemoveAllListeners()
@@ -48,18 +41,6 @@ namespace Coimbra.Services.ApplicationStateEvents
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
             OnDestroying += HandleDestroying;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void HandleBeforeSceneLoad()
-        {
-            ServiceLocator.Shared.Get<IApplicationStateService>();
         }
 
         private void OnApplicationFocus(bool hasFocus)

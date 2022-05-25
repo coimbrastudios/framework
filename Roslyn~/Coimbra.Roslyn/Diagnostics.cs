@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.ComponentModel;
 
 #pragma warning disable RS2008
 
@@ -61,6 +62,7 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
+        // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor AbstractServiceShouldBeUsedWithServiceInterfaces = new("COIMBRA0008",
                                                                                                            "AbstractServiceAttribute should only be used with an interface that extends IService.",
                                                                                                            "Remove AbstractServiceAttribute from {0}.",
@@ -68,6 +70,7 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
+        // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",
                                                                                                             "IEventService generic APIs should not be used directly.",
                                                                                                             "Use {0}.{1} instead.",
@@ -75,12 +78,64 @@ namespace Coimbra.Roslyn
                                                                                                             DiagnosticSeverity.Error,
                                                                                                             true);
 
-        public static readonly DiagnosticDescriptor C0010 = new("COIMBRA0010",
-                                                                "",
-                                                                "",
-                                                                DefaultCategory,
-                                                                DiagnosticSeverity.Hidden,
-                                                                false);
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor DisableDefaultFactoryAttributeIsRedundant = new("COIMBRA0010",
+                                                                                                    "DisableDefaultFactoryAttribute should only be used in concrete IService.",
+                                                                                                    "Remove DisableDefaultFactoryAttribute from {0}.",
+                                                                                                    ServicesCategory,
+                                                                                                    DiagnosticSeverity.Warning,
+                                                                                                    false);
+
+        public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0011",
+                                                                                                     "ProjectSettingsAttribute and PreferencesAttribute should not be used together.",
+                                                                                                     "Remove either ProjectSettingsAttribute or PreferencesAttribute from {0}",
+                                                                                                     DefaultCategory,
+                                                                                                     DiagnosticSeverity.Error,
+                                                                                                     false);
+
+        public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0012",
+                                                                                                   "ScriptableSettings FileDirectory should not be inside the project's Asset folder or contains \"..\" in its path.",
+                                                                                                   "Change FileDirectory for {0} in {1}.",
+                                                                                                   DefaultCategory,
+                                                                                                   DiagnosticSeverity.Error,
+                                                                                                   false);
+
+        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidInstanceValueField = new("COIMBRA0013",
+                                                                                                        "SharedManagedPoolAttribute has an invalid value for InstanceValueField.",
+                                                                                                        "Couldn't find {0} in {1}.",
+                                                                                                        DefaultCategory,
+                                                                                                        DiagnosticSeverity.Error,
+                                                                                                        false);
+
+        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidNestedInstanceWrapper = new("COIMBRA0014",
+                                                                                                           "SharedManagedPoolAttribute has an invalid value for NestedInstanceWrapper.",
+                                                                                                           "Couldn't find {0} in {1}.",
+                                                                                                           DefaultCategory,
+                                                                                                           DiagnosticSeverity.Error,
+                                                                                                           false);
+
+        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0015",
+                                                                                             "Concrete IService is a MonoBehaviour but doesn't inherit from ServiceActorBase.",
+                                                                                             "Make {0} inherit from ServiceActorBase or ensure that it is implemented correctly.",
+                                                                                             ServicesCategory,
+                                                                                             DiagnosticSeverity.Info,
+                                                                                             false);
+
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor PreloadDefaultFactoryAttributeIsRedundant = new("COIMBRA016",
+                                                                                                    "PreloadServiceAttribute should only be used in concrete IService",
+                                                                                                    "Remove PreloadServiceAttribute from {0}.",
+                                                                                                    ServicesCategory,
+                                                                                                    DiagnosticSeverity.Warning,
+                                                                                                    false);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly DiagnosticDescriptor _ = new("COIMBRA",
+                                                            "",
+                                                            "",
+                                                            DefaultCategory,
+                                                            DiagnosticSeverity.Hidden,
+                                                            false);
     }
 }
 

@@ -16,14 +16,6 @@ namespace Coimbra.Services.Timers
 
         private TimerSystem() { }
 
-        /// <summary>
-        /// Create a new <see cref="ITimerService"/>.
-        /// </summary>
-        public static ITimerService Create()
-        {
-            return new GameObject(nameof(TimerSystem)).AsActor<TimerSystem>();
-        }
-
         /// <inheritdoc/>
         public bool IsTimerActive(in TimerHandle timerHandle)
         {
@@ -136,12 +128,6 @@ namespace Coimbra.Services.Timers
             _timerComponentPool = new ManagedPool<TimerComponent>(createCallback, disposeCallback);
             _timerComponentPool.OnPop += onPop;
             _timerComponentPool.OnPush += onPush;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
         }
     }
 }

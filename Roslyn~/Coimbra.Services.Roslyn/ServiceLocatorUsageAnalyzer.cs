@@ -29,7 +29,7 @@ namespace Coimbra.Services.Roslyn
             }
 
             if (context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol is not IMethodSymbol methodSymbol
-             || !methodSymbol.ContainingType.Is(CoimbraServicesTypes.ServiceLocatorClass, CoimbraServicesTypes.Namespace)
+             || !methodSymbol.ContainingType.Is(CoimbraServicesTypes.ServiceLocatorClass)
              || !methodSymbol.IsGenericMethod)
             {
                 return;
@@ -51,7 +51,7 @@ namespace Coimbra.Services.Roslyn
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
                 }
             }
-            else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace, out _))
+            else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
             }

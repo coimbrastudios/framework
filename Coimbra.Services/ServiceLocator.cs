@@ -24,11 +24,9 @@ namespace Coimbra.Services
 
         private sealed class Service
         {
-            internal bool ResetCreateCallbackOnSet;
-
             internal IService? Value;
 
-            internal Func<IService>? CreateCallback;
+            internal IServiceFactory? Factory;
 
             internal ServiceChangeHandler? ValueChangedCallback;
 
@@ -131,7 +129,7 @@ namespace Coimbra.Services
                 }
 
                 service.Value = null;
-                service.CreateCallback = null;
+                service.Factory = null;
             }
 
             _services.Clear();
@@ -152,12 +150,12 @@ namespace Coimbra.Services
                 return service.Value as T;
             }
 
-            if (service.CreateCallback == null)
+            if (service.Factory == null)
             {
                 return AllowFallbackToShared ? Shared.Get<T>() : null;
             }
 
-            IService? value = service.CreateCallback.Invoke();
+            IService? value = service.Factory.Create(this);
 
             switch (value)
             {
@@ -181,65 +179,54 @@ namespace Coimbra.Services
         }
 
         /// <summary>
-        /// Gets the callback for when a service needs to be created.
-        /// </summary>
-        /// <param name="willResetOnSet">If the create callback will reset when the service is set.</param>
-        /// <typeparam name="T">The service type.</typeparam>
-        /// <returns>The create callback, if set.</returns>
-        public Func<IService>? GetCreateCallback<T>(out bool willResetOnSet)
-            where T : class, IService
-        {
-            return GetCreateCallback(typeof(T), out willResetOnSet);
-        }
-
-        /// <summary>
-        /// Gets the callback for when a service needs to be created.
-        /// </summary>
-        /// <param name="type">The service type.</param>
-        /// <param name="willResetOnSet">If the create callback will reset when the service is set.</param>
-        /// <returns>The create callback, if set.</returns>
-        public Func<IService>? GetCreateCallback(Type type, out bool willResetOnSet)
-        {
-            if (_services.TryGetValue(type, out Service service))
-            {
-                willResetOnSet = service.ResetCreateCallbackOnSet;
-
-                return service.CreateCallback;
-            }
-
-            willResetOnSet = false;
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets if the create callback is currently set for a service type.
+        /// Gets the factory for a service type.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        /// <returns>False if the service has no create callback set or the service type is not found.</returns>
-        [Pure]
-        public bool HasCreateCallback<T>()
+        /// <returns>The factory, if set.</returns>
+        public IServiceFactory? GetFactory<T>()
             where T : class, IService
         {
-            return HasCreateCallback(typeof(T));
+            return GetFactory(typeof(T));
         }
 
         /// <summary>
-        /// Gets if the create callback is currently set for a service type.
+        /// Gets the factory for a service type.
         /// </summary>
         /// <param name="type">The service type.</param>
-        /// <returns>False if the service has no create callback set or the service type is not found.</returns>
-        [Pure]
-        public bool HasCreateCallback(Type type)
+        /// <returns>The factory, if set.</returns>
+        public IServiceFactory? GetFactory(Type type)
         {
-            return _services.TryGetValue(type, out Service service) && service is { CreateCallback: { } };
+            return _services.TryGetValue(type, out Service service) ? service.Factory : null;
+        }
+
+        /// <summary>
+        /// Gets if the factory is set for a service type.
+        /// </summary>
+        /// <typeparam name="T">The service type.</typeparam>
+        /// <returns>False if the service has no factory set.</returns>
+        [Pure]
+        public bool HasFactory<T>()
+            where T : class, IService
+        {
+            return HasFactory(typeof(T));
+        }
+
+        /// <summary>
+        /// Gets if the factory is set for a service type.
+        /// </summary>
+        /// <param name="type">The service type.</param>
+        /// <returns>False if the service has no factory set.</returns>
+        [Pure]
+        public bool HasFactory(Type type)
+        {
+            return _services.TryGetValue(type, out Service service) && service is { Factory: { } };
         }
 
         /// <summary>
         /// Gets if the service is created by its type.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        /// <returns>False if the service wasn't created.</returns>
         [Pure]
         public bool IsCreated<T>()
             where T : class, IService
@@ -251,7 +238,7 @@ namespace Coimbra.Services
         /// Gets if the service is created by its type.
         /// </summary>
         /// <param name="type">The service type.</param>
-        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        /// <returns>False if the service wasn't created.</returns>
         [Pure]
         public bool IsCreated(Type type)
         {
@@ -263,7 +250,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="value">The service value, if created.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        /// <returns>False if the service wasn't created.</returns>
         [Pure]
         public bool IsCreated<T>(out T? value)
             where T : class, IService
@@ -285,7 +272,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="type">The service type.</param>
         /// <param name="value">The service value, if created.</param>
-        /// <returns>False if the service wasn't created or the service type is not found.</returns>
+        /// <returns>False if the service wasn't created.</returns>
         [Pure]
         public bool IsCreated(Type type, out IService? value)
         {
@@ -351,11 +338,6 @@ namespace Coimbra.Services
                 service.Value = null;
             }
 
-            if (service.ResetCreateCallbackOnSet)
-            {
-                service.CreateCallback = null;
-            }
-
             if (oldValue != null)
             {
                 if (disposePrevious)
@@ -374,16 +356,15 @@ namespace Coimbra.Services
         }
 
         /// <summary>
-        /// Sets the callback for when a service needs to be created.
+        /// Sets the factory for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        public void SetCreateCallback<T>(Func<T>? createCallback, bool resetOnSet)
+        public void SetFactory<T>(IServiceFactory? factory)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
-            service.CreateCallback = createCallback;
-            service.ResetCreateCallbackOnSet = resetOnSet;
+            service.Factory = factory;
         }
 
         /// <summary>

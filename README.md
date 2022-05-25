@@ -39,20 +39,24 @@ Package of general utilities to be used with Unity development.
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`.
 - `SerializableDictionary`: view, edit and save dictionaries from the inspector. Also supports nesting and lists.
-- Service Locator: Enable a service-based architecture easily. It comes with a few services already:
-    - `IApplicationStateService`: Responsible for some built-in events:
-        - `ApplicationFocusEvent`
-        - `ApplicationPauseEvent`
-        - `ApplicationQuitEvent`
-    - `ICoroutineService`: Start or stop a Unity `Coroutine` from anywhere.
-    - `IEventService`: Listen and invoke strongly-typed events.
-    - `IPlayerLoopService`: Responsible for [PlayerLoop](https://docs.unity3d.com/ScriptReference/LowLevel.PlayerLoop.html)-related events:
-        - `FixedUpdateEvent`
-        - `LateUpdateEvent`
-        - `UpdateEvent`
-        - [PlayerLoopTiming](https://github.com/Cysharp/UniTask#playerloop) Events
-    - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
-    - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
+  - Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
+    - Attributes:
+        - `DisableDefaultFactoryAttribute`: By default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
+        - `PreloadServiceAttribute`: Add this in your `IService` implementation to call the `ServiceLocator.Shared.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
+    - Services:
+        - `IApplicationStateService`: Responsible for some built-in events:
+            - `ApplicationFocusEvent`
+            - `ApplicationPauseEvent`
+            - `ApplicationQuitEvent`
+        - `ICoroutineService`: Start or stop a Unity `Coroutine` from anywhere.
+        - `IEventService`: Listen and invoke strongly-typed events.
+        - `IPlayerLoopService`: Responsible for [PlayerLoop](https://docs.unity3d.com/ScriptReference/LowLevel.PlayerLoop.html)-related events:
+            - `FixedUpdateEvent`
+            - `LateUpdateEvent`
+            - `UpdateEvent`
+            - [PlayerLoopTiming](https://github.com/Cysharp/UniTask#playerloop) Events
+        - `IPoolingService`: Leverages `GameObjectPool` by making those easily accessible from anywhere.
+        - `ITimerService`: Start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
 - Type Dropdown: Use `TypeDropdownAttribute` in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `TypeFilterAttribute`.
 - Utilities & Extensions: Check if a `GameObject` `IsPersistent`, `Destroy` any Unity `Object` safely, fake-cast a `GameObject` to `Actor`, use `?.` and `??` safely wth any Unity `Object`, and much more.
 

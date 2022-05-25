@@ -23,12 +23,12 @@ namespace Coimbra.Services.Roslyn
         {
             if (context.Node is not InterfaceDeclarationSyntax interfaceDeclarationSyntax
              || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, CoimbraServicesTypes.Namespace, out _))
+             || !typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
             {
                 return;
             }
 
-            if (!typeSymbol.IsOrImplementsInterface(CoimbraServicesTypes.ServiceInterface, CoimbraServicesTypes.Namespace))
+            if (!typeSymbol.IsOrImplementsInterface(CoimbraServicesTypes.ServiceInterface))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.AbstractServiceShouldBeUsedWithServiceInterfaces, interfaceDeclarationSyntax.Identifier.GetLocation(), interfaceDeclarationSyntax.GetTypeName()));
             }

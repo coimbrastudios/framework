@@ -12,14 +12,6 @@ namespace Coimbra.Services.Coroutines
     {
         private CoroutineSystem() { }
 
-        /// <summary>
-        /// Create a new <see cref="ICoroutineService"/>.
-        /// </summary>
-        public static ICoroutineService Create()
-        {
-            return new GameObject(nameof(CoroutineSystem)).AsActor<CoroutineSystem>()!;
-        }
-
         /// <inheritdoc/>
         protected override void OnDestroyed()
         {
@@ -32,12 +24,6 @@ namespace Coimbra.Services.Coroutines
         {
             base.OnInitialize();
             DontDestroyOnLoad(CachedGameObject);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
         }
     }
 }

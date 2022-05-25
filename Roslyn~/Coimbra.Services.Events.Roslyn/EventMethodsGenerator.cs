@@ -348,7 +348,7 @@ namespace Coimbra.Services.Events.Roslyn
             foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
             {
                 if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
-                 && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface, CoimbraServicesEventsTypes.Namespace))
+                 && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface))
                 {
                     yield return syntaxNode;
                 }

@@ -21,14 +21,6 @@ namespace Coimbra.Services.Events
         [field: Disable]
         public ServiceLocator? OwningLocator { get; set; }
 
-        /// <summary>
-        /// Create a new <see cref="IEventService"/>.
-        /// </summary>
-        public static IEventService Create()
-        {
-            return new EventSystem();
-        }
-
         /// <inheritdoc/>
         public EventHandle AddListener<T>(Event<T>.Handler eventHandler)
             where T : IEvent
@@ -146,12 +138,6 @@ namespace Coimbra.Services.Events
             {
                 e.OnRelevancyChanged -= relevancyChangedHandler;
             }
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
-        {
-            ServiceLocator.Shared.SetCreateCallback(Create, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
