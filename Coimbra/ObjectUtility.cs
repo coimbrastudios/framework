@@ -11,7 +11,6 @@ namespace Coimbra
         /// <summary>
         /// Destroys the <see cref="Object"/> correctly by checking if it isn't already an <see cref="Actor"/> first.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Destroy(this Object o)
         {
             if (o is GameObject gameObject)

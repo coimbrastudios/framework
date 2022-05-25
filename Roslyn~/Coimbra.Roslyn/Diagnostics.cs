@@ -174,6 +174,14 @@ namespace Coimbra.Roslyn
                                                                                      DiagnosticSeverity.Warning,
                                                                                      false);
 
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0023",
+                                                                                        "Object.Destroy should not be used when using the Coimbra Framework.",
+                                                                                        "Use {0}.Destroy() instead.",
+                                                                                        DefaultCategory,
+                                                                                        DiagnosticSeverity.Error,
+                                                                                        false);
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA00",
                                                             "",

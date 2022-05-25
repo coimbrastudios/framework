@@ -449,13 +449,17 @@ namespace Coimbra
                 return;
             }
 
-            Pool = pool;
-            IsInitialized = true;
-            IsPrefab = GameObject.scene.name == null;
             _operationHandle = operationHandle;
             _gameObject = gameObject;
-            _gameObjectID = GameObject;
             _transform = transform;
+            Pool = pool;
+            IsInitialized = true;
+
+            // should be initialized already to work correctly
+            _gameObjectID = GameObject;
+            IsPrefab = GameObject.scene.name == null;
+
+            // should be the last call
             CachedActors.Add(GameObjectID, this);
 
             if (IsPrefab)
@@ -559,7 +563,7 @@ namespace Coimbra
             {
                 OnDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
             }
-            else if (_isUnloadingScene || !GameObject.scene.isLoaded)
+            else if (_isUnloadingScene || !gameObject.scene.isLoaded)
             {
                 OnDestroying?.Invoke(this, DestroyReason.SceneChange);
             }
@@ -579,11 +583,11 @@ namespace Coimbra
             {
                 if (CoimbraUtility.IsPlayMode)
                 {
-                    Object.Destroy(GameObject);
+                    Object.Destroy(gameObject);
                 }
                 else
                 {
-                    DestroyImmediate(GameObject);
+                    DestroyImmediate(gameObject);
                 }
             }
 
