@@ -2,6 +2,7 @@
 
 ## [10.3.1] - UNRELEASED
 
+- Added `Force Reserialize Assets` menu item.
 - Changed `CachedGameObject` to just `GameObject` and executes additional logic inside to return the correct value according to the context.
 - Changed `CachedTransform` to just `Transform` and executes additional logic inside to return the correct value according to the context.
 - Fixed missing `Initialize` call on `GameObjectPool.LoadAsync`.
