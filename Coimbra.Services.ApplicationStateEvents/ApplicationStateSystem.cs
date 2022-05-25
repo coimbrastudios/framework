@@ -39,7 +39,7 @@ namespace Coimbra.Services.ApplicationStateEvents
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            DontDestroyOnLoad(CachedGameObject);
+            DontDestroyOnLoad(GameObject);
             OnDestroying += HandleDestroying;
         }
 

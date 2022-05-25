@@ -193,7 +193,7 @@ namespace Coimbra.Services.Pooling
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            DontDestroyOnLoad(CachedGameObject);
+            DontDestroyOnLoad(GameObject);
 
             if (!ScriptableSettings.TryGetOrFind(out PoolSettings poolingSettings))
             {
@@ -219,12 +219,12 @@ namespace Coimbra.Services.Pooling
                     }
                     else
                     {
-                        Debug.LogError($"Invalid reference, skipping item {index}!", CachedGameObject);
+                        Debug.LogError($"Invalid reference, skipping item {index}!", GameObject);
                         Debug.LogError($"Expected a {nameof(GameObjectPool)} on object {handle.Result}.", handle.Result);
                     }
                 }
 
-                Addressables.InstantiateAsync(defaultPersistentPools[i], CachedTransform).Completed += handlePersistentPoolInstantiated;
+                Addressables.InstantiateAsync(defaultPersistentPools[i], Transform).Completed += handlePersistentPoolInstantiated;
             }
         }
 

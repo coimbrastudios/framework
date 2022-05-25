@@ -122,15 +122,60 @@ namespace Coimbra.Roslyn
                                                                                              false);
 
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor PreloadDefaultFactoryAttributeIsRedundant = new("COIMBRA016",
+        public static readonly DiagnosticDescriptor PreloadDefaultFactoryAttributeIsRedundant = new("COIMBRA0016",
                                                                                                     "PreloadServiceAttribute should only be used in concrete IService",
                                                                                                     "Remove PreloadServiceAttribute from {0}.",
                                                                                                     ServicesCategory,
                                                                                                     DiagnosticSeverity.Warning,
                                                                                                     false);
 
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor SharedServiceLocatorShouldNotBeUsedFromWithinServiceImplementation = new("COIMBRA017",
+                                                                                                                             "ServiceLocator.Shared should not be accessed from within a IService implementation.",
+                                                                                                                             "Use OwningLocator instead of SharedLocator.Shared.",
+                                                                                                                             ServicesCategory,
+                                                                                                                             DiagnosticSeverity.Error,
+                                                                                                                             false);
+
+        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0018",
+                                                                                                  "OwningLocator.set is for internal use only, using it may lead to unexpected errors.",
+                                                                                                  "Do not set the OwningLocator directly.",
+                                                                                                  ServicesCategory,
+                                                                                                  DiagnosticSeverity.Error,
+                                                                                                  false);
+
+        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0019",
+                                                                                                      "A ScriptableSettings should not implement IService.",
+                                                                                                      "You can move IService implementation to another class or don't inherit from ScriptableSettings.",
+                                                                                                      ServicesCategory,
+                                                                                                      DiagnosticSeverity.Error,
+                                                                                                      false);
+
+        public static readonly DiagnosticDescriptor UseServiceActorBaseToImplementGameObjectServices = new("COIMBRA0020",
+                                                                                                           "Inherit from ServiceActorBase to implement IService on GameObjects.",
+                                                                                                           "Change {0} to inherit from ServiceActorBase instead.",
+                                                                                                           DefaultCategory,
+                                                                                                           DiagnosticSeverity.Error,
+                                                                                                           false);
+
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0021",
+                                                                                      "Component.gameObject should not be used with an Actor.",
+                                                                                      "Use {0}.GameObject instead.",
+                                                                                      DefaultCategory,
+                                                                                      DiagnosticSeverity.Warning,
+                                                                                      false);
+
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor IncorrectTransformProperty = new("COIMBRA0022",
+                                                                                     "Component.transform should not be used with an Actor.",
+                                                                                     "Use {0}.Transform instead.",
+                                                                                     DefaultCategory,
+                                                                                     DiagnosticSeverity.Warning,
+                                                                                     false);
+
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly DiagnosticDescriptor _ = new("COIMBRA",
+        public static readonly DiagnosticDescriptor _ = new("COIMBRA00",
                                                             "",
                                                             "",
                                                             DefaultCategory,

@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.3.1] - UNRELEASED
+
+- Changed `CachedGameObject` to just `GameObject` and executes additional logic inside to return the correct value according to the context.
+- Changed `CachedTransform` to just `Transform` and executes additional logic inside to return the correct value according to the context.
+- Fixed missing `Initialize` call on `GameObjectPool.LoadAsync`.
+- Fixed missing dependency on newer IDE packages.
+
 ## [10.3.0] - 2022-05-25
 
 - Added `FormerlySerializedAsBackingFieldOfAttribute` that correctly formats the name to match the format `<{propertyName}>k__BackingField`.

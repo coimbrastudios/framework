@@ -232,7 +232,7 @@ namespace Coimbra
             {
                 if (_currentState != State.Unloaded)
                 {
-                    Debug.LogError($"Can't change the prefab of a {nameof(GameObjectPool)} currently in use!", CachedGameObject);
+                    Debug.LogError($"Can't change the prefab of a {nameof(GameObjectPool)} currently in use!", GameObject);
                 }
                 else
                 {
@@ -264,7 +264,7 @@ namespace Coimbra
 
                 foreach (Actor instance in _availableInstances)
                 {
-                    instance.CachedTransform.SetParent(_containerTransform, false);
+                    instance.Transform.SetParent(_containerTransform, false);
                 }
             }
         }
@@ -276,26 +276,28 @@ namespace Coimbra
         {
             if (IsDestroyed)
             {
-                Debug.LogWarning($"Attempting to load the already destroyed pool {CachedGameObject}! This will have no effect.", CachedGameObject);
+                Debug.LogWarning($"Attempting to load the already destroyed pool {GameObject}! This will have no effect.", GameObject);
 
                 return;
             }
 
+            Initialize();
+
             if (_currentState != State.Unloaded)
             {
-                Debug.LogWarning($"Pool {CachedGameObject} is {_currentState} already!", CachedGameObject);
+                Debug.LogWarning($"Pool {GameObject} is {_currentState} already!", GameObject);
 
                 return;
             }
 
             if (_prefabReference == null)
             {
-                Debug.LogError($"{CachedGameObject} requires a non-null prefab to load!", CachedGameObject);
+                Debug.LogError($"{GameObject} requires a non-null prefab to load!", GameObject);
 
                 return;
             }
 
-            CachedGameObject.SetActive(false);
+            GameObject.SetActive(false);
             ChangeCurrentState(State.Loading);
 
             try
@@ -325,7 +327,7 @@ namespace Coimbra
                 }
                 else
                 {
-                    Debug.LogException(e, CachedGameObject);
+                    Debug.LogException(e, GameObject);
                 }
             }
         }
@@ -340,7 +342,7 @@ namespace Coimbra
         {
             if (_currentState == State.Unloaded)
             {
-                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
+                Debug.LogWarning($"{GameObject} is useless while unloaded!", GameObject);
 
                 return null;
             }
@@ -361,7 +363,7 @@ namespace Coimbra
                 PreloadAsync(_expandStep).Forget();
             }
 
-            instance.CachedTransform.SetParent(parent, spawnInWorldSpace);
+            instance.Transform.SetParent(parent, spawnInWorldSpace);
             instance.Spawn();
 
             return instance;
@@ -378,7 +380,7 @@ namespace Coimbra
         {
             if (_currentState == State.Unloaded)
             {
-                Debug.LogWarning($"{CachedGameObject} is useless while unloaded!", CachedGameObject);
+                Debug.LogWarning($"{GameObject} is useless while unloaded!", GameObject);
 
                 return null;
             }
@@ -399,8 +401,8 @@ namespace Coimbra
                 PreloadAsync(_expandStep).Forget();
             }
 
-            instance.CachedTransform.parent = parent;
-            instance.CachedTransform.SetPositionAndRotation(position, rotation);
+            instance.Transform.parent = parent;
+            instance.Transform.SetPositionAndRotation(position, rotation);
             instance.Spawn();
 
             return instance;
@@ -423,7 +425,7 @@ namespace Coimbra
             {
                 if (logWarning)
                 {
-                    Debug.LogWarning($"Pool {CachedGameObject} is unloaded already!", CachedGameObject);
+                    Debug.LogWarning($"Pool {GameObject} is unloaded already!", GameObject);
                 }
 
                 return false;
@@ -477,7 +479,7 @@ namespace Coimbra
         {
             if (!_keepParentOnDespawn)
             {
-                instance.CachedTransform.SetParent(_containerTransform, false);
+                instance.Transform.SetParent(_containerTransform, false);
             }
 
             _availableInstances.Add(instance);
@@ -583,7 +585,7 @@ namespace Coimbra
 #if UNITY_EDITOR
             if (_changeNameOnInstantiate)
             {
-                instance.CachedGameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
+                instance.GameObject.name = $"{_prefabReference.editorAsset.name} ({Guid.NewGuid()})";
             }
 #endif
             OnInstanceCreated?.Invoke(this, instance);

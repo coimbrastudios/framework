@@ -16,7 +16,7 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Used to represent a <see cref="GameObject"/>. It is expected to inherit from this class to create the main script of each object.
+    /// Used to represent a <see cref="UnityEngine.GameObject"/>. It is expected to inherit from this class to create the main script of each object.
     /// </summary>
     [PublicAPI]
     [Preserve]
@@ -71,12 +71,12 @@ namespace Coimbra
         public static event SceneInitializedHandler OnSceneInitializedOnce;
 
         /// <summary>
-        /// Invoked when a <see cref="GameObject"/> is activated or deactivated in the scene.
+        /// Invoked when a <see cref="UnityEngine.GameObject"/> is activated or deactivated in the scene.
         /// </summary>
         public event ActiveStateHandler OnActiveStateChanged;
 
         /// <summary>
-        /// Invoked when a <see cref="GameObject"/> is being destroyed for any reason.
+        /// Invoked when a <see cref="UnityEngine.GameObject"/> is being destroyed for any reason.
         /// </summary>
         public event DestroyHandler OnDestroying;
 
@@ -85,16 +85,6 @@ namespace Coimbra
         private static readonly List<WeakReference<Actor>> UninitializedActors = new List<WeakReference<Actor>>();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
-
-        private bool _isUnloadingScene;
-
-        private GameObjectID? _gameObjectID;
-
-        private AsyncOperationHandle<GameObject> _operationHandle;
-
-        private CancellationTokenSource _despawnCancellationTokenSource;
-
-        private CancellationTokenSource _destroyCancellationTokenSource;
 
         [SerializeField]
         [DisableOnPlayMode]
@@ -113,6 +103,20 @@ namespace Coimbra
         [FormerlySerializedAsBackingFieldOf("DeactivatePrefabOnInitialize")]
         [Tooltip("If true, it will deactivate the prefab when initializing it.")]
         private bool _deactivateOnInitializePrefab;
+
+        private bool _isUnloadingScene;
+
+        private GameObjectID? _gameObjectID;
+
+        private AsyncOperationHandle<GameObject> _operationHandle;
+
+        private CancellationTokenSource _despawnCancellationTokenSource;
+
+        private CancellationTokenSource _destroyCancellationTokenSource;
+
+        private GameObject _gameObject;
+
+        private Transform _transform;
 
         protected Actor()
         {
@@ -191,20 +195,20 @@ namespace Coimbra
         /// <summary>
         /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
         /// </summary>
-        public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = gameObject).Value;
+        public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = GameObject).Value;
 
         /// <summary>
         /// Cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
         /// </summary>
-        public GameObject CachedGameObject { get; private set; }
+        public GameObject GameObject => IsDestroyed || !IsInitialized ? gameObject : _gameObject;
 
         /// <summary>
         /// Cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
         /// </summary>
-        public Transform CachedTransform { get; private set; }
+        public Transform Transform => IsDestroyed || !IsInitialized ? transform : _transform;
 
         /// <summary>
-        /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="GameObject"/>?
+        /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>?
         /// </summary>
         public bool IsDestroyed { get; private set; }
 
@@ -241,11 +245,11 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(Actor actor)
         {
-            return actor.CachedGameObject;
+            return actor.GameObject;
         }
 
         /// <summary>
-        /// Is the <see cref="Actor"/> representation of specified <see cref="GameObject"/> cached?
+        /// Is the <see cref="Actor"/> representation of specified <see cref="UnityEngine.GameObject"/> cached?
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasCachedActor(GameObject gameObject, out Actor actor)
@@ -269,7 +273,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Despawns the <see cref="GameObject"/> and return it to its pool. If it doesn't belong to a <see cref="GameObjectPool"/>, it will <see cref="Destroy"/> the object instead.
+        /// Despawns the <see cref="UnityEngine.GameObject"/> and return it to its pool. If it doesn't belong to a <see cref="GameObjectPool"/>, it will <see cref="Destroy"/> the object instead.
         /// </summary>
         public void Despawn()
         {
@@ -277,7 +281,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Destroys the <see cref="GameObject"/> that this actor represents.
+        /// Destroys the <see cref="UnityEngine.GameObject"/> that this actor represents.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Destroy()
@@ -300,12 +304,12 @@ namespace Coimbra
         /// <param name="scene"></param>
         public void OnUnloadScene(Scene scene)
         {
-            if (CachedGameObject.scene == Pool.CachedGameObject.scene)
+            if (GameObject.scene == Pool.GameObject.scene)
             {
                 return;
             }
 
-            if (CachedGameObject.scene == scene)
+            if (GameObject.scene == scene)
             {
                 _isUnloadingScene = true;
                 Despawn();
@@ -319,13 +323,13 @@ namespace Coimbra
 
                 if (Pool.KeepParentOnDespawn)
                 {
-                    CachedTransform.SetParent(Pool.CachedTransform, false);
+                    Transform.SetParent(Pool.Transform, false);
                 }
 
                 return;
             }
 
-            if (Pool.CachedGameObject.scene == scene)
+            if (Pool.GameObject.scene == scene)
             {
                 Pool = null;
             }
@@ -338,7 +342,7 @@ namespace Coimbra
         {
             if (DeactivateOnDespawn)
             {
-                CachedGameObject.SetActive(false);
+                GameObject.SetActive(false);
             }
         }
 
@@ -359,7 +363,7 @@ namespace Coimbra
         {
             if (_deactivateOnInitializePrefab)
             {
-                CachedGameObject.SetActive(false);
+                GameObject.SetActive(false);
             }
         }
 
@@ -370,7 +374,7 @@ namespace Coimbra
         {
             if (ActivateOnSpawn)
             {
-                CachedGameObject.SetActive(true);
+                GameObject.SetActive(true);
             }
         }
 
@@ -420,8 +424,6 @@ namespace Coimbra
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnDestroy()
         {
-            CachedGameObject = gameObject;
-            CachedTransform = transform;
             Destroy(false);
         }
 
@@ -449,11 +451,11 @@ namespace Coimbra
 
             Pool = pool;
             IsInitialized = true;
-            CachedTransform = transform;
-            CachedGameObject = gameObject;
-            IsPrefab = CachedGameObject.scene.name == null;
+            IsPrefab = GameObject.scene.name == null;
             _operationHandle = operationHandle;
-            _gameObjectID = CachedGameObject;
+            _gameObject = gameObject;
+            _gameObjectID = GameObject;
+            _transform = transform;
             CachedActors.Add(GameObjectID, this);
 
             if (IsPrefab)
@@ -557,7 +559,7 @@ namespace Coimbra
             {
                 OnDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
             }
-            else if (_isUnloadingScene || !CachedGameObject.scene.isLoaded)
+            else if (_isUnloadingScene || !GameObject.scene.isLoaded)
             {
                 OnDestroying?.Invoke(this, DestroyReason.SceneChange);
             }
@@ -577,20 +579,20 @@ namespace Coimbra
             {
                 if (CoimbraUtility.IsPlayMode)
                 {
-                    Object.Destroy(CachedGameObject);
+                    Object.Destroy(GameObject);
                 }
                 else
                 {
-                    DestroyImmediate(gameObject);
+                    DestroyImmediate(GameObject);
                 }
             }
 
             OnActiveStateChanged = null;
             OnDestroying = null;
-            CachedActors.Remove(GameObjectID);
-            CachedGameObject = null;
-            CachedTransform = null;
             Pool = null;
+            _gameObject = null;
+            _transform = null;
+            CachedActors.Remove(GameObjectID);
         }
     }
 }

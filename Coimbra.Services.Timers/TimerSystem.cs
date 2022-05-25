@@ -97,7 +97,7 @@ namespace Coimbra.Services.Timers
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            DontDestroyOnLoad(CachedGameObject);
+            DontDestroyOnLoad(GameObject);
 
             static void disposeCallback(TimerComponent component)
             {
@@ -109,7 +109,7 @@ namespace Coimbra.Services.Timers
 
             TimerComponent createCallback()
             {
-                TimerComponent instance = CachedGameObject.AddComponent<TimerComponent>();
+                TimerComponent instance = GameObject.AddComponent<TimerComponent>();
                 instance.Service = this;
 
                 return instance;

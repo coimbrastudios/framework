@@ -54,7 +54,7 @@ namespace Coimbra.Services
 
             private void HandleDestroying(Actor sender, Actor.DestroyReason destroyReason)
             {
-                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.CachedGameObject)
+                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.GameObject)
                 {
                     Value = null;
                 }

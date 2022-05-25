@@ -23,7 +23,7 @@ namespace Coimbra.Services.Coroutines
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            DontDestroyOnLoad(CachedGameObject);
+            DontDestroyOnLoad(GameObject);
         }
     }
 }

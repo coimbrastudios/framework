@@ -22,7 +22,7 @@ namespace Coimbra.Tests
                 Debug.LogFormat(logFormat, state);
             };
 
-            instance.CachedGameObject.SetActive(false);
+            instance.GameObject.SetActive(false);
             LogAssert.Expect(LogType.Log, string.Format(logFormat, false));
         }
 
@@ -33,14 +33,14 @@ namespace Coimbra.Tests
             Actor prefab = new GameObject().AsActor();
             Actor instance = Object.Instantiate(prefab);
             instance.Initialize();
-            instance.CachedGameObject.SetActive(false);
+            instance.GameObject.SetActive(false);
 
             instance.OnActiveStateChanged += delegate(Actor _, bool state)
             {
                 Debug.LogFormat(logFormat, state);
             };
 
-            instance.CachedGameObject.SetActive(true);
+            instance.GameObject.SetActive(true);
             LogAssert.Expect(LogType.Log, string.Format(logFormat, true));
         }
 

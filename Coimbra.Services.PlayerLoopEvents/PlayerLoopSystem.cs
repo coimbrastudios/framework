@@ -51,7 +51,7 @@ namespace Coimbra.Services.PlayerLoopEvents
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            DontDestroyOnLoad(CachedGameObject);
+            DontDestroyOnLoad(GameObject);
 
             IEnumerator coroutine()
             {
