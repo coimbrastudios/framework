@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.3.1] - UNRELEASED
+## [10.3.1] - 2022-05-25
 
 - Added `Force Reserialize Assets` menu item.
 - Changed `CachedGameObject` to just `GameObject` and executes additional logic inside to return the correct value according to the context.
