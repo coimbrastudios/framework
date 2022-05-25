@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.3.2] - UNRELEASED
+
+- Added `LockDictionarySizeAttribute` to be used with `SerializableDictionary`.
+
 ## [10.3.1] - 2022-05-25
 
 - Added `Force Reserialize Assets` menu item.

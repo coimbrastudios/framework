@@ -38,7 +38,7 @@ Package of general utilities to be used with Unity development.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`.
-- `SerializableDictionary`: view, edit and save dictionaries from the inspector. Also supports nesting and lists.
+- `SerializableDictionary`: view, edit and save dictionaries from the inspector while also supporting nesting and lists. You can lock its size with `LockDictionarySizeAttribute`.
   - Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
     - Attributes:
         - `DisableDefaultFactoryAttribute`: By default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
