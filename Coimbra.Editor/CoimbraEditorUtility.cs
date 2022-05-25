@@ -2,9 +2,7 @@
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEditor.SettingsManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
@@ -23,21 +21,12 @@ namespace Coimbra.Editor
 
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
 
-        private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
-
-        private const string EditorStartupSceneCategory = "Editor Startup Scene";
-
         private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
-
-        [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene", "The scene to use as the startup scene when inside the editor. If invalid, then no startup scene will be used.")]
-        private static readonly ProjectSetting<SceneAsset> StartupScene = new ProjectSetting<SceneAsset>("General.EditorStartupScene", null);
 
         static CoimbraEditorUtility()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
-            EditorApplication.playModeStateChanged -= ConfigureStartupScene;
-            EditorApplication.playModeStateChanged += ConfigureStartupScene;
             EditorApplication.delayCall += HandleDelayCall;
         }
 
@@ -63,11 +52,16 @@ namespace Coimbra.Editor
             }
         }
 
-        /// <summary>
-        /// Requests a script reload.
-        /// </summary>
-        [MenuItem(CoimbraUtility.ToolsMenuPath + "Reload Scripts")]
-        public static void ReloadScripts()
+        /// <inheritdoc cref="AssetDatabase.ForceReserializeAssets()"/>
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Force Reserialize Assets")]
+        public static void ForceReserializeAssets()
+        {
+            AssetDatabase.ForceReserializeAssets();
+        }
+
+        /// <inheritdoc cref="EditorUtility.RequestScriptReload()"/>
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Request Script Reload")]
+        public static void RequestScriptReload()
         {
             EditorUtility.RequestScriptReload();
         }
@@ -129,57 +123,6 @@ namespace Coimbra.Editor
         private static bool CanResetPlayModeStartScene()
         {
             return EditorSceneManager.playModeStartScene != null;
-        }
-
-        private static void ConfigureStartupScene(PlayModeStateChange state)
-        {
-            switch (state)
-            {
-                case PlayModeStateChange.ExitingPlayMode:
-                case PlayModeStateChange.EnteredEditMode:
-                {
-                    EditorSceneManager.playModeStartScene = null;
-
-                    break;
-                }
-            }
-
-            if (StartupScene.value == null || EditorSceneManager.playModeStartScene != null)
-            {
-                return;
-            }
-
-            switch (state)
-            {
-                case PlayModeStateChange.ExitingEditMode:
-                {
-                    Scene currentScene = SceneManager.GetActiveScene();
-
-                    if (currentScene.buildIndex < 0 || currentScene.path == AssetDatabase.GetAssetPath(StartupScene.value))
-                    {
-                        break;
-                    }
-
-                    EditorSceneManager.playModeStartScene = StartupScene.value;
-                    Debug.LogWarning($"Editor Startup Scene: \"{EditorSceneManager.playModeStartScene}\"");
-
-                    break;
-                }
-
-                case PlayModeStateChange.EnteredPlayMode:
-                {
-                    const string invalid = "<null>";
-                    string playModeStartScene = SessionState.GetString(PlayModeStartSceneKey, invalid);
-
-                    if (playModeStartScene != invalid)
-                    {
-                        EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(playModeStartScene);
-                        SessionState.EraseString(PlayModeStartSceneKey);
-                    }
-
-                    break;
-                }
-            }
         }
 
         private static void HandleBeforeAssemblyReload()
