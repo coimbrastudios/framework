@@ -84,3 +84,5 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0014 | ScriptableSettings has an invalided FileDirectory.                                                    | Error    | No       |
 | COIMBRA0015 | ScriptableSettings attributes are not supported on abstract types.                                    | Error    | No       |
 | COIMBRA0016 | ScriptableSettings attributes are not supported on generic types.                                     | Error    | No       |
+| COIMBRA0017 | ServiceLocator.Shared should not be accessed inside IService.                                         | Error    | No       |
+| COIMBRA0018 | OwningLocator.set is for internal use only.                                                           | Error    | No       |

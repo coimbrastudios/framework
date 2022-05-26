@@ -57,8 +57,12 @@ namespace Coimbra.Services
             {
                 OwningLocator.Set<TService>(null, false);
             }
-
-            OwningLocator = null;
+            else
+            {
+                ServiceLocator? previous = _owningLocator;
+                _owningLocator = null;
+                OnOwningLocatorChanged(previous, null);
+            }
         }
 
         /// <summary>

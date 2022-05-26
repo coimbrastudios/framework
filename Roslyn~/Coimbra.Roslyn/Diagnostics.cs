@@ -115,11 +115,11 @@ namespace Coimbra.Roslyn
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeAbstract = new("COIMBRA0015",
-                                                                                                   "ScriptableSettings attributes are not supported on abstract types.",
-                                                                                                   "{0} should be removed from abstract type {1}.",
-                                                                                                   DefaultCategory,
-                                                                                                   DiagnosticSeverity.Error,
-                                                                                                   true);
+                                                                                                "ScriptableSettings attributes are not supported on abstract types.",
+                                                                                                "{0} should be removed from abstract type {1}.",
+                                                                                                DefaultCategory,
+                                                                                                DiagnosticSeverity.Error,
+                                                                                                true);
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeGeneric = new("COIMBRA0016",
@@ -129,39 +129,25 @@ namespace Coimbra.Roslyn
                                                                                                DiagnosticSeverity.Error,
                                                                                                true);
 
-        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidInstanceValueField = new("COIMBRA0012",
-                                                                                                        "SharedManagedPoolAttribute has an invalid value for InstanceValueField.",
-                                                                                                        "Couldn't find {0} in {1}.",
-                                                                                                        DefaultCategory,
-                                                                                                        DiagnosticSeverity.Error,
-                                                                                                        false);
-
-        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidNestedInstanceWrapper = new("COIMBRA0013",
-                                                                                                           "SharedManagedPoolAttribute has an invalid value for NestedInstanceWrapper.",
-                                                                                                           "Couldn't find {0} in {1}.",
-                                                                                                           DefaultCategory,
-                                                                                                           DiagnosticSeverity.Error,
-                                                                                                           false);
-
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor SharedServiceLocatorShouldNotBeUsedFromWithinServiceImplementation = new("COIMBRA016",
-                                                                                                                             "ServiceLocator.Shared should not be accessed from within a IService implementation.",
-                                                                                                                             "Use OwningLocator instead of SharedLocator.Shared.",
-                                                                                                                             ServicesCategory,
-                                                                                                                             DiagnosticSeverity.Error,
-                                                                                                                             false);
+        public static readonly DiagnosticDescriptor OwningLocatorShouldBeUsedInsteadOfShared = new("COIMBRA017",
+                                                                                                   "ServiceLocator.Shared should not be accessed inside IService.",
+                                                                                                   "Use OwningLocator instead of ServiceLocator.Shared.",
+                                                                                                   ServicesCategory,
+                                                                                                   DiagnosticSeverity.Error,
+                                                                                                   true);
 
-        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0017",
-                                                                                                  "OwningLocator.set is for internal use only, using it may lead to unexpected errors.",
-                                                                                                  "Do not set the OwningLocator directly.",
+        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0018",
+                                                                                                  "OwningLocator.set is for internal use only.",
+                                                                                                  "Do not set the OwningLocator manually.",
                                                                                                   ServicesCategory,
                                                                                                   DiagnosticSeverity.Error,
-                                                                                                  false);
+                                                                                                  true);
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0019",
                                                                                       "Component.gameObject should not be used with an Actor.",
-                                                                                      "Use {0}.GameObject instead.",
+                                                                                      "Use {0}.GameObject instead of Component.gameObject.",
                                                                                       DefaultCategory,
                                                                                       DiagnosticSeverity.Warning,
                                                                                       false);
@@ -169,7 +155,7 @@ namespace Coimbra.Roslyn
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor IncorrectTransformProperty = new("COIMBRA0020",
                                                                                      "Component.transform should not be used with an Actor.",
-                                                                                     "Use {0}.Transform instead.",
+                                                                                     "Use {0}.Transform instead of Component.transform.",
                                                                                      DefaultCategory,
                                                                                      DiagnosticSeverity.Warning,
                                                                                      false);
@@ -177,10 +163,17 @@ namespace Coimbra.Roslyn
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0021",
                                                                                        "Object.Destroy should not be used when using the Coimbra Framework.",
-                                                                                       "Use {0}.Destroy() instead.",
+                                                                                       "Use {0}.Destroy() instead of Object.Destroy().",
                                                                                        DefaultCategory,
                                                                                        DiagnosticSeverity.Error,
                                                                                        false);
+
+        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidValue = new("COIMBRA0022",
+                                                                                           "SharedManagedPoolAttribute has an invalid value.",
+                                                                                           "Couldn't find {0} {1}.{2}.",
+                                                                                           DefaultCategory,
+                                                                                           DiagnosticSeverity.Error,
+                                                                                           false);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA00",
