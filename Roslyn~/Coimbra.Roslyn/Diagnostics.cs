@@ -36,14 +36,14 @@ namespace Coimbra.Roslyn
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",
                                                                                           "ServiceLocator APIs requires an interface type as generic parameter.",
-                                                                                          "ServiceLocator.{0} requires an interface as the type argument, {1} is not a compatible type.",
+                                                                                          "ServiceLocator.{0} requires an interface as the type argument and {1} is not a compatible type.",
                                                                                           ServicesCategory,
                                                                                           DiagnosticSeverity.Error,
                                                                                           true);
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresNonAbstractInterface = new("COIMBRA0005",
                                                                                                      "ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter.",
-                                                                                                     "ServiceLocator.{0} requires another type argument, or remove AbstractInterfaceAttribute from {1}.",
+                                                                                                     "ServiceLocator.{0} requires another type argument or remove AbstractInterfaceAttribute from {1}.",
                                                                                                      ServicesCategory,
                                                                                                      DiagnosticSeverity.Error,
                                                                                                      true);
@@ -104,14 +104,30 @@ namespace Coimbra.Roslyn
                                                                                                      "Remove either ProjectSettingsAttribute or PreferencesAttribute from {0}",
                                                                                                      DefaultCategory,
                                                                                                      DiagnosticSeverity.Error,
-                                                                                                     false);
+                                                                                                     true);
 
         public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0014",
-                                                                                                   "ScriptableSettings FileDirectory should not be inside the project's Asset folder or have \"..\" in its path.",
-                                                                                                   "Change FileDirectory for {0} in {1}.",
+                                                                                                   "ScriptableSettings has an invalided FileDirectory.",
+                                                                                                   "{0}.FileDirectory for {1} should not {2}.",
                                                                                                    DefaultCategory,
                                                                                                    DiagnosticSeverity.Error,
-                                                                                                   false);
+                                                                                                   true);
+
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeAbstract = new("COIMBRA0015",
+                                                                                                   "ScriptableSettings attributes are not supported on abstract types.",
+                                                                                                   "{0} should be removed from abstract type {1}.",
+                                                                                                   DefaultCategory,
+                                                                                                   DiagnosticSeverity.Error,
+                                                                                                   true);
+
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeGeneric = new("COIMBRA0016",
+                                                                                               "ScriptableSettings attributes are not supported on generic types.",
+                                                                                               "{0} should be removed from generic type {1}.",
+                                                                                               DefaultCategory,
+                                                                                               DiagnosticSeverity.Error,
+                                                                                               true);
 
         public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidInstanceValueField = new("COIMBRA0012",
                                                                                                         "SharedManagedPoolAttribute has an invalid value for InstanceValueField.",
@@ -141,13 +157,6 @@ namespace Coimbra.Roslyn
                                                                                                   ServicesCategory,
                                                                                                   DiagnosticSeverity.Error,
                                                                                                   false);
-
-        public static readonly DiagnosticDescriptor UseServiceActorBaseToImplementGameObjectServices = new("COIMBRA0018",
-                                                                                                           "Inherit from ServiceActorBase to implement IService on GameObjects.",
-                                                                                                           "Change {0} to inherit from ServiceActorBase instead.",
-                                                                                                           DefaultCategory,
-                                                                                                           DiagnosticSeverity.Error,
-                                                                                                           false);
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0019",

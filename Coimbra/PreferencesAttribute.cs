@@ -9,7 +9,7 @@ namespace Coimbra
     /// Apply this attribute to a <see cref="ScriptableSettings"/> that should show up in the preferences window.
     /// <para>A <see cref="ScriptableSettings"/> with this attribute will not have its serialized data available on builds, but you can still define default values for it.</para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     [BaseTypeRequired(typeof(ScriptableSettings))]
     public sealed class PreferencesAttribute : Attribute
     {

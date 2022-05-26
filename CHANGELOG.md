@@ -6,6 +6,10 @@
 - Added analyzer `COIMBRA0010`.
 - Added analyzer `COIMBRA0011`.
 - Added analyzer `COIMBRA0012`.
+- Added analyzer `COIMBRA0013`.
+- Added analyzer `COIMBRA0014`.
+- Added analyzer `COIMBRA0015`.
+- Added analyzer `COIMBRA0016`.
 
 ## [10.3.1] - 2022-05-25
 

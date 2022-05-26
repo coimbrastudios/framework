@@ -80,3 +80,7 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0010 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
 | COIMBRA0011 | Concrete IService should not be a Component unless it inherit from ServiceActorBase.                  | Warning  | No       |
 | COIMBRA0012 | A ScriptableSettings should not implement any IService.                                               | Error    | No       |
+| COIMBRA0013 | ProjectSettingsAttribute and PreferencesAttribute should not be used together.                        | Error    | No       |
+| COIMBRA0014 | ScriptableSettings has an invalided FileDirectory.                                                    | Error    | No       |
+| COIMBRA0015 | ScriptableSettings attributes are not supported on abstract types.                                    | Error    | No       |
+| COIMBRA0016 | ScriptableSettings attributes are not supported on generic types.                                     | Error    | No       |
