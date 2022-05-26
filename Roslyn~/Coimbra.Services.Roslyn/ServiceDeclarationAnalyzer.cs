@@ -12,7 +12,8 @@ namespace Coimbra.Services.Roslyn
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService,
                                                                                                            Diagnostics.ConcreteServiceShouldNotImplementAbstractService,
-                                                                                                           Diagnostics.BaseClassIsConcreteServiceAlready);
+                                                                                                           Diagnostics.BaseClassIsConcreteServiceAlready,
+                                                                                                           Diagnostics.InheritFromServiceActorBaseInstead);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -35,20 +36,24 @@ namespace Coimbra.Services.Roslyn
                 return;
             }
 
-            if (abstractServiceCount > 0)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldNotImplementAbstractService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
-            }
-
-            if (concreteServiceCount == 0)
-            {
-                return;
-            }
-
             typeSymbol = typeSymbol.BaseType;
 
             while (typeSymbol != null)
             {
+                string containingNamespace = typeSymbol.ContainingNamespace.ToString();
+
+                if (typeSymbol.Name == CoimbraServicesTypes.ServiceActorBaseClass.Name && containingNamespace == CoimbraServicesTypes.ServiceActorBaseClass.Namespace)
+                {
+                    break;
+                }
+
+                if (typeSymbol.Name == UnityEngineTypes.ComponentClass.Name && containingNamespace == UnityEngineTypes.ComponentClass.Namespace)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.InheritFromServiceActorBaseInstead, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+
+                    return;
+                }
+
                 if (ImplementsService(typeSymbol, out _, out int parentServiceCount) && parentServiceCount > 0)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.BaseClassIsConcreteServiceAlready, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName(), typeSymbol.Name));
@@ -57,6 +62,11 @@ namespace Coimbra.Services.Roslyn
                 }
 
                 typeSymbol = typeSymbol.BaseType;
+            }
+
+            if (abstractServiceCount > 0)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldNotImplementAbstractService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
             }
 
             if (concreteServiceCount > 1)

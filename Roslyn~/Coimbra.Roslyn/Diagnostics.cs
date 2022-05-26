@@ -85,7 +85,21 @@ namespace Coimbra.Roslyn
                                                                                             DiagnosticSeverity.Error,
                                                                                             true);
 
-        public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0010",
+        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0011",
+                                                                                             "Concrete IService should not be a Component unless it inherit from ServiceActorBase.",
+                                                                                             "Make {0} inherit from ServiceActorBase to avoid undefined behaviours.",
+                                                                                             ServicesCategory,
+                                                                                             DiagnosticSeverity.Warning,
+                                                                                             true);
+
+        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0012",
+                                                                                                      "A ScriptableSettings should not implement any IService.",
+                                                                                                      "You can move IService implementation to another class or don't inherit from ScriptableSettings.",
+                                                                                                      ServicesCategory,
+                                                                                                      DiagnosticSeverity.Error,
+                                                                                                      false);
+
+        public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0013",
                                                                                                      "ProjectSettingsAttribute and PreferencesAttribute should not be used together.",
                                                                                                      "Remove either ProjectSettingsAttribute or PreferencesAttribute from {0}",
                                                                                                      DefaultCategory,
@@ -93,7 +107,7 @@ namespace Coimbra.Roslyn
                                                                                                      false);
 
         public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0011",
-                                                                                                   "ScriptableSettings FileDirectory should not be inside the project's Asset folder or contains \"..\" in its path.",
+                                                                                                   "ScriptableSettings FileDirectory should not be inside the project's Asset folder or have \"..\" in its path.",
                                                                                                    "Change FileDirectory for {0} in {1}.",
                                                                                                    DefaultCategory,
                                                                                                    DiagnosticSeverity.Error,
@@ -112,20 +126,6 @@ namespace Coimbra.Roslyn
                                                                                                            DefaultCategory,
                                                                                                            DiagnosticSeverity.Error,
                                                                                                            false);
-
-        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0014",
-                                                                                             "Concrete IService is a MonoBehaviour but doesn't inherit from ServiceActorBase.",
-                                                                                             "Make {0} inherit from ServiceActorBase or ensure that it is implemented correctly.",
-                                                                                             ServicesCategory,
-                                                                                             DiagnosticSeverity.Info,
-                                                                                             false);
-
-        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0015",
-                                                                                                      "A ScriptableSettings should not implement IService.",
-                                                                                                      "You can move IService implementation to another class or don't inherit from ScriptableSettings.",
-                                                                                                      ServicesCategory,
-                                                                                                      DiagnosticSeverity.Error,
-                                                                                                      false);
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor SharedServiceLocatorShouldNotBeUsedFromWithinServiceImplementation = new("COIMBRA016",
