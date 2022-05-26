@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.3.2] - UNRELEASED
+## [10.3.2] - 2022-05-26
 
 - Added `LockDictionarySizeAttribute` to be used with `SerializableDictionary`.
 - Added analyzer `COIMBRA0010`.
