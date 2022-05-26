@@ -1,11 +1,10 @@
-﻿using Coimbra.Roslyn;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
-namespace Coimbra.Services.Roslyn
+namespace Coimbra.Roslyn
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ScriptableSettingsDeclarationAnalyzer : DiagnosticAnalyzer

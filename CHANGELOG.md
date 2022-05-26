@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.3.3] - UNRELEASED
+
+- Removed analyzer `COIMBRA0008` due it being redundant. Using `BaseTypeRequiredAttribute` instead.
+
 ## [10.3.2] - 2022-05-26
 
 - Added `LockDictionarySizeAttribute` to be used with `SerializableDictionary`.

@@ -62,13 +62,12 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor AbstractServiceShouldBeUsedWithServiceInterfaces = new("COIMBRA0008",
-                                                                                                           "AbstractServiceAttribute should only be used with an interface that extends IService.",
-                                                                                                           "Remove AbstractServiceAttribute from {0}.",
-                                                                                                           ServicesCategory,
-                                                                                                           DiagnosticSeverity.Warning,
-                                                                                                           true);
+        public static readonly DiagnosticDescriptor C0008 = new("COIMBRA0008",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                DiagnosticSeverity.Hidden,
+                                                                false);
 
         // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",
