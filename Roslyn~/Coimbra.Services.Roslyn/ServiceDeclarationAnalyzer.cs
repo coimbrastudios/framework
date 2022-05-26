@@ -13,7 +13,8 @@ namespace Coimbra.Services.Roslyn
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService,
                                                                                                            Diagnostics.ConcreteServiceShouldNotImplementAbstractService,
                                                                                                            Diagnostics.BaseClassIsConcreteServiceAlready,
-                                                                                                           Diagnostics.InheritFromServiceActorBaseInstead);
+                                                                                                           Diagnostics.InheritFromServiceActorBaseInstead,
+                                                                                                           Diagnostics.ScriptableSettingsShouldNotImplementService);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -45,6 +46,13 @@ namespace Coimbra.Services.Roslyn
                 if (typeSymbol.Name == CoimbraServicesTypes.ServiceActorBaseClass.Name && containingNamespace == CoimbraServicesTypes.ServiceActorBaseClass.Namespace)
                 {
                     break;
+                }
+
+                if (typeSymbol.Name == CoimbraTypes.ScriptableSettingsClass.Name && containingNamespace == CoimbraTypes.ScriptableSettingsClass.Namespace)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotImplementService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+
+                    return;
                 }
 
                 if (typeSymbol.Name == UnityEngineTypes.ComponentClass.Name && containingNamespace == UnityEngineTypes.ComponentClass.Namespace)

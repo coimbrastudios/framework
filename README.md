@@ -79,3 +79,4 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0009 | IEventService generic APIs should not be used directly.                                               | Error    | No       |
 | COIMBRA0010 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
 | COIMBRA0011 | Concrete IService should not be a Component unless it inherit from ServiceActorBase.                  | Warning  | No       |
+| COIMBRA0012 | A ScriptableSettings should not implement any IService.                                               | Error    | No       |

@@ -5,5 +5,7 @@
         public const string Namespace = "UnityEngine";
 
         public static readonly TypeString ComponentClass = new("Component", Namespace);
+
+        public static readonly TypeString ScriptableObjectClass = new("ScriptableObject", Namespace);
     }
 }

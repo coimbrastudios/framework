@@ -8,6 +8,8 @@
 
         public static readonly TypeString ManagedPoolClass = new("ManagedPool", Namespace);
 
+        public static readonly TypeString ScriptableSettingsClass = new("ScriptableSettings", Namespace);
+
         public static readonly TypeString SharedManagedPoolAttribute = new("SharedManagedPoolAttribute", Namespace);
     }
 }

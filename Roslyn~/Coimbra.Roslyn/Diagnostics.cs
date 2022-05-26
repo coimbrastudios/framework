@@ -94,10 +94,10 @@ namespace Coimbra.Roslyn
 
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0012",
                                                                                                       "A ScriptableSettings should not implement any IService.",
-                                                                                                      "You can move IService implementation to another class or don't inherit from ScriptableSettings.",
+                                                                                                      "Move IService implementation to another class or make {0} inherit from a type that is not ScriptableSettings.",
                                                                                                       ServicesCategory,
                                                                                                       DiagnosticSeverity.Error,
-                                                                                                      false);
+                                                                                                      true);
 
         public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0013",
                                                                                                      "ProjectSettingsAttribute and PreferencesAttribute should not be used together.",
@@ -106,7 +106,7 @@ namespace Coimbra.Roslyn
                                                                                                      DiagnosticSeverity.Error,
                                                                                                      false);
 
-        public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0011",
+        public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0014",
                                                                                                    "ScriptableSettings FileDirectory should not be inside the project's Asset folder or have \"..\" in its path.",
                                                                                                    "Change FileDirectory for {0} in {1}.",
                                                                                                    DefaultCategory,
