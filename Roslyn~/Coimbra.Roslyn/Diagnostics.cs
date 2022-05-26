@@ -145,35 +145,12 @@ namespace Coimbra.Roslyn
                                                                                                   true);
 
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0019",
-                                                                                      "Component.gameObject should not be used with an Actor.",
-                                                                                      "Use {0}.GameObject instead of Component.gameObject.",
-                                                                                      DefaultCategory,
-                                                                                      DiagnosticSeverity.Warning,
-                                                                                      false);
-
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor IncorrectTransformProperty = new("COIMBRA0020",
-                                                                                     "Component.transform should not be used with an Actor.",
-                                                                                     "Use {0}.Transform instead of Component.transform.",
-                                                                                     DefaultCategory,
-                                                                                     DiagnosticSeverity.Warning,
-                                                                                     false);
-
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0021",
-                                                                                       "Object.Destroy should not be used when using the Coimbra Framework.",
-                                                                                       "Use {0}.Destroy() instead of Object.Destroy().",
+        public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
+                                                                                       "Object.Destroy should be avoided.",
+                                                                                       "Use {0}.Destroy() instead of Object.Destroy({0}).",
                                                                                        DefaultCategory,
-                                                                                       DiagnosticSeverity.Error,
-                                                                                       false);
-
-        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidValue = new("COIMBRA0022",
-                                                                                           "SharedManagedPoolAttribute has an invalid value.",
-                                                                                           "Couldn't find {0} {1}.{2}.",
-                                                                                           DefaultCategory,
-                                                                                           DiagnosticSeverity.Error,
-                                                                                           false);
+                                                                                       DiagnosticSeverity.Info,
+                                                                                       true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA00",

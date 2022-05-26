@@ -12,6 +12,7 @@
 - Added analyzer `COIMBRA0016`.
 - Added analyzer `COIMBRA0017`.
 - Added analyzer `COIMBRA0018`.
+- Added analyzer `COIMBRA0019`.
 
 ## [10.3.1] - 2022-05-25
 

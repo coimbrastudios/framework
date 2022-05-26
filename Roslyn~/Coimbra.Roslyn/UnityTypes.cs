@@ -6,6 +6,6 @@
 
         public static readonly TypeString ComponentClass = new("Component", Namespace);
 
-        public static readonly TypeString ScriptableObjectClass = new("ScriptableObject", Namespace);
+        public static readonly TypeString ObjectClass = new("Object", Namespace);
     }
 }
