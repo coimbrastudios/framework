@@ -11,7 +11,8 @@ namespace Coimbra.Services.Roslyn
     public sealed class ServiceDeclarationAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService,
-                                                                                                           Diagnostics.ConcreteServiceShouldNotImplementAbstractService);
+                                                                                                           Diagnostics.ConcreteServiceShouldNotImplementAbstractService,
+                                                                                                           Diagnostics.BaseClassIsConcreteServiceAlready);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -29,8 +30,45 @@ namespace Coimbra.Services.Roslyn
                 return;
             }
 
-            int abstractServiceCount = 0;
-            int concreteServiceCount = 0;
+            if (!ImplementsService(typeSymbol, out int abstractServiceCount, out int concreteServiceCount))
+            {
+                return;
+            }
+
+            if (abstractServiceCount > 0)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldNotImplementAbstractService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+            }
+
+            if (concreteServiceCount == 0)
+            {
+                return;
+            }
+
+            typeSymbol = typeSymbol.BaseType;
+
+            while (typeSymbol != null)
+            {
+                if (ImplementsService(typeSymbol, out _, out int parentServiceCount) && parentServiceCount > 0)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.BaseClassIsConcreteServiceAlready, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName(), typeSymbol.Name));
+
+                    return;
+                }
+
+                typeSymbol = typeSymbol.BaseType;
+            }
+
+            if (concreteServiceCount > 1)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+            }
+        }
+
+        private static bool ImplementsService(ITypeSymbol typeSymbol, out int abstractCount, out int concreteCount)
+        {
+            abstractCount = 0;
+            concreteCount = 0;
 
             foreach (INamedTypeSymbol interfaceSymbol in typeSymbol.Interfaces)
             {
@@ -41,23 +79,15 @@ namespace Coimbra.Services.Roslyn
 
                 if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
                 {
-                    abstractServiceCount++;
+                    abstractCount++;
                 }
                 else
                 {
-                    concreteServiceCount++;
+                    concreteCount++;
                 }
             }
 
-            if (abstractServiceCount > 0)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldNotImplementAbstractService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
-            }
-
-            if (concreteServiceCount > 1)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
-            }
+            return abstractCount + concreteCount > 0;
         }
     }
 }

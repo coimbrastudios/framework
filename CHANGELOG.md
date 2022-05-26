@@ -3,6 +3,7 @@
 ## [10.3.2] - UNRELEASED
 
 - Added `LockDictionarySizeAttribute` to be used with `SerializableDictionary`.
+- Added analyzer `COIMBRA0010`.
 
 ## [10.3.1] - 2022-05-25
 

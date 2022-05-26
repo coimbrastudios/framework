@@ -78,80 +78,71 @@ namespace Coimbra.Roslyn
                                                                                                             DiagnosticSeverity.Error,
                                                                                                             true);
 
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor DisableDefaultFactoryAttributeIsRedundant = new("COIMBRA0010",
-                                                                                                    "DisableDefaultFactoryAttribute should only be used in concrete IService.",
-                                                                                                    "Remove DisableDefaultFactoryAttribute from {0}.",
-                                                                                                    ServicesCategory,
-                                                                                                    DiagnosticSeverity.Warning,
-                                                                                                    false);
+        public static readonly DiagnosticDescriptor BaseClassIsConcreteServiceAlready = new("COIMBRA0010",
+                                                                                            "Type can't implement any IService because parent class already implements one.",
+                                                                                            "{0} can't implement any IService because {1} already implements one.",
+                                                                                            ServicesCategory,
+                                                                                            DiagnosticSeverity.Error,
+                                                                                            true);
 
-        public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0011",
+        public static readonly DiagnosticDescriptor ScriptableSettingsHasConflictingAttributes = new("COIMBRA0010",
                                                                                                      "ProjectSettingsAttribute and PreferencesAttribute should not be used together.",
                                                                                                      "Remove either ProjectSettingsAttribute or PreferencesAttribute from {0}",
                                                                                                      DefaultCategory,
                                                                                                      DiagnosticSeverity.Error,
                                                                                                      false);
 
-        public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0012",
+        public static readonly DiagnosticDescriptor ScriptableSettingsFileDirectoryIsInvalid = new("COIMBRA0011",
                                                                                                    "ScriptableSettings FileDirectory should not be inside the project's Asset folder or contains \"..\" in its path.",
                                                                                                    "Change FileDirectory for {0} in {1}.",
                                                                                                    DefaultCategory,
                                                                                                    DiagnosticSeverity.Error,
                                                                                                    false);
 
-        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidInstanceValueField = new("COIMBRA0013",
+        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidInstanceValueField = new("COIMBRA0012",
                                                                                                         "SharedManagedPoolAttribute has an invalid value for InstanceValueField.",
                                                                                                         "Couldn't find {0} in {1}.",
                                                                                                         DefaultCategory,
                                                                                                         DiagnosticSeverity.Error,
                                                                                                         false);
 
-        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidNestedInstanceWrapper = new("COIMBRA0014",
+        public static readonly DiagnosticDescriptor SharedManagedPoolHasInvalidNestedInstanceWrapper = new("COIMBRA0013",
                                                                                                            "SharedManagedPoolAttribute has an invalid value for NestedInstanceWrapper.",
                                                                                                            "Couldn't find {0} in {1}.",
                                                                                                            DefaultCategory,
                                                                                                            DiagnosticSeverity.Error,
                                                                                                            false);
 
-        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0015",
+        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0014",
                                                                                              "Concrete IService is a MonoBehaviour but doesn't inherit from ServiceActorBase.",
                                                                                              "Make {0} inherit from ServiceActorBase or ensure that it is implemented correctly.",
                                                                                              ServicesCategory,
                                                                                              DiagnosticSeverity.Info,
                                                                                              false);
 
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor PreloadDefaultFactoryAttributeIsRedundant = new("COIMBRA0016",
-                                                                                                    "PreloadServiceAttribute should only be used in concrete IService",
-                                                                                                    "Remove PreloadServiceAttribute from {0}.",
-                                                                                                    ServicesCategory,
-                                                                                                    DiagnosticSeverity.Warning,
-                                                                                                    false);
-
-        // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor SharedServiceLocatorShouldNotBeUsedFromWithinServiceImplementation = new("COIMBRA017",
-                                                                                                                             "ServiceLocator.Shared should not be accessed from within a IService implementation.",
-                                                                                                                             "Use OwningLocator instead of SharedLocator.Shared.",
-                                                                                                                             ServicesCategory,
-                                                                                                                             DiagnosticSeverity.Error,
-                                                                                                                             false);
-
-        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0018",
-                                                                                                  "OwningLocator.set is for internal use only, using it may lead to unexpected errors.",
-                                                                                                  "Do not set the OwningLocator directly.",
-                                                                                                  ServicesCategory,
-                                                                                                  DiagnosticSeverity.Error,
-                                                                                                  false);
-
-        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0019",
+        public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0015",
                                                                                                       "A ScriptableSettings should not implement IService.",
                                                                                                       "You can move IService implementation to another class or don't inherit from ScriptableSettings.",
                                                                                                       ServicesCategory,
                                                                                                       DiagnosticSeverity.Error,
                                                                                                       false);
 
-        public static readonly DiagnosticDescriptor UseServiceActorBaseToImplementGameObjectServices = new("COIMBRA0020",
+        // TODO: Add CodeFix
+        public static readonly DiagnosticDescriptor SharedServiceLocatorShouldNotBeUsedFromWithinServiceImplementation = new("COIMBRA016",
+                                                                                                                             "ServiceLocator.Shared should not be accessed from within a IService implementation.",
+                                                                                                                             "Use OwningLocator instead of SharedLocator.Shared.",
+                                                                                                                             ServicesCategory,
+                                                                                                                             DiagnosticSeverity.Error,
+                                                                                                                             false);
+
+        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0017",
+                                                                                                  "OwningLocator.set is for internal use only, using it may lead to unexpected errors.",
+                                                                                                  "Do not set the OwningLocator directly.",
+                                                                                                  ServicesCategory,
+                                                                                                  DiagnosticSeverity.Error,
+                                                                                                  false);
+
+        public static readonly DiagnosticDescriptor UseServiceActorBaseToImplementGameObjectServices = new("COIMBRA0018",
                                                                                                            "Inherit from ServiceActorBase to implement IService on GameObjects.",
                                                                                                            "Change {0} to inherit from ServiceActorBase instead.",
                                                                                                            DefaultCategory,
@@ -159,7 +150,7 @@ namespace Coimbra.Roslyn
                                                                                                            false);
 
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0021",
+        public static readonly DiagnosticDescriptor IncorrectGameObjectProperty = new("COIMBRA0019",
                                                                                       "Component.gameObject should not be used with an Actor.",
                                                                                       "Use {0}.GameObject instead.",
                                                                                       DefaultCategory,
@@ -167,7 +158,7 @@ namespace Coimbra.Roslyn
                                                                                       false);
 
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor IncorrectTransformProperty = new("COIMBRA0022",
+        public static readonly DiagnosticDescriptor IncorrectTransformProperty = new("COIMBRA0020",
                                                                                      "Component.transform should not be used with an Actor.",
                                                                                      "Use {0}.Transform instead.",
                                                                                      DefaultCategory,
@@ -175,12 +166,12 @@ namespace Coimbra.Roslyn
                                                                                      false);
 
         // TODO: Add CodeFix
-        public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0023",
-                                                                                        "Object.Destroy should not be used when using the Coimbra Framework.",
-                                                                                        "Use {0}.Destroy() instead.",
-                                                                                        DefaultCategory,
-                                                                                        DiagnosticSeverity.Error,
-                                                                                        false);
+        public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0021",
+                                                                                       "Object.Destroy should not be used when using the Coimbra Framework.",
+                                                                                       "Use {0}.Destroy() instead.",
+                                                                                       DefaultCategory,
+                                                                                       DiagnosticSeverity.Error,
+                                                                                       false);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA00",

@@ -77,3 +77,4 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
 | COIMBRA0008 | AbstractServiceAttribute should only be used with an interface that extends IService.                 | Warning  | No       |
 | COIMBRA0009 | IEventService generic APIs should not be used directly.                                               | Error    | No       |
+| COIMBRA0010 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
