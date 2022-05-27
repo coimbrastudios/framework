@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.3.3] - UNRELEASED
+## [10.3.3] - 2022-05-27
 
 - Added `AllowEventServiceUsageForAttribute` to allow using `IEventService` methods directly when inside specific types.
 - Removed analyzer `COIMBRA0008` due it being redundant. Using `BaseTypeRequiredAttribute` instead.
