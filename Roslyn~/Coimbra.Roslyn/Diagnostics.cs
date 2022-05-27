@@ -65,11 +65,11 @@ namespace Coimbra.Roslyn
         public static readonly DiagnosticDescriptor C0008 = new("COIMBRA0008",
                                                                 "",
                                                                 "",
-                                                                "",
+                                                                DefaultCategory,
                                                                 DiagnosticSeverity.Hidden,
                                                                 false);
 
-        // TODO: Add CodeFix
+        // TODO: add CodeFix
         public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",
                                                                                                             "IEventService generic APIs should not be used directly.",
                                                                                                             "Use {0}.{1} instead.",
@@ -112,7 +112,6 @@ namespace Coimbra.Roslyn
                                                                                                    DiagnosticSeverity.Error,
                                                                                                    true);
 
-        // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeAbstract = new("COIMBRA0015",
                                                                                                 "ScriptableSettings attributes are not supported on abstract types.",
                                                                                                 "{0} should be removed from abstract type {1}.",
@@ -120,7 +119,6 @@ namespace Coimbra.Roslyn
                                                                                                 DiagnosticSeverity.Error,
                                                                                                 true);
 
-        // TODO: Add CodeFix
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotBeGeneric = new("COIMBRA0016",
                                                                                                "ScriptableSettings attributes are not supported on generic types.",
                                                                                                "{0} should be removed from generic type {1}.",
@@ -128,7 +126,7 @@ namespace Coimbra.Roslyn
                                                                                                DiagnosticSeverity.Error,
                                                                                                true);
 
-        // TODO: Add CodeFix
+        // TODO: add CodeFix
         public static readonly DiagnosticDescriptor OwningLocatorShouldBeUsedInsteadOfShared = new("COIMBRA017",
                                                                                                    "ServiceLocator.Shared should not be accessed inside IService.",
                                                                                                    "Use OwningLocator instead of ServiceLocator.Shared.",
@@ -143,7 +141,7 @@ namespace Coimbra.Roslyn
                                                                                                   DiagnosticSeverity.Error,
                                                                                                   true);
 
-        // TODO: Add CodeFix
+        // TODO: add CodeFix
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
                                                                                        "Object.Destroy should be avoided.",
                                                                                        "Use {0}.Destroy() instead of Object.Destroy({0}).",
@@ -152,7 +150,7 @@ namespace Coimbra.Roslyn
                                                                                        true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly DiagnosticDescriptor _ = new("COIMBRA00",
+        public static readonly DiagnosticDescriptor _ = new("COIMBRA",
                                                             "",
                                                             "",
                                                             DefaultCategory,

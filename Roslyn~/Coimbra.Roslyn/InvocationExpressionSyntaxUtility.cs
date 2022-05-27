@@ -8,9 +8,9 @@ namespace Coimbra.Roslyn
         {
             return invocationExpressionSyntax.Expression switch
             {
-                MemberAccessExpressionSyntax memberAccessExpressionSyntax => memberAccessExpressionSyntax.Name,
-                SimpleNameSyntax simpleNameSyntax => simpleNameSyntax,
-                MemberBindingExpressionSyntax memberBindingExpressionSyntax => memberBindingExpressionSyntax.Name,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
+                SimpleNameSyntax simpleName => simpleName,
+                MemberBindingExpressionSyntax memberBinding => memberBinding.Name,
                 _ => null,
             };
         }

@@ -94,6 +94,10 @@ namespace Coimbra.Services.Events.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
+                        sourceBuilder.AddLine("/// <summary>");
+                        sourceBuilder.AddLine($"/// Generated extension methods for <see cref=\"{typeName}\"/>.");
+                        sourceBuilder.AddLine("/// </summary>");
+                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
                         sourceBuilder.AddLine($"internal static class {typeName}GeneratedExtensions");
 
                         using (new BracesScope(sourceBuilder))
@@ -336,7 +340,6 @@ namespace Coimbra.Services.Events.Roslyn
             sourceBuilder.AddLine("/// <summary>");
             sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{originalMethod}{{T}}({originalParameters})\"/>");
             sourceBuilder.AddLine("/// </summary>");
-            sourceBuilder.AddLine("[CompilerGenerated]");
             sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
             sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
         }

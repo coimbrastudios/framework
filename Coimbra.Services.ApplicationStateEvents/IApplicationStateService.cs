@@ -24,8 +24,9 @@ namespace Coimbra.Services.ApplicationStateEvents
         bool IsQuitting { get; }
 
         /// <summary>
-        /// Removes all listeners from all <see cref="IApplicationStateEvent"/>.
+        /// Removes all listeners from the specified type.
         /// </summary>
-        void RemoveAllListeners();
+        void RemoveAllListeners<T>()
+            where T : IApplicationStateEvent;
     }
 }

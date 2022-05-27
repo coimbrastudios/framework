@@ -95,7 +95,7 @@ namespace Coimbra.Services.Roslyn
                     continue;
                 }
 
-                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
+                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _, false))
                 {
                     abstractCount++;
                 }

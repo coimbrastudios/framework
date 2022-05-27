@@ -61,7 +61,7 @@ namespace Coimbra.Services.Roslyn
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
                 }
             }
-            else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
+            else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _, false))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
             }

@@ -242,7 +242,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGet(Type type, out ScriptableSettings result)
         {
-            result = Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid() ? value : null;
+            result = Values.TryGetValue(type, out ScriptableSettings value) ? value.GetValid() : null;
 
             return result != null;
         }

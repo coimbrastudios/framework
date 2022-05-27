@@ -23,112 +23,112 @@ namespace Coimbra.Roslyn
 
         private static void AnalyzeServiceDeclaration(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not ClassDeclarationSyntax classDeclarationSyntax
-             || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol typeSymbol
-             || !typeSymbol.InheritsFrom(CoimbraTypes.ScriptableSettingsClass))
+            if (context.Node is not ClassDeclarationSyntax classDeclaration
+             || context.SemanticModel.GetDeclaredSymbol(context.Node) is not INamedTypeSymbol classType
+             || !classType.InheritsFrom(CoimbraTypes.ScriptableSettingsClass))
             {
                 return;
             }
 
-            bool isPreferences = typeSymbol.HasAttribute(CoimbraTypes.PreferencesAttribute, out AttributeData preferencesData);
-            bool isProjectSettings = typeSymbol.HasAttribute(CoimbraTypes.ProjectSettingsAttribute, out AttributeData projectSettingsData);
+            bool hasPreferencesAttribute = classType.HasAttribute(CoimbraTypes.PreferencesAttribute, out AttributeData preferencesAttribute, false);
+            bool hasProjectSettingsAttribute = classType.HasAttribute(CoimbraTypes.ProjectSettingsAttribute, out AttributeData projectSettingsAttribute, false);
 
-            if (!isPreferences && !isProjectSettings)
+            if (!hasPreferencesAttribute && !hasProjectSettingsAttribute)
             {
                 return;
             }
 
-            if (classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword))
+            if (classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword))
             {
-                if (isPreferences)
+                if (hasPreferencesAttribute)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeAbstract,
-                                                               classDeclarationSyntax.BaseList!.GetLocation(),
+                                                               classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
-                                                               classDeclarationSyntax.GetTypeName()));
+                                                               classDeclaration.GetTypeName()));
                 }
 
-                if (isProjectSettings)
+                if (hasProjectSettingsAttribute)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeAbstract,
-                                                               classDeclarationSyntax.BaseList!.GetLocation(),
+                                                               classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.ProjectSettingsAttribute.Name,
-                                                               classDeclarationSyntax.GetTypeName()));
+                                                               classDeclaration.GetTypeName()));
                 }
 
                 return;
             }
 
-            if (typeSymbol.IsGenericType)
+            if (classType.IsGenericType)
             {
-                if (isPreferences)
+                if (hasPreferencesAttribute)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeGeneric,
-                                                               classDeclarationSyntax.BaseList!.GetLocation(),
+                                                               classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
-                                                               classDeclarationSyntax.GetTypeName()));
+                                                               classDeclaration.GetTypeName()));
                 }
 
-                if (isProjectSettings)
+                if (hasProjectSettingsAttribute)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeGeneric,
-                                                               classDeclarationSyntax.BaseList!.GetLocation(),
+                                                               classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.ProjectSettingsAttribute.Name,
-                                                               classDeclarationSyntax.GetTypeName()));
+                                                               classDeclaration.GetTypeName()));
                 }
 
                 return;
             }
 
-            if (isPreferences)
+            if (hasPreferencesAttribute)
             {
-                if (isProjectSettings)
+                if (hasProjectSettingsAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsHasConflictingAttributes, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsHasConflictingAttributes, classDeclaration.BaseList!.GetLocation(), classDeclaration.GetTypeName()));
                 }
-                else if (!IsAttributeDataValid(preferencesData, out string reason))
+                else if (HasInvalidFileDirectory(preferencesAttribute, out string shouldNotMessage))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsFileDirectoryIsInvalid,
-                                                               classDeclarationSyntax.BaseList!.GetLocation(),
+                                                               classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
-                                                               classDeclarationSyntax.GetTypeName(),
-                                                               reason));
+                                                               classDeclaration.GetTypeName(),
+                                                               shouldNotMessage));
                 }
             }
-            else if (!IsAttributeDataValid(projectSettingsData, out string reason))
+            else if (HasInvalidFileDirectory(projectSettingsAttribute, out string shouldNotMessage))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsFileDirectoryIsInvalid,
-                                                           classDeclarationSyntax.BaseList!.GetLocation(),
+                                                           classDeclaration.BaseList!.GetLocation(),
                                                            CoimbraTypes.ProjectSettingsAttribute.Name,
-                                                           classDeclarationSyntax.GetTypeName(),
-                                                           reason));
+                                                           classDeclaration.GetTypeName(),
+                                                           shouldNotMessage));
             }
         }
 
-        private static bool IsAttributeDataValid(AttributeData attributeData, out string reason)
+        private static bool HasInvalidFileDirectory(AttributeData attribute, out string shouldNot)
         {
-            if (attributeData.NamedArguments.ToImmutableDictionary().TryGetValue("FileDirectory", out TypedConstant value) && value.Value is string s)
+            if (attribute.NamedArguments.ToImmutableDictionary().TryGetValue("FileDirectory", out TypedConstant value) && value.Value is string s)
             {
                 s = s.Replace("\\", "/");
 
                 if (s == "Assets" || s.StartsWith("Assets/"))
                 {
-                    reason = "be inside the Assets folder";
+                    shouldNot = "be inside the Assets folder";
 
-                    return false;
+                    return true;
                 }
 
                 if (s == ".." || s.StartsWith("../") || s.EndsWith("/..") || s.Contains("/../"))
                 {
-                    reason = "contains \"..\" in the path";
+                    shouldNot = "contains \"..\" in the path";
 
-                    return false;
+                    return true;
                 }
             }
 
-            reason = null;
+            shouldNot = null;
 
-            return true;
+            return false;
         }
     }
 }

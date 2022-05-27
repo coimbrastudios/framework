@@ -32,18 +32,21 @@ namespace Coimbra.Services.Roslyn
                 TypeString source = new($"{typeData.ClassSymbol.Name}Loader", typeData.ClassSymbol.ContainingNamespace.ToString());
                 sourceBuilder.Initialize();
                 sourceBuilder.AddUsing("Coimbra.Services");
+                sourceBuilder.AddUsing("System.CodeDom.Compiler");
                 sourceBuilder.AddUsing("UnityEngine");
                 sourceBuilder.AddUsing(typeData.InterfaceSymbol.ContainingNamespace.ToString());
                 sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, source.Namespace))
                 {
+                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                     sourceBuilder.AddLine($"internal static class {source.Name}");
 
                     using (new BracesScope(sourceBuilder))
                     {
                         if (!typeData.DisableDefaultFactory)
                         {
+                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                             sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
                             sourceBuilder.AddLine("private static void HandleSubsystemRegistration()");
 
@@ -66,6 +69,7 @@ namespace Coimbra.Services.Roslyn
 
                         if (typeData.PreloadService)
                         {
+                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                             sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
                             sourceBuilder.AddLine("private static void HandleBeforeSceneLoad()");
 
@@ -100,8 +104,8 @@ namespace Coimbra.Services.Roslyn
                     continue;
                 }
 
-                bool disableDefaultFactory = typeSymbol.HasAttribute(CoimbraServicesTypes.DisableDefaultFactoryAttribute, out _);
-                bool preloadService = typeSymbol.HasAttribute(CoimbraServicesTypes.PreloadServiceAttribute, out _);
+                bool disableDefaultFactory = typeSymbol.HasAttribute(CoimbraServicesTypes.DisableDefaultFactoryAttribute, out _, false);
+                bool preloadService = typeSymbol.HasAttribute(CoimbraServicesTypes.PreloadServiceAttribute, out _, false);
 
                 if (disableDefaultFactory && !preloadService)
                 {
@@ -144,7 +148,7 @@ namespace Coimbra.Services.Roslyn
                     continue;
                 }
 
-                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _))
+                if (interfaceSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _, false))
                 {
                     concreteInterfaceSymbol = null;
 

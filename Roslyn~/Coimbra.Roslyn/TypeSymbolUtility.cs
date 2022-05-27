@@ -5,16 +5,65 @@ namespace Coimbra.Roslyn
 {
     public static class TypeSymbolUtility
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasAttribute(this ITypeSymbol typeSymbol, TypeString typeString, out AttributeData attributeData)
+        public static bool HasAttribute(this ITypeSymbol typeSymbol, in TypeString typeString, out AttributeData attributeData, bool checkInherited)
         {
             foreach (AttributeData attribute in typeSymbol.GetAttributes())
             {
-                if (attribute.AttributeClass is not null && attribute.AttributeClass.Is(typeString))
+                if (attribute.AttributeClass is null || !attribute.AttributeClass.Is(typeString))
                 {
-                    attributeData = attribute;
+                    continue;
+                }
 
-                    return true;
+                attributeData = attribute;
+
+                return true;
+            }
+
+            if (checkInherited)
+            {
+                static bool hasInheritedAttribute(ITypeSymbol typeSymbol, in TypeString typeString, out AttributeData attributeData)
+                {
+                    foreach (AttributeData attribute in typeSymbol.GetAttributes())
+                    {
+                        if (attribute.AttributeClass is null || !attribute.AttributeClass.Is(typeString) || !attribute.IsInherited())
+                        {
+                            continue;
+                        }
+
+                        attributeData = attribute;
+
+                        return true;
+                    }
+
+                    attributeData = null;
+
+                    return false;
+                }
+
+                foreach (INamedTypeSymbol interfaceType in typeSymbol.Interfaces)
+                {
+                    if (hasInheritedAttribute(interfaceType, typeString, out attributeData))
+                    {
+                        return true;
+                    }
+                }
+
+                while (typeSymbol.BaseType != null)
+                {
+                    typeSymbol = typeSymbol.BaseType;
+
+                    if (hasInheritedAttribute(typeSymbol, typeString, out attributeData))
+                    {
+                        return true;
+                    }
+
+                    foreach (INamedTypeSymbol interfaceType in typeSymbol.Interfaces)
+                    {
+                        if (hasInheritedAttribute(interfaceType, typeString, out attributeData))
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
 
@@ -23,12 +72,11 @@ namespace Coimbra.Roslyn
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool InheritsFrom(this ITypeSymbol typeSymbol, TypeString typeString)
+        public static bool InheritsFrom(this ITypeSymbol typeSymbol, in TypeString typeString)
         {
             while (typeSymbol.BaseType != null)
             {
-                if (typeSymbol.BaseType.Name == typeString.Name && typeSymbol.BaseType.ContainingNamespace.ToString() == typeString.Namespace)
+                if (typeSymbol.BaseType.Is(typeString))
                 {
                     return true;
                 }
@@ -39,8 +87,7 @@ namespace Coimbra.Roslyn
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ImplementsInterface(this ITypeSymbol typeSymbol, TypeString typeString)
+        public static bool ImplementsInterface(this ITypeSymbol typeSymbol, in TypeString typeString)
         {
             while (typeSymbol != null)
             {
@@ -59,13 +106,37 @@ namespace Coimbra.Roslyn
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Is(this ITypeSymbol typeSymbol, TypeString typeString)
+        public static bool Is(this ITypeSymbol typeSymbol, in TypeString typeString)
         {
             return typeSymbol.Name == typeString.Name && typeSymbol.ContainingNamespace.ToString() == typeString.Namespace;
         }
 
+        public static bool IsAssignableTo(this ITypeSymbol typeSymbol, in TypeString typeString)
+        {
+            do
+            {
+                if (typeSymbol.Is(typeString))
+                {
+                    return true;
+                }
+
+                foreach (INamedTypeSymbol interfaceSymbol in typeSymbol.Interfaces)
+                {
+                    if (interfaceSymbol.IsOrImplementsInterface(typeString))
+                    {
+                        return true;
+                    }
+                }
+
+                typeSymbol = typeSymbol.BaseType;
+            }
+            while (typeSymbol != null);
+
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsOrImplementsInterface(this ITypeSymbol typeSymbol, TypeString typeString)
+        public static bool IsOrImplementsInterface(this ITypeSymbol typeSymbol, in TypeString typeString)
         {
             return typeSymbol.Is(typeString) || typeSymbol.ImplementsInterface(typeString);
         }

@@ -270,7 +270,6 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValue"/>
-        [Pure]
         public bool TryGetValue<T>([NotNull] Object target, [CanBeNull] out T value)
         {
             try

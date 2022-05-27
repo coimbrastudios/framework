@@ -6,8 +6,9 @@
     public interface IPlayerLoopService : IService
     {
         /// <summary>
-        /// Removes all listeners from all <see cref="IPlayerLoopEvent"/>.
+        /// Removes all listeners from the specified type.
         /// </summary>
-        void RemoveAllListeners();
+        void RemoveAllListeners<T>()
+            where T : IPlayerLoopEvent;
     }
 }

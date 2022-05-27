@@ -22,28 +22,70 @@ namespace Coimbra.Services.Events.Roslyn
 
         private static void AnalyzeEventServiceUsage(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not InvocationExpressionSyntax invocationExpressionSyntax)
+            if (context.Node is not InvocationExpressionSyntax invocation)
             {
                 return;
             }
 
-            if (context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol is not IMethodSymbol methodSymbol
-             || !methodSymbol.ContainingType.IsOrImplementsInterface(CoimbraServicesEventsTypes.EventServiceInterface)
-             || !methodSymbol.IsGenericMethod
-             || methodSymbol.DeclaredAccessibility != Accessibility.Public)
+            if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol { DeclaredAccessibility: Accessibility.Public, IsGenericMethod: true } method
+             || !method.ContainingType.IsOrImplementsInterface(CoimbraServicesEventsTypes.EventServiceInterface))
             {
                 return;
             }
 
-            SimpleNameSyntax methodNameSyntax = invocationExpressionSyntax.GetMethodNameSyntax();
+            SimpleNameSyntax methodName = invocation.GetMethodNameSyntax();
 
-            if (methodNameSyntax == null)
+            if (methodName == null)
             {
                 return;
             }
 
-            ITypeSymbol typeSymbol = methodSymbol.TypeArguments.First();
-            context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, methodNameSyntax.GetLocation(), typeSymbol.Name, methodNameSyntax.Identifier.Text));
+            ITypeSymbol methodTypeParameter = method.TypeArguments.First();
+
+            static bool predicate(TypeDeclarationSyntax typeDeclaration)
+            {
+                return typeDeclaration is ClassDeclarationSyntax or StructDeclarationSyntax;
+            }
+
+            if (invocation.FirstAncestorOrSelf<TypeDeclarationSyntax>(predicate) is not { } callerTypeDeclaration
+             || context.SemanticModel.GetDeclaredSymbol(callerTypeDeclaration) is not { } callerType
+             || !IsEventServiceUsageAllowedRecursive(callerType, methodTypeParameter))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, methodName.GetLocation(), methodTypeParameter.Name, methodName.Identifier.Text));
+            }
+        }
+
+        private static bool IsEventServiceUsageAllowedRecursive(ITypeSymbol callerType, ITypeSymbol methodTypeParameter)
+        {
+            if (methodTypeParameter is ITypeParameterSymbol genericType)
+            {
+                foreach (ITypeSymbol constraintType in genericType.ConstraintTypes)
+                {
+                    if (IsEventServiceUsageAllowedRecursive(callerType, constraintType))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (methodTypeParameter.HasAttribute(CoimbraServicesEventsTypes.AllowEventServiceUsageForAttribute, out AttributeData attributeData, true)
+                  && attributeData.ConstructorArguments.Length > 0
+                  && attributeData.ConstructorArguments[0].Value is INamedTypeSymbol allowedType)
+            {
+                if (attributeData.ConstructorArguments.Length == 1
+                 || attributeData.ConstructorArguments[1].Value is bool and false)
+                {
+                    if (callerType.IsAssignableTo(TypeString.From(allowedType)))
+                    {
+                        return true;
+                    }
+                }
+                else if (callerType.Is(TypeString.From(allowedType)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

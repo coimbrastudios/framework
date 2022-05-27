@@ -101,7 +101,7 @@ namespace Coimbra.Editor
             return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.Project, editorFilePath, keywords);
         }
 
-        private static ScriptableSettings CreateOrLoadScriptableSettings(Type type, string? filePath, SettingsScope scope)
+        private static ScriptableSettings? CreateOrLoadScriptableSettings(Type type, string? filePath, SettingsScope scope)
         {
             ScriptableSettingsType filter = ScriptableSettings.GetType(type);
 

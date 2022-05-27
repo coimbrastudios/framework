@@ -23,16 +23,10 @@ namespace Coimbra.Services.ApplicationStateEvents
         private IEventService? EventService => OwningLocator?.Get<IEventService>();
 
         /// <inheritdoc/>
-        public void RemoveAllListeners()
+        public void RemoveAllListeners<T>()
+            where T : IApplicationStateEvent
         {
-            if (EventService == null)
-            {
-                return;
-            }
-
-            ApplicationFocusEvent.RemoveAllListenersAt(EventService);
-            ApplicationPauseEvent.RemoveAllListenersAt(EventService);
-            ApplicationQuitEvent.RemoveAllListenersAt(EventService);
+            EventService?.RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>

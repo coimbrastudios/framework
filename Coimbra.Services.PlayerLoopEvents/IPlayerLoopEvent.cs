@@ -7,6 +7,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// Base event interface for any event that occurs per frame.
     /// </summary>
     [RequireImplementors]
+    [AllowEventServiceUsageFor(typeof(IPlayerLoopService))]
     public interface IPlayerLoopEvent : IEvent
     {
         /// <summary>

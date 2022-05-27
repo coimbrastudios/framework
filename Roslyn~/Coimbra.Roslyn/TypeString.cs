@@ -1,6 +1,8 @@
-﻿namespace Coimbra.Roslyn
+﻿using Microsoft.CodeAnalysis;
+
+namespace Coimbra.Roslyn
 {
-    public sealed class TypeString
+    public readonly struct TypeString
     {
         public readonly string Name;
 
@@ -13,6 +15,11 @@
         }
 
         public string FullName => $"{Namespace}.{Name}";
+
+        public static TypeString From(ITypeSymbol typeSymbol)
+        {
+            return new TypeString(typeSymbol.Name, typeSymbol.ContainingNamespace.ToString());
+        }
 
         public override string ToString()
         {
