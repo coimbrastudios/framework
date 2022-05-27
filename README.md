@@ -27,7 +27,7 @@ Package of general utilities to be used with Unity development.
     - `GUIContentPool`: clears the `GUIContet`.
     - `HashSetPool`: : clears the `HashSet`.
     - `ListPool`: clears the `List`.
-    - `ManagedPool`: allows custom clearing through the `ISharedManagedPoolHandler` interface, while also deleting `IDisposable` and `UnityEngine.Object` instances correctly.
+    - `ManagedPool`: allows custom clearing through the `ISharedManagedPoolHandler` interface.
     - `QueuePool`: clears the `Queue`.
     - `StackPool`: clears the `Stack`.
     - `StringBuilderPool`: clears the `StringBuilder`.
@@ -37,9 +37,10 @@ Package of general utilities to be used with Unity development.
     - `RangeSlider`: Draws a property using the Unity's `MinMaxSlider`.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - References: Create a `Reference` for any value or even another reference.
-- Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`.
+- Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
+  with `PreferencesAttribute`.
 - `SerializableDictionary`: view, edit and save dictionaries from the inspector while also supporting nesting and lists. You can lock its size with `LockDictionarySizeAttribute`.
-  - Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
+- Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
     - Attributes:
         - `DisableDefaultFactoryAttribute`: By default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
         - `PreloadServiceAttribute`: Add this in your `IService` implementation to call the `ServiceLocator.Shared.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
