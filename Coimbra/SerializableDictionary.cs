@@ -10,7 +10,8 @@ namespace Coimbra
     /// <see cref="Dictionary{TKey,TValue}"/> that can be viewed, modified and saved from the inspector.
     /// </summary>
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary
+    [CopyBaseConstructors]
+    public partial class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary
     {
         [Serializable]
         private sealed class SerializableItem
@@ -37,23 +38,6 @@ namespace Coimbra
         [SerializeField]
         [UsedImplicitly]
         private SerializableItem _newEntry = new SerializableItem();
-
-        public SerializableDictionary() { }
-
-        public SerializableDictionary(IDictionary<TKey, TValue> dictionary)
-            : base(dictionary) { }
-
-        public SerializableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
-            : base(dictionary, comparer) { }
-
-        public SerializableDictionary(IEqualityComparer<TKey> comparer)
-            : base(comparer) { }
-
-        public SerializableDictionary(int capacity)
-            : base(capacity) { }
-
-        public SerializableDictionary(int capacity, IEqualityComparer<TKey> comparer)
-            : base(capacity, comparer) { }
 
         bool ISerializableDictionary.IsNewEntryValid => _newEntry.Key != null && !ContainsKey(_newEntry.Key);
 

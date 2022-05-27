@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.3.4] - 2022-05-27
+
+- Added `CopyBaseConstructorsAttribute` to allow easy copying of parent constructors into child class.
+
 ## [10.3.3] - 2022-05-27
 
 - Added `AllowEventServiceUsageForAttribute` to allow using `IEventService` methods directly when inside specific types.
