@@ -25,7 +25,7 @@ namespace Coimbra.Editor
 
         private static void UpdateRoslynDLLs(string type)
         {
-            UnityInternals.ClearLogEntries();
+            CoimbraEditorUtility.ClearConsoleWindow();
 
             bool isDirty = false;
             string[] directories = Directory.GetDirectories(PackageDirectory, "Coimbra*", SearchOption.TopDirectoryOnly);

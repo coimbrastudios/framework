@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CoimbraInternal.Editor;
+using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -18,7 +18,6 @@ namespace Coimbra.Editor
 
         private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
 #endif
-
         private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
 
         private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
@@ -50,6 +49,31 @@ namespace Coimbra.Editor
                     Debug.Assert(condition, message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Deletes all <see cref="AssetBundle"/> and <see cref="UnityEngine.ProceduralMaterial"/> content that has been cached.
+        /// </summary>
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Clear Cache")]
+        public static void ClearCache()
+        {
+            if (Caching.ClearCache())
+            {
+                Debug.Log("Deleted all AssetBundle and ProceduralMaterial content that has been cached.");
+            }
+            else
+            {
+                Debug.LogWarning("Failed to delete all AssetBundle and ProceduralMaterial content that has been cached.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a runtime and an editor assembly for all scripts in the Assets folder.
+        /// </summary>
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Create Assets Assembly")]
+        public static void CreateAssetsAssemblies()
+        {
+            AssetsAssemblyCreator.CreateAssetsAssemblies();
         }
 
         /// <inheritdoc cref="AssetDatabase.ForceReserializeAssets()"/>
@@ -93,30 +117,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static void ClearConsoleWindow()
         {
-            UnityInternals.ClearLogEntries();
-        }
-
-        /// <summary>
-        /// Create an asset alongside its folder hierarchy if needed.
-        /// </summary>
-        public static void CreateAssetWithFolderHierarchy(Object asset, string path)
-        {
-            string[] folders = path.Split('/');
-            string current = folders[0];
-
-            for (int i = 1; i < folders.Length - 1; i++)
-            {
-                string target = current + $"/{folders[i]}";
-
-                if (!AssetDatabase.IsValidFolder(target))
-                {
-                    AssetDatabase.CreateFolder(current, folders[i]);
-                }
-
-                current = target;
-            }
-
-            AssetDatabase.CreateAsset(asset, path);
+            UnityEditorInternals.ClearLogEntries();
         }
 
         [MenuItem(ResetPlayModeStartSceneMenuItem, true)]

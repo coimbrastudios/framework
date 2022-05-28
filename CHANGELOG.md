@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.3.5] - 2022-05-28
+
+- Added `Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder
+
 ## [10.3.4] - 2022-05-27
 
 - Added `CopyBaseConstructorsAttribute` to allow easy copying of parent constructors into child class.

@@ -12,6 +12,7 @@ Package of general utilities to be used with Unity development.
 
 - `Actor`: Meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself.
 - `AssetReferenceComponentRestriction`: Filter any `AssetReference` to only show `GameObject` with the specified components.
+- Assets Asssembly Creator: - Use `Tools/Coimbra Framework/Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder.
 - `CopyBaseConstructorsAttribute`: quick create types with the same constructors as their parent.
 - Decorator Attributes: Decorator attributes fully compatible with Unity's standard workflow:
     - `Disable`: To disable a field so that it can't be edited. There is also `OnEditMode` and `OnPlayMode` versions.
