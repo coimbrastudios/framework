@@ -21,6 +21,11 @@ namespace Coimbra.Editor
 
         private const string GuidFormat = "GUID:{0}";
 
+        private static readonly string[] AssetsFolderOnly =
+        {
+            "Assets"
+        };
+
         internal static void CreateAssetsAssemblies()
         {
             using (ListPool.Pop(out List<string> ignoredFolders))
@@ -63,20 +68,23 @@ namespace Coimbra.Editor
                             continue;
                         }
 
-                        if (assembly.name == AssetsAssemblyDefinitionName)
+                        switch (assembly.name)
                         {
-                            runtimeAssembly = assembly;
-                            runtimePath = path;
+                            case AssetsAssemblyDefinitionName:
+                            {
+                                runtimeAssembly = assembly;
+                                runtimePath = path;
 
-                            continue;
-                        }
+                                continue;
+                            }
 
-                        if (assembly.name == AssetsEditorAssemblyDefinitionName)
-                        {
-                            editorAssembly = assembly;
-                            editorPath = path;
+                            case AssetsEditorAssemblyDefinitionName:
+                            {
+                                editorAssembly = assembly;
+                                editorPath = path;
 
-                            continue;
+                                continue;
+                            }
                         }
 
                         if (runtimeNames.Contains(assembly.name))
@@ -84,11 +92,42 @@ namespace Coimbra.Editor
                             string assemblyGuid = string.Format(GuidFormat, guid);
                             editorGuids.Add(assemblyGuid);
                             runtimeGuids.Add(assemblyGuid);
-                            ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
                         }
                         else if (editorNames.Contains(assembly.name))
                         {
-                            editorGuids.Add(string.Format(GuidFormat, guid));
+                            string assemblyGuid = string.Format(GuidFormat, guid);
+                            editorGuids.Add(assemblyGuid);
+
+                            if (assembly.name == "UnityEditor.UI")
+                            {
+                                runtimeGuids.Add(assemblyGuid);
+                            }
+                        }
+
+                        if (path.StartsWith("Assets/"))
+                        {
+                            ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
+                        }
+                    }
+
+                    foreach (string guid in AssetDatabase.FindAssets($"t:{AssemblyDefinitionReferenceExtension}", AssetsFolderOnly))
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guid);
+                        TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+
+                        if (asset == null)
+                        {
+                            continue;
+                        }
+
+                        string text = asset.text;
+                        AssemblyDefinitionReference assembly = JsonUtility.FromJson<AssemblyDefinitionReference>(text);
+
+                        const string guidPrefix = "GUID:";
+                        string reference = assembly.reference.StartsWith(guidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(assembly.reference.Substring(guidPrefix.Length))) : assembly.reference;
+
+                        if (reference != AssetsAssemblyDefinitionName && reference != AssetsEditorAssemblyDefinitionName)
+                        {
                             ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
                         }
                     }
@@ -98,7 +137,7 @@ namespace Coimbra.Editor
                 CreateAssetsEditorAssemblyDefinition(ref editorPath, editorAssembly, editorGuids);
                 ignoredFolders.Add(Path.GetDirectoryName(editorPath)!.Replace('\\', '/'));
                 AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
-                CreateAssetsEditorAssemblyReferences(editorPath, ignoredFolders);
+                CreateAssetsEditorAssemblyReferences(ignoredFolders);
             }
         }
 
@@ -150,7 +189,7 @@ namespace Coimbra.Editor
             File.WriteAllText(assemblyPath, JsonUtility.ToJson(assemblyDefinition, true));
         }
 
-        private static void CreateAssetsEditorAssemblyReferences(in string definitionPath, IReadOnlyList<string> ignoredFolders)
+        private static void CreateAssetsEditorAssemblyReferences(IReadOnlyList<string> ignoredFolders)
         {
             static bool isValid(string path, IReadOnlyList<string> ignoredFolders)
             {
@@ -168,14 +207,9 @@ namespace Coimbra.Editor
             const string fileName = AssetsEditorAssemblyDefinitionName + "." + AssemblyDefinitionReferenceExtension;
             const string definitionSearch = "*." + AssemblyDefinitionExtension;
             const string definitionReferenceSearch = "*." + AssemblyDefinitionReferenceExtension;
-            string fileContent = JsonUtility.ToJson(new AssemblyDefinitionReference(string.Format(GuidFormat, AssetDatabase.AssetPathToGUID(definitionPath))), true);
+            string fileContent = JsonUtility.ToJson(new AssemblyDefinitionReference(AssetsEditorAssemblyDefinitionName), true);
 
-            string[] searchInFolders =
-            {
-                "Assets"
-            };
-
-            foreach (string guid in AssetDatabase.FindAssets("t:folder Editor", searchInFolders))
+            foreach (string guid in AssetDatabase.FindAssets("t:folder Editor", AssetsFolderOnly))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
 

@@ -1,8 +1,12 @@
 # Changelog
 
+## [10.3.6] - UNRELEASED
+
+- Fixed assembly creator causing compiler errors when re-opening the project.
+
 ## [10.3.5] - 2022-05-28
 
-- Added `Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder
+- Added `Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder.
 
 ## [10.3.4] - 2022-05-27
 
