@@ -39,14 +39,14 @@ namespace Coimbra.Services.Roslyn
 
                 using (new NamespaceScope(sourceBuilder, source.Namespace))
                 {
-                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
+                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                     sourceBuilder.AddLine($"internal static class {source.Name}");
 
                     using (new BracesScope(sourceBuilder))
                     {
                         if (!typeData.DisableDefaultFactory)
                         {
-                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
+                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                             sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
                             sourceBuilder.AddLine("private static void HandleSubsystemRegistration()");
 
@@ -69,7 +69,7 @@ namespace Coimbra.Services.Roslyn
 
                         if (typeData.PreloadService)
                         {
-                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
+                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
                             sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
                             sourceBuilder.AddLine("private static void HandleBeforeSceneLoad()");
 

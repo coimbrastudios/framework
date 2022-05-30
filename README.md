@@ -89,3 +89,5 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0017 | ServiceLocator.Shared should not be accessed inside IService.                                         | Error    | No       |
 | COIMBRA0018 | OwningLocator.set is for internal use only.                                                           | Error    | No       |
 | COIMBRA0019 | Object.Destroy should be avoided.                                                                     | Info     | No       |
+| COIMBRA0020 | Type with CopyBaseConstructorsAttribute should be partial.                                            | Warning  | Yes      |
+| COIMBRA0021 | Type with CopyBaseConstructorsAttribute should not be nested.                                         | Error    | Yes      |

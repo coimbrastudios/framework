@@ -149,21 +149,19 @@ namespace Coimbra.Roslyn
                                                                                        DiagnosticSeverity.Info,
                                                                                        true);
 
-        // TODO: add CodeFix
         public static readonly DiagnosticDescriptor CopyBaseConstructorsRequiresPartialKeyword = new("COIMBRA0020",
                                                                                                      "Type with CopyBaseConstructorsAttribute should be partial.",
                                                                                                      "Add missing partial keyword in {0}.",
                                                                                                      DefaultCategory,
                                                                                                      DiagnosticSeverity.Warning,
-                                                                                                     false);
+                                                                                                     true);
 
-        // TODO: add CodeFix
         public static readonly DiagnosticDescriptor CopyBaseConstructorsDoesntSupportNestedTypes = new("COIMBRA0021",
                                                                                                        "Type with CopyBaseConstructorsAttribute should not be nested.",
                                                                                                        "Move {0} outside of {1}.",
                                                                                                        DefaultCategory,
                                                                                                        DiagnosticSeverity.Error,
-                                                                                                       false);
+                                                                                                       true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",
