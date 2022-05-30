@@ -17,9 +17,9 @@ namespace Coimbra.Editor
     {
         private const float CountFieldSize = 50;
 
-        private const float LabelViewWidthPercent = 0.4f;
+        private const float KeyWidthPercent = 0.4f;
 
-        private const float NestedLabelViewWidthPercent = 0.3f;
+        private const float LabelWidthPercent = 0.5f;
 
         private const string KeyProperty = "Key";
 
@@ -84,7 +84,7 @@ namespace Coimbra.Editor
             listPosition.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
             listPosition.height = list.GetHeight();
 
-            using (new LabelWidthScope(position.width * LabelViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+            using (new LabelWidthScope(position.width * KeyWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
                 list.DoList(listPosition);
             }
@@ -106,13 +106,13 @@ namespace Coimbra.Editor
 
             SerializedProperty newProperty = property.FindPropertyRelative(NewProperty);
             position.x += EditorGUIUtility.standardVerticalSpacing;
-            position.width *= LabelViewWidthPercent;
+            position.width *= KeyWidthPercent;
             position.width += EditorGUIUtility.standardVerticalSpacing;
             position.xMin += ReorderableList.Defaults.dragHandleWidth;
             position.x += +EditorStyles.foldout.CalcSize(GUIContent.none).x;
             position.height = EditorGUI.GetPropertyHeight(newProperty, true);
 
-            using (new LabelWidthScope(position.width * NestedLabelViewWidthPercent + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
+            using (new LabelWidthScope(position.width * LabelWidthPercent + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
             {
                 EditorGUI.PropertyField(position, newProperty, true);
             }
@@ -248,13 +248,16 @@ namespace Coimbra.Editor
                 keyPosition.width = EditorGUIUtility.labelWidth - foldoutWidth - EditorGUIUtility.standardVerticalSpacing;
                 valuePosition.xMin += EditorGUIUtility.labelWidth;
 
-                using (new LabelWidthScope(EditorGUIUtility.labelWidth * NestedLabelViewWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                using (new LabelWidthScope(keyPosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                 {
                     using (new EditorGUI.DisabledScope(true))
                     {
                         EditorGUI.PropertyField(keyPosition, keyProperty, true);
                     }
+                }
 
+                using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                {
                     EditorGUI.PropertyField(valuePosition, valueProperty, true);
                 }
             };

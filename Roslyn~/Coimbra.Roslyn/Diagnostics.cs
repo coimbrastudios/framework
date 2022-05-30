@@ -24,7 +24,7 @@ namespace Coimbra.Roslyn
                                                                                          "Concrete IEvent should not be a nested type.",
                                                                                          "Move {0} outside of {1}.",
                                                                                          EventsCategory,
-                                                                                         DiagnosticSeverity.Warning,
+                                                                                         DiagnosticSeverity.Error,
                                                                                          true);
 
         public static readonly DiagnosticDescriptor ClassEventShouldBeEitherAbstractOrSealed = new("COIMBRA0003",
@@ -148,6 +148,22 @@ namespace Coimbra.Roslyn
                                                                                        DefaultCategory,
                                                                                        DiagnosticSeverity.Info,
                                                                                        true);
+
+        // TODO: add CodeFix
+        public static readonly DiagnosticDescriptor CopyBaseConstructorsRequiresPartialKeyword = new("COIMBRA0020",
+                                                                                                     "Type with CopyBaseConstructorsAttribute should be partial.",
+                                                                                                     "Add missing partial keyword in {0}.",
+                                                                                                     DefaultCategory,
+                                                                                                     DiagnosticSeverity.Warning,
+                                                                                                     false);
+
+        // TODO: add CodeFix
+        public static readonly DiagnosticDescriptor CopyBaseConstructorsDoesntSupportNestedTypes = new("COIMBRA0021",
+                                                                                                       "Type with CopyBaseConstructorsAttribute should not be nested.",
+                                                                                                       "Move {0} outside of {1}.",
+                                                                                                       DefaultCategory,
+                                                                                                       DiagnosticSeverity.Error,
+                                                                                                       false);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",
