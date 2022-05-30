@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.3.6] - UNRELEASED
+## [10.3.6] - 2022-05-30
 
 - Added analyzer `COIMBRA0008`.
 - Added analyzer `COIMBRA0020` and code fix.
