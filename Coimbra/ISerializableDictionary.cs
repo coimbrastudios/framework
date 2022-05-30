@@ -1,13 +1,10 @@
-﻿using System;
+﻿using UnityEngine;
 
 namespace Coimbra
 {
-    internal interface ISerializableDictionary : ISerializableCollection
+    internal interface ISerializableDictionary : ISerializationCallbackReceiver
     {
-        bool IsNewEntryValid { get; }
-
-        void ProcessAdd();
-
-        void ProcessUndo();
+        bool CanAdd { get; }
+        void Add();
     }
 }

@@ -2,6 +2,8 @@
 
 ## [10.3.6] - UNRELEASED
 
+- Changed `LockDictionarySizeAttribute` to `DisableResizeAttribute`.
+- Changed `SerializableDictionaryDrawer` implementation to improve its usability.
 - Fixed assembly creator causing compiler errors when re-opening the project.
 
 ## [10.3.5] - 2022-05-28

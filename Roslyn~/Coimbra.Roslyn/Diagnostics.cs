@@ -62,12 +62,12 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
-        public static readonly DiagnosticDescriptor C0008 = new("COIMBRA0008",
-                                                                "",
-                                                                "",
-                                                                DefaultCategory,
-                                                                DiagnosticSeverity.Hidden,
-                                                                false);
+        public static readonly DiagnosticDescriptor SharedManagedPoolAttributeHasInvalidArgument = new("COIMBRA0008",
+                                                                                                       "SharedManagedPoolAttribute has some invalid argument.",
+                                                                                                       "{0} is missing or is not a valid field.",
+                                                                                                       DefaultCategory,
+                                                                                                       DiagnosticSeverity.Error,
+                                                                                                       false);
 
         // TODO: add CodeFix
         public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",

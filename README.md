@@ -41,7 +41,7 @@ Package of general utilities to be used with Unity development.
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
   with `PreferencesAttribute`.
-- `SerializableDictionary`: view, edit and save dictionaries from the inspector while also supporting nesting and lists. You can lock its size with `LockDictionarySizeAttribute`.
+- `SerializableDictionary`: supports modifying and saving through the inspector. Can have its size locked with `DisableResizeAttribute` or made read-only with `DisableAttribute`.
 - Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
     - Attributes:
         - `DisableDefaultFactoryAttribute`: By default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.

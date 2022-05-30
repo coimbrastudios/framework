@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 
 namespace Coimbra
 {
@@ -11,6 +12,7 @@ namespace Coimbra
         /// <summary>
         /// If true, only public constructors will be copied. If false, both public and protected constructors will be copied.
         /// </summary>
+        [UsedImplicitly]
         public readonly bool IgnoreProtected;
 
         /// <param name="ignoreProtected">If true, only public constructors will be copied. If false, both public and protected constructors will be copied.</param>

@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Coimbra
 {
     /// <summary>
     /// <see cref="Dictionary{TKey,TValue}"/> that can be viewed, modified and saved from the inspector.
     /// </summary>
+    /// <seealso cref="DisableResizeAttribute"/>
     [Serializable]
     [CopyBaseConstructors]
     public partial class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary
@@ -33,20 +35,44 @@ namespace Coimbra
         }
 
         [SerializeField]
-        private List<SerializableItem> _items = new List<SerializableItem>();
+        [FormerlySerializedAs("_items")]
+        private List<SerializableItem> _list = new List<SerializableItem>();
 
         [SerializeField]
         [UsedImplicitly]
-        private SerializableItem _newEntry = new SerializableItem();
+        private TKey _new;
 
-        bool ISerializableDictionary.IsNewEntryValid => _newEntry.Key != null && !ContainsKey(_newEntry.Key);
+        bool ISerializableDictionary.CanAdd
+        {
+            get
+            {
+                if (!typeof(TKey).IsValueType && _new == null)
+                {
+                    return false;
+                }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Deserialize()
+                return !ContainsKey(_new);
+            }
+        }
+
+        void ISerializableDictionary.Add()
+        {
+            SerializableItem item = new SerializableItem
+            {
+                Key = _new,
+            };
+
+            _list.Add(item);
+            Add(item.Key, item.Value);
+
+            _new = default;
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             Clear();
 
-            foreach (SerializableItem item in _items)
+            foreach (SerializableItem item in _list)
             {
                 if (item.Key.TryGetValid(out TKey key))
                 {
@@ -55,32 +81,13 @@ namespace Coimbra
             }
         }
 
-        void ISerializableDictionary.ProcessAdd()
-        {
-            _items.Add(_newEntry);
-            Add(_newEntry.Key, _newEntry.Value);
-        }
-
-        void ISerializableDictionary.ProcessUndo()
-        {
-            if (_items.Count != Count)
-            {
-                Deserialize();
-            }
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            Deserialize();
-        }
-
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            _items.Clear();
+            _list.Clear();
 
             foreach (KeyValuePair<TKey, TValue> item in this)
             {
-                _items.Add(item);
+                _list.Add(item);
             }
         }
     }
