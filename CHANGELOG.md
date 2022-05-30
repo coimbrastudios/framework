@@ -2,6 +2,7 @@
 
 ## [10.3.6] - 2022-05-30
 
+- Added `AssertAwake` and `IsAwaken` properties to `Actor`.
 - Added analyzer `COIMBRA0008`.
 - Added analyzer `COIMBRA0020` and code fix.
 - Added analyzer `COIMBRA0021` and code fix.

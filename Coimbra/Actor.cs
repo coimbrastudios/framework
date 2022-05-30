@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -82,9 +81,14 @@ namespace Coimbra
 
         private static readonly List<Actor> PooledActors = new List<Actor>();
 
-        private static readonly List<WeakReference<Actor>> UninitializedActors = new List<WeakReference<Actor>>();
+        private static readonly List<Actor> UninitializedActors = new List<Actor>();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
+
+        [SerializeField]
+        [DisableOnPlayMode]
+        [Tooltip(" If true, it will check if Awake was called before Initialize.")]
+        private bool _assertAwake;
 
         [SerializeField]
         [DisableOnPlayMode]
@@ -120,7 +124,7 @@ namespace Coimbra
 
         protected Actor()
         {
-            UninitializedActors.Add(new WeakReference<Actor>(this));
+            UninitializedActors.Add(this);
         }
 
         /// <summary>
@@ -132,6 +136,17 @@ namespace Coimbra
             get => _activateOnSpawn;
             [DebuggerStepThrough]
             set => _activateOnSpawn = value;
+        }
+
+        /// <summary>
+        /// If true, it will check if <see cref="Awake"/> was called before <see cref="Initialize"/>.
+        /// </summary>
+        public bool AssertAwake
+        {
+            [DebuggerStepThrough]
+            get => _assertAwake;
+            [DebuggerStepThrough]
+            set => _assertAwake = value;
         }
 
         /// <summary>
@@ -208,6 +223,11 @@ namespace Coimbra
         public Transform Transform => IsDestroyed || !IsInitialized ? transform : _transform;
 
         /// <summary>
+        /// True if <see cref="Awake"/> was called already.
+        /// </summary>
+        public bool IsAwaken { get; private set; }
+
+        /// <summary>
         /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>?
         /// </summary>
         public bool IsDestroyed { get; private set; }
@@ -265,7 +285,7 @@ namespace Coimbra
         {
             while (UninitializedActors.Count > 0)
             {
-                if (UninitializedActors.Pop().TryGetTarget(out Actor actor) && actor.TryGetValid(out actor))
+                if (UninitializedActors.Pop().TryGetValid(out Actor actor))
                 {
                     actor.Initialize();
                 }
@@ -296,43 +316,6 @@ namespace Coimbra
         public void Initialize()
         {
             Initialize(null, default);
-        }
-
-        /// <summary>
-        /// Should be called externally when a <see cref="Scene"/> is about to be unloaded. Called by default on <see cref="CoimbraSceneManagerAPI"/>.
-        /// </summary>
-        /// <param name="scene"></param>
-        public void OnUnloadScene(Scene scene)
-        {
-            if (GameObject.scene == Pool.GameObject.scene)
-            {
-                return;
-            }
-
-            if (GameObject.scene == scene)
-            {
-                _isUnloadingScene = true;
-                Despawn();
-
-                if (IsDestroyed)
-                {
-                    return;
-                }
-
-                _isUnloadingScene = false;
-
-                if (Pool.KeepParentOnDespawn)
-                {
-                    Transform.SetParent(Pool.Transform, false);
-                }
-
-                return;
-            }
-
-            if (Pool.GameObject.scene == scene)
-            {
-                Pool = null;
-            }
         }
 
         /// <summary>
@@ -378,26 +361,29 @@ namespace Coimbra
             }
         }
 
-#if UNITY_EDITOR
         /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Awake()
         {
-            Debug.Assert(true);
+            if (!IsAwaken)
+            {
+                IsAwaken = isActiveAndEnabled;
+            }
         }
-#endif
 
 #if UNITY_ASSERTIONS
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
+        /// Non-virtual by design, use <see cref="OnInitialize"/> and wait one frame, or listen to <see cref="OnSceneInitializedOnce"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Start()
         {
-            Debug.Assert(IsInitialized, $"{nameof(Actor)}.{nameof(Initialize)} needs to be called before the {nameof(Start)} callback!", this);
+            const string message = nameof(Actor) + "." + nameof(Initialize) + " needs to be called before the " + nameof(Start) + " callback!";
+            Debug.Assert(IsInitialized, message, this);
         }
+
 #endif
 
         /// <summary>
@@ -444,6 +430,9 @@ namespace Coimbra
 
         internal void Initialize(GameObjectPool pool, AsyncOperationHandle<GameObject> operationHandle)
         {
+            const string message = nameof(Actor) + "." + nameof(Initialize) + " was called before the " + nameof(Awake) + " callback but " + nameof(AssertAwake) + " is set to true!";
+            Debug.Assert(IsAwaken || !AssertAwake, message, this);
+
             if (IsDestroyed || IsInitialized)
             {
                 return;
@@ -479,6 +468,40 @@ namespace Coimbra
             else
             {
                 Spawn();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void OnUnloadScene(Scene scene)
+        {
+            if (GameObject.scene == Pool.GameObject.scene)
+            {
+                return;
+            }
+
+            if (GameObject.scene == scene)
+            {
+                _isUnloadingScene = true;
+                Despawn();
+
+                if (IsDestroyed)
+                {
+                    return;
+                }
+
+                _isUnloadingScene = false;
+
+                if (Pool.KeepParentOnDespawn)
+                {
+                    Transform.SetParent(Pool.Transform, false);
+                }
+
+                return;
+            }
+
+            if (Pool.GameObject.scene == scene)
+            {
+                Pool = null;
             }
         }
 
