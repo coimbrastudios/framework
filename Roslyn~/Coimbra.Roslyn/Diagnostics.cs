@@ -62,12 +62,12 @@ namespace Coimbra.Roslyn
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
 
-        public static readonly DiagnosticDescriptor SharedManagedPoolAttributeHasInvalidArgument = new("COIMBRA0008",
-                                                                                                       "SharedManagedPoolAttribute has some invalid argument.",
-                                                                                                       "{0} is missing or is not a valid field.",
-                                                                                                       DefaultCategory,
-                                                                                                       DiagnosticSeverity.Error,
-                                                                                                       false);
+        public static readonly DiagnosticDescriptor SharedManagedPoolDoesntSupportGenericTypes = new("COIMBRA0008",
+                                                                                                     "Type with SharedManagedPoolAttribute should not be generic.",
+                                                                                                     "Remove SharedManagedPoolAttribute from {0} or make it non-generic.",
+                                                                                                     DefaultCategory,
+                                                                                                     DiagnosticSeverity.Error,
+                                                                                                     true);
 
         // TODO: add CodeFix
         public static readonly DiagnosticDescriptor EventServiceGenericMethodsShouldNotBeUsedDirectly = new("COIMBRA0009",
@@ -162,6 +162,20 @@ namespace Coimbra.Roslyn
                                                                                                        DefaultCategory,
                                                                                                        DiagnosticSeverity.Error,
                                                                                                        true);
+
+        public static readonly DiagnosticDescriptor SharedManagedPoolRequiresPartialKeyword = new("COIMBRA0022",
+                                                                                                  "Type with SharedManagedPoolAttribute should be partial.",
+                                                                                                  "Add missing partial keyword in {0}.",
+                                                                                                  DefaultCategory,
+                                                                                                  DiagnosticSeverity.Warning,
+                                                                                                  true);
+
+        public static readonly DiagnosticDescriptor SharedManagedPoolDoesntSupportNestedTypes = new("COIMBRA0023",
+                                                                                                    "Type with SharedManagedPoolAttribute should not be nested.",
+                                                                                                    "Move {0} outside of {1}.",
+                                                                                                    DefaultCategory,
+                                                                                                    DiagnosticSeverity.Error,
+                                                                                                    true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",

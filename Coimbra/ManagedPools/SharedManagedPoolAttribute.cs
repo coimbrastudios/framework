@@ -15,7 +15,7 @@ namespace Coimbra
     /// <seealso cref="StackPool"/>
     /// <seealso cref="StringBuilderPool"/>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class SharedManagedPoolAttribute : Attribute
     {
         [UsedImplicitly]

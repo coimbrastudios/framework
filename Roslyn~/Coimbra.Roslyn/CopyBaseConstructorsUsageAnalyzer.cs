@@ -17,10 +17,10 @@ namespace Coimbra.Roslyn
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.RegisterSyntaxNodeAction(AnalyzeEventDeclaration, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeCopyBaseConstructorUsage, SyntaxKind.ClassDeclaration);
         }
 
-        private static void AnalyzeEventDeclaration(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeCopyBaseConstructorUsage(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not ClassDeclarationSyntax classDeclarationSyntax
              || classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword)

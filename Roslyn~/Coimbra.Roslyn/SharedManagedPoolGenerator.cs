@@ -14,30 +14,28 @@ namespace Coimbra.Roslyn
         {
             SourceBuilder sourceBuilder = new();
 
-            foreach ((SemanticModel semanticModel, ClassDeclarationSyntax classDeclarationSyntax, AttributeData attributeData) in EnumerateTypes(context))
+            foreach ((SemanticModel semanticModel, TypeDeclarationSyntax typeDeclaration, AttributeData attributeData) in EnumerateTypes(context))
             {
+                string valueField = attributeData.ConstructorArguments[0].Value as string;
                 string instanceArguments = string.Empty;
                 string instanceConstraints = string.Empty;
-                string valueField = attributeData.ConstructorArguments[0].Value as string;
-                string valueType = string.Empty;
                 GenericNameSyntax valueTypeSyntax = null;
 
                 if (attributeData.ConstructorArguments.Length > 1 && !attributeData.ConstructorArguments[1].IsNull)
                 {
                     string instanceName = attributeData.ConstructorArguments[1].Value as string;
 
-                    foreach (SyntaxNode classDeclarationSyntaxChild in classDeclarationSyntax.ChildNodes())
+                    foreach (SyntaxNode childNode in typeDeclaration.ChildNodes())
                     {
-                        if (classDeclarationSyntaxChild is not ClassDeclarationSyntax nestedClassDeclarationSyntax
-                         || !nestedClassDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword)
-                         || nestedClassDeclarationSyntax.GetTypeName() != instanceName)
+                        if (childNode is not TypeDeclarationSyntax nestedTypeDeclaration
+                         || nestedTypeDeclaration.GetTypeName() != instanceName)
                         {
                             continue;
                         }
 
-                        instanceArguments = nestedClassDeclarationSyntax.TypeParameterList?.ToString() ?? string.Empty;
-                        instanceConstraints = nestedClassDeclarationSyntax.ConstraintClauses.ToString();
-                        valueTypeSyntax = GetValueTypeSyntax(nestedClassDeclarationSyntax);
+                        instanceArguments = nestedTypeDeclaration.TypeParameterList?.ToString() ?? string.Empty;
+                        instanceConstraints = nestedTypeDeclaration.ConstraintClauses.ToString();
+                        valueTypeSyntax = GetValueTypeSyntax(nestedTypeDeclaration);
                         valueField = $"{instanceName}{instanceArguments}.{valueField}";
 
                         break;
@@ -45,29 +43,29 @@ namespace Coimbra.Roslyn
                 }
                 else
                 {
-                    valueTypeSyntax = GetValueTypeSyntax(classDeclarationSyntax);
+                    valueTypeSyntax = GetValueTypeSyntax(typeDeclaration);
                 }
 
+                if (valueTypeSyntax == null)
+                {
+                    continue;
+                }
+
+                TypeInfo valueTypeInfo = semanticModel.GetTypeInfo(valueTypeSyntax.TypeArgumentList.Arguments[0]);
+                ITypeSymbol valueTypeSymbol = valueTypeInfo.Type ?? valueTypeInfo.ConvertedType;
+                string valueType = valueTypeSyntax.TypeArgumentList.Arguments.ToString();
                 sourceBuilder.Initialize();
                 sourceBuilder.AddUsing("Coimbra");
                 sourceBuilder.AddUsing("JetBrains.Annotations");
                 sourceBuilder.AddUsing("System.CodeDom.Compiler");
                 sourceBuilder.AddUsing("System.Runtime.CompilerServices");
-
-                if (valueTypeSyntax != null)
-                {
-                    TypeInfo valueTypeInfo = semanticModel.GetTypeInfo(valueTypeSyntax.TypeArgumentList.Arguments[0]);
-                    ITypeSymbol valueTypeSymbol = valueTypeInfo.Type ?? valueTypeInfo.ConvertedType;
-                    sourceBuilder.AddUsing(valueTypeSymbol!.ContainingNamespace.ToString());
-                    valueType = valueTypeSyntax.TypeArgumentList.Arguments.ToString();
-                }
-
+                sourceBuilder.AddUsing(valueTypeSymbol!.ContainingNamespace.ToString());
                 sourceBuilder.SkipLine();
 
-                using (new NamespaceScope(sourceBuilder, classDeclarationSyntax.GetNamespace()))
+                using (new NamespaceScope(sourceBuilder, typeDeclaration.GetNamespace()))
                 {
-                    string access = classDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword) ? "public" : "internal";
-                    sourceBuilder.AddLine($"{access} static partial class {classDeclarationSyntax.GetTypeName()}");
+                    string type = typeDeclaration is ClassDeclarationSyntax ? "class" : "struct";
+                    sourceBuilder.AddLine($"{typeDeclaration.Modifiers.ToString()} {type} {typeDeclaration.GetTypeName()}");
 
                     using (new BracesScope(sourceBuilder))
                     {
@@ -169,7 +167,7 @@ namespace Coimbra.Roslyn
                     }
                 }
 
-                context.AddSource(classDeclarationSyntax.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+                context.AddSource(typeDeclaration.GetTypeName(), SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
             }
         }
 
@@ -178,11 +176,11 @@ namespace Coimbra.Roslyn
             context.RegisterForSyntaxNotifications(() => new SharedManagedPoolSyntaxReceiver());
         }
 
-        private static IEnumerable<(SemanticModel, ClassDeclarationSyntax, AttributeData)> EnumerateTypes(GeneratorExecutionContext context)
+        private static IEnumerable<(SemanticModel, TypeDeclarationSyntax, AttributeData)> EnumerateTypes(GeneratorExecutionContext context)
         {
             SharedManagedPoolSyntaxReceiver syntaxReceiver = (SharedManagedPoolSyntaxReceiver)context.SyntaxReceiver;
 
-            foreach (ClassDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
+            foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
             {
                 SemanticModel semanticModel = context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
 
@@ -194,9 +192,9 @@ namespace Coimbra.Roslyn
             }
         }
 
-        private static GenericNameSyntax GetValueTypeSyntax(SyntaxNode classDeclarationSyntax)
+        private static GenericNameSyntax GetValueTypeSyntax(SyntaxNode typeDeclaration)
         {
-            foreach (SyntaxNode nestedClassDeclarationSyntaxChild in classDeclarationSyntax.ChildNodes())
+            foreach (SyntaxNode nestedClassDeclarationSyntaxChild in typeDeclaration.ChildNodes())
             {
                 if (nestedClassDeclarationSyntaxChild is FieldDeclarationSyntax fieldDeclarationSyntax
                  && fieldDeclarationSyntax.Declaration.Type is GenericNameSyntax genericNameSyntax

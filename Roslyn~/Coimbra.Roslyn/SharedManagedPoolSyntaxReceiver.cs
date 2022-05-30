@@ -7,15 +7,14 @@ namespace Coimbra.Roslyn
 {
     public sealed class SharedManagedPoolSyntaxReceiver : ISyntaxReceiver
     {
-        public readonly List<ClassDeclarationSyntax> Types = new();
+        public readonly List<TypeDeclarationSyntax> Types = new();
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
-            if (syntaxNode is ClassDeclarationSyntax { TypeParameterList: null } classDeclarationSyntax
-             && classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword)
-             && classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+            if (syntaxNode is TypeDeclarationSyntax { TypeParameterList: null } typeDeclaration
+             && typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                Types.Add(classDeclarationSyntax);
+                Types.Add(typeDeclaration);
             }
         }
     }

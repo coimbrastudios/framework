@@ -78,6 +78,7 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0005 | ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter. | Error    | No       |
 | COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |
 | COIMBRA0007 | Concrete IService should not implement any IService with AbstractServiceAttribute.                    | Warning  | No       |
+| COIMBRA0008 | Type with SharedManagedPoolAttribute should not be generic.                                           | Error    | No       |
 | COIMBRA0009 | IEventService generic APIs should not be used directly.                                               | Error    | No       |
 | COIMBRA0010 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
 | COIMBRA0011 | Concrete IService should not be a Component unless it inherit from ServiceActorBase.                  | Warning  | No       |
@@ -91,3 +92,5 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0019 | Object.Destroy should be avoided.                                                                     | Info     | No       |
 | COIMBRA0020 | Type with CopyBaseConstructorsAttribute should be partial.                                            | Warning  | Yes      |
 | COIMBRA0021 | Type with CopyBaseConstructorsAttribute should not be nested.                                         | Error    | Yes      |
+| COIMBRA0022 | Type with SharedManagedPoolAttribute should be partial.                                               | Warning  | Yes      |
+| COIMBRA0023 | Type with SharedManagedPoolAttribute should not be nested.                                            | Error    | Yes      |
