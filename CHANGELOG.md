@@ -2,8 +2,11 @@
 
 ## [10.3.6] - UNRELEASED
 
+- Added analyzer `COIMBRA0008`.
 - Added analyzer `COIMBRA0020` and code fix.
 - Added analyzer `COIMBRA0021` and code fix.
+- Added analyzer `COIMBRA0022` and code fix.
+- Added analyzer `COIMBRA0023` and code fix.
 - Changed `LockDictionarySizeAttribute` to `DisableResizeAttribute`.
 - Changed `SerializableDictionaryDrawer` implementation to improve its usability and readability.
 - Fixed assembly creator causing compiler errors when re-opening the project.

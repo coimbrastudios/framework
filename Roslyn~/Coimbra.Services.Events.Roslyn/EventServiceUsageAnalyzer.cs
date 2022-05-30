@@ -51,7 +51,7 @@ namespace Coimbra.Services.Events.Roslyn
              || context.SemanticModel.GetDeclaredSymbol(callerTypeDeclaration) is not { } callerType
              || !IsEventServiceUsageAllowedRecursive(callerType, methodTypeParameter))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, methodName.GetLocation(), methodTypeParameter.Name, methodName.Identifier.Text));
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, invocation.GetLocation(), methodTypeParameter.Name, methodName.Identifier.Text));
             }
         }
 
