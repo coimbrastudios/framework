@@ -7,7 +7,7 @@ namespace Coimbra.Editor
     /// Drawer for <see cref="RangeSliderAttribute"/>.
     /// </summary>
     [CustomPropertyDrawer(typeof(RangeSliderAttribute))]
-    public sealed class RangeSliderDrawer : PropertyDrawer
+    public sealed class RangeSliderDrawer : ValidateDrawer
     {
         /// <summary>
         /// Draws a MinMaxSlider. Optionally also makes it a delayed field.
@@ -176,7 +176,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
             SerializedProperty minProperty = property.FindPropertyRelative("_min") ?? property.FindPropertyRelative("x");
 
@@ -204,7 +204,7 @@ namespace Coimbra.Editor
             }
 
             RangeSliderAttribute rangeSliderAttribute = (RangeSliderAttribute)attribute;
-            DrawGUI(position, property, minProperty, maxProperty, label, rangeSliderAttribute.MinLimit, rangeSliderAttribute.MaxLimit, rangeSliderAttribute.RoundToInt, rangeSliderAttribute.Delayed);
+            DrawGUI(position, property, minProperty, maxProperty, label, rangeSliderAttribute.MinLimit, rangeSliderAttribute.MaxLimit, rangeSliderAttribute.RoundToInt, isDelayed);
         }
     }
 }

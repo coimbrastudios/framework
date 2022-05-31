@@ -103,7 +103,7 @@ namespace Coimbra.Editor
 
             if (typeFilterAttribute == null)
             {
-                propertyPathInfo = propertyPathInfo.Scope;
+                propertyPathInfo = propertyPathInfo.ScopeInfo;
 
                 if (propertyPathInfo == null)
                 {

@@ -8,7 +8,7 @@ namespace Coimbra.Editor
     /// </summary>
     [CustomPropertyDrawer(typeof(FloatRange))]
     [CustomPropertyDrawer(typeof(FloatRangeAttribute))]
-    public sealed class FloatRangeDrawer : PropertyDrawer
+    public sealed class FloatRangeDrawer : ValidateDrawer
     {
         /// <summary>
         /// Draws a <see cref="FloatRange"/>. Optionally also makes it a delayed field.
@@ -102,7 +102,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
             SerializedProperty minProperty = property.FindPropertyRelative("_min") ?? property.FindPropertyRelative("x");
 
@@ -122,7 +122,7 @@ namespace Coimbra.Editor
                 return;
             }
 
-            DrawGUI(position, property, minProperty, maxProperty, label, (attribute as FloatRangeAttribute)?.Delayed ?? false);
+            DrawGUI(position, property, minProperty, maxProperty, label, isDelayed);
         }
     }
 }

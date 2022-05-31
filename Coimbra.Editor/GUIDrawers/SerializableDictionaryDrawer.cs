@@ -48,7 +48,7 @@ namespace Coimbra.Editor
             }
 
             ReorderableList list = property.FindPropertyRelative(ListProperty).ToReorderableList(InitializeReorderableList);
-            bool displayFooter = GUI.enabled && list.serializedProperty.GetScope()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
+            bool displayFooter = GUI.enabled && list.serializedProperty.GetScopeInfo()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
             list.displayAdd = displayFooter;
             list.displayRemove = displayFooter;
             list.footerHeight = displayFooter ? EditorGUIUtility.singleLineHeight : 0;
@@ -77,7 +77,7 @@ namespace Coimbra.Editor
             }
 
             Rect listPosition = position;
-            bool canResize = GUI.enabled && list.serializedProperty.GetScope()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
+            bool canResize = GUI.enabled && list.serializedProperty.GetScopeInfo()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
             list.displayAdd = canResize;
             list.displayRemove = canResize;
             list.footerHeight = canResize ? EditorGUIUtility.singleLineHeight : 0;
@@ -164,12 +164,12 @@ namespace Coimbra.Editor
             {
                 ref UndoPropertyModification modification = ref modifications[i];
 
-                if (!modification.currentValue.IsReorderableList(out ReorderableList list) || !typeof(ISerializableDictionary).IsAssignableFrom(list.serializedProperty.GetScope()!.FieldInfo.FieldType))
+                if (!modification.currentValue.IsReorderableList(out ReorderableList list) || !typeof(ISerializableDictionary).IsAssignableFrom(list.serializedProperty.GetScopeInfo()!.FieldInfo.FieldType))
                 {
                     continue;
                 }
 
-                PropertyPathInfo scope = list.serializedProperty.GetScope()!;
+                PropertyPathInfo scope = list.serializedProperty.GetScopeInfo()!;
 
                 Parallel.ForEach(list.GetTargetObjects(), delegate(Object target)
                 {
@@ -187,7 +187,7 @@ namespace Coimbra.Editor
                 Object target = list.GetTargetObject();
                 Undo.RecordObject(target, "Add Element To Dictionary");
                 list.GrabKeyboardFocus();
-                list.serializedProperty.GetScope()!.GetValue<ISerializableDictionary>(target)!.Add();
+                list.serializedProperty.GetScope<ISerializableDictionary>()!.Add();
                 list.GetSerializedObject().ApplyModifiedPropertiesWithoutUndo();
                 list.GetSerializedObject().UpdateIfRequiredOrScript();
 
@@ -202,7 +202,7 @@ namespace Coimbra.Editor
                     return false;
                 }
 
-                PropertyPathInfo scope = list.serializedProperty.GetScope()!;
+                PropertyPathInfo scope = list.serializedProperty.GetScopeInfo()!;
 
                 return GUI.enabled && scope.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null && scope.GetValue(list.GetTargetObject()) is ISerializableDictionary { CanAdd: true };
             }
@@ -216,7 +216,7 @@ namespace Coimbra.Editor
             {
                 ReorderableList.defaultBehaviours.DoRemoveButton(list);
 
-                PropertyPathInfo scope = list.serializedProperty.GetScope()!;
+                PropertyPathInfo scope = list.serializedProperty.GetScopeInfo()!;
 
                 Parallel.ForEach(list.GetTargetObjects(), delegate(Object target)
                 {

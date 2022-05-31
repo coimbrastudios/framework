@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Object = UnityEngine.Object;
 
@@ -44,20 +45,20 @@ namespace Coimbra
         /// The <see cref="PropertyPathInfo"/> that contains this property. Will always be null if <see cref="Depth"/> is 0, but never null otherwise.
         /// </summary>
         [CanBeNull]
-        public readonly PropertyPathInfo Scope;
+        public readonly PropertyPathInfo ScopeInfo;
 
         private readonly string _propertyPath;
 
         private PropertyPathInfo[] _chainBackingField;
 
-        internal PropertyPathInfo([NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scope, int depth, int? index, string propertyPath)
+        internal PropertyPathInfo([NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath)
         {
             _propertyPath = propertyPath;
             Depth = depth;
             Index = index;
             FieldInfo = fieldInfo;
             RootType = rootType;
-            Scope = scope;
+            ScopeInfo = scopeInfo;
         }
 
         /// <summary>
@@ -76,6 +77,87 @@ namespace Coimbra
         public override string ToString()
         {
             return $"{RootType.FullName}.{_propertyPath}";
+        }
+
+        /// <summary>
+        /// Get the scope value.
+        /// </summary>
+        [NotNull]
+        [Pure]
+        public object GetScope([NotNull] Object target)
+        {
+            if (ScopeInfo == null)
+            {
+                return target;
+            }
+
+            if (ScopeInfo.Index.HasValue)
+            {
+                return ScopeInfo.GetScope(target);
+            }
+
+            return ScopeInfo.GetValue(target) ?? target;
+        }
+
+        /// <inheritdoc cref="GetScope"/>
+        [NotNull]
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T GetScope<T>([NotNull] Object target)
+        {
+            return (T)GetScope(target);
+        }
+
+        /// <summary>
+        /// Get the scope value for each target.
+        /// </summary>
+        [NotNull]
+        [Pure]
+        public object[] GetScopes([NotNull] Object[] targets)
+        {
+            using (ListPool.Pop(out List<object> list))
+            {
+                GetScopes(targets, list);
+
+                return list.ToArray();
+            }
+        }
+
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
+        [NotNull]
+        [Pure]
+        public T[] GetScopes<T>([NotNull] Object[] targets)
+        {
+            using (ListPool.Pop(out List<T> list))
+            {
+                GetScopes(targets, list);
+
+                return list.ToArray();
+            }
+        }
+
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
+        public void GetScopes([NotNull] Object[] targets, [NotNull] List<object> append)
+        {
+            InitializeChain();
+            append.EnsureCapacity(append.Count + targets.Length);
+
+            Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
+            {
+                append.Add(GetScope(targets[i]));
+            });
+        }
+
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
+        public void GetScopes<T>([NotNull] Object[] targets, [NotNull] List<T> append)
+        {
+            InitializeChain();
+            append.EnsureCapacity(append.Count + targets.Length);
+
+            Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
+            {
+                append.Add(GetScope<T>(targets[i]));
+            });
         }
 
         /// <summary>
@@ -98,6 +180,7 @@ namespace Coimbra
         /// <inheritdoc cref="GetValue"/>
         [CanBeNull]
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetValue<T>([NotNull] Object target)
         {
             TryGetValue(target, out T value);
@@ -153,8 +236,7 @@ namespace Coimbra
 
             Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                TryGetValue(targets[i], out T value);
-                append.Add(value);
+                append.Add(GetValue<T>(targets[i]));
             });
         }
 
@@ -194,14 +276,12 @@ namespace Coimbra
 
             do
             {
-                object currentScope = propertyPathInfo.Scope?.GetValue(target) ?? target;
+                object currentScope = propertyPathInfo.ScopeInfo?.GetValue(target) ?? target;
 
                 if (propertyPathInfo.Index.HasValue)
                 {
                     ((IList)currentScope)[propertyPathInfo.Index.Value] = currentValue;
-
-                    propertyPathInfo = propertyPathInfo.Scope!;
-                    currentScope = propertyPathInfo.GetValue(target);
+                    propertyPathInfo = propertyPathInfo.ScopeInfo!;
                 }
                 else
                 {
@@ -209,7 +289,7 @@ namespace Coimbra
                 }
 
                 currentValue = currentScope;
-                propertyPathInfo = propertyPathInfo.Scope;
+                propertyPathInfo = propertyPathInfo.ScopeInfo;
             }
             while (propertyPathInfo != null);
         }
@@ -299,7 +379,7 @@ namespace Coimbra
             do
             {
                 _chainBackingField[current.Depth] = current;
-                current = current.Scope;
+                current = current.ScopeInfo;
             }
             while (current != null);
         }

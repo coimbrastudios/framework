@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.3.7] - 2022-05-31
+
+- Added `AnimatorParameterAttribute`.
+- Added `AssetsOnlyAttribute`.
+- Added `EnumFlagsAttribute`.
+- Added `LayerSelectorAttribute`.
+- Added `NotGreaterThanAttribute`.
+- Added `NotLessThanAttribute`.
+- Added `SortingLayerIDAttribute`.
+- Added `TagSelectorAttribute`.
+- Added `ValidateAttribute`.
+
 ## [10.3.6] - 2022-05-30
 
 - Added `AssertAwake` and `IsAwaken` properties to `Actor`.

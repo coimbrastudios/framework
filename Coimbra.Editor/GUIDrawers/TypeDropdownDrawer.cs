@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -9,7 +10,7 @@ namespace Coimbra.Editor
     /// Drawer for <see cref="TypeDropdownDrawer"/>.
     /// </summary>
     [CustomPropertyDrawer(typeof(TypeDropdownAttribute))]
-    public sealed class TypeDropdownDrawer : PropertyDrawer
+    public sealed class TypeDropdownDrawer : ValidateDrawer
     {
         private const string ChangeUndoKey = "Change Type Value";
 
@@ -20,7 +21,7 @@ namespace Coimbra.Editor
         }
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
             Rect valuePosition = position;
             position.xMin += EditorGUIUtility.labelWidth;
@@ -34,7 +35,7 @@ namespace Coimbra.Editor
 
                 TypeDropdown.DrawReferenceField(position, property.GetFieldInfo().FieldType, property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
                 {
-                    TypeDropdown.FilterTypes(property.serializedObject.targetObjects, property.GetPropertyPathInfo(), list);
+                    TypeDropdown.FilterTypes(targets, context, list);
                 });
             }
 

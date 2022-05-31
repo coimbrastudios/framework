@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace Coimbra.Editor
+{
+    /// <summary>
+    /// Drawer for <see cref="EnumFlagsAttribute"/>.
+    /// </summary>
+    [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
+    public sealed class EnumFlagsDrawer : ValidateDrawer
+    {
+        private static readonly Dictionary<Type, int> Offset = new Dictionary<Type, int>();
+
+        /// <inheritdoc/>
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight;
+        }
+
+        /// <inheritdoc/>
+        protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
+        {
+            if (property.propertyType != SerializedPropertyType.Enum || context.FieldInfo.FieldType.IsDefined(typeof(FlagsAttribute), false) == false)
+            {
+                EditorGUI.LabelField(position, label.text, "Use EnumFlags with flags Enum.");
+
+                return;
+            }
+
+            using (new ShowMixedValueScope())
+            using (ListPool.Pop(out List<Enum> values))
+            {
+                context.GetValues(targets, values);
+
+                Enum value = values[0];
+
+                for (int i = 1; i < values.Count; i++)
+                {
+                    if (value.Equals(values[i]))
+                    {
+                        continue;
+                    }
+
+                    EditorGUI.showMixedValue = true;
+
+                    break;
+                }
+
+                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                value = EditorGUI.EnumFlagsField(position, propertyScope.content, value);
+
+                if (!changeCheckScope.changed)
+                {
+                    return;
+                }
+
+                int valueIndex = Convert.ToInt32(value);
+
+                if (valueIndex < -1)
+                {
+                    if (Offset.TryGetValue(context.FieldInfo.FieldType, out int offset) == false)
+                    {
+                        offset = Enum.GetValues(context.FieldInfo.FieldType).Cast<int>().Max() * 2;
+                        Offset.Add(context.FieldInfo.FieldType, offset);
+                    }
+
+                    valueIndex += offset;
+                }
+
+                property.intValue = valueIndex;
+            }
+        }
+    }
+}

@@ -34,9 +34,18 @@ Package of general utilities to be used with Unity development.
     - `StackPool`: clears the `Stack`.
     - `StringBuilderPool`: clears the `StringBuilder`.
 - Property Attributes: Property attributes fully compatible with Unity's standard workflow:
+    - `AnimatorParameter`: Draws a parameter selector for a given animator.
+    - `AssetsOnly`: Prevents to assign a scene object to a `UnityEngine.Object` field.
+    - `EnumFlags`: Turns an enum field into a enum mask popup field.
     - `IntRange`: Draws a property as if it was a `IntRange`.
     - `FloatRange`: Draws a property as if it was a `FloatRange`.
+    - `LayerSelector`: Turns an int field into a layer popup field.
+    - `NotGreaterThan`: Prevents an int field to have a value greater than the a given value.
+    - `NotLessThan`: Prevents an int field to have a value smaller than the a given value.
     - `RangeSlider`: Draws a property using the Unity's `MinMaxSlider`.
+    - `SortingLayerID`: Turns an int field into a sorting layer popup field.
+    - `TagSelector`: Turns a string field into a tag popup field.
+    - `Validate`: Calls a method `void()` or `void(T previous)` when the property is changed. It is also the base for all others attributes.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences

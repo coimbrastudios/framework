@@ -19,6 +19,8 @@ namespace Coimbra.Editor
 
         private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsBySignatureFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
 
+        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> SetterByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
+
         internal static MethodInfo? FindMethodByName(this Type type, string name)
         {
             int hash = name.GetHashCode();
@@ -85,6 +87,45 @@ namespace Coimbra.Editor
             {
                 type = type.BaseType;
                 methodInfo = type.GetMethod(name, PrivateMethodBindingFlags, null, parameters, null);
+
+                if (methodInfo != null)
+                {
+                    break;
+                }
+            }
+
+            methods.Add(hash, methodInfo);
+
+            return methodInfo;
+        }
+
+        internal static MethodInfo? FindSetterByName(this Type type, string name)
+        {
+            int hash = name.GetHashCode();
+
+            if (!SetterByNameFromType.TryGetValue(type, out Dictionary<int, MethodInfo?> methods))
+            {
+                methods = new Dictionary<int, MethodInfo?>();
+                SetterByNameFromType.Add(type, methods);
+            }
+            else if (methods.TryGetValue(hash, out MethodInfo? result))
+            {
+                return result;
+            }
+
+            MethodInfo? methodInfo = type.GetProperty(name, DefaultMethodBindingFlags)?.GetSetMethod(true);
+
+            if (methodInfo != null)
+            {
+                methods.Add(hash, methodInfo);
+
+                return methodInfo;
+            }
+
+            while (type.BaseType != null)
+            {
+                type = type.BaseType;
+                methodInfo = type.GetProperty(name, PrivateMethodBindingFlags)?.GetSetMethod(true);
 
                 if (methodInfo != null)
                 {

@@ -71,8 +71,9 @@ namespace Coimbra.Editor
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
             SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
+            Object[] targets = property.serializedObject.targetObjects;
 
-            if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
+            if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(targets))
             {
                 using (GUIContentPool.Pop(out GUIContent value))
                 {
@@ -85,7 +86,7 @@ namespace Coimbra.Editor
 
                     if (GUI.Button(position, ClearLabel))
                     {
-                        Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                        Undo.RecordObjects(targets, ClearUndoKey);
                         systemObject.SetValues(null);
                         unityObject.SetValues(null);
                         unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
@@ -115,7 +116,7 @@ namespace Coimbra.Editor
 
                 if (GUI.Button(position, ClearLabel))
                 {
-                    Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                    Undo.RecordObjects(targets, ClearUndoKey);
                     unityObject.SetValues(null);
                     unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                     unityObject.serializedObject.UpdateIfRequiredOrScript();
@@ -137,7 +138,7 @@ namespace Coimbra.Editor
 
                     TypeDropdown.DrawReferenceField(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
                     {
-                        TypeDropdown.FilterTypes(property.serializedObject.targetObjects, systemObject.GetScope(), list);
+                        TypeDropdown.FilterTypes(targets, systemObject.GetScopeInfo(), list);
                     });
                 }
                 else
@@ -159,7 +160,7 @@ namespace Coimbra.Editor
 
                     if (GUI.Button(position, ClearLabel))
                     {
-                        Undo.RecordObjects(property.serializedObject.targetObjects, ClearUndoKey);
+                        Undo.RecordObjects(targets, ClearUndoKey);
                         systemObject.SetValues(null);
                         systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                         systemObject.serializedObject.UpdateIfRequiredOrScript();

@@ -90,6 +90,122 @@ namespace Coimbra.Tests.Editor
         }
 
         [Test]
+        public void PropertyPathInfo_GetScope_Depth0()
+        {
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviour.Integer));
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetScope(serializedObject.targetObject), Is.EqualTo(testBehaviour));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetScope_Depth1_Array()
+        {
+            const int testSize = 3;
+
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.StringArray = new string[testSize];
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviourBase.StringArray));
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetScope(serializedObject.targetObject), Is.EqualTo(testBehaviour));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetScope_Depth1_Field()
+        {
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.Field = new PropertyPathInfoTestBehaviourBase.NestedClass();
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty($"{PropertyPathInfoTestBehaviourBase.FieldName}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.Integer)}");
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetScope(serializedObject.targetObject), Is.EqualTo(testBehaviour.Field));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetScope_Depth2_Array()
+        {
+            const int testSize = 10;
+            const int testIndex = 3;
+
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+            testBehaviour.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
+            testBehaviour.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct();
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetScope(serializedObject.targetObject), Is.EqualTo(testBehaviour.StructList));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
+        public void PropertyPathInfo_GetScope_Depth2_Reference()
+        {
+            string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.Reference)}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStructValue)}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
+            PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
+
+            testBehaviour.Reference = new PropertyPathInfoTestBehaviourBase.NestedClass
+            {
+                NestedStructValue = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct(),
+            };
+
+            try
+            {
+                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
+                Assert.That(serializedProperty, Is.Not.Null);
+
+                PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Assert.That(propertyPathInfo.GetScope(serializedObject.targetObject), Is.EqualTo(testBehaviour.Reference.NestedStructValue));
+            }
+            finally
+            {
+                Object.DestroyImmediate(testBehaviour);
+            }
+        }
+
+        [Test]
         public void PropertyPathInfo_GetValue_Depth0()
         {
             const int testInt = 42;
@@ -358,17 +474,18 @@ namespace Coimbra.Tests.Editor
                 Assert.That(serializedProperty, Is.Not.Null);
 
                 PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetType().GetPropertyPathInfo(serializedProperty.propertyPath);
+                Object[] targets = serializedObject.targetObjects;
 
-                propertyPathInfo.SetValues(serializedObject.targetObjects, false, delegate(PropertyPathInfo sender, Object target)
+                propertyPathInfo.SetValues(targets, false, delegate(PropertyPathInfo sender, Object target)
                 {
                     return $"{testString}{target.name}";
                 });
 
-                object[] values = propertyPathInfo.GetValues(serializedObject.targetObjects);
+                object[] values = propertyPathInfo.GetValues(targets);
 
                 for (int i = 0; i < values.Length; i++)
                 {
-                    Assert.That(values[i], Is.EqualTo($"{testString}{serializedObject.targetObjects[i].name}"));
+                    Assert.That(values[i], Is.EqualTo($"{testString}{targets[i].name}"));
                 }
             }
             finally

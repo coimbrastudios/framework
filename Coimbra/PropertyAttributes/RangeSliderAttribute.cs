@@ -9,23 +9,23 @@ namespace Coimbra
     /// - One for the max value named as "y" or "_max"
     /// </para>
     /// </summary>
-    public sealed class RangeSliderAttribute : PropertyAttribute
+    public sealed class RangeSliderAttribute : ValidateAttribute
     {
         public readonly float MaxLimit;
 
         public readonly float MinLimit;
 
-        public readonly bool Delayed;
-
-        public readonly bool RoundToInt;
-
-        public RangeSliderAttribute(float minLimit, float maxLimit, bool roundToInt = false, bool delayed = true)
+        public RangeSliderAttribute(float minLimit, float maxLimit, bool delayed = true)
+            : base(delayed)
         {
             Debug.Assert(minLimit <= maxLimit, $"{nameof(minLimit)} should be smaller or equal to {nameof(maxLimit)}.");
             MinLimit = minLimit;
             MaxLimit = maxLimit;
-            RoundToInt = roundToInt;
-            Delayed = delayed;
         }
+
+        /// <summary>
+        /// If true, the input will always be rounded to the closest integer.
+        /// </summary>
+        public bool RoundToInt { get; set; }
     }
 }
