@@ -155,7 +155,7 @@ namespace Coimbra.Services
                 return AllowFallbackToShared ? Shared.Get<T>() : null;
             }
 
-            IService? value = service.Factory.Create(this);
+            IService? value = service.Factory.Create(this).GetValid();
 
             switch (value)
             {
@@ -170,12 +170,15 @@ namespace Coimbra.Services
 
                     return result;
                 }
+
+                default:
+                {
+                    Debug.LogWarning($"Create callback for {typeof(T)} returning a value of type {value.GetType()}! Disposing it...");
+                    value.Dispose();
+
+                    return AllowFallbackToShared ? Shared.Get<T>() : null;
+                }
             }
-
-            Debug.LogWarning($"Create callback for {typeof(T)} returning a value of type {value.GetType()}! Disposing it...");
-            value.Dispose();
-
-            return AllowFallbackToShared ? Shared.Get<T>() : null;
         }
 
         /// <summary>

@@ -22,30 +22,24 @@ namespace Coimbra.Services.Events
         public ServiceLocator? OwningLocator { get; set; }
 
         /// <inheritdoc/>
-        public EventHandle AddListener<T>(Event<T>.Handler eventHandler)
+        public EventHandle AddListener<T>(in Event<T>.Handler eventHandler)
             where T : IEvent
         {
-            return AddListener(ref eventHandler);
-        }
+            EventHandle handle = EventHandle.Create(typeof(T));
+            EventCallbacks<T>.Value.Add(handle, eventHandler);
 
-        /// <inheritdoc/>
-        public bool AddListener<T>(Event<T>.Handler eventHandler, List<EventHandle> appendList)
-            where T : IEvent
-        {
-            EventHandle eventHandle = AddListener(ref eventHandler);
-
-            if (!eventHandle.IsValid)
+            if (!_events.TryGetValue(typeof(T), out Event e))
             {
-                return false;
+                e = Create<T>();
             }
 
-            appendList.Add(eventHandle);
+            e.Add(in handle);
 
-            return true;
+            return handle;
         }
 
         /// <inheritdoc/>
-        public void AddRelevancyListener<T>(IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+        public void AddRelevancyListener<T>(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
             where T : IEvent
         {
             if (!_events.TryGetValue(typeof(T), out Event e))
@@ -109,10 +103,10 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender, ref T eventData)
+        public bool Invoke<T>(object eventSender, in T eventData)
             where T : IEvent
         {
-            Event<T> e = new Event<T>(this, eventSender, ref eventData);
+            Event<T> e = new Event<T>(this, eventSender, in eventData);
 
             return Invoke(ref e);
         }
@@ -131,7 +125,7 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public void RemoveRelevancyListener<T>(IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+        public void RemoveRelevancyListener<T>(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
             where T : IEvent
         {
             if (_events.TryGetValue(typeof(T), out Event e))
@@ -148,23 +142,6 @@ namespace Coimbra.Services.Events
             _events.Add(typeof(T), e);
 
             return e;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private EventHandle AddListener<T>(ref Event<T>.Handler eventCallback)
-            where T : IEvent
-        {
-            EventHandle handle = EventHandle.Create(typeof(T));
-            EventCallbacks<T>.Value.Add(handle, eventCallback);
-
-            if (!_events.TryGetValue(typeof(T), out Event e))
-            {
-                e = Create<T>();
-            }
-
-            e.Add(in handle);
-
-            return handle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

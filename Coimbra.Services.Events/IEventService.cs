@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
 using UnityEngine.Scripting;
 
 namespace Coimbra.Services.Events
@@ -22,17 +21,7 @@ namespace Coimbra.Services.Events
         /// </summary>
         /// <param name="eventHandler">The callback to be added.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
-        EventHandle AddListener<TEvent>(Event<TEvent>.Handler eventHandler)
-            where TEvent : IEvent;
-
-        /// <summary>
-        /// Adds a listener to an event type.
-        /// </summary>
-        /// <param name="eventHandler">The callback to be added.</param>
-        /// <param name="appendList">List to add the event handle if generated a valid one.</param>
-        /// <typeparam name="TEvent">The event type.</typeparam>
-        /// <returns>True if a valid <see cref="EventHandle"/> was generated.</returns>
-        bool AddListener<TEvent>(Event<TEvent>.Handler eventHandler, List<EventHandle> appendList)
+        EventHandle AddListener<TEvent>(in Event<TEvent>.Handler eventHandler)
             where TEvent : IEvent;
 
         /// <summary>
@@ -40,7 +29,7 @@ namespace Coimbra.Services.Events
         /// </summary>
         /// <param name="relevancyChangedHandler">The handler to add.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
-        void AddRelevancyListener<TEvent>(EventRelevancyChangedHandler relevancyChangedHandler)
+        void AddRelevancyListener<TEvent>(in EventRelevancyChangedHandler relevancyChangedHandler)
             where TEvent : IEvent;
 
         /// <summary>
@@ -96,7 +85,7 @@ namespace Coimbra.Services.Events
         /// <param name="eventData">The event data to be sent.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<TEvent>(object eventSender, ref TEvent eventData)
+        bool Invoke<TEvent>(object eventSender, in TEvent eventData)
             where TEvent : IEvent;
 
         /// <summary>
@@ -119,7 +108,7 @@ namespace Coimbra.Services.Events
         /// </summary>
         /// <param name="relevancyChangedHandler">The handler to remove.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
-        void RemoveRelevancyListener<TEvent>(EventRelevancyChangedHandler relevancyChangedHandler)
+        void RemoveRelevancyListener<TEvent>(in EventRelevancyChangedHandler relevancyChangedHandler)
             where TEvent : IEvent;
     }
 }

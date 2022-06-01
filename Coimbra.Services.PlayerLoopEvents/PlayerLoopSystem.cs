@@ -3,6 +3,7 @@
 using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Coimbra.Services.PlayerLoopEvents
@@ -16,13 +17,11 @@ namespace Coimbra.Services.PlayerLoopEvents
     {
         private PlayerLoopSystem() { }
 
-        private IEventService? EventService => OwningLocator?.Get<IEventService>();
-
         /// <inheritdoc/>
         public void RemoveAllListeners<T>()
             where T : IPlayerLoopEvent
         {
-            EventService?.RemoveAllListeners<T>();
+            OwningLocator?.Get<IEventService>()?.RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>
@@ -49,11 +48,11 @@ namespace Coimbra.Services.PlayerLoopEvents
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
 
                 float deltaTime = Time.deltaTime;
-                new FirstFixedUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstFixedUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate);
 
-                new LastFixedUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastFixedUpdateEvent(deltaTime));
             }
         }
 
@@ -65,85 +64,92 @@ namespace Coimbra.Services.PlayerLoopEvents
 
                 float deltaTime = Time.deltaTime;
 
-                new FirstInitializationEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstInitializationEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastInitialization);
 
-                new LastInitializationEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastInitializationEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.EarlyUpdate);
 
                 deltaTime = Time.deltaTime;
 
-                new FirstEarlyUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstEarlyUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastEarlyUpdate);
 
-                new LastEarlyUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastEarlyUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.PreUpdate);
 
                 deltaTime = Time.deltaTime;
 
-                new FirstPreUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstPreUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastPreUpdate);
 
-                new LastPreUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastPreUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.Update);
 
                 deltaTime = Time.deltaTime;
 
-                new FirstUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastUpdate);
 
-                new LastUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.PreLateUpdate);
 
                 deltaTime = Time.deltaTime;
 
-                new PreLateUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new PreLateUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate);
 
-                new FirstPostLateUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new FirstPostLateUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
 
                 deltaTime = Time.deltaTime;
 
-                new PostLateUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new PostLateUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
-                new LastPostLateUpdateEvent(deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new LastPostLateUpdateEvent(deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.TimeUpdate);
 
-                new PreTimeUpdateEvent(Time.deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new PreTimeUpdateEvent(Time.deltaTime));
 
                 await UniTask.Yield(PlayerLoopTiming.LastTimeUpdate);
 
-                new PostTimeUpdateEvent(Time.deltaTime).TryInvokeAt(EventService, this);
+                Invoke(new PostTimeUpdateEvent(Time.deltaTime));
             }
         }
 
         private void FixedUpdate()
         {
-            new FixedUpdateEvent(Time.deltaTime).TryInvokeAt(EventService, this);
+            Invoke(new FixedUpdateEvent(Time.deltaTime));
         }
 
         private void Update()
         {
-            new UpdateEvent(Time.deltaTime).TryInvokeAt(EventService, this);
+            Invoke(new UpdateEvent(Time.deltaTime));
         }
 
         private void LateUpdate()
         {
-            new LateUpdateEvent(Time.deltaTime).TryInvokeAt(EventService, this);
+            Invoke(new LateUpdateEvent(Time.deltaTime));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Invoke<T>(in T e)
+            where T : struct, IPlayerLoopEvent
+        {
+            OwningLocator?.Get<IEventService>()?.Invoke(this, in e);
         }
     }
 }

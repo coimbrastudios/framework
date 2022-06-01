@@ -82,7 +82,7 @@ Package of general utilities to be used with Unity development.
 |-------------|:------------------------------------------------------------------------------------------------------|----------|----------|
 | COIMBRA0001 | Concrete IEvent should be partial.                                                                    | Warning  | Yes      |
 | COIMBRA0002 | Concrete IEvent should not be a nested type.                                                          | Error    | Yes      |
-| COIMBRA0003 | Class events should be either abstract or sealed.                                                     | Warning  | No       |
+| COIMBRA0003 | Class events should be either abstract or sealed.                                                     | Error    | No       |
 | COIMBRA0004 | ServiceLocator APIs requires an interface type as generic parameter.                                  | Error    | No       |
 | COIMBRA0005 | ServiceLocator APIs requires an interface type without AbstractServiceAttribute as generic parameter. | Error    | No       |
 | COIMBRA0006 | Concrete IService should only implement one IService at a time.                                       | Error    | No       |

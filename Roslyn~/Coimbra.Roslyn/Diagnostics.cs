@@ -31,7 +31,7 @@ namespace Coimbra.Roslyn
                                                                                                    "Class events should be either abstract or sealed.",
                                                                                                    "Add sealed or abstract keyword to {0}.",
                                                                                                    EventsCategory,
-                                                                                                   DiagnosticSeverity.Warning,
+                                                                                                   DiagnosticSeverity.Error,
                                                                                                    true);
 
         public static readonly DiagnosticDescriptor ServiceLocatorRequiresInterface = new("COIMBRA0004",

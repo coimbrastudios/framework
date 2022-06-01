@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.4.0] - 2022-06-01
+
+- Changed `COIMBRA0003` to be error instead of warning.
+- Changed event methods generation to be more intuitive to use. It is a breaking change and requires modifying any code using the previous code generation. I shouldn't touch that logic anymore as this is becoming a never ending stuff.
+
 ## [10.3.7] - 2022-05-31
 
 - Added `AnimatorParameterAttribute`.

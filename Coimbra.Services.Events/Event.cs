@@ -50,7 +50,7 @@ namespace Coimbra.Services.Events
             CurrentHandle = default;
         }
 
-        public Event([NotNull] IEventService service, [NotNull] object sender, ref T data)
+        public Event([NotNull] IEventService service, [NotNull] object sender, in T data)
         {
             Service = service;
             Sender = sender;

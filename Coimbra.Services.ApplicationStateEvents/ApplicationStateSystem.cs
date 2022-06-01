@@ -20,13 +20,11 @@ namespace Coimbra.Services.ApplicationStateEvents
         /// <inheritdoc/>
         public bool IsPaused { get; private set; }
 
-        private IEventService? EventService => OwningLocator?.Get<IEventService>();
-
         /// <inheritdoc/>
         public void RemoveAllListeners<T>()
             where T : IApplicationStateEvent
         {
-            EventService?.RemoveAllListeners<T>();
+            OwningLocator?.Get<IEventService>()?.RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>
@@ -40,20 +38,28 @@ namespace Coimbra.Services.ApplicationStateEvents
         private void OnApplicationFocus(bool hasFocus)
         {
             IsFocused = hasFocus;
-            new ApplicationFocusEvent(hasFocus).TryInvokeAt(EventService, this);
+
+            if (OwningLocator != null)
+            {
+                new ApplicationFocusEvent(hasFocus).Invoke(OwningLocator, this);
+            }
         }
 
         private void OnApplicationPause(bool pauseStatus)
         {
             IsPaused = pauseStatus;
-            new ApplicationPauseEvent(pauseStatus).TryInvokeAt(EventService, this);
+
+            if (OwningLocator != null)
+            {
+                new ApplicationPauseEvent(pauseStatus).Invoke(OwningLocator, this);
+            }
         }
 
         private void HandleDestroying(Actor sender, DestroyReason reason)
         {
-            if (reason == DestroyReason.ApplicationQuit)
+            if (reason == DestroyReason.ApplicationQuit && OwningLocator != null)
             {
-                new ApplicationQuitEvent().TryInvokeAt(EventService, this);
+                new ApplicationQuitEvent().Invoke(OwningLocator, this);
             }
         }
     }
