@@ -31,6 +31,8 @@ namespace Coimbra.Services
                     return;
                 }
 
+                Initialize();
+
                 ServiceLocator? previous = _owningLocator;
                 _owningLocator = value;
                 OnOwningLocatorChanged(previous, value);
@@ -44,18 +46,20 @@ namespace Coimbra.Services
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroyed()
+        protected sealed override void OnDestroyed()
         {
             base.OnDestroyed();
 
-            if (OwningLocator == null)
+            OnDispose();
+
+            if (_owningLocator == null)
             {
                 return;
             }
 
-            if (OwningLocator.IsCreated(out TService? value) && value == this as TService)
+            if (_owningLocator.IsCreated(out TService? value) && value == this as TService)
             {
-                OwningLocator.Set<TService>(null, false);
+                _owningLocator.Set<TService>(null, false);
             }
             else
             {
@@ -66,7 +70,14 @@ namespace Coimbra.Services
         }
 
         /// <summary>
+        /// Will be called during <see cref="OnDestroyed"/> before cleaning the <see cref="OwningLocator"/>.
+        /// </summary>
+        protected virtual void OnDispose() { }
+
+        /// <summary>
         /// Will be called after the <see cref="OwningLocator"/> has been set and only if the value actually changed.
+        /// <para></para>
+        /// It is guaranteed to run after <see cref="Actor.OnInitialize"/> has been called and should be used for any initialization logic related to other services.
         /// </summary>
         /// <param name="previous">The value before.</param>
         /// <param name="current">The value after. Is the same as the current <see cref="OwningLocator"/>.</param>

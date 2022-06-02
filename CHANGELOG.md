@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.4.2] - 2022-06-02
+
+- Changed documentation for `ServieActorBase.OnOwningLocatorChanged` to include when it is called and how should be used.
+- Changed `ServieActorBase.OnDestroyed` to be sealed, a new virtual `OnDipose` method was included and should be used instead.
+
 ## [10.4.1] - 2022-06-02
 
 - Added dependency on `com.unity.profiling.core`.

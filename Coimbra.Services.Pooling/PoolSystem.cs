@@ -173,9 +173,9 @@ namespace Coimbra.Services.Pooling
         }
 
         /// <inheritdoc/>
-        protected override void OnDestroyed()
+        protected override void OnDispose()
         {
-            base.OnDestroyed();
+            base.OnDispose();
             _poolFromPrefab.Clear();
             _loadingList.Clear();
             _prefabsSet.Clear();

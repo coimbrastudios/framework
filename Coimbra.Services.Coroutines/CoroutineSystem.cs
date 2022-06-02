@@ -13,9 +13,9 @@ namespace Coimbra.Services.Coroutines
         private CoroutineSystem() { }
 
         /// <inheritdoc/>
-        protected override void OnDestroyed()
+        protected override void OnDispose()
         {
-            base.OnDestroyed();
+            base.OnDispose();
             StopAllCoroutines();
         }
 
