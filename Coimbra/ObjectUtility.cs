@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Coimbra
@@ -8,6 +9,15 @@ namespace Coimbra
     /// </summary>
     public static class ObjectUtility
     {
+        /// <summary>
+        /// Adds an item to a <see cref="ICollection{T}"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddTo<T>(this T o, ICollection<T> collection)
+        {
+            collection.Add(o);
+        }
+
         /// <summary>
         /// Destroys the <see cref="Object"/> correctly by checking if it isn't already an <see cref="Actor"/> first.
         /// </summary>
