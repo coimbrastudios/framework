@@ -462,6 +462,7 @@ namespace Coimbra
             IsPrefab = GameObject.scene.name == null;
 
             // should be the last call
+            UninitializedActorCount.Value--;
             InitializedActorCount.Value++;
             CachedActors.Add(GameObjectID, this);
 

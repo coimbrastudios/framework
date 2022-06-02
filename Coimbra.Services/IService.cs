@@ -1,4 +1,6 @@
-﻿#nullable enable
+﻿// ReSharper disable RequiredBaseTypesIsNotInherited
+
+#nullable enable
 
 using System;
 using UnityEngine.Scripting;
