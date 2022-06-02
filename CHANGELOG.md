@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.4.1] - UNRELEASED
+
+- Added dependency on `com.unity.profiling.core`.
+- Added profile counters for `Actor` usage.
+
 ## [10.4.0] - 2022-06-01
 
 - Changed `COIMBRA0003` to be error instead of warning.
