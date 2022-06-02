@@ -1,9 +1,10 @@
 # Changelog
 
-## [10.4.1] - UNRELEASED
+## [10.4.1] - 2022-06-02
 
 - Added dependency on `com.unity.profiling.core`.
 - Added profile counters for `Actor` usage.
+- Changed generated static `Invoke` method to `InvokeDefault` to make its usage more clear.
 
 ## [10.4.0] - 2022-06-01
 
