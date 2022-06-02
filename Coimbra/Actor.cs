@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -85,6 +86,14 @@ namespace Coimbra
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
+        private static readonly ProfilerCounterValue<int> NewActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
+
+        private static readonly ProfilerCounterValue<int> PooledActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Pooled Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+
+        private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+
+        private static readonly ProfilerCounterValue<int> UninitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+
         [SerializeField]
         [DisableOnPlayMode]
         [Tooltip(" If true, it will check if Awake was called before Initialize.")]
@@ -124,6 +133,8 @@ namespace Coimbra
 
         protected Actor()
         {
+            NewActorCount.Value++;
+            UninitializedActorCount.Value++;
             UninitializedActors.Add(this);
         }
 
@@ -290,6 +301,8 @@ namespace Coimbra
                     actor.Initialize();
                 }
             }
+
+            UninitializedActorCount.Value = 0;
         }
 
         /// <summary>
@@ -449,6 +462,7 @@ namespace Coimbra
             IsPrefab = GameObject.scene.name == null;
 
             // should be the last call
+            InitializedActorCount.Value++;
             CachedActors.Add(GameObjectID, this);
 
             if (IsPrefab)
@@ -463,6 +477,7 @@ namespace Coimbra
 
             if (IsPooled)
             {
+                PooledActorCount.Value++;
                 PooledActors.Add(this);
             }
             else
@@ -575,6 +590,7 @@ namespace Coimbra
 
             if (IsPooled)
             {
+                PooledActorCount.Value--;
                 PooledActors.RemoveSwapBack(this);
             }
 
@@ -619,6 +635,7 @@ namespace Coimbra
             Pool = null;
             _gameObject = null;
             _transform = null;
+            InitializedActorCount.Value--;
             CachedActors.Remove(GameObjectID);
         }
     }

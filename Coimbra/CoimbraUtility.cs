@@ -1,3 +1,4 @@
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Coimbra
@@ -24,6 +25,8 @@ namespace Coimbra
         internal const string ProjectUserPreferencesPath = UserPreferencesPath + "/Project";
 
         internal const string ToolsMenuPath = "Tools/Coimbra Framework/";
+
+        internal static readonly ProfilerCategory ProfilerCategory = new ProfilerCategory("Coimbra Framework");
 
         private const string UserPreferencesPath = "Preferences/Coimbra Framework";
 
