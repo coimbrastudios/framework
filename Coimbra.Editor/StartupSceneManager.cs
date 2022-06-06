@@ -6,22 +6,37 @@ using UnityEngine.SceneManagement;
 
 namespace Coimbra.Editor
 {
-    [InitializeOnLoad]
-    internal static class StartupSceneManager
+    /// <summary>
+    /// Helper class for defining a startup scene for projects that requires some special initialization even when inside the editor.
+    /// </summary>
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
+    public sealed class StartupSceneManager : ScriptableSettings
     {
-        private const string EditorStartupSceneCategory = " ";
+        [UserSetting]
+        private static readonly CoimbraUserSetting<bool> HasSavedStartupScene;
 
-        private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
+        [UserSetting]
+        private static readonly CoimbraUserSetting<SceneAsset> SavedStartupScene;
 
-        private const string PlayModeStartSceneKey = KeyPrefix + nameof(PlayModeStartSceneKey);
-
-        [UserSetting(EditorStartupSceneCategory, "Editor Startup Scene", "The scene to use as the startup scene when inside the editor. If null, then no startup scene will be used.")]
-        private static readonly ProjectSetting<SceneAsset> StartupScene = new ProjectSetting<SceneAsset>("General.EditorStartupScene", null);
+        [SerializeField]
+        [Tooltip("The scene to use as the startup scene when inside the editor. If null, then no startup scene will be used.")]
+        private SceneAsset _startupScene;
 
         static StartupSceneManager()
         {
+            HasSavedStartupScene = new CoimbraUserSetting<bool>($"{typeof(StartupSceneManager).FullName}.{nameof(HasSavedStartupScene)}", false, SettingsScope.Project);
+            SavedStartupScene = new CoimbraUserSetting<SceneAsset>($"{typeof(StartupSceneManager).FullName}.{nameof(SavedStartupScene)}", null, SettingsScope.Project);
             EditorApplication.playModeStateChanged -= ConfigureStartupScene;
             EditorApplication.playModeStateChanged += ConfigureStartupScene;
+        }
+
+        /// <summary>
+        /// The scene to use as the startup scene when inside the editor. If null, then no startup scene will be used.
+        /// </summary>
+        public SceneAsset StartupScene
+        {
+            get => _startupScene;
+            set => _startupScene = value;
         }
 
         private static void ConfigureStartupScene(PlayModeStateChange state)
@@ -31,13 +46,20 @@ namespace Coimbra.Editor
                 case PlayModeStateChange.ExitingPlayMode:
                 case PlayModeStateChange.EnteredEditMode:
                 {
-                    EditorSceneManager.playModeStartScene = null;
+                    if (HasSavedStartupScene.value)
+                    {
+                        EditorSceneManager.playModeStartScene = SavedStartupScene.value;
+                        HasSavedStartupScene.SetValue(false, true);
+                    }
 
                     break;
                 }
             }
 
-            if (StartupScene.value == null || EditorSceneManager.playModeStartScene != null)
+            TryGetOrFind(out StartupSceneManager settings, FindSingle);
+            Debug.Assert(settings);
+
+            if (settings.StartupScene == null)
             {
                 return;
             }
@@ -48,27 +70,29 @@ namespace Coimbra.Editor
                 {
                     Scene currentScene = SceneManager.GetActiveScene();
 
-                    if (currentScene.buildIndex < 0 || currentScene.path == AssetDatabase.GetAssetPath(StartupScene.value))
+                    if (HasSavedStartupScene.value || currentScene.buildIndex < 0 || currentScene.path == AssetDatabase.GetAssetPath(settings.StartupScene))
                     {
                         break;
                     }
 
-                    EditorSceneManager.playModeStartScene = StartupScene.value;
-                    Debug.LogWarning($"Editor Startup Scene: \"{EditorSceneManager.playModeStartScene}\"");
+                    SavedStartupScene.value = EditorSceneManager.playModeStartScene;
+                    EditorSceneManager.playModeStartScene = settings.StartupScene;
+                    Debug.Log($"Overriding Startup Scene to \"{EditorSceneManager.playModeStartScene}\"");
+                    HasSavedStartupScene.SetValue(true, true);
 
                     break;
                 }
 
                 case PlayModeStateChange.EnteredPlayMode:
                 {
-                    const string invalid = "<null>";
-                    string playModeStartScene = SessionState.GetString(PlayModeStartSceneKey, invalid);
-
-                    if (playModeStartScene != invalid)
+                    if (!HasSavedStartupScene.value)
                     {
-                        EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(playModeStartScene);
-                        SessionState.EraseString(PlayModeStartSceneKey);
+                        break;
                     }
+
+                    EditorSceneManager.playModeStartScene = SavedStartupScene.value;
+                    Debug.Log($"Reverting Startup Scene to \"{EditorSceneManager.playModeStartScene}\"");
+                    HasSavedStartupScene.SetValue(false, true);
 
                     break;
                 }

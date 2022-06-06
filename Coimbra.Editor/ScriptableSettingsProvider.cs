@@ -77,7 +77,7 @@ namespace Coimbra.Editor
 
                 base.OnGUI(searchContext);
 
-                if (!changeCheckScope.changed)
+                if (changeCheckScope.changed)
                 {
                     SaveScriptableObjectSettings();
                 }
@@ -186,6 +186,9 @@ namespace Coimbra.Editor
             {
                 if (scope == SettingsScope.Project)
                 {
+                    EditorUtility.SetDirty(settingsEditor.target);
+                    AssetDatabase.SaveAssetIfDirty(settingsEditor.target);
+
                     return;
                 }
 
@@ -202,9 +205,9 @@ namespace Coimbra.Editor
                 Directory.CreateDirectory(directoryName);
             }
 
-            InternalEditorUtility.SaveToSerializedFileAndForget(new Object[]
+            InternalEditorUtility.SaveToSerializedFileAndForget(new[]
             {
-                ScriptableSettings.GetOrFind(_type)
+                settingsEditor.target
             }, _editorFilePath, true);
         }
 

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 
 namespace Coimbra.Editor
@@ -22,16 +21,9 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    ProjectSettingsAttribute attribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
-                    string path = $"{attribute.WindowPath}/{attribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name)}";
-
-                    if (attribute.IsEditorOnly)
+                    if (ScriptableSettingsUtility.TryGetAttributeData(type, out string windowPath, out string filePath, out string[] keywords))
                     {
-                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(path, type, $"{attribute.FileDirectory}/{(attribute.FileNameOverride ?? $"{type.Name}.asset")}", attribute.Keywords));
-                    }
-                    else
-                    {
-                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(path, type, null, attribute.Keywords));
+                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(windowPath, type, filePath, keywords));
                     }
                 }
 

@@ -14,16 +14,18 @@ namespace Coimbra.Editor
     public static class CoimbraEditorUtility
     {
 #if !UNITY_2021_3_OR_NEWER
-        private const string ClearConsoleOnReloadKey = KeyPrefix + nameof(ClearConsoleOnReloadKey);
-
         private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
 #endif
-        private const string KeyPrefix = "Coimbra.Editor.FrameworkEditorUtility.";
-
         private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
 
+#if !UNITY_2021_3_OR_NEWER
+        private static readonly CoimbraUserSetting<bool> ClearConsoleOnReload;
+#endif
         static CoimbraEditorUtility()
         {
+#if !UNITY_2021_3_OR_NEWER
+            ClearConsoleOnReload = new CoimbraUserSetting<bool>($"{typeof(CoimbraEditorUtility).FullName}.{nameof(ClearConsoleOnReload)}", false, SettingsScope.User);
+#endif
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
             EditorApplication.delayCall += HandleDelayCall;
@@ -106,8 +108,8 @@ namespace Coimbra.Editor
         [MenuItem(ClearConsoleOnReloadItem)]
         public static void ToggleClearConsoleOnReload()
         {
-            bool value = !EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
-            EditorPrefs.SetBool(ClearConsoleOnReloadKey, value);
+            bool value = !ClearConsoleOnReload.value;
+            ClearConsoleOnReload.SetValue(value, true);
             Menu.SetChecked(ClearConsoleOnReloadItem, value);
         }
 #endif
@@ -129,7 +131,7 @@ namespace Coimbra.Editor
         private static void HandleBeforeAssemblyReload()
         {
 #if !UNITY_2021_3_OR_NEWER
-            if (EditorPrefs.GetBool(ClearConsoleOnReloadKey, false))
+            if (ClearConsoleOnReload.value)
             {
                 ClearConsoleWindow();
             }
@@ -140,8 +142,7 @@ namespace Coimbra.Editor
         private static void HandleDelayCall()
         {
 #if !UNITY_2021_3_OR_NEWER
-            bool value = EditorPrefs.GetBool(ClearConsoleOnReloadKey, false);
-            Menu.SetChecked(ClearConsoleOnReloadItem, value);
+            Menu.SetChecked(ClearConsoleOnReloadItem, ClearConsoleOnReload.value);
 #endif
             CoimbraUtility.IsReloadingScripts = false;
         }

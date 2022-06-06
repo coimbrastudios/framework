@@ -1,9 +1,13 @@
 # Changelog
 
+## [10.4.3] - UNRELEASED
+
+- Changed internal implementation of `Clear Console On Reload` and `Startup Scene Manager` to use the new internal `CoimbraUserSettings` class to make the code more maintainable.
+
 ## [10.4.2] - 2022-06-02
 
 - Changed documentation for `ServieActorBase.OnOwningLocatorChanged` to include when it is called and how should be used.
-- Changed `ServieActorBase.OnDestroyed` to be sealed, a new virtual `OnDipose` method was included and should be used instead.
+- Changed `ServieActorBase.OnDestroyed` to be sealed, a new virtual `OnDispose` method was included and should be used instead.
 
 ## [10.4.1] - 2022-06-02
 

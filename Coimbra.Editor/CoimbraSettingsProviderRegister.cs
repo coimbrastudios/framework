@@ -9,18 +9,11 @@ namespace Coimbra.Editor
     [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue")]
     internal static class CoimbraSettingsProviderRegister
     {
-        internal const string EditorUserSettingsName = "EditorPrefs";
-
-        internal const string ProjectSettingsName = "ProjectSettings";
-
-        internal const string ProjectUserSettingsName = "UserSettings";
-
         private static Settings? _settings;
 
         internal static Settings Settings => _settings ??= new Settings(new ISettingsRepository[]
         {
-            new PackageSettingsRepository(CoimbraUtility.PackageName, ProjectSettingsName),
-            new ProjectUserSettings(CoimbraUtility.PackageName, ProjectUserSettingsName),
+            new ProjectUserSettings(CoimbraUtility.PackageName),
             new UserSettingsRepository(),
         });
 

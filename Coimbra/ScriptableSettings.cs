@@ -63,7 +63,7 @@ namespace Coimbra
             return result;
         };
 
-        private static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+        internal static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
@@ -149,18 +149,18 @@ namespace Coimbra
         /// </summary>
         public static ScriptableSettingsType GetType(Type type)
         {
-            PreferencesAttribute preferencesAttribute = type.GetCustomAttribute<PreferencesAttribute>();
-
-            if (preferencesAttribute != null)
-            {
-                return preferencesAttribute.UseEditorPrefs ? ScriptableSettingsType.EditorUserPreferences : ScriptableSettingsType.ProjectUserPreferences;
-            }
-
             ProjectSettingsAttribute projectSettingsAttribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
 
             if (projectSettingsAttribute != null)
             {
                 return projectSettingsAttribute.IsEditorOnly ? ScriptableSettingsType.EditorProjectSettings : ScriptableSettingsType.RuntimeProjectSettings;
+            }
+
+            PreferencesAttribute preferencesAttribute = type.GetCustomAttribute<PreferencesAttribute>();
+
+            if (preferencesAttribute != null)
+            {
+                return preferencesAttribute.UseEditorPrefs ? ScriptableSettingsType.EditorUserPreferences : ScriptableSettingsType.ProjectUserPreferences;
             }
 
             return ScriptableSettingsType.Custom;
