@@ -24,6 +24,11 @@ Package of general utilities to be used with Unity development.
 - GameObject Pools: Specialized pooling implementation for `GameObject` with auto resizing functionality.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
+- `MonoBehaviour` Listeners: components to be used to listen for `MonoBehaviour` callbacks:
+    - `StartListener`
+    - `FixedUpdateListener`
+    - `LateUpdateListener`
+    - `UpdateListener`
 - Object Pooling: Use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
     - `DictionaryPool`: clears the `Dictionary`.
     - `GUIContentPool`: clears the `GUIContet`.
@@ -49,7 +54,7 @@ Package of general utilities to be used with Unity development.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
-  with `PreferencesAttribute`.
+  with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Tools/Coimbra Framework/Windows/Scriptable Settings`;
 - `SerializableDictionary`: supports modifying and saving through the inspector. Can have its size locked with `DisableResizeAttribute` or made read-only with `DisableAttribute`.
 - Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
     - Attributes:

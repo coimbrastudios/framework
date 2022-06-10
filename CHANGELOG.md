@@ -2,6 +2,8 @@
 
 ## [10.4.3] - UNRELEASED
 
+- Added `Tools/Coimbra Framework/Windows/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
+- Added components to be used to listen for `MonoBehaviour` callbacks: `StartListener`, `FixedUpdateListener`, `LateUpdateListener`, `UpdateListener`.
 - Changed internal implementation of `Clear Console On Reload` and `Startup Scene Manager` to use the new internal `CoimbraUserSettings` class to make the code more maintainable.
 
 ## [10.4.2] - 2022-06-02
