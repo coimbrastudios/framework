@@ -26,6 +26,8 @@ namespace Coimbra
 
         internal const string ToolsMenuPath = "Tools/Coimbra Framework/";
 
+        internal const string WindowsMenuPath = ToolsMenuPath + "Windows/";
+
         internal static readonly ProfilerCategory ProfilerCategory = new ProfilerCategory("Coimbra Framework");
 
         private const string UserPreferencesPath = "Preferences/Coimbra Framework";
