@@ -9,6 +9,7 @@ namespace Coimbra
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
+    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Image Hit Test Initialized")]
     public sealed class ImageHitTestInitializer : MonoBehaviour
     {
         [SerializeField]

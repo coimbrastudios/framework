@@ -2,7 +2,6 @@
 
 using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -13,6 +12,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
+    [RequireComponent(typeof(StartListener))]
     public sealed class PlayerLoopSystem : ServiceActorBase<PlayerLoopSystem, IPlayerLoopService>, IPlayerLoopService
     {
         private PlayerLoopSystem() { }
@@ -30,15 +30,11 @@ namespace Coimbra.Services.PlayerLoopEvents
             base.OnInitialize();
             DontDestroyOnLoad(GameObject);
 
-            IEnumerator coroutine()
+            GetComponent<StartListener>().OnTrigger += delegate
             {
-                yield return null;
-
                 InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
                 InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
-            }
-
-            StartCoroutine(coroutine());
+            };
         }
 
         private async UniTask InvokeFixedUpdateEvents()
