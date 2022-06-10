@@ -16,14 +16,9 @@ namespace Coimbra.Editor
             {
                 foreach (Type type in TypeCache.GetTypesWithAttribute<PreferencesAttribute>())
                 {
-                    if (dictionary.ContainsKey(type) || !typeof(ScriptableSettings).IsAssignableFrom(type) || type.IsGenericType || type.IsAbstract)
+                    if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && !type.IsGenericType && !type.IsAbstract)
                     {
-                        continue;
-                    }
-
-                    if (ScriptableSettingsUtility.TryGetAttributeData(type, out string windowPath, out string filePath, out string[] keywords))
-                    {
-                        dictionary.Add(type, ScriptableSettingsProvider.CreatePreferencesProvider(windowPath, type, filePath, keywords));
+                        dictionary.Add(type, ScriptableSettingsProvider.Create(type));
                     }
                 }
 

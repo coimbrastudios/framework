@@ -56,7 +56,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            TryGetOrFind(out StartupSceneManager settings, FindSingle);
+            ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneManager settings, FindSingle);
             Debug.Assert(settings);
 
             if (settings.StartupScene == null)

@@ -380,15 +380,12 @@ namespace Coimbra
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Awake()
         {
-            if (!IsAwaken)
-            {
-                IsAwaken = isActiveAndEnabled;
-            }
+            IsAwaken = true;
         }
 
 #if UNITY_ASSERTIONS
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnInitialize"/> and wait one frame, or listen to <see cref="OnSceneInitializedOnce"/> instead.
+        /// Non-virtual by design, use <see cref="StartListener"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Start()

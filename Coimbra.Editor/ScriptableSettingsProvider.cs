@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -14,32 +13,16 @@ namespace Coimbra.Editor
     /// <summary>
     /// Specialization of <see cref="AssetSettingsProvider"/> to use with <see cref="ScriptableSettings"/>.
     /// </summary>
-    public class ScriptableSettingsProvider : AssetSettingsProvider
+    public sealed class ScriptableSettingsProvider : AssetSettingsProvider
     {
-        private const string EditorPrefsFormat = "Coimbra.Editor.ScriptableSettingsProvider.{0}";
-
         private readonly string? _editorFilePath;
 
         private readonly Type _type;
 
-        protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath)
-            : base(settingsWindowPath, () => ScriptableSettings.GetOrFind(type))
+        private ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath, IEnumerable<string>? keywords)
+            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(ScriptableSettings.GetOrFind(type)), keywords)
         {
-            CreateOrLoadScriptableSettings(type, editorFilePath, scope);
-
-            FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            Debug.Assert(field != null);
-            field!.SetValue(this, scope);
-
-            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-            _editorFilePath = editorFilePath;
-            _type = type;
-        }
-
-        protected ScriptableSettingsProvider(string settingsWindowPath, Type type, SettingsScope scope, string? editorFilePath, IEnumerable<string>? keywords)
-            : base(settingsWindowPath, () => UnityEditor.Editor.CreateEditor(CreateOrLoadScriptableSettings(type, editorFilePath, scope)), keywords)
-        {
-            CreateOrLoadScriptableSettings(type, editorFilePath, scope);
+            ScriptableSettingsUtility.LoadOrCreate(type);
 
             FieldInfo? field = typeof(SettingsProvider).GetField($"<{nameof(scope)}>k__BackingField", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             Debug.Assert(field != null);
@@ -71,7 +54,7 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnGUI(string searchContext)
         {
-            if (settingsEditor != null && settingsEditor.target != null)
+            if (settingsEditor != null && settingsEditor.target != null && settingsEditor.target is ScriptableSettings settings)
             {
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
@@ -79,7 +62,7 @@ namespace Coimbra.Editor
 
                 if (changeCheckScope.changed)
                 {
-                    SaveScriptableObjectSettings();
+                    settings.Save();
                 }
             }
             else
@@ -91,58 +74,12 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static ScriptableSettingsProvider CreatePreferencesProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
+        internal static ScriptableSettingsProvider Create(Type type)
         {
-            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.User, editorFilePath, keywords);
-        }
+            ScriptableSettingsUtility.TryGetAttributeData(type, out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords);
+            Debug.Assert(settingsScope.HasValue);
 
-        internal static ScriptableSettingsProvider CreateProjectSettingsProvider(string settingsWindowPath, Type type, string? editorFilePath, IEnumerable<string>? keywords)
-        {
-            return new ScriptableSettingsProvider(settingsWindowPath, type, SettingsScope.Project, editorFilePath, keywords);
-        }
-
-        private static ScriptableSettings? CreateOrLoadScriptableSettings(Type type, string? filePath, SettingsScope scope)
-        {
-            ScriptableSettingsType filter = ScriptableSettings.GetType(type);
-
-            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value) && value.Type == filter)
-            {
-                return value;
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                Object[] objects = InternalEditorUtility.LoadSerializedFileAndForget(filePath);
-
-                foreach (Object o in objects)
-                {
-                    if (o is ScriptableSettings match && match.Type == filter)
-                    {
-                        ScriptableSettings.Set(type, match);
-
-                        return match;
-                    }
-                }
-
-                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-            }
-            else if (scope == SettingsScope.User)
-            {
-                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-
-                string defaultValue = EditorJsonUtility.ToJson(value, false);
-                string newValue = EditorPrefs.GetString(string.Format(EditorPrefsFormat, type.FullName), defaultValue);
-                EditorJsonUtility.FromJsonOverwrite(newValue, value);
-
-                if (value.Type != filter)
-                {
-                    value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                }
-            }
-
-            ScriptableSettings.SetOrOverwrite(type, value);
-
-            return value;
+            return new ScriptableSettingsProvider(windowPath!, type, settingsScope!.Value, filePath, keywords);
         }
 
         private void CreateScriptableSettings()
@@ -178,37 +115,6 @@ namespace Coimbra.Editor
             EditorGUIUtility.PingObject(settings);
             ScriptableSettings.Set(_type, settings);
             SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
-        }
-
-        private void SaveScriptableObjectSettings()
-        {
-            if (_editorFilePath == null)
-            {
-                if (scope == SettingsScope.Project)
-                {
-                    EditorUtility.SetDirty(settingsEditor.target);
-                    AssetDatabase.SaveAssetIfDirty(settingsEditor.target);
-
-                    return;
-                }
-
-                string value = EditorJsonUtility.ToJson(settingsEditor.target, true);
-                EditorPrefs.SetString(string.Format(EditorPrefsFormat, _type.FullName), value);
-
-                return;
-            }
-
-            string? directoryName = Path.GetDirectoryName(_editorFilePath);
-
-            if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
-            {
-                Directory.CreateDirectory(directoryName);
-            }
-
-            InternalEditorUtility.SaveToSerializedFileAndForget(new[]
-            {
-                settingsEditor.target
-            }, _editorFilePath, true);
         }
 
         private void SetSettingsEditor(UnityEditor.Editor value)
