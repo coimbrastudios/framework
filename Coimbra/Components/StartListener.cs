@@ -24,19 +24,19 @@ namespace Coimbra
                 }
                 else
                 {
-                    _triggerCallback += value;
+                    _eventHandler += value;
                 }
             }
             remove
             {
                 if (!WasTriggered)
                 {
-                    _triggerCallback -= value;
+                    _eventHandler -= value;
                 }
             }
         }
 
-        private EventHandler _triggerCallback;
+        private EventHandler _eventHandler;
 
         /// <summary>
         /// True if <see cref="Start"/> was already called. This is set after invoking <see cref="OnTrigger"/> for the first time.
@@ -45,9 +45,9 @@ namespace Coimbra
 
         private void Start()
         {
-            _triggerCallback?.Invoke();
+            _eventHandler?.Invoke();
 
-            _triggerCallback = null;
+            _eventHandler = null;
             WasTriggered = true;
         }
     }
