@@ -28,7 +28,7 @@ namespace Coimbra.Tests
             yield return null;
 
             Assert.That(gameObject.GetValid()?.ToString().Contains(name) ?? false);
-            UnityEngine.Object.Destroy((GameObject)gameObject);
+            ((GameObject)gameObject).Destroy();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace Coimbra.Tests
             yield return null;
 
             Assert.That(gameObject.GetValid()?.ToString().Contains(name) ?? false);
-            UnityEngine.Object.Destroy((GameObject)gameObject);
+            ((GameObject)gameObject).Destroy();
 
             yield return null;
 
@@ -85,7 +85,7 @@ namespace Coimbra.Tests
             yield return null;
 
             Assert.That(gameObject.IsValid());
-            UnityEngine.Object.Destroy((GameObject)gameObject);
+            ((GameObject)gameObject).Destroy();
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace Coimbra.Tests
             yield return null;
 
             Assert.That(gameObject.IsValid());
-            UnityEngine.Object.Destroy((GameObject)gameObject);
+            ((GameObject)gameObject).Destroy();
 
             yield return null;
 

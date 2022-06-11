@@ -103,7 +103,7 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0016 | ScriptableSettings attributes are not supported on generic types.                                     | Error    | No       |
 | COIMBRA0017 | ServiceLocator.Shared should not be accessed inside IService.                                         | Error    | No       |
 | COIMBRA0018 | OwningLocator.set is for internal use only.                                                           | Error    | No       |
-| COIMBRA0019 | Object.Destroy should be avoided.                                                                     | Info     | No       |
+| COIMBRA0019 | Object.Destroy should not be used with Objects that can be an Actor.                                  | Warning  | No       |
 | COIMBRA0020 | Type with CopyBaseConstructorsAttribute should be partial.                                            | Warning  | Yes      |
 | COIMBRA0021 | Type with CopyBaseConstructorsAttribute should not be nested.                                         | Error    | Yes      |
 | COIMBRA0022 | Type with SharedManagedPoolAttribute should be partial.                                               | Warning  | Yes      |

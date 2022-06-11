@@ -15,7 +15,7 @@ namespace Coimbra.Tests.UnityTests
             GameObject gameObject = new GameObject();
             gameObject.AddComponent<LogBehaviour>();
             LogAssert.NoUnexpectedReceived();
-            Object.Destroy(gameObject);
+            gameObject.Destroy();
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace Coimbra.Tests.UnityTests
             LogAssert.Expect(LogType.Log, LogBehaviour.EnableLog);
             GameObject gameObject = new GameObject(nameof(GivenNewGameObject_ThenAwakeIsCalledWithoutDelay), typeof(LogBehaviour));
             LogAssert.NoUnexpectedReceived();
-            Object.Destroy(gameObject);
+            gameObject.Destroy();
         }
     }
 }

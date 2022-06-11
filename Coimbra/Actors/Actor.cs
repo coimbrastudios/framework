@@ -620,7 +620,9 @@ namespace Coimbra
             {
                 if (CoimbraUtility.IsPlayMode)
                 {
+#pragma warning disable COIMBRA0019
                     Object.Destroy(gameObject);
+#pragma warning restore COIMBRA0019
                 }
                 else
                 {

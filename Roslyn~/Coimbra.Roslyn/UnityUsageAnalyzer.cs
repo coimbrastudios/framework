@@ -29,7 +29,12 @@ namespace Coimbra.Roslyn
                 return;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ObjectDestroyShouldNotBeUsed, invocationExpressionSyntax.GetLocation(), invocationExpressionSyntax.ArgumentList.Arguments[0]));
+            TypeInfo typeInfo = context.SemanticModel.GetTypeInfo(invocationExpressionSyntax.ArgumentList.Arguments[0].Expression);
+
+            if (typeInfo.Type.Is(UnityEngineTypes.ObjectClass) || typeInfo.Type.Is(UnityEngineTypes.GameObjectClass) || typeInfo.Type.IsAssignableTo(CoimbraTypes.ActorClass))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ObjectDestroyShouldNotBeUsed, invocationExpressionSyntax.GetLocation(), invocationExpressionSyntax.ArgumentList.Arguments[0]));
+            }
         }
     }
 }

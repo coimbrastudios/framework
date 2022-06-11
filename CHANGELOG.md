@@ -4,6 +4,7 @@
 
 - Added `Tools/Coimbra Framework/Windows/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
 - Added components to be used to listen for `MonoBehaviour` callbacks: `StartListener`, `FixedUpdateListener`, `LateUpdateListener`, `UpdateListener`.
+- Changed COIMBRA0019 to be a warning and improve its analysis to only report if the type is `GameObject`, any `Actor`, or specifically `UnityEngine.Object`.
 - Changed internal implementation of `Clear Console On Reload` and `Startup Scene Manager` to use the new internal `CoimbraUserSettings` class to make the code more maintainable.
 
 ## [10.4.2] - 2022-06-02

@@ -68,7 +68,7 @@ namespace Coimbra.Tests
             };
 
             LogAssert.Expect(LogType.Log, string.Format(logFormat, Actor.DestroyReason.ExplicitCall));
-            Object.Destroy(instance.gameObject);
+            instance.Destroy();
 
             yield return null;
         }

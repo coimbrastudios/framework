@@ -211,7 +211,7 @@ namespace Coimbra.Services.Pooling
                     if (IsDestroyed)
                     {
                         Addressables.Release(handle);
-                        Destroy(handle.Result);
+                        handle.Result.Destroy();
                     }
                     else if (handle.Result.TryGetComponent(out GameObjectPool pool))
                     {

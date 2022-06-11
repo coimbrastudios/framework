@@ -140,10 +140,10 @@ namespace Coimbra.Roslyn
                                                                                                   true);
 
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
-                                                                                       "Object.Destroy should be avoided.",
-                                                                                       "Use {0}.Destroy() instead of Object.Destroy({0}).",
+                                                                                       "Object.Destroy should not be used with Objects that can be an Actor.",
+                                                                                       "Use {0}.Destroy() or Object.DestroyImmediate({0}) instead of Object.Destroy({0}).",
                                                                                        DefaultCategory,
-                                                                                       DiagnosticSeverity.Info,
+                                                                                       DiagnosticSeverity.Warning,
                                                                                        true);
 
         public static readonly DiagnosticDescriptor CopyBaseConstructorsRequiresPartialKeyword = new("COIMBRA0020",

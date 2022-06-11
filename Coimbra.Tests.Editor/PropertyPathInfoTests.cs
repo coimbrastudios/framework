@@ -56,7 +56,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -128,7 +128,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -175,7 +175,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -201,7 +201,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -224,7 +224,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -253,7 +253,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -280,7 +280,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -311,7 +311,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -342,7 +342,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -374,8 +374,8 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour2);
-                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour1.gameObject);
+                Object.DestroyImmediate(testBehaviour2.gameObject);
             }
         }
 
@@ -417,8 +417,8 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour2);
-                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour1.gameObject);
+                Object.DestroyImmediate(testBehaviour2.gameObject);
             }
         }
 
@@ -445,7 +445,7 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour);
+                Object.DestroyImmediate(testBehaviour.gameObject);
             }
         }
 
@@ -490,8 +490,8 @@ namespace Coimbra.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(testBehaviour2);
-                Object.DestroyImmediate(testBehaviour2);
+                Object.DestroyImmediate(testBehaviour1.gameObject);
+                Object.DestroyImmediate(testBehaviour2.gameObject);
             }
         }
     }

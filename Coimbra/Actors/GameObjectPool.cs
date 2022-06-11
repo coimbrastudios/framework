@@ -527,7 +527,7 @@ namespace Coimbra
                 if (_loadFrame == null || savedLoadFrame != _loadFrame)
                 {
                     Addressables.ReleaseInstance(instance);
-                    Destroy(instance);
+                    instance.Destroy();
 
                     return;
                 }
