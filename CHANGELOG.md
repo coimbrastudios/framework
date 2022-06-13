@@ -13,8 +13,8 @@
 - Changed `ManagedFieldDrawer` to hide the `Clear` button when being draw inside a disabled scope.
 - Changed `ServiceActorBase` to not be re-usable across different `ServiceLocator`.
 - Changed `ServiceLocator.Set` API to not allow overriding an existing value with another value (can only set to `null` is any other value is set).
-- Removed `Add/RemoveValueChangedListener` APIs from `ServiceLocator`. Those got replaced be the new `Add/RemoveSetListener`.
 - Fixed bug with some `ScriptableSettings` not rendering properly after entering or existing play mode.
+- Removed `Add/RemoveValueChangedListener` APIs from `ServiceLocator`. Those got replaced be the new `Add/RemoveSetListener`.
 
 ## [10.4.2] - 2022-06-02
 
