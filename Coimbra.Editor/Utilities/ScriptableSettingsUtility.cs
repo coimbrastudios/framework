@@ -15,8 +15,6 @@ namespace Coimbra.Editor
     /// </summary>
     public static class ScriptableSettingsUtility
     {
-        private const string EditorPrefsFormat = "Coimbra.Editor.ScriptableSettingsUtility.{0}";
-
         /// <summary>
         /// Create or load a <see cref="ScriptableSettings"/>.
         /// </summary>
@@ -49,18 +47,21 @@ namespace Coimbra.Editor
                 }
 
                 value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+                value.name = type.Name;
             }
             else if (settingsScope == SettingsScope.User)
             {
                 value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+                value.name = type.Name;
 
                 string defaultValue = EditorJsonUtility.ToJson(value, false);
-                string newValue = EditorPrefs.GetString(string.Format(EditorPrefsFormat, type.FullName), defaultValue);
+                string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
                 EditorJsonUtility.FromJsonOverwrite(newValue, value);
 
                 if (value.Type != filter)
                 {
                     value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+                    value.name = type.Name;
                 }
             }
 
@@ -92,7 +93,7 @@ namespace Coimbra.Editor
                 }
 
                 string value = EditorJsonUtility.ToJson(scriptableSettings, true);
-                EditorPrefs.SetString(string.Format(EditorPrefsFormat, type.FullName), value);
+                EditorPrefs.SetString(GetPrefsKey(type), value);
 
                 return;
             }
@@ -135,12 +136,12 @@ namespace Coimbra.Editor
             if (preferencesAttribute != null)
             {
                 settingsScope = SettingsScope.User;
-                windowPath = $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name)}";
+                windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name)}" : null;
                 filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{(preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset")}";
                 keywords = preferencesAttribute.Keywords;
             }
 
-            return windowPath != null;
+            return settingsScope != null;
         }
 
         /// <summary>
@@ -152,6 +153,11 @@ namespace Coimbra.Editor
             scriptableSettings = LoadOrCreate(typeof(T), findCallback) as T;
 
             return scriptableSettings != null;
+        }
+
+        internal static string GetPrefsKey(Type type)
+        {
+            return $"{CoimbraUtility.PackageName}.{type.FullName}";
         }
     }
 }

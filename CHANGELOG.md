@@ -2,12 +2,21 @@
 
 ## [10.4.3] - UNRELEASED
 
-- Added `Tools/Coimbra Framework/Windows/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
+- Added `Window/Coimbra Framework/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
+- Added `Window/Coimbra Framework/Service Locators` to easily view all created `ServiceLocator`.
+- Added support for `PreferencesAttribute` with a `null` window path. This will make the `ScriptableSettings` hidden in the editor (useful for temporary or internal configurations). 
 - Added components to be used to listen for `MonoBehaviour` callbacks: `StartListener`, `FixedUpdateListener`, `LateUpdateListener`, `UpdateListener`.
+- Added `Add/RemoveSetListener` APIs to `ServiceLocator`.
+- Added `PlayerLoopSettings` to allow some project-specific optimizations for the `PlayerLoopSystem`.
 - Changed COIMBRA0019 to be a warning and improve its analysis to only report if the type is `GameObject`, any `Actor`, or specifically `UnityEngine.Object`.
-- Changed internal implementation of `Clear Console On Reload` and `Startup Scene Manager` to use the new internal `CoimbraUserSettings` class to make the code more maintainable.
+- Changed internal implementation of `Clear Console On Reload` and `Startup Scene Manager` to use the `ScriptableSettings` API to make the code more maintainable.
+- Changed `ManagedFieldDrawer` to hide the `Clear` button when being draw inside a disabled scope.
+- Changed `ServiceActorBase` to not be re-usable across different `ServiceLocator`.
+- Changed `ServiceLocator.Set` API to not allow overriding an existing value with another value (can only set to `null` is any other value is set).
+- Removed `Add/RemoveValueChangedListener` APIs from `ServiceLocator`. Those got replaced be the new `Add/RemoveSetListener`.
+- Fixed bug with some `ScriptableSettings` not rendering properly after entering or existing play mode.
 
-## [10.4.2] - 2022-06-02
+## [10.4.2] - 2022-06-021
 
 - Changed documentation for `ServieActorBase.OnOwningLocatorChanged` to include when it is called and how should be used.
 - Changed `ServieActorBase.OnDestroyed` to be sealed, a new virtual `OnDispose` method was included and should be used instead.

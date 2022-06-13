@@ -3,6 +3,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Coimbra.Services
 {
@@ -31,11 +32,19 @@ namespace Coimbra.Services
                     return;
                 }
 
-                Initialize();
-
-                ServiceLocator? previous = _owningLocator;
                 _owningLocator = value;
-                OnOwningLocatorChanged(previous, value);
+
+                if (_owningLocator == null)
+                {
+                    return;
+                }
+
+                const string destroyedMessage = nameof(ServiceActorBase<TServiceActor, TService>) + "." + nameof(Destroy) + " was called already but its " + nameof(OwningLocator) + " is being set!";
+                Debug.Assert(!IsDestroyed, destroyedMessage, GameObject);
+
+                const string initializedMessage = nameof(ServiceActorBase<TServiceActor, TService>) + "." + nameof(Initialize) + " needs to be called before the " + nameof(OwningLocator) + " is set!";
+                Debug.Assert(IsInitialized, initializedMessage, GameObject);
+                OnOwningLocatorSet();
             }
         }
 
@@ -59,13 +68,7 @@ namespace Coimbra.Services
 
             if (_owningLocator.IsCreated(out TService? value) && value == this as TService)
             {
-                _owningLocator.Set<TService>(null, false);
-            }
-            else
-            {
-                ServiceLocator? previous = _owningLocator;
-                _owningLocator = null;
-                OnOwningLocatorChanged(previous, null);
+                _owningLocator.Set<TService>(null);
             }
         }
 
@@ -79,8 +82,6 @@ namespace Coimbra.Services
         /// <para></para>
         /// It is guaranteed to run after <see cref="Actor.OnInitialize"/> has been called and should be used for any initialization logic related to other services.
         /// </summary>
-        /// <param name="previous">The value before.</param>
-        /// <param name="current">The value after. Is the same as the current <see cref="OwningLocator"/>.</param>
-        protected virtual void OnOwningLocatorChanged(ServiceLocator? previous, ServiceLocator? current) { }
+        protected virtual void OnOwningLocatorSet() { }
     }
 }

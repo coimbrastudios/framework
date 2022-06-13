@@ -15,7 +15,42 @@ namespace Coimbra.Services.PlayerLoopEvents
     [RequireComponent(typeof(StartListener))]
     public sealed class PlayerLoopSystem : ServiceActorBase<PlayerLoopSystem, IPlayerLoopService>, IPlayerLoopService
     {
+        private const InjectPlayerLoopTimings FixedUpdateTimings = InjectPlayerLoopTimings.FixedUpdate | InjectPlayerLoopTimings.LastFixedUpdate;
+
+        private const InjectPlayerLoopTimings MainUpdateTimings = InjectPlayerLoopTimings.All & ~FixedUpdateTimings;
+
+        [SerializeField]
+        [Disable]
+        private InjectPlayerLoopTimings _currentTimings = InjectPlayerLoopTimings.All;
+
         private PlayerLoopSystem() { }
+
+        /// <inheritdoc/>
+        public InjectPlayerLoopTimings CurrentTimings
+        {
+            get => _currentTimings;
+            set
+            {
+                if (IsDestroyed)
+                {
+                    return;
+                }
+
+                bool hadAnyFixedUpdateTiming = HasAnyFixedUpdateTiming();
+                bool hadAnyMainUpdateTiming = HasAnyMainUpdateTiming();
+                _currentTimings = value;
+
+                if (!hadAnyFixedUpdateTiming && HasAnyFixedUpdateTiming())
+                {
+                    InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                }
+
+                if (!hadAnyMainUpdateTiming && HasAnyMainUpdateTiming())
+                {
+                    InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public void RemoveAllListeners<T>()
@@ -30,100 +65,150 @@ namespace Coimbra.Services.PlayerLoopEvents
             base.OnInitialize();
             DontDestroyOnLoad(GameObject);
 
+            if (ScriptableSettings.TryGetOrFind(out PlayerLoopSettings settings))
+            {
+                _currentTimings = settings.DefaultTimings;
+            }
+
             GetComponent<StartListener>().OnTrigger += delegate
             {
-                InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
-                InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                if (HasAnyFixedUpdateTiming())
+                {
+                    InvokeFixedUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                }
+
+                if (HasAnyMainUpdateTiming())
+                {
+                    InvokeMainUpdateEvents().AttachExternalCancellation(DestroyCancellationToken);
+                }
             };
         }
 
         private async UniTask InvokeFixedUpdateEvents()
         {
-            while (!DestroyCancellationToken.IsCancellationRequested)
+            do
             {
-                await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
+                if (HasTiming(PlayerLoopTiming.FixedUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
 
-                float deltaTime = Time.deltaTime;
-                Invoke(new FirstFixedUpdateEvent(deltaTime));
+                    Invoke(new FirstFixedUpdateEvent(Time.deltaTime));
+                }
 
-                await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate);
+                if (HasTiming(PlayerLoopTiming.LastFixedUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate);
 
-                Invoke(new LastFixedUpdateEvent(deltaTime));
+                    Invoke(new LastFixedUpdateEvent(Time.deltaTime));
+                }
             }
+
+            while (HasAnyFixedUpdateTiming());
         }
 
         private async UniTask InvokeMainUpdateEvents()
         {
-            while (!DestroyCancellationToken.IsCancellationRequested)
+            do
             {
-                await UniTask.Yield(PlayerLoopTiming.Initialization);
+                if (HasTiming(PlayerLoopTiming.Initialization))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.Initialization);
 
-                float deltaTime = Time.deltaTime;
+                    Invoke(new FirstInitializationEvent(Time.deltaTime));
+                }
 
-                Invoke(new FirstInitializationEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.LastInitialization))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastInitialization);
 
-                await UniTask.Yield(PlayerLoopTiming.LastInitialization);
+                    Invoke(new LastInitializationEvent(Time.deltaTime));
+                }
 
-                Invoke(new LastInitializationEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.EarlyUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.EarlyUpdate);
 
-                await UniTask.Yield(PlayerLoopTiming.EarlyUpdate);
+                    Invoke(new FirstEarlyUpdateEvent(Time.deltaTime));
+                }
 
-                deltaTime = Time.deltaTime;
+                if (HasTiming(PlayerLoopTiming.LastEarlyUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastEarlyUpdate);
 
-                Invoke(new FirstEarlyUpdateEvent(deltaTime));
+                    Invoke(new LastEarlyUpdateEvent(Time.deltaTime));
+                }
 
-                await UniTask.Yield(PlayerLoopTiming.LastEarlyUpdate);
+                if (HasTiming(PlayerLoopTiming.PreUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.PreUpdate);
 
-                Invoke(new LastEarlyUpdateEvent(deltaTime));
+                    Invoke(new FirstPreUpdateEvent(Time.deltaTime));
+                }
 
-                await UniTask.Yield(PlayerLoopTiming.PreUpdate);
+                if (HasTiming(PlayerLoopTiming.LastPreUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastPreUpdate);
 
-                deltaTime = Time.deltaTime;
+                    Invoke(new LastPreUpdateEvent(Time.deltaTime));
+                }
 
-                Invoke(new FirstPreUpdateEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.Update))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.Update);
 
-                await UniTask.Yield(PlayerLoopTiming.LastPreUpdate);
+                    Invoke(new FirstUpdateEvent(Time.deltaTime));
+                }
 
-                Invoke(new LastPreUpdateEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.LastUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastUpdate);
 
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                    Invoke(new LastUpdateEvent(Time.deltaTime));
+                }
 
-                deltaTime = Time.deltaTime;
+                if (HasTiming(PlayerLoopTiming.PreLateUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.PreLateUpdate);
 
-                Invoke(new FirstUpdateEvent(deltaTime));
+                    Invoke(new PreLateUpdateEvent(Time.deltaTime));
+                }
 
-                await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+                if (HasTiming(PlayerLoopTiming.LastPreLateUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate);
 
-                Invoke(new LastUpdateEvent(deltaTime));
+                    Invoke(new FirstPostLateUpdateEvent(Time.deltaTime));
+                }
 
-                await UniTask.Yield(PlayerLoopTiming.PreLateUpdate);
+                if (HasTiming(PlayerLoopTiming.PostLateUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
 
-                deltaTime = Time.deltaTime;
+                    Invoke(new PostLateUpdateEvent(Time.deltaTime));
+                }
 
-                Invoke(new PreLateUpdateEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.LastPostLateUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
-                await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate);
+                    Invoke(new LastPostLateUpdateEvent(Time.deltaTime));
+                }
 
-                Invoke(new FirstPostLateUpdateEvent(deltaTime));
+                if (HasTiming(PlayerLoopTiming.TimeUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.TimeUpdate);
 
-                await UniTask.Yield(PlayerLoopTiming.PostLateUpdate);
+                    Invoke(new PreTimeUpdateEvent(Time.deltaTime));
+                }
 
-                deltaTime = Time.deltaTime;
+                if (HasTiming(PlayerLoopTiming.LastTimeUpdate))
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastTimeUpdate);
 
-                Invoke(new PostLateUpdateEvent(deltaTime));
-
-                await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-
-                Invoke(new LastPostLateUpdateEvent(deltaTime));
-
-                await UniTask.Yield(PlayerLoopTiming.TimeUpdate);
-
-                Invoke(new PreTimeUpdateEvent(Time.deltaTime));
-
-                await UniTask.Yield(PlayerLoopTiming.LastTimeUpdate);
-
-                Invoke(new PostTimeUpdateEvent(Time.deltaTime));
+                    Invoke(new PostTimeUpdateEvent(Time.deltaTime));
+                }
             }
+            while (HasAnyMainUpdateTiming());
         }
 
         private void FixedUpdate()
@@ -139,6 +224,24 @@ namespace Coimbra.Services.PlayerLoopEvents
         private void LateUpdate()
         {
             Invoke(new LateUpdateEvent(Time.deltaTime));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool HasAnyFixedUpdateTiming()
+        {
+            return (_currentTimings & FixedUpdateTimings) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool HasAnyMainUpdateTiming()
+        {
+            return (_currentTimings & MainUpdateTimings) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool HasTiming(PlayerLoopTiming timing)
+        {
+            return ((int)_currentTimings & 1 << (int)timing) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

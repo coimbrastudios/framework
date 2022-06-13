@@ -5,13 +5,29 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Window to view all loaded <see cref="ScriptableSettings"/>.
+    /// </summary>
     public sealed class ScriptableSettingsWindow : EditorWindow
     {
+        private struct EditorState
+        {
+            internal bool IsOpen;
+
+            internal SettingsScope? SettingsScope;
+
+            internal string AssetPath;
+
+            internal string WindowPath;
+
+            internal UnityEditor.Editor Editor;
+        }
+
         private const string WindowsTitle = "Scriptable Settings";
 
         private static readonly string[] FilterOptions;
 
-        private readonly Dictionary<Type, (bool IsOpen, UnityEditor.Editor Value)> _editorStates = new Dictionary<Type, (bool, UnityEditor.Editor)>();
+        private readonly Dictionary<Type, EditorState> _editorStates = new Dictionary<Type, EditorState>();
 
         [SerializeField]
         private int _filter;
@@ -29,19 +45,22 @@ namespace Coimbra.Editor
             }
         }
 
-        [MenuItem(CoimbraUtility.WindowsMenuPath + WindowsTitle)]
-        private static void Open()
+        /// <summary>
+        /// Opens the <see cref="ScriptableSettingsWindow"/>.
+        /// </summary>
+        [MenuItem(CoimbraUtility.WindowMenuPath + WindowsTitle)]
+        public static void Open()
         {
             GetWindow<ScriptableSettingsWindow>(WindowsTitle);
         }
 
         private void OnDisable()
         {
-            foreach ((bool IsOpen, UnityEditor.Editor Value) editorState in _editorStates.Values)
+            foreach (EditorState editorState in _editorStates.Values)
             {
-                if (editorState.Value != null)
+                if (editorState.Editor != null)
                 {
-                    DestroyImmediate(editorState.Value);
+                    DestroyImmediate(editorState.Editor);
                 }
             }
 
@@ -50,17 +69,18 @@ namespace Coimbra.Editor
 
         private void OnGUI()
         {
+            _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions);
+
             using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
-            _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions);
 
             foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Values)
             {
-                if (_editorStates.TryGetValue(pair.Key, out (bool IsOpen, UnityEditor.Editor Value) editorState))
+                if (_editorStates.TryGetValue(pair.Key, out EditorState editorState))
                 {
-                    if (editorState.Value.target != pair.Value)
+                    if (editorState.Editor.target != pair.Value)
                     {
-                        DestroyImmediate(editorState.Value);
+                        DestroyImmediate(editorState.Editor);
 
                         if (pair.Value == null)
                         {
@@ -69,7 +89,9 @@ namespace Coimbra.Editor
                             continue;
                         }
 
-                        editorState.Value = UnityEditor.Editor.CreateEditor(pair.Value);
+                        ScriptableSettingsUtility.TryGetAttributeData(pair.Key, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
+
+                        editorState.Editor = UnityEditor.Editor.CreateEditor(pair.Value);
                         _editorStates[pair.Key] = editorState;
                     }
                 }
@@ -80,7 +102,8 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    editorState.Value = UnityEditor.Editor.CreateEditor(pair.Value);
+                    editorState.Editor = UnityEditor.Editor.CreateEditor(pair.Value);
+                    ScriptableSettingsUtility.TryGetAttributeData(pair.Key, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
                     _editorStates.Add(pair.Key, editorState);
                 }
 
@@ -90,11 +113,59 @@ namespace Coimbra.Editor
                 }
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-                editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Value);
 
-                if (editorState.IsOpen)
+                using (new EditorGUI.DisabledScope(editorState.SettingsScope != null && editorState.WindowPath == null))
                 {
-                    editorState.Value.OnInspectorGUI();
+                    editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Editor);
+
+                    if (editorState.IsOpen)
+                    {
+                        using (GUIContentPool.Pop(out GUIContent label))
+                        {
+                            using (new EditorGUI.DisabledScope(true))
+                            {
+                                EditorGUILayout.EnumPopup("Type", pair.Value.Type);
+                            }
+
+                            switch (pair.Value.Type)
+                            {
+                                case ScriptableSettingsType.Custom:
+                                case ScriptableSettingsType.RuntimeProjectSettings:
+                                {
+                                    using (new EditorGUI.DisabledScope(true))
+                                    {
+                                        EditorGUILayout.ObjectField("Asset", pair.Value, pair.Key, false);
+                                    }
+
+                                    break;
+                                }
+
+                                case ScriptableSettingsType.EditorUserPreferences:
+                                {
+                                    label.text = "Asset Key";
+
+                                    Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                                    rect = EditorGUI.PrefixLabel(rect, label);
+                                    EditorGUI.SelectableLabel(rect, ScriptableSettingsUtility.GetPrefsKey(pair.Key));
+
+                                    break;
+                                }
+
+                                default:
+                                {
+                                    label.text = "Asset Path";
+
+                                    Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                                    rect = EditorGUI.PrefixLabel(rect, label);
+                                    EditorGUI.SelectableLabel(rect, editorState.AssetPath);
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        editorState.Editor.OnInspectorGUI();
+                    }
                 }
 
                 if (!changeCheckScope.changed)

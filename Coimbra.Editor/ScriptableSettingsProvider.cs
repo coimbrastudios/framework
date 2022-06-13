@@ -45,6 +45,22 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnTitleBarGUI()
         {
+            if (scope != SettingsScope.Project || _editorFilePath != null)
+            {
+                if (settingsEditor == null)
+                {
+                    ScriptableSettings target = ScriptableSettingsUtility.LoadOrCreate(_type)!;
+                    SetSettingsEditor(UnityEditor.Editor.CreateEditor(target));
+                }
+                else if (settingsEditor.target == null)
+                {
+                    Object.DestroyImmediate(settingsEditor);
+
+                    ScriptableSettings target = ScriptableSettingsUtility.LoadOrCreate(_type)!;
+                    SetSettingsEditor(UnityEditor.Editor.CreateEditor(target));
+                }
+            }
+
             if (settingsEditor != null && settingsEditor.target != null)
             {
                 base.OnTitleBarGUI();
@@ -74,12 +90,14 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static ScriptableSettingsProvider Create(Type type)
+        internal static bool TryCreate(Type type, out ScriptableSettingsProvider? provider)
         {
             ScriptableSettingsUtility.TryGetAttributeData(type, out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords);
             Debug.Assert(settingsScope.HasValue);
 
-            return new ScriptableSettingsProvider(windowPath!, type, settingsScope!.Value, filePath, keywords);
+            provider = windowPath != null ? new ScriptableSettingsProvider(windowPath, type, settingsScope!.Value, filePath, keywords) : null;
+
+            return provider != null;
         }
 
         private void CreateScriptableSettings()

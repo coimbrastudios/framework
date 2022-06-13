@@ -13,19 +13,10 @@ namespace Coimbra.Editor
     [InitializeOnLoad]
     public static class CoimbraEditorUtility
     {
-#if !UNITY_2021_3_OR_NEWER
-        private const string ClearConsoleOnReloadItem = CoimbraUtility.PreferencesMenuPath + "Clear Console On Reload";
-#endif
         private const string ResetPlayModeStartSceneMenuItem = CoimbraUtility.ToolsMenuPath + "Reset Play Mode Start Scene";
 
-#if !UNITY_2021_3_OR_NEWER
-        private static readonly CoimbraUserSetting<bool> ClearConsoleOnReload;
-#endif
         static CoimbraEditorUtility()
         {
-#if !UNITY_2021_3_OR_NEWER
-            ClearConsoleOnReload = new CoimbraUserSetting<bool>($"{typeof(CoimbraEditorUtility).FullName}.{nameof(ClearConsoleOnReload)}", false, SettingsScope.User);
-#endif
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
             EditorApplication.delayCall += HandleDelayCall;
@@ -101,19 +92,6 @@ namespace Coimbra.Editor
             EditorSceneManager.playModeStartScene = null;
         }
 
-#if !UNITY_2021_3_OR_NEWER
-        /// <summary>
-        /// Toggles the option set for clearing the console on script reloads.
-        /// </summary>
-        [MenuItem(ClearConsoleOnReloadItem)]
-        public static void ToggleClearConsoleOnReload()
-        {
-            bool value = !ClearConsoleOnReload.value;
-            ClearConsoleOnReload.SetValue(value, true);
-            Menu.SetChecked(ClearConsoleOnReloadItem, value);
-        }
-#endif
-
         /// <summary>
         /// Clears the console windows.
         /// </summary>
@@ -130,20 +108,11 @@ namespace Coimbra.Editor
 
         private static void HandleBeforeAssemblyReload()
         {
-#if !UNITY_2021_3_OR_NEWER
-            if (ClearConsoleOnReload.value)
-            {
-                ClearConsoleWindow();
-            }
-#endif
             CoimbraUtility.IsReloadingScripts = true;
         }
 
         private static void HandleDelayCall()
         {
-#if !UNITY_2021_3_OR_NEWER
-            Menu.SetChecked(ClearConsoleOnReloadItem, ClearConsoleOnReload.value);
-#endif
             CoimbraUtility.IsReloadingScripts = false;
         }
     }

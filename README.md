@@ -54,9 +54,9 @@ Package of general utilities to be used with Unity development.
 - `PropertyPathInfo`: Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - References: Create a `Reference` for any value or even another reference.
 - Scriptable Settings: Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
-  with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Tools/Coimbra Framework/Windows/Scriptable Settings`;
+  with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
 - `SerializableDictionary`: supports modifying and saving through the inspector. Can have its size locked with `DisableResizeAttribute` or made read-only with `DisableAttribute`.
-- Service Locator: Enable a service-based architecture easily. It also comes with a few built-in functionalities:
+- Service Locator: Enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locators`. It also comes with a few built-in functionalities:
     - Attributes:
         - `DisableDefaultFactoryAttribute`: By default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
         - `PreloadServiceAttribute`: Add this in your `IService` implementation to call the `ServiceLocator.Shared.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.

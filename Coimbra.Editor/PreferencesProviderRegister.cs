@@ -18,7 +18,14 @@ namespace Coimbra.Editor
                 {
                     if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && !type.IsGenericType && !type.IsAbstract)
                     {
-                        dictionary.Add(type, ScriptableSettingsProvider.Create(type));
+                        if (ScriptableSettingsProvider.TryCreate(type, out ScriptableSettingsProvider? provider))
+                        {
+                            dictionary.Add(type, provider!);
+                        }
+                        else
+                        {
+                            ScriptableSettingsUtility.LoadOrCreate(type);
+                        }
                     }
                 }
 

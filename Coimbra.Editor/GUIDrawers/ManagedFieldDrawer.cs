@@ -82,15 +82,18 @@ namespace Coimbra.Editor
                     position.height = EditorGUIUtility.singleLineHeight;
                     EditorGUI.LabelField(position, propertyScope.content, value);
 
-                    position.xMin = position.xMax - MinButtonSize;
-
-                    if (GUI.Button(position, ClearLabel))
+                    if (GUI.enabled)
                     {
-                        Undo.RecordObjects(targets, ClearUndoKey);
-                        systemObject.SetValues(null);
-                        unityObject.SetValues(null);
-                        unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                        unityObject.serializedObject.UpdateIfRequiredOrScript();
+                        position.xMin = position.xMax - MinButtonSize;
+
+                        if (GUI.Button(position, ClearLabel))
+                        {
+                            Undo.RecordObjects(targets, ClearUndoKey);
+                            systemObject.SetValues(null);
+                            unityObject.SetValues(null);
+                            unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                            unityObject.serializedObject.UpdateIfRequiredOrScript();
+                        }
                     }
 
                     return;
@@ -107,19 +110,27 @@ namespace Coimbra.Editor
             else if (unityObject.objectReferenceValue != null)
             {
                 position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-                position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+
+                if (GUI.enabled)
+                {
+                    position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+                }
+
                 DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
 
-                position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
-                position.width = MinButtonSize;
-                position.height = EditorGUIUtility.singleLineHeight;
-
-                if (GUI.Button(position, ClearLabel))
+                if (GUI.enabled)
                 {
-                    Undo.RecordObjects(targets, ClearUndoKey);
-                    unityObject.SetValues(null);
-                    unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                    unityObject.serializedObject.UpdateIfRequiredOrScript();
+                    position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+                    position.width = MinButtonSize;
+                    position.height = EditorGUIUtility.singleLineHeight;
+
+                    if (GUI.Button(position, ClearLabel))
+                    {
+                        Undo.RecordObjects(targets, ClearUndoKey);
+                        unityObject.SetValues(null);
+                        unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                        unityObject.serializedObject.UpdateIfRequiredOrScript();
+                    }
                 }
             }
             else if (type.IsInterface)
@@ -156,20 +167,27 @@ namespace Coimbra.Editor
                         EditorGUI.LabelField(position, typeLabel);
                     }
 
-                    position.xMin = position.xMax - MinButtonSize;
-
-                    if (GUI.Button(position, ClearLabel))
+                    if (GUI.enabled)
                     {
-                        Undo.RecordObjects(targets, ClearUndoKey);
-                        systemObject.SetValues(null);
-                        systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                        systemObject.serializedObject.UpdateIfRequiredOrScript();
+                        position.xMin = position.xMax - MinButtonSize;
+
+                        if (GUI.Button(position, ClearLabel))
+                        {
+                            Undo.RecordObjects(targets, ClearUndoKey);
+                            systemObject.SetValues(null);
+                            systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                            systemObject.serializedObject.UpdateIfRequiredOrScript();
+                        }
+
+                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+
+                        // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
+                        GUI.Button(position, ClearLabel);
                     }
-
-                    EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-
-                    // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
-                    GUI.Button(position, ClearLabel);
+                    else
+                    {
+                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
+                    }
                 }
             }
             else

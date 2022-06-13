@@ -35,9 +35,9 @@ namespace Coimbra
         public readonly string? NameOverride;
 
         /// <summary>
-        /// The path on the preferences window.
+        /// The path on the preferences window. If null, then it will not show.
         /// </summary>
-        public readonly string WindowPath;
+        public readonly string? WindowPath;
 
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
         public PreferencesAttribute(bool useEditorPrefs)
@@ -45,13 +45,13 @@ namespace Coimbra
 
         /// <param name="windowPath">The path on the preferences window.</param>
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
-        public PreferencesAttribute(string windowPath, bool useEditorPrefs)
+        public PreferencesAttribute(string? windowPath, bool useEditorPrefs)
             : this(windowPath, null, useEditorPrefs) { }
 
         /// <param name="windowPath">The path on the preferences window.</param>
         /// <param name="nameOverride">If null, the name in the preferences window will be the display name of the type.</param>
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
-        public PreferencesAttribute(string windowPath = DefaultWindowPath, string? nameOverride = null, bool useEditorPrefs = false)
+        public PreferencesAttribute(string? windowPath = DefaultWindowPath, string? nameOverride = null, bool useEditorPrefs = false)
         {
             WindowPath = windowPath;
             UseEditorPrefs = useEditorPrefs;

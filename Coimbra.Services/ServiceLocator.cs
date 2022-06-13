@@ -18,47 +18,17 @@ namespace Coimbra.Services
     public sealed class ServiceLocator : IDisposable
     {
         /// <summary>
-        /// Delegate for listener for service instance changes.
+        /// Delegate for listening when a service is set.
         /// </summary>
-        public delegate void ServiceChangeHandler(IService? previous, IService? current);
+        public delegate void SetHandler(ServiceLocator serviceLocator);
 
-        private sealed class Service
+        internal sealed class Service
         {
             internal IService? Value;
 
             internal IServiceFactory? Factory;
 
-            internal ServiceChangeHandler? ValueChangedCallback;
-
-            internal Service()
-            {
-                ValueChangedCallback = HandleValueChanged;
-            }
-
-            internal void HandleValueChanged(IService? previous, IService? current)
-            {
-                {
-                    if (current is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
-                    {
-                        monoBehaviour.gameObject.AsActor().OnDestroying += HandleDestroying;
-                    }
-                }
-
-                {
-                    if (previous is MonoBehaviour monoBehaviour && monoBehaviour.TryGetValid(out monoBehaviour))
-                    {
-                        monoBehaviour.gameObject.AsActor().OnDestroying -= HandleDestroying;
-                    }
-                }
-            }
-
-            private void HandleDestroying(Actor sender, Actor.DestroyReason destroyReason)
-            {
-                if (Value is MonoBehaviour monoBehaviour && monoBehaviour.gameObject == sender.GameObject)
-                {
-                    Value = null;
-                }
-            }
+            internal SetHandler? SetHandler;
         }
 
         /// <summary>
@@ -69,17 +39,37 @@ namespace Coimbra.Services
         /// <summary>
         /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
         /// </summary>
-        public static readonly ServiceLocator Shared = new ServiceLocator($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
+        public static readonly ServiceLocator Shared;
+
+        internal static readonly Dictionary<string, WeakReference<ServiceLocator>> ServiceLocators;
 
         private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
+
+        static ServiceLocator()
+        {
+            ServiceLocators = new Dictionary<string, WeakReference<ServiceLocator>>();
+            Shared = new ServiceLocator($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
+        }
 
         /// <param name="id">Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.</param>
         /// <param name="allowFallbackToShared">If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.</param>
         public ServiceLocator(string id, bool allowFallbackToShared = true)
         {
+            if (ServiceLocators.ContainsKey(id))
+            {
+                throw new ArgumentException($"{nameof(ServiceLocator)} with the given id {id} already exists!", nameof(id));
+            }
+
             AllowFallbackToShared = allowFallbackToShared;
             Id = id;
             _services.Clear();
+            ServiceLocators.Add(id, new WeakReference<ServiceLocator>(this));
+        }
+
+        ~ServiceLocator()
+        {
+            Clear();
+            ServiceLocators.Remove(Id);
         }
 
         /// <summary>
@@ -96,43 +86,33 @@ namespace Coimbra.Services
         [field: Disable]
         public bool AllowFallbackToShared { get; private set; }
 
+        internal IReadOnlyDictionary<Type, Service> Services => _services;
+
         /// <summary>
         /// Adds a listener for when a service instance changes.
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void AddValueChangedListener<T>(ServiceChangeHandler callback)
+        public void AddSetListener<T>(SetHandler callback)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
-            service.ValueChangedCallback += callback;
+            service.SetHandler += callback;
         }
 
         /// <inheritdoc cref="IDisposable.Dispose"/>
         public void Dispose()
         {
-            OnDispose?.Invoke(this);
-
-            foreach (Service service in _services.Values)
+            if (this == Shared)
             {
-                service.ValueChangedCallback = service.HandleValueChanged;
+                Debug.LogWarning($"{nameof(ServiceLocator)}.{nameof(Shared)}.{nameof(Dispose)} is no-op.");
 
-                if (service.Value.TryGetValid(out service.Value!))
-                {
-                    service.Value.Dispose();
-
-                    if (service.Value.TryGetValid(out service.Value!))
-                    {
-                        service.Value.OwningLocator = null;
-                    }
-                }
-
-                service.Value = null;
-                service.Factory = null;
+                return;
             }
 
-            _services.Clear();
+            OnDispose?.Invoke(this);
+            Clear();
         }
 
         /// <summary>
@@ -166,7 +146,7 @@ namespace Coimbra.Services
 
                 case T result:
                 {
-                    Set(result, false);
+                    Set(result);
 
                     return result;
                 }
@@ -296,12 +276,12 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void RemoveValueChangedListener<T>(ServiceChangeHandler callback)
+        public void RemoveSetListener<T>(SetHandler callback)
             where T : class, IService
         {
             if (_services.TryGetValue(typeof(T), out Service service))
             {
-                service.ValueChangedCallback -= callback;
+                service.SetHandler -= callback;
             }
         }
 
@@ -309,21 +289,27 @@ namespace Coimbra.Services
         /// Sets a service instance.
         /// </summary>
         /// <param name="value">The service instance.</param>
-        /// <param name="disposePrevious">If true, the last set instance will have their <see cref="IDisposable.Dispose"/> method called.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void Set<T>(T? value, bool disposePrevious)
+        public void Set<T>(T? value)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
 
-            if (service.Value == value)
+            if (service.Value.TryGetValid(out service.Value))
             {
-                return;
+                if (value.TryGetValid(out value))
+                {
+                    Debug.LogError($"Service of type {typeof(T)} is already set at {nameof(ServiceLocator)} with id \"{Id}\" to \"{value}\"!");
+
+                    return;
+                }
+
+                service.Value!.Dispose();
+
+                service.Value = null;
+                service.SetHandler?.Invoke(this);
             }
-
-            T? oldValue = (service.Value as T).GetValid();
-
-            if (value.TryGetValid(out value!))
+            else if (value.TryGetValid(out value!))
             {
                 if (value.OwningLocator != null)
                 {
@@ -334,28 +320,8 @@ namespace Coimbra.Services
 
                 service.Value = value;
                 value.OwningLocator = this;
+                service.SetHandler?.Invoke(this);
             }
-            else
-            {
-                value = AllowFallbackToShared ? Shared.Get<T>() : null;
-                service.Value = null;
-            }
-
-            if (oldValue != null)
-            {
-                if (disposePrevious)
-                {
-                    oldValue.Dispose();
-                }
-
-                oldValue.OwningLocator = null;
-            }
-            else if (AllowFallbackToShared)
-            {
-                oldValue = Shared.Get<T>();
-            }
-
-            service.ValueChangedCallback!(oldValue, value);
         }
 
         /// <summary>
@@ -384,16 +350,27 @@ namespace Coimbra.Services
             return value != null;
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void HandleSubsystemRegistration()
+        internal void Clear()
         {
-            Application.quitting -= HandleApplicationQuitting;
-            Application.quitting += HandleApplicationQuitting;
-        }
+            foreach (Service service in _services.Values)
+            {
+                service.Factory = null;
+                service.SetHandler = null;
 
-        private static void HandleApplicationQuitting()
-        {
-            Shared.Dispose();
+                if (service.Value.TryGetValid(out service.Value!))
+                {
+                    service.Value.Dispose();
+
+                    if (service.Value.TryGetValid(out service.Value!))
+                    {
+                        service.Value.OwningLocator = null;
+                    }
+                }
+
+                service.Value = null;
+            }
+
+            _services.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

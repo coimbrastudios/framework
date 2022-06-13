@@ -195,12 +195,12 @@ namespace Coimbra.Services.Pooling
             base.OnInitialize();
             DontDestroyOnLoad(GameObject);
 
-            if (!ScriptableSettings.TryGetOrFind(out PoolSettings poolingSettings))
+            if (!ScriptableSettings.TryGetOrFind(out PoolSettings settings))
             {
                 return;
             }
 
-            IReadOnlyList<AssetReferenceT<GameObject>> defaultPersistentPools = poolingSettings.DefaultPersistentPools;
+            IReadOnlyList<AssetReferenceT<GameObject>> defaultPersistentPools = settings.DefaultPersistentPools;
 
             for (int i = 0; i < defaultPersistentPools.Count; i++)
             {

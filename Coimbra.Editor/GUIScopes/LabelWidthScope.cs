@@ -26,7 +26,7 @@ namespace Coimbra.Editor
 
         public readonly MagnitudeMode SavedMagnitudeMode;
 
-        public LabelWidthScope(float magnitude, MagnitudeMode magnitudeMode = MagnitudeMode.Increment)
+        public LabelWidthScope(float magnitude, MagnitudeMode magnitudeMode)
         {
             switch (SavedMagnitudeMode = magnitudeMode)
             {
