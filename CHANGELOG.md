@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.5.1] - UNRELEASED
+
+- Added `AssetReferenceScene` for referencing `SceneAsset` in runtime code.
+
 ## [10.5.0] - 2022-06-13
 
 - Added `Window/Coimbra Framework/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
