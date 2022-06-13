@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.4.3] - UNRELEASED
+## [10.5.0] - 2022-06-13
 
 - Added `Window/Coimbra Framework/Scriptable Settings` to easily view all loaded `ScriptableSettings`.
 - Added `Window/Coimbra Framework/Service Locators` to easily view all created `ServiceLocator`.
@@ -16,7 +16,7 @@
 - Removed `Add/RemoveValueChangedListener` APIs from `ServiceLocator`. Those got replaced be the new `Add/RemoveSetListener`.
 - Fixed bug with some `ScriptableSettings` not rendering properly after entering or existing play mode.
 
-## [10.4.2] - 2022-06-021
+## [10.4.2] - 2022-06-02
 
 - Changed documentation for `ServieActorBase.OnOwningLocatorChanged` to include when it is called and how should be used.
 - Changed `ServieActorBase.OnDestroyed` to be sealed, a new virtual `OnDispose` method was included and should be used instead.
