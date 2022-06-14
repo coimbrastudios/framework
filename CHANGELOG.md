@@ -3,6 +3,12 @@
 ## [10.5.1] - UNRELEASED
 
 - Added `AssetReferenceScene` for referencing `SceneAsset` in runtime code.
+- Added `AnimatorIKListener` and `AnimatorMoveListener`. 
+- Added `BecameVisibleListener` and `BecameInvisibleListener`.
+- Added Collision/Trigger Enter/Exit/Stay Listeners for 2D and 3D colliders.
+- Added `ControllerColliderHitListener`.
+- Added `JointBreakListener` and `JointBreak2DListener`.
+- Added `WillRenderObjectListener`.
 
 ## [10.5.0] - 2022-06-13
 

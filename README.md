@@ -27,10 +27,22 @@ Package of general utilities to be used with Unity development.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: With `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
 - `MonoBehaviour` Listeners: components to be used to listen for `MonoBehaviour` callbacks:
-    - `StartListener`
+    - `AnimatorIKListener`
+    - `AnimatorMoveListener`
+    - `BecameInvisibleListener`
+    - `BecameVisibleListener`
+    - Collision Enter/Exit/Stay 2D Listener
+    - Collision Enter/Exit/Stay Listener
+    - `ControllerColliderHitListener`
     - `FixedUpdateListener`
+    - `JointBreak2DListener`
+    - `JointBreakListener`
     - `LateUpdateListener`
+    - `StartListener`
+    - Trigger Enter/Exit/Stay 2D Listener
+    - Trigger Enter/Exit/Stay Listener
     - `UpdateListener`
+    - `WillRenderObjectListener`
 - Object Pooling: Use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
     - `DictionaryPool`: clears the `Dictionary`.
     - `GUIContentPool`: clears the `GUIContet`.

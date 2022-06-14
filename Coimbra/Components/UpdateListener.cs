@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Coimbra
 {
@@ -8,11 +7,32 @@ namespace Coimbra
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Update Listener")]
+    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html")]
     public sealed class UpdateListener : PlayerLoopListenerBase
     {
+        /// <inheritdoc />
+        public override event EventHandler OnTrigger
+        {
+            add
+            {
+                base.OnTrigger += value;
+                enabled = HasListener;
+            }
+            remove
+            {
+                base.OnTrigger -= value;
+                enabled = HasListener;
+            }
+        }
+
+        private void Awake()
+        {
+            enabled = HasListener;
+        }
+
         private void Update()
         {
-            Trigger();
+            Trigger(Time.deltaTime);
         }
     }
 }

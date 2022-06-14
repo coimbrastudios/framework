@@ -1,67 +1,41 @@
 ﻿using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.LowLevel;
 
 namespace Coimbra
 {
     /// <summary>
-    /// Base class for listening to <see cref="PlayerLoop"/> callbacks.
+    /// Listen to player loop callbacks.
     /// </summary>
     /// <seealso cref="FixedUpdateListener"/>
     /// <seealso cref="LateUpdateListener"/>
     /// <seealso cref="UpdateListener"/>
     public abstract class PlayerLoopListenerBase : MonoBehaviour
     {
-        public delegate void EventHandler(float deltaTime);
+        public delegate void EventHandler(PlayerLoopListenerBase sender, float deltaTime);
 
         /// <summary>
         /// Invoked inside <see cref="Trigger"/>.
         /// </summary>
-        public event EventHandler OnTrigger
+        public virtual event EventHandler OnTrigger
         {
-            add
-            {
-                _eventHandler += value;
-                ValidateEnabledState();
-            }
-            remove
-            {
-                _eventHandler -= value;
-                ValidateEnabledState();
-            }
+            add => _eventHandler += value;
+            remove => _eventHandler -= value;
         }
 
         private EventHandler _eventHandler;
 
         /// <summary>
-        /// OnValidate callback.
+        /// True if <see cref="OnTrigger"/> has any listener.
         /// </summary>
-        protected virtual void OnValidate()
-        {
-            ValidateEnabledState();
-        }
-
-        /// <summary>
-        /// Awake callback.
-        /// </summary>
-        protected virtual void Awake()
-        {
-            ValidateEnabledState();
-        }
+        protected bool HasListener => _eventHandler != null;
 
         /// <summary>
         /// Invokes the <see cref="OnTrigger"/> event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void Trigger()
+        protected void Trigger(float deltaTime)
         {
-            _eventHandler?.Invoke(Time.deltaTime);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ValidateEnabledState()
-        {
-            enabled = _eventHandler != null;
+            _eventHandler?.Invoke(this, deltaTime);
         }
     }
 }

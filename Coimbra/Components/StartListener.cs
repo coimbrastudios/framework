@@ -7,9 +7,10 @@ namespace Coimbra
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Start Listener")]
+    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html")]
     public sealed class StartListener : MonoBehaviour
     {
-        public delegate void EventHandler();
+        public delegate void EventHandler(StartListener sender);
 
         /// <summary>
         /// Invoked inside <see cref="Start"/>. If <see cref="WasTriggered"/> is true, it will invoke the listener immediately.
@@ -20,7 +21,7 @@ namespace Coimbra
             {
                 if (WasTriggered)
                 {
-                    value?.Invoke();
+                    value?.Invoke(this);
                 }
                 else
                 {
@@ -45,7 +46,7 @@ namespace Coimbra
 
         private void Start()
         {
-            _eventHandler?.Invoke();
+            _eventHandler?.Invoke(this);
 
             _eventHandler = null;
             WasTriggered = true;

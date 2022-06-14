@@ -5,11 +5,12 @@ using UnityEngine.UI;
 namespace Coimbra
 {
     /// <summary>
-    /// Component to initialize an <see cref="Image"/>'s <see cref="Image.alphaHitTestMinimumThreshold"/> on Start.
+    /// Component to initialize an <see cref="Image"/>'s <see cref="Image.alphaHitTestMinimumThreshold"/> on <see cref="Awake"/>.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Image Hit Test Initialized")]
+    [HelpURL("https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.UI.Image.html#UnityEngine_UI_Image_alphaHitTestMinimumThreshold")]
     public sealed class ImageHitTestInitializer : MonoBehaviour
     {
         [SerializeField]
@@ -25,7 +26,7 @@ namespace Coimbra
             set => _minimumThreshold = Mathf.Clamp01(value);
         }
 
-        private void Start()
+        private void Awake()
         {
             GetComponent<Image>().alphaHitTestMinimumThreshold = MinimumThreshold;
         }
