@@ -10,6 +10,6 @@ namespace Coimbra.Services
         /// <summary>
         /// Implements this to determine how the service should be create.
         /// </summary>
-        IService? Create(ServiceLocator owningLocator);
+        IService? Create();
     }
 }

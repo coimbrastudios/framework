@@ -52,12 +52,12 @@ namespace Coimbra.Services.Roslyn
 
                             using (new BracesScope(sourceBuilder))
                             {
-                                sourceBuilder.AddLine($"if (!ServiceLocator.Shared.HasFactory<{typeData.InterfaceSymbol.Name}>())");
+                                sourceBuilder.AddLine($"if (!ServiceLocator.HasFactory<{typeData.InterfaceSymbol.Name}>())");
 
                                 using (new BracesScope(sourceBuilder))
                                 {
                                     TypeString factory = typeData.IsActor ? CoimbraServicesTypes.DefaultServiceActorFactoryClass : CoimbraServicesTypes.DefaultServiceFactoryClass;
-                                    sourceBuilder.AddLine($"ServiceLocator.Shared.SetFactory<{typeData.InterfaceSymbol.Name}>({factory.Name}<{typeData.ClassSymbol.Name}>.Instance);");
+                                    sourceBuilder.AddLine($"ServiceLocator.SetFactory<{typeData.InterfaceSymbol.Name}>({factory.Name}<{typeData.ClassSymbol.Name}>.Instance);");
                                 }
                             }
 
@@ -75,7 +75,7 @@ namespace Coimbra.Services.Roslyn
 
                             using (new BracesScope(sourceBuilder))
                             {
-                                sourceBuilder.AddLine($"ServiceLocator.Shared.Get<{typeData.InterfaceSymbol.Name}>();");
+                                sourceBuilder.AddLine($"ServiceLocator.Get<{typeData.InterfaceSymbol.Name}>();");
                             }
                         }
                     }

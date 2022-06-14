@@ -70,15 +70,6 @@ namespace Coimbra.Services.Events
         bool IsInvoking(Type eventType);
 
         /// <summary>
-        /// Invokes the specified event type for all its listeners with a default constructed data.
-        /// </summary>
-        /// <param name="eventSender">The object invoking the event.</param>
-        /// <typeparam name="TEvent">The event type to be constructed and sent.</typeparam>
-        /// <returns>True if the event was actually invoked.</returns>
-        bool Invoke<TEvent>(object eventSender)
-            where TEvent : IEvent;
-
-        /// <summary>
         /// Invokes the specified event type for all its listeners.
         /// </summary>
         /// <param name="eventSender">The object invoking the event.</param>

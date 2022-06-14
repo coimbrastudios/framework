@@ -31,6 +31,7 @@ namespace Coimbra.Services.Events.Roslyn
                 using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                 {
                     string typeName = typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName();
+                    bool isStruct = false;
 
                     using (LineScope lineScope = sourceBuilder.BeginLine())
                     {
@@ -52,6 +53,8 @@ namespace Coimbra.Services.Events.Roslyn
 
                             case StructDeclarationSyntax _:
                             {
+                                isStruct = true;
+
                                 if (typeDeclarationSyntax.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
                                 {
                                     lineScope.AddContent(" readonly");
@@ -73,7 +76,76 @@ namespace Coimbra.Services.Events.Roslyn
 
                     using (new BracesScope(sourceBuilder))
                     {
-                        AddMethods(sourceBuilder, typeName);
+                        AddMethodBoilerplate(sourceBuilder, "AddListener");
+                        sourceBuilder.AddLine($"public static EventHandle AddListener(in Event<{typeName}>.Handler eventHandler)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.AddListener<{typeName}>(in eventHandler) ?? default;");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "AddRelevancyListener");
+                        sourceBuilder.AddLine("public static void AddRelevancyListener(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"ServiceLocator.Get<IEventService>()?.AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "GetListenerCount");
+                        sourceBuilder.AddLine("public static int GetListenerCount()");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.GetListenerCount<{typeName}>() ?? 0;");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "IsInvoking");
+                        sourceBuilder.AddLine("public static bool IsInvoking()");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.IsInvoking<{typeName}>() ?? false;");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "RemoveRelevancyListener");
+                        sourceBuilder.AddLine("public static void RemoveRelevancyListener(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"ServiceLocator.Get<IEventService>()?.RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "RemoveAllListeners");
+                        sourceBuilder.AddLine("internal static bool RemoveAllListeners()");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.RemoveAllListeners<{typeName}>() ?? false;");
+                        }
+                    }
+
+                    sourceBuilder.SkipLine();
+                    sourceBuilder.AddLine("/// <summary>");
+                    sourceBuilder.AddLine($"/// Generated utility methods for <see cref=\"{typeName}\"/>");
+                    sourceBuilder.AddLine("/// </summary>");
+                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
+                    sourceBuilder.AddLine($"internal static class Generated{typeName}Utility");
+
+                    using (new BracesScope(sourceBuilder))
+                    {
+                        AddMethodBoilerplate(sourceBuilder, "Invoke");
+                        sourceBuilder.AddLine($"internal static bool Invoke({(isStruct ? "in this" : "this")} {typeName} e, object sender)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.Invoke<{typeName}>(sender, in e) ?? false;");
+                        }
                     }
                 }
 
@@ -93,161 +165,6 @@ namespace Coimbra.Services.Events.Roslyn
             sourceBuilder.AddLine("/// </summary>");
             sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
             sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-        }
-
-        private static void AddMethodBoilerplate(SourceBuilder sourceBuilder, string originalMethod, string originalParameters)
-        {
-            sourceBuilder.AddLine("/// <summary>");
-            sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{originalMethod}{{T}}({originalParameters})\"/>");
-            sourceBuilder.AddLine("/// </summary>");
-            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
-            sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-        }
-
-        private static void AddMethods(SourceBuilder sourceBuilder, string typeName)
-        {
-            AddMethodBoilerplate(sourceBuilder, "AddListener");
-            sourceBuilder.AddLine($"public static EventHandle AddListener(IEventService eventService, in Event<{typeName}>.Handler eventHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.AddListener<{typeName}>(in eventHandler);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "AddListener");
-            sourceBuilder.AddLine($"public static EventHandle AddListener(ServiceLocator serviceLocator, in Event<{typeName}>.Handler eventHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.AddListener<{typeName}>(in eventHandler) ?? default;");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "AddRelevancyListener");
-            sourceBuilder.AddLine("public static void AddRelevancyListener(IEventService eventService, in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"eventService.AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "AddRelevancyListener");
-            sourceBuilder.AddLine("public static void AddRelevancyListener(ServiceLocator serviceLocator, in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"serviceLocator.Get<IEventService>()?.AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "GetListenerCount");
-            sourceBuilder.AddLine("public static int GetListenerCount(IEventService eventService)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.GetListenerCount<{typeName}>();");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "GetListenerCount");
-            sourceBuilder.AddLine("public static int GetListenerCount(ServiceLocator serviceLocator)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.GetListenerCount<{typeName}>() ?? 0;");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "IsInvoking");
-            sourceBuilder.AddLine("public static bool IsInvoking(IEventService eventService)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.IsInvoking<{typeName}>();");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "IsInvoking");
-            sourceBuilder.AddLine("public static bool IsInvoking(ServiceLocator serviceLocator)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.IsInvoking<{typeName}>() ?? false;");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "RemoveRelevancyListener");
-            sourceBuilder.AddLine("public static void RemoveRelevancyListener(IEventService eventService, in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"eventService.RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "RemoveRelevancyListener");
-            sourceBuilder.AddLine("public static void RemoveRelevancyListener(ServiceLocator serviceLocator, in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"serviceLocator.Get<IEventService>()?.RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "Invoke", "object");
-            sourceBuilder.AddLine("internal static bool InvokeDefault(IEventService eventService, object sender)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.Invoke<{typeName}>(sender);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "Invoke", "object");
-            sourceBuilder.AddLine("internal static bool InvokeDefault(ServiceLocator serviceLocator, object sender)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.Invoke<{typeName}>(sender) ?? false;");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "RemoveAllListeners");
-            sourceBuilder.AddLine("internal static bool RemoveAllListeners(IEventService eventService)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.RemoveAllListeners<{typeName}>();");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "RemoveAllListeners");
-            sourceBuilder.AddLine("internal static bool RemoveAllListeners(ServiceLocator serviceLocator)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.RemoveAllListeners<{typeName}>() ?? false;");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "Invoke", "object");
-            sourceBuilder.AddLine($"internal bool Invoke(IEventService eventService, object sender)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return eventService.Invoke<{typeName}>(sender, this);");
-            }
-
-            sourceBuilder.SkipLine();
-            AddMethodBoilerplate(sourceBuilder, "Invoke", "object");
-            sourceBuilder.AddLine($"internal bool Invoke(ServiceLocator serviceLocator, object sender)");
-
-            using (new BracesScope(sourceBuilder))
-            {
-                sourceBuilder.AddLine($"return serviceLocator.Get<IEventService>()?.Invoke<{typeName}>(sender, this) ?? false;");
-            }
         }
 
         private static IEnumerable<TypeDeclarationSyntax> EnumerateTypes(GeneratorExecutionContext context)

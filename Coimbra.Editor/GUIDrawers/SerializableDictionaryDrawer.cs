@@ -15,10 +15,6 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
     public sealed class SerializableDictionaryDrawer : PropertyDrawer
     {
-        internal const string ListProperty = "_list";
-
-        internal const string ValueProperty = "Value";
-
         private const float CountFieldSize = 50;
 
         private const float KeyWidthPercent = 0.4f;
@@ -27,9 +23,13 @@ namespace Coimbra.Editor
 
         private const string KeyProperty = "Key";
 
+        private const string ListProperty = "_list";
+
         private const string ModifyDisabledMessage = "Can't add new item while editing multiple objects!";
 
         private const string NewProperty = "_new";
+
+        private const string ValueProperty = "Value";
 
         static SerializableDictionaryDrawer()
         {

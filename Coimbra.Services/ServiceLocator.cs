@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine;
 using UnityEngine.Scripting;
 using Debug = UnityEngine.Debug;
 
@@ -14,13 +13,12 @@ namespace Coimbra.Services
     /// A non-thread-safe service locator.
     /// </summary>
     [Preserve]
-    [Serializable]
-    public sealed class ServiceLocator : IDisposable
+    public static class ServiceLocator
     {
         /// <summary>
-        /// Delegate for listening when a service is set.
+        /// Delegate to use with <see cref="ServiceLocator.AddSetListener{T}"/> and <see cref="ServiceLocator.RemoveSetListener{T}"/>.
         /// </summary>
-        public delegate void SetHandler(ServiceLocator serviceLocator);
+        public delegate void SetHandler(Type service);
 
         internal sealed class Service
         {
@@ -31,69 +29,14 @@ namespace Coimbra.Services
             internal SetHandler? SetHandler;
         }
 
-        /// <summary>
-        /// Called when this <see cref="ServiceLocator"/> is about to be disposed.
-        /// </summary>
-        public event Action<ServiceLocator>? OnDispose;
-
-        /// <summary>
-        /// Default shared service locator. Only use this for services that should be registered within the global scope of the application.
-        /// </summary>
-        public static readonly ServiceLocator Shared;
-
-        internal static readonly Dictionary<string, WeakReference<ServiceLocator>> ServiceLocators;
-
-        private readonly Dictionary<Type, Service> _services = new Dictionary<Type, Service>();
-
-        static ServiceLocator()
-        {
-            ServiceLocators = new Dictionary<string, WeakReference<ServiceLocator>>();
-            Shared = new ServiceLocator($"{typeof(ServiceLocator).FullName}.{nameof(Shared)}", false);
-        }
-
-        /// <param name="id">Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.</param>
-        /// <param name="allowFallbackToShared">If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.</param>
-        public ServiceLocator(string id, bool allowFallbackToShared = true)
-        {
-            if (ServiceLocators.ContainsKey(id))
-            {
-                throw new ArgumentException($"{nameof(ServiceLocator)} with the given id {id} already exists!", nameof(id));
-            }
-
-            AllowFallbackToShared = allowFallbackToShared;
-            Id = id;
-            _services.Clear();
-            ServiceLocators.Add(id, new WeakReference<ServiceLocator>(this));
-        }
-
-        ~ServiceLocator()
-        {
-            Clear();
-            ServiceLocators.Remove(Id);
-        }
-
-        /// <summary>
-        /// Identifier that can be used to debugging same <see cref="IService"/> across different <see cref="ServiceLocator"/>.
-        /// </summary>
-        [field: SerializeField]
-        [field: Disable]
-        public string Id { get; private set; }
-
-        /// <summary>
-        /// If true and a service is not found, it will try to find the service in the <see cref="Shared"/> instance.
-        /// </summary>
-        [field: SerializeField]
-        [field: Disable]
-        public bool AllowFallbackToShared { get; private set; }
-
-        internal IReadOnlyDictionary<Type, Service> Services => _services;
+        internal static readonly Dictionary<Type, Service> Services = new Dictionary<Type, Service>();
 
         /// <summary>
         /// Adds a listener for when a service instance changes.
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void AddSetListener<T>(SetHandler callback)
+        public static void AddSetListener<T>(SetHandler callback)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -101,26 +44,12 @@ namespace Coimbra.Services
             service.SetHandler += callback;
         }
 
-        /// <inheritdoc cref="IDisposable.Dispose"/>
-        public void Dispose()
-        {
-            if (this == Shared)
-            {
-                Debug.LogWarning($"{nameof(ServiceLocator)}.{nameof(Shared)}.{nameof(Dispose)} is no-op.");
-
-                return;
-            }
-
-            OnDispose?.Invoke(this);
-            Clear();
-        }
-
         /// <summary>
         /// Gets a service instance.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The service instance.</returns>
-        public T? Get<T>()
+        public static T? Get<T>()
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -130,20 +59,13 @@ namespace Coimbra.Services
                 return service.Value as T;
             }
 
-            if (service.Factory == null)
+            if (service.Factory == null || !service.Factory.Create().TryGetValid(out IService? value))
             {
-                return AllowFallbackToShared ? Shared.Get<T>() : null;
+                return null;
             }
-
-            IService? value = service.Factory.Create(this).GetValid();
 
             switch (value)
             {
-                case null:
-                {
-                    return AllowFallbackToShared ? Shared.Get<T>() : null;
-                }
-
                 case T result:
                 {
                     Set(result);
@@ -153,10 +75,10 @@ namespace Coimbra.Services
 
                 default:
                 {
-                    Debug.LogWarning($"Create callback for {typeof(T)} returning a value of type {value.GetType()}! Disposing it...");
+                    Debug.LogWarning($"Create callback for {typeof(T)} returned a service of type {value!.GetType()}! Disposing it...");
                     value.Dispose();
 
-                    return AllowFallbackToShared ? Shared.Get<T>() : null;
+                    return null;
                 }
             }
         }
@@ -166,7 +88,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The factory, if set.</returns>
-        public IServiceFactory? GetFactory<T>()
+        public static IServiceFactory? GetFactory<T>()
             where T : class, IService
         {
             return GetFactory(typeof(T));
@@ -177,9 +99,9 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="type">The service type.</param>
         /// <returns>The factory, if set.</returns>
-        public IServiceFactory? GetFactory(Type type)
+        public static IServiceFactory? GetFactory(Type type)
         {
-            return _services.TryGetValue(type, out Service service) ? service.Factory : null;
+            return Services.TryGetValue(type, out Service service) ? service.Factory : null;
         }
 
         /// <summary>
@@ -188,7 +110,7 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service has no factory set.</returns>
         [Pure]
-        public bool HasFactory<T>()
+        public static bool HasFactory<T>()
             where T : class, IService
         {
             return HasFactory(typeof(T));
@@ -200,9 +122,9 @@ namespace Coimbra.Services
         /// <param name="type">The service type.</param>
         /// <returns>False if the service has no factory set.</returns>
         [Pure]
-        public bool HasFactory(Type type)
+        public static bool HasFactory(Type type)
         {
-            return _services.TryGetValue(type, out Service service) && service is { Factory: { } };
+            return Services.TryGetValue(type, out Service service) && service is { Factory: { } };
         }
 
         /// <summary>
@@ -211,10 +133,10 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public bool IsCreated<T>()
+        public static bool IsSet<T>()
             where T : class, IService
         {
-            return IsCreated(typeof(T));
+            return IsSet(typeof(T));
         }
 
         /// <summary>
@@ -223,9 +145,9 @@ namespace Coimbra.Services
         /// <param name="type">The service type.</param>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public bool IsCreated(Type type)
+        public static bool IsSet(Type type)
         {
-            return _services.TryGetValue(type, out Service service) && service.Value != null;
+            return Services.TryGetValue(type, out Service service) && service.Value != null;
         }
 
         /// <summary>
@@ -235,10 +157,10 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public bool IsCreated<T>(out T? value)
+        public static bool IsSet<T>(out T? value)
             where T : class, IService
         {
-            if (IsCreated(typeof(T), out IService? service))
+            if (IsSet(typeof(T), out IService? service))
             {
                 value = service as T;
 
@@ -257,9 +179,9 @@ namespace Coimbra.Services
         /// <param name="value">The service value, if created.</param>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public bool IsCreated(Type type, out IService? value)
+        public static bool IsSet(Type type, out IService? value)
         {
-            if (_services.TryGetValue(type, out Service service) && service.Value != null)
+            if (Services.TryGetValue(type, out Service service) && service.Value != null)
             {
                 value = service.Value;
 
@@ -276,10 +198,10 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void RemoveSetListener<T>(SetHandler callback)
+        public static void RemoveSetListener<T>(SetHandler callback)
             where T : class, IService
         {
-            if (_services.TryGetValue(typeof(T), out Service service))
+            if (Services.TryGetValue(typeof(T), out Service service))
             {
                 service.SetHandler -= callback;
             }
@@ -290,7 +212,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
-        public void Set<T>(T? value)
+        public static void Set<T>(T? value)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -299,7 +221,7 @@ namespace Coimbra.Services
             {
                 if (value.TryGetValid(out value))
                 {
-                    Debug.LogError($"Service of type {typeof(T)} is already set at {nameof(ServiceLocator)} with id \"{Id}\" to \"{value}\"!");
+                    Debug.LogError($"Service of type {typeof(T)} is already set to \"{value}\"!");
 
                     return;
                 }
@@ -307,20 +229,12 @@ namespace Coimbra.Services
                 service.Value!.Dispose();
 
                 service.Value = null;
-                service.SetHandler?.Invoke(this);
+                service.SetHandler?.Invoke(typeof(T));
             }
             else if (value.TryGetValid(out value!))
             {
-                if (value.OwningLocator != null)
-                {
-                    Debug.LogError($"The same service \"{value}\" can't belong to more than one {nameof(ServiceLocator)} at same time!");
-
-                    return;
-                }
-
                 service.Value = value;
-                value.OwningLocator = this;
-                service.SetHandler?.Invoke(this);
+                service.SetHandler?.Invoke(typeof(T));
             }
         }
 
@@ -328,7 +242,7 @@ namespace Coimbra.Services
         /// Sets the factory for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        public void SetFactory<T>(IServiceFactory? factory)
+        public static void SetFactory<T>(IServiceFactory? factory)
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
@@ -342,7 +256,7 @@ namespace Coimbra.Services
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service does not exists.</returns>
-        public bool TryGet<T>(out T? value)
+        public static bool TryGet<T>(out T? value)
             where T : class, IService
         {
             value = Get<T>();
@@ -350,9 +264,9 @@ namespace Coimbra.Services
             return value != null;
         }
 
-        internal void Clear()
+        internal static void Reset()
         {
-            foreach (Service service in _services.Values)
+            foreach (Service service in Services.Values)
             {
                 service.Factory = null;
                 service.SetHandler = null;
@@ -360,29 +274,24 @@ namespace Coimbra.Services
                 if (service.Value.TryGetValid(out service.Value!))
                 {
                     service.Value.Dispose();
-
-                    if (service.Value.TryGetValid(out service.Value!))
-                    {
-                        service.Value.OwningLocator = null;
-                    }
                 }
 
                 service.Value = null;
             }
 
-            _services.Clear();
+            Services.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Initialize(Type type, out Service service)
+        private static void Initialize(Type type, out Service service)
         {
-            if (_services.TryGetValue(type, out service))
+            if (Services.TryGetValue(type, out service))
             {
                 return;
             }
 
             service = new Service();
-            _services[type] = service;
+            Services[type] = service;
         }
     }
 }

@@ -12,11 +12,5 @@ namespace Coimbra.Services
     /// </summary>
     [AbstractService]
     [RequireImplementors]
-    public interface IService : IDisposable
-    {
-        /// <summary>
-        /// The <see cref="ServiceLocator"/> that owns this service. <see cref="set_OwningLocator"/> is for internal use only.
-        /// </summary>
-        ServiceLocator? OwningLocator { get; set; }
-    }
+    public interface IService : IDisposable { }
 }

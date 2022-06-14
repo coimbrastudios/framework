@@ -8,7 +8,7 @@ namespace Coimbra.Services.Timers
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
     [AddComponentMenu("")]
-    public sealed class TimerSystem : ServiceActorBase<TimerSystem, ITimerService>, ITimerService
+    public sealed class TimerSystem : ServiceActorBase, ITimerService
     {
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
 
@@ -86,9 +86,9 @@ namespace Coimbra.Services.Timers
         }
 
         /// <inheritdoc/>
-        protected override void OnDispose()
+        protected override void OnDestroyed()
         {
-            base.OnDispose();
+            base.OnDestroyed();
             StopAllTimers();
             _timerComponentPool.Initialize(0, 0);
             _timerComponentPool = null;

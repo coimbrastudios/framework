@@ -15,7 +15,7 @@ namespace Coimbra.Services
         private DefaultServiceActorFactory() { }
 
         /// <inheritdoc/>
-        public IService Create(ServiceLocator owningLocator)
+        public IService Create()
         {
             return new GameObject(typeof(T).Name).AsActor<T>()!;
         }

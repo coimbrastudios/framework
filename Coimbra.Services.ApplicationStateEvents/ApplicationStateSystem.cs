@@ -10,7 +10,7 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
-    public sealed class ApplicationStateSystem : ServiceActorBase<ApplicationStateSystem, IApplicationStateService>, IApplicationStateService
+    public sealed class ApplicationStateSystem : ServiceActorBase, IApplicationStateService
     {
         private ApplicationStateSystem() { }
 
@@ -24,7 +24,7 @@ namespace Coimbra.Services.ApplicationStateEvents
         public void RemoveAllListeners<T>()
             where T : IApplicationStateEvent
         {
-            OwningLocator?.Get<IEventService>()?.RemoveAllListeners<T>();
+            ServiceLocator.Get<IEventService>()?.RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>
@@ -39,27 +39,21 @@ namespace Coimbra.Services.ApplicationStateEvents
         {
             IsFocused = hasFocus;
 
-            if (OwningLocator != null)
-            {
-                new ApplicationFocusEvent(hasFocus).Invoke(OwningLocator, this);
-            }
+            new ApplicationFocusEvent(hasFocus).Invoke(this);
         }
 
         private void OnApplicationPause(bool pauseStatus)
         {
             IsPaused = pauseStatus;
 
-            if (OwningLocator != null)
-            {
-                new ApplicationPauseEvent(pauseStatus).Invoke(OwningLocator, this);
-            }
+            new ApplicationPauseEvent(pauseStatus).Invoke(this);
         }
 
         private void HandleDestroying(Actor sender, DestroyReason reason)
         {
-            if (reason == DestroyReason.ApplicationQuit && OwningLocator != null)
+            if (reason == DestroyReason.ApplicationQuit)
             {
-                new ApplicationQuitEvent().Invoke(OwningLocator, this);
+                new ApplicationQuitEvent().Invoke(this);
             }
         }
     }

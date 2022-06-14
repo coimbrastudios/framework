@@ -17,11 +17,6 @@ namespace Coimbra.Services.Events
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         /// <inheritdoc/>
-        [field: SerializeReference]
-        [field: Disable]
-        public ServiceLocator? OwningLocator { get; set; }
-
-        /// <inheritdoc/>
         public EventHandle AddListener<T>(in Event<T>.Handler eventHandler)
             where T : IEvent
         {
@@ -91,15 +86,6 @@ namespace Coimbra.Services.Events
         public bool IsInvoking(Type eventType)
         {
             return _events.TryGetValue(eventType, out Event e) && e.IsInvoking;
-        }
-
-        /// <inheritdoc/>
-        public bool Invoke<T>(object eventSender)
-            where T : IEvent
-        {
-            Event<T> e = new Event<T>(this, eventSender);
-
-            return Invoke(ref e);
         }
 
         /// <inheritdoc/>

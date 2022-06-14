@@ -42,15 +42,7 @@ namespace Coimbra.Services.Events
         /// </summary>
         public EventHandle CurrentHandle;
 
-        public Event([NotNull] IEventService service, [NotNull] object sender)
-        {
-            Service = service;
-            Sender = sender;
-            Data = default;
-            CurrentHandle = default;
-        }
-
-        public Event([NotNull] IEventService service, [NotNull] object sender, in T data)
+        public Event([NotNull] IEventService service, [NotNull] object sender, [CanBeNull] in T data)
         {
             Service = service;
             Sender = sender;

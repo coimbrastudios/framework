@@ -125,19 +125,19 @@ namespace Coimbra.Roslyn
                                                                                                DiagnosticSeverity.Error,
                                                                                                true);
 
-        public static readonly DiagnosticDescriptor OwningLocatorShouldBeUsedInsteadOfShared = new("COIMBRA017",
-                                                                                                   "ServiceLocator.Shared should not be accessed inside IService.",
-                                                                                                   "Use OwningLocator instead of ServiceLocator.Shared.",
-                                                                                                   ServicesCategory,
-                                                                                                   DiagnosticSeverity.Error,
-                                                                                                   true);
+        public static readonly DiagnosticDescriptor _0017 = new("COIMBRA0017",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                DiagnosticSeverity.Hidden,
+                                                                false);
 
-        public static readonly DiagnosticDescriptor OwningLocatorSetterIsForInternalUseOnly = new("COIMBRA0018",
-                                                                                                  "OwningLocator.set is for internal use only.",
-                                                                                                  "Do not set the OwningLocator manually.",
-                                                                                                  ServicesCategory,
-                                                                                                  DiagnosticSeverity.Error,
-                                                                                                  true);
+        public static readonly DiagnosticDescriptor _0018 = new("COIMBRA0018",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                DiagnosticSeverity.Hidden,
+                                                                false);
 
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
                                                                                        "Object.Destroy should not be used with Objects that can be an Actor.",

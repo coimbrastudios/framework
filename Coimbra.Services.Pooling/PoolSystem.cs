@@ -13,7 +13,7 @@ namespace Coimbra.Services.Pooling
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
-    public sealed class PoolSystem : ServiceActorBase<PoolSystem, IPoolService>, IPoolService
+    public sealed class PoolSystem : ServiceActorBase, IPoolService
     {
         private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
 
@@ -173,9 +173,9 @@ namespace Coimbra.Services.Pooling
         }
 
         /// <inheritdoc/>
-        protected override void OnDispose()
+        protected override void OnDestroyed()
         {
-            base.OnDispose();
+            base.OnDestroyed();
             _poolFromPrefab.Clear();
             _loadingList.Clear();
             _prefabsSet.Clear();

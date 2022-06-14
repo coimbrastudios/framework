@@ -13,7 +13,7 @@ namespace Coimbra.Services
         private DefaultServiceFactory() { }
 
         /// <inheritdoc/>
-        public IService Create(ServiceLocator owningLocator)
+        public IService Create()
         {
             return new T();
         }

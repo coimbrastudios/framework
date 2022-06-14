@@ -11,5 +11,7 @@ namespace Coimbra.Services.Events.Roslyn
         public static readonly TypeString EventInterface = new("IEvent", Namespace);
 
         public static readonly TypeString EventServiceInterface = new("IEventService", Namespace);
+
+        public static readonly TypeString EventSystemClass = new("EventSystem", Namespace);
     }
 }
