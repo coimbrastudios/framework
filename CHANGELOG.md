@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.5.1] - UNRELEASED
+## [10.6.0] - 2022-06-14
 
 - Added `AssetReferenceScene` for referencing `SceneAsset` in runtime code.
 - Added `AnimatorIKListener` and `AnimatorMoveListener`. 
@@ -10,6 +10,9 @@
 - Added `JointBreakListener` and `JointBreak2DListener`.
 - Added `WillRenderObjectListener`.
 - Added `TransformChangedListener`.
+- Changed `ServiceLocator` to be a static class.
+- Changed codegen for `IEvent` to match the new `ServiceLocator` implementation.
+- Removed support for multiple `ServiceLocator` instances.
 
 ## [10.5.0] - 2022-06-13
 
