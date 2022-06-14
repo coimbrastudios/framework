@@ -39,6 +39,7 @@ Package of general utilities to be used with Unity development.
     - `JointBreakListener`
     - `LateUpdateListener`
     - `StartListener`
+    - `TransformChangedListener`
     - Trigger Enter/Exit/Stay 2D Listener
     - Trigger Enter/Exit/Stay Listener
     - `UpdateListener`

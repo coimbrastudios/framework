@@ -9,6 +9,7 @@
 - Added `ControllerColliderHitListener`.
 - Added `JointBreakListener` and `JointBreak2DListener`.
 - Added `WillRenderObjectListener`.
+- Added `TransformChangedListener`.
 
 ## [10.5.0] - 2022-06-13
 
