@@ -9,7 +9,7 @@ namespace Coimbra
     [RequireComponent(typeof(PlayerLoopListenerBase))]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Transform Changed Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html")]
-    public sealed class TransformChangedListener : MonoBehaviour
+    public sealed class TransformChangedListener : ActorComponentBase
     {
         public delegate void EventHandler(TransformChangedListener sender);
 
@@ -48,14 +48,7 @@ namespace Coimbra
 
         private bool _isActive;
 
-        private Actor _actor;
-
         private PlayerLoopListenerBase _playerLoopListener;
-
-        /// <summary>
-        /// The actor this component belongs to.
-        /// </summary>
-        public Actor Actor => _actor != null ? _actor : _actor = gameObject.AsActor();
 
         /// <summary>
         /// The player loop listener this component depends on.
@@ -72,5 +65,11 @@ namespace Coimbra
             Actor.Transform.hasChanged = false;
             _eventHandler?.Invoke(this);
         }
+
+        /// <inheritdoc/>
+        protected override void OnPreInitializeActor() { }
+
+        /// <inheritdoc/>
+        protected override void OnPostInitializeActor() { }
     }
 }

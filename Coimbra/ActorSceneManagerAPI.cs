@@ -7,10 +7,10 @@ namespace Coimbra
     /// <summary>
     /// Custom <see cref="SceneManagerAPI"/> that does some pre-processing when unloading a scene.
     /// </summary>
-    public class CoimbraSceneManagerAPI : SceneManagerAPI
+    public class ActorSceneManagerAPI : SceneManagerAPI
     {
         /// <summary>
-        /// Call this method from your custom <see cref="SceneManagerAPI"/> if not using the <see cref="CoimbraSceneManagerAPI"/>.
+        /// Call this method from your custom <see cref="SceneManagerAPI"/> if not using the <see cref="ActorSceneManagerAPI"/>.
         /// </summary>
         public static void PreprocessUnloadScene(Scene scene)
         {
@@ -62,7 +62,7 @@ namespace Coimbra
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void HandleBeforeSceneLoad()
         {
-            overrideAPI ??= new CoimbraSceneManagerAPI();
+            overrideAPI ??= new ActorSceneManagerAPI();
         }
     }
 }

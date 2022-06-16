@@ -93,7 +93,8 @@ namespace Coimbra
 
         private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
-        private static readonly ProfilerCounterValue<int> UninitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> UninitializedActorCount =
+            new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
         [SerializeField]
         [DisableOnPlayMode]
@@ -281,12 +282,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Is the <see cref="Actor"/> representation of specified <see cref="UnityEngine.GameObject"/> cached?
+        /// Is the <see cref="Actor"/> representation of specified game object ID cached?
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasCachedActor(GameObject gameObject, out Actor actor)
+        public static bool HasCachedActor(GameObjectID gameObjectID, out Actor actor)
         {
-            return CachedActors.TryGetValue(gameObject, out actor);
+            return CachedActors.TryGetValue(gameObjectID, out actor);
         }
 
         /// <summary>
@@ -478,7 +479,23 @@ namespace Coimbra
             }
 
             IsPooled = Pool != null;
-            OnInitialize();
+
+            using (ListPool.Pop(out List<ActorComponentBase> components))
+            {
+                GetComponents(components);
+
+                foreach (ActorComponentBase component in components)
+                {
+                    component.PreInitialize(this);
+                }
+
+                OnInitialize();
+
+                foreach (ActorComponentBase component in components)
+                {
+                    component.PostInitialize();
+                }
+            }
 
             if (IsPooled)
             {
