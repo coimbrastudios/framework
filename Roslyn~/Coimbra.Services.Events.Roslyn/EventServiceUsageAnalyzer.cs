@@ -28,8 +28,7 @@ namespace Coimbra.Services.Events.Roslyn
             }
 
             if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol { DeclaredAccessibility: Accessibility.Public, IsGenericMethod: true } method
-             || method.ContainingType.Is(CoimbraServicesEventsTypes.EventSystemClass)
-             || !method.ContainingType.IsOrImplementsInterface(CoimbraServicesEventsTypes.EventServiceInterface))
+             || !method.ContainingType.Is(CoimbraServicesEventsTypes.EventServiceInterface))
             {
                 return;
             }

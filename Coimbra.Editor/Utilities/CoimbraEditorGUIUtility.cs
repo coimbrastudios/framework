@@ -1,10 +1,13 @@
+using CoimbraInternal.Editor;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -14,6 +17,8 @@ namespace Coimbra.Editor
     public static class CoimbraEditorGUIUtility
     {
         private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
+
+        private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
 
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
@@ -86,6 +91,30 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
+        /// Unified way to draw a property field using its specific <see cref="PropertyDrawer"/> even if it has a <see cref="PropertyAttribute"/> with another drawer.
+        /// </summary>
+        public static void DrawPropertyField(Rect position, SerializedProperty property, GUIContent label)
+        {
+            InitializePropertyDrawers();
+
+            Type type = property.GetPropertyType();
+
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+
+            if (_propertyDrawers.TryGetValue(type, out PropertyDrawer propertyDrawer))
+            {
+                propertyDrawer.OnGUI(position, property, label);
+            }
+            else
+            {
+                EditorGUI.PropertyField(position, property, label);
+            }
+        }
+
+        /// <summary>
         /// Get the required height to draw a message box with a given message and type.
         /// </summary>
         /// <param name="message">The message text.</param>
@@ -143,6 +172,25 @@ namespace Coimbra.Editor
 
                 return Mathf.Max(height, minContentHeight);
             }
+        }
+
+        /// <summary>
+        /// Unified way to get a property height using its specific <see cref="PropertyDrawer"/> even if it has a <see cref="PropertyAttribute"/> with another drawer.
+        /// </summary>
+        public static float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            InitializePropertyDrawers();
+
+            Type type = property.GetPropertyType();
+
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+
+            return _propertyDrawers.TryGetValue(type, out PropertyDrawer propertyDrawer)
+                       ? propertyDrawer.GetPropertyHeight(property, label)
+                       : EditorGUI.GetPropertyHeight(property, label);
         }
 
         /// <summary>
@@ -348,7 +396,7 @@ namespace Coimbra.Editor
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetPersistentHashCode(UnityEngine.Object target, string propertyPath, bool isInstanceSpecific)
+        private static int GetPersistentHashCode(Object target, string propertyPath, bool isInstanceSpecific)
         {
             int targetHash = isInstanceSpecific ? target.GetHashCode() : target.GetType().GetHashCode();
             int propertyPathHash = propertyPath.GetHashCode();
@@ -358,6 +406,57 @@ namespace Coimbra.Editor
 #else
             return (targetHash, propertyPathHash).GetHashCode();
 #endif
+        }
+
+        private static void InitializePropertyDrawers()
+        {
+            if (_propertyDrawers != null)
+            {
+                return;
+            }
+
+            _propertyDrawers = new Dictionary<Type, PropertyDrawer>();
+
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            foreach (Type type in TypeCache.GetTypesWithAttribute<CustomPropertyDrawer>())
+            {
+                PropertyDrawer propertyDrawer;
+
+                try
+                {
+                    propertyDrawer = (PropertyDrawer)Activator.CreateInstance(type);
+                }
+                catch
+                {
+                    try
+                    {
+                        propertyDrawer = (PropertyDrawer)type.GetConstructor(bindingFlags, null, Type.EmptyTypes, null)!.Invoke(null);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+
+                foreach (CustomPropertyDrawer attribute in type.GetCustomAttributes<CustomPropertyDrawer>(true))
+                {
+                    _propertyDrawers[attribute.GetTargetType()] = propertyDrawer;
+
+                    if (!attribute.GetUseForChildren())
+                    {
+                        continue;
+                    }
+
+                    foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(attribute.GetTargetType()))
+                    {
+                        if (!_propertyDrawers.ContainsKey(derivedType))
+                        {
+                            _propertyDrawers.Add(derivedType, propertyDrawer);
+                        }
+                    }
+                }
+            }
         }
     }
 }

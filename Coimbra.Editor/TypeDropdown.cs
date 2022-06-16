@@ -110,9 +110,9 @@ namespace Coimbra.Editor
                     return;
                 }
 
-                Type fieldType = propertyPathInfo.FieldInfo.FieldType!;
+                Type propertyType = propertyPathInfo.PropertyType!;
 
-                if (!fieldType.IsGenericType || fieldType.GetGenericTypeDefinition() != typeof(Reference<>))
+                if (!propertyType.IsGenericType || propertyType.GetGenericTypeDefinition() != typeof(Reference<>))
                 {
                     return;
                 }

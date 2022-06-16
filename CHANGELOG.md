@@ -1,5 +1,22 @@
 # Changelog
 
+## [10.7.0] - 2022-06-15
+
+- Added `PropertyType` to `PropertyPathInfo` and better document what exactly `FieldInfo` refers to.
+- Added `SerializableType` which is just a serialization wrapper for `System.Type`.
+- Added `CoimbraEditorGUIUtility.DrawPropertField` and `CoimbraEditorGUIUtility.GetPropertyHeight` APIs that always use the field's type drawer.
+- Added `EventContext` and `EventContextHandler` types, they replace the old `Event<T>` and `Event<T>.Handler`.
+- Added extra debug information for when an exception is thrown when invoking an event.
+- Added `IPlayerLoopService.AddListener` to allow registering to any `IPlayerLoopEvent` by its type.
+- Added `IDisposable` interface to `Actor` and make `Dispose` call `Destroy`.
+- Added `ServiceLocator.GetChecked<T>()` that both gets and asserts that the value is valid.
+- Changed `ServiceLocator` to not allow overriding a service value once set. This can be disabled per-service with the new `DynamicServiceAttribute`.
+- Changed `COIMBRA0011` to refer to `Actor` instead of the now removed `ServiceActorBase`.
+- Changed `EventRelevancyChangedHandle` to not be a nested type of `IEventService`.
+- Fixed `ValidateDrawer` not working with types that had a custom `PropertyDrawer`.
+- Removed `ServiceActorBase` as `Actor` already implements `IDisposable` properly now.
+- Removed `Event<T>` type as it got replaced by new APIs.
+
 ## [10.6.0] - 2022-06-14
 
 - Added `AssetReferenceScene` for referencing `SceneAsset` in runtime code.

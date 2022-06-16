@@ -71,25 +71,25 @@ namespace Coimbra.Tests
             EventHandle handle3 = new EventHandle();
             EventHandle handle4 = new EventHandle();
 
-            void callback1(ref Event<TestEvent> testEvent)
+            void callback1(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(nameof(callback1));
                 _eventSystem.RemoveListener(handle1);
             }
 
-            void callback2(ref Event<TestEvent> testEvent)
+            void callback2(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(nameof(callback2));
                 _eventSystem.RemoveListener(handle2);
             }
 
-            void callback3(ref Event<TestEvent> testEvent)
+            void callback3(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(nameof(callback3));
                 _eventSystem.RemoveListener(handle3);
             }
 
-            void callback4(ref Event<TestEvent> testEvent)
+            void callback4(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(nameof(callback4));
                 _eventSystem.RemoveListener(handle4);
@@ -123,7 +123,7 @@ namespace Coimbra.Tests
         {
             const string log = nameof(log);
 
-            static void callback(ref Event<TestEvent> testEvent)
+            static void callback(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(log);
             }
@@ -140,12 +140,12 @@ namespace Coimbra.Tests
             const string logA = nameof(logA);
             const string logB = nameof(logB);
 
-            static void callbackA(ref Event<TestEvent> testEvent)
+            static void callbackA(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(logA);
             }
 
-            static void callbackB(ref Event<TestEvent> testEvent)
+            static void callbackB(ref EventContext context, in TestEvent e)
             {
                 Debug.Log(logB);
             }

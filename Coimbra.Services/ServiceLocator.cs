@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
 using Debug = UnityEngine.Debug;
@@ -22,11 +23,18 @@ namespace Coimbra.Services
 
         internal sealed class Service
         {
+            internal readonly bool IsDynamic;
+
             internal IService? Value;
 
             internal IServiceFactory? Factory;
 
             internal SetHandler? SetHandler;
+
+            public Service(Type type)
+            {
+                IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
+            }
         }
 
         internal static readonly Dictionary<Type, Service> Services = new Dictionary<Type, Service>();
@@ -84,10 +92,26 @@ namespace Coimbra.Services
         }
 
         /// <summary>
+        /// Gets a service instance. It also asserts that the value is valid.
+        /// </summary>
+        /// <typeparam name="T">The service type.</typeparam>
+        /// <returns>The service instance.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetChecked<T>()
+            where T : class, IService
+        {
+            T? value = Get<T>();
+            Debug.Assert(value.IsValid(), $"Called {nameof(GetChecked)} for a service that is null!");
+
+            return value!;
+        }
+
+        /// <summary>
         /// Gets the factory for a service type.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The factory, if set.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IServiceFactory? GetFactory<T>()
             where T : class, IService
         {
@@ -110,6 +134,7 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service has no factory set.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFactory<T>()
             where T : class, IService
         {
@@ -133,6 +158,7 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSet<T>()
             where T : class, IService
         {
@@ -219,23 +245,18 @@ namespace Coimbra.Services
 
             if (service.Value.TryGetValid(out service.Value))
             {
-                if (value.TryGetValid(out value))
+                if (!service.IsDynamic)
                 {
-                    Debug.LogError($"Service of type {typeof(T)} is already set to \"{value}\"!");
+                    Debug.LogError($"Service of type {typeof(T)} was not defined as dynamic but you are trying to override it!");
 
                     return;
                 }
 
                 service.Value!.Dispose();
+            }
 
-                service.Value = null;
-                service.SetHandler?.Invoke(typeof(T));
-            }
-            else if (value.TryGetValid(out value!))
-            {
-                service.Value = value;
-                service.SetHandler?.Invoke(typeof(T));
-            }
+            service.Value = value.GetValid();
+            service.SetHandler?.Invoke(typeof(T));
         }
 
         /// <summary>
@@ -256,6 +277,7 @@ namespace Coimbra.Services
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service does not exists.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGet<T>(out T? value)
             where T : class, IService
         {
@@ -290,7 +312,7 @@ namespace Coimbra.Services
                 return;
             }
 
-            service = new Service();
+            service = new Service(type);
             Services[type] = service;
         }
     }

@@ -111,7 +111,7 @@ namespace Coimbra
 
                         if (!cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
                         {
-                            cachedPropertyPathInfo = new PropertyPathInfo(rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath);
+                            cachedPropertyPathInfo = new PropertyPathInfo(fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath);
                             cache.Add(propertyPath, cachedPropertyPathInfo);
                         }
 
@@ -134,16 +134,18 @@ namespace Coimbra
                         propertyPathBuilder.Append(separator);
                         propertyPathBuilder.Append(splitPropertyPath[1]);
                         splitPropertyPath.RemoveRange(0, 2);
+
+                        Type propertyType = GetCollectionType(fieldInfo.FieldType);
                         propertyPath = propertyPathBuilder.ToString();
 
                         if (!cache.TryGetValue(propertyPath, out cachedPropertyPathInfo))
                         {
-                            cachedPropertyPathInfo = new PropertyPathInfo(rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath);
+                            cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath);
                             cache.Add(propertyPath, cachedPropertyPathInfo);
                         }
 
                         currentPropertyPathInfo = cachedPropertyPathInfo;
-                        currentType = GetCollectionType(fieldInfo.FieldType);
+                        currentType = propertyType;
                         currentDepth++;
                     }
 

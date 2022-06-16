@@ -29,7 +29,7 @@ namespace Coimbra.Editor
             {
                 propertyPathInfo.GetScopes(targets, scopes);
 
-                MethodInfo methodInfo = scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback) ?? scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback, propertyPathInfo.FieldInfo.FieldType);
+                MethodInfo methodInfo = scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback) ?? scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback, propertyPathInfo.PropertyType);
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
@@ -81,7 +81,7 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUI.GetPropertyHeight(property, label, true);
+            return CoimbraEditorGUIUtility.GetPropertyHeight(property, label);
         }
 
         /// <inheritdoc cref="OnGUI"/>
@@ -114,7 +114,7 @@ namespace Coimbra.Editor
 
                     default:
                     {
-                        EditorGUI.PropertyField(position, property, label, true);
+                        CoimbraEditorGUIUtility.DrawPropertyField(position, property, label);
 
                         break;
                     }
@@ -122,7 +122,7 @@ namespace Coimbra.Editor
             }
             else
             {
-                EditorGUI.PropertyField(position, property, label, true);
+                CoimbraEditorGUIUtility.DrawPropertyField(position, property, label);
             }
         }
     }

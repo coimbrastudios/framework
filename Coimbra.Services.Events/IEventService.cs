@@ -12,16 +12,11 @@ namespace Coimbra.Services.Events
     public interface IEventService : IService
     {
         /// <summary>
-        /// Delegate for listening when an event type starts/stops being relevant.
-        /// </summary>
-        public delegate void EventRelevancyChangedHandler(IEventService eventService, Type eventType, bool isRelevant);
-
-        /// <summary>
         /// Adds a listener to an event type.
         /// </summary>
         /// <param name="eventHandler">The callback to be added.</param>
         /// <typeparam name="TEvent">The event type.</typeparam>
-        EventHandle AddListener<TEvent>(in Event<TEvent>.Handler eventHandler)
+        EventHandle AddListener<TEvent>(in EventContextHandler<TEvent> eventHandler)
             where TEvent : IEvent;
 
         /// <summary>

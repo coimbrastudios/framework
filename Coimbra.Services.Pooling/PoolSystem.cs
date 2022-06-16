@@ -13,7 +13,7 @@ namespace Coimbra.Services.Pooling
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
-    public sealed class PoolSystem : ServiceActorBase, IPoolService
+    public sealed class PoolSystem : Actor, IPoolService
     {
         private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
 

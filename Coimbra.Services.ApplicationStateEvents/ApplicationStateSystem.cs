@@ -10,7 +10,7 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
-    public sealed class ApplicationStateSystem : ServiceActorBase, IApplicationStateService
+    public sealed class ApplicationStateSystem : Actor, IApplicationStateService
     {
         private ApplicationStateSystem() { }
 
@@ -24,7 +24,7 @@ namespace Coimbra.Services.ApplicationStateEvents
         public void RemoveAllListeners<T>()
             where T : IApplicationStateEvent
         {
-            ServiceLocator.Get<IEventService>()?.RemoveAllListeners<T>();
+            ServiceLocator.GetChecked<IEventService>().RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>

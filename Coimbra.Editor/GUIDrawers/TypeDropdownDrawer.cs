@@ -33,7 +33,7 @@ namespace Coimbra.Editor
                 typeLabel.text = string.IsNullOrWhiteSpace(typeName) ? "<null>" : TypeString.Get(TypeUtility.GetType(typeName));
                 typeLabel.tooltip = typeLabel.text;
 
-                TypeDropdown.DrawReferenceField(position, property.GetFieldInfo().FieldType, property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
+                TypeDropdown.DrawReferenceField(position, property.GetPropertyType(), property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
                 {
                     TypeDropdown.FilterTypes(targets, context, list);
                 });

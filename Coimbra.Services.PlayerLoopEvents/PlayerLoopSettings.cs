@@ -1,5 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Coimbra.Services.PlayerLoopEvents
 {
@@ -11,12 +10,12 @@ namespace Coimbra.Services.PlayerLoopEvents
     {
         [SerializeField]
         [Tooltip("The default list of events to be fired.")]
-        private InjectPlayerLoopTimings _defaultTimings = InjectPlayerLoopTimings.Minimum;
+        private PlayerLoopTimingEvents _defaultTimings = PlayerLoopTimingEvents.Standard;
 
         public PlayerLoopSettings() { }
 
         /// <param name="defaultTimings">The list of events to be fired.</param>
-        public PlayerLoopSettings(InjectPlayerLoopTimings defaultTimings)
+        public PlayerLoopSettings(PlayerLoopTimingEvents defaultTimings)
         {
             _defaultTimings = defaultTimings;
         }
@@ -24,6 +23,6 @@ namespace Coimbra.Services.PlayerLoopEvents
         /// <summary>
         /// The default list of events to be fired.
         /// </summary>
-        public InjectPlayerLoopTimings DefaultTimings => _defaultTimings;
+        public PlayerLoopTimingEvents DefaultTimings => _defaultTimings;
     }
 }

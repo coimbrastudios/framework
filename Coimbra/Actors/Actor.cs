@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,7 +23,7 @@ namespace Coimbra
     [Preserve]
     [DisallowMultipleComponent]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Actor")]
-    public class Actor : MonoBehaviour
+    public class Actor : MonoBehaviour, IDisposable
     {
         /// <summary>
         /// Defines the reason why the object is being destroyed.
@@ -318,6 +319,12 @@ namespace Coimbra
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Destroy()
+        {
+            Destroy(true);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
         {
             Destroy(true);
         }

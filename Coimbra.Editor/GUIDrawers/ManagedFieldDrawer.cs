@@ -40,7 +40,7 @@ namespace Coimbra.Editor
             }
 
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
-            Type type = systemObject.GetFieldInfo().FieldType;
+            Type type = systemObject.GetPropertyType();
 
             if (typeof(Object).IsAssignableFrom(type) || systemObject.hasMultipleDifferentValues)
             {
@@ -61,7 +61,7 @@ namespace Coimbra.Editor
         /// </summary>
         public void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
-            TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
+            TooltipAttribute tooltipAttribute = property.GetFieldInfo().GetCustomAttribute<TooltipAttribute>();
 
             if (tooltipAttribute != null)
             {
@@ -100,7 +100,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            Type type = systemObject.GetFieldInfo().FieldType;
+            Type type = systemObject.GetPropertyType();
 
             if (typeof(Object).IsAssignableFrom(type))
             {

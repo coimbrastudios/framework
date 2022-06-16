@@ -164,7 +164,7 @@ namespace Coimbra.Editor
             {
                 ref UndoPropertyModification modification = ref modifications[i];
 
-                if (!modification.currentValue.IsReorderableList(out ReorderableList list) || !typeof(ISerializableDictionary).IsAssignableFrom(list.serializedProperty.GetScopeInfo()!.FieldInfo.FieldType))
+                if (!modification.currentValue.IsReorderableList(out ReorderableList list) || !typeof(ISerializableDictionary).IsAssignableFrom(list.serializedProperty.GetScopeInfo()!.PropertyType))
                 {
                     continue;
                 }

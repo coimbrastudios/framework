@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Coimbra.Services.Events;
 
 namespace Coimbra.Services.PlayerLoopEvents
 {
@@ -10,7 +10,10 @@ namespace Coimbra.Services.PlayerLoopEvents
         /// <summary>
         /// The list of events currently being fired.
         /// </summary>
-        InjectPlayerLoopTimings CurrentTimings { get; set; }
+        PlayerLoopTimingEvents CurrentTimings { get; set; }
+
+        /// <inheritdoc cref="IEventService.AddListener{TEvent}"/>
+        EventHandle AddListener(SerializableType<IPlayerLoopEvent> eventType, PlayerLoopEventHandler eventHandler);
 
         /// <summary>
         /// Removes all listeners from the specified type.

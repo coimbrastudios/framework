@@ -6,51 +6,6 @@ using UnityEngine.Scripting;
 
 namespace Coimbra.Services.Events
 {
-    /// <summary>
-    /// An event being invoked.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    [Preserve]
-    public ref struct Event<T>
-        where T : IEvent
-    {
-        /// <summary>
-        /// Generic delegate for listening events from the <see cref="IEventService"/>.
-        /// </summary>
-        public delegate void Handler(ref Event<T> e);
-
-        /// <summary>
-        /// The <see cref="IEventService"/> used to invoke the event.
-        /// </summary>
-        [NotNull]
-        public readonly IEventService Service;
-
-        /// <summary>
-        /// The object that requested the event invocation.
-        /// </summary>
-        [NotNull]
-        public readonly object Sender;
-
-        /// <summary>
-        /// The data of the event.
-        /// </summary>
-        [CanBeNull]
-        public readonly T Data;
-
-        /// <summary>
-        /// The handle for the current call.
-        /// </summary>
-        public EventHandle CurrentHandle;
-
-        public Event([NotNull] IEventService service, [NotNull] object sender, [CanBeNull] in T data)
-        {
-            Service = service;
-            Sender = sender;
-            Data = data;
-            CurrentHandle = default;
-        }
-    }
-
     [Preserve]
     internal sealed class Event : IDisposable
     {
@@ -79,7 +34,7 @@ namespace Coimbra.Services.Events
         }
 
         [CanBeNull]
-        internal event IEventService.EventRelevancyChangedHandler OnRelevancyChanged;
+        internal event EventRelevancyChangedHandler OnRelevancyChanged;
 
         [NotNull]
         private readonly IEventService _service;

@@ -17,7 +17,7 @@ namespace Coimbra.Services.Events
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
         /// <inheritdoc/>
-        public EventHandle AddListener<T>(in Event<T>.Handler eventHandler)
+        public EventHandle AddListener<T>(in EventContextHandler<T> eventHandler)
             where T : IEvent
         {
             EventHandle handle = EventHandle.Create(typeof(T));
@@ -34,7 +34,7 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public void AddRelevancyListener<T>(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+        public void AddRelevancyListener<T>(in EventRelevancyChangedHandler relevancyChangedHandler)
             where T : IEvent
         {
             if (!_events.TryGetValue(typeof(T), out Event e))
@@ -92,9 +92,9 @@ namespace Coimbra.Services.Events
         public bool Invoke<T>(object eventSender, in T eventData)
             where T : IEvent
         {
-            Event<T> e = new Event<T>(this, eventSender, in eventData);
+            EventContext eventContext = new EventContext(this, eventSender, typeof(T));
 
-            return Invoke(ref e);
+            return Invoke(ref eventContext, in eventData);
         }
 
         /// <inheritdoc/>
@@ -111,7 +111,7 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
-        public void RemoveRelevancyListener<T>(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)
+        public void RemoveRelevancyListener<T>(in EventRelevancyChangedHandler relevancyChangedHandler)
             where T : IEvent
         {
             if (_events.TryGetValue(typeof(T), out Event e))
@@ -131,7 +131,7 @@ namespace Coimbra.Services.Events
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Invoke<T>(ref Event<T> eventRef)
+        private bool Invoke<T>(ref EventContext eventContext, in T eventData)
             where T : IEvent
         {
             if (!_events.TryGetValue(typeof(T), out Event e))
@@ -159,17 +159,18 @@ namespace Coimbra.Services.Events
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        eventRef.CurrentHandle = e[i];
+                        eventContext.CurrentHandle = e[i];
 
-                        if (!e.IsRemoving(eventRef.CurrentHandle))
+                        if (!e.IsRemoving(eventContext.CurrentHandle))
                         {
-                            EventCallbacks<T>.Value[eventRef.CurrentHandle].Invoke(ref eventRef);
+                            EventCallbacks<T>.Value[eventContext.CurrentHandle].Invoke(ref eventContext, in eventData);
                         }
                     }
                 }
                 catch (Exception exception)
                 {
-                    Debug.LogError($"An exception occurred while invoking {typeof(T)}!", eventRef.Sender as Object);
+                    Delegate handler = EventCallbacks<T>.Value[eventContext.CurrentHandle];
+                    Debug.LogError($"An exception occurred while invoking {typeof(T)} for {handler.Target}.{handler.Method.Name}!", eventContext.Sender as Object);
                     Debug.LogException(exception);
                 }
             }

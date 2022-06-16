@@ -30,13 +30,19 @@ namespace Coimbra
         public readonly int? Index;
 
         /// <summary>
-        /// The field info for this property.
+        /// The field info for this property as it is declared in the object. If you want the actual element type you can use <see cref="PropertyType"/>.
         /// </summary>
         [NotNull]
         public readonly FieldInfo FieldInfo;
 
         /// <summary>
-        /// The root type of this property.
+        /// The property type. Returns the actual type to be drawn so if it is an <see cref="Array"/> or <see cref="List{T}"/>, it will return the item type.
+        /// </summary>
+        [NotNull]
+        public readonly Type PropertyType;
+
+        /// <summary>
+        /// The root type of this property. Always a class that inherits from <see cref="Object"/>.
         /// </summary>
         [NotNull]
         public readonly Type RootType;
@@ -51,12 +57,13 @@ namespace Coimbra
 
         private PropertyPathInfo[] _chainBackingField;
 
-        internal PropertyPathInfo([NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath)
+        internal PropertyPathInfo([NotNull] Type propertyType, [NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath)
         {
             _propertyPath = propertyPath;
             Depth = depth;
             Index = index;
             FieldInfo = fieldInfo;
+            PropertyType = propertyType;
             RootType = rootType;
             ScopeInfo = scopeInfo;
         }

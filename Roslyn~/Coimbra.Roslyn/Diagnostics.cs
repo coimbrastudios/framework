@@ -83,12 +83,12 @@ namespace Coimbra.Roslyn
                                                                                             DiagnosticSeverity.Error,
                                                                                             true);
 
-        public static readonly DiagnosticDescriptor InheritFromServiceActorBaseInstead = new("COIMBRA0011",
-                                                                                             "Concrete IService should not be a Component unless it inherit from ServiceActorBase.",
-                                                                                             "Make {0} inherit from ServiceActorBase to avoid undefined behaviours.",
-                                                                                             ServicesCategory,
-                                                                                             DiagnosticSeverity.Warning,
-                                                                                             true);
+        public static readonly DiagnosticDescriptor InheritFromActorInstead = new("COIMBRA0011",
+                                                                                  "Concrete IService should not be a Component unless it inherit from Actor.",
+                                                                                  "Make {0} inherit from Actor to avoid undefined behaviours.",
+                                                                                  ServicesCategory,
+                                                                                  DiagnosticSeverity.Warning,
+                                                                                  true);
 
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0012",
                                                                                                       "A ScriptableSettings should not implement any IService.",

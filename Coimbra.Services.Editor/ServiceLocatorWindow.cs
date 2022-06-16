@@ -8,6 +8,7 @@ namespace Coimbra.Services.Editor
     /// <summary>
     /// Window to check the <see cref="ServiceLocator"/> services.
     /// </summary>
+    [InitializeOnLoad]
     internal sealed class ServiceLocatorWindow : EditorWindow
     {
         private const string WindowsTitle = "Service Locator";
@@ -21,6 +22,26 @@ namespace Coimbra.Services.Editor
         private SerializedObject _serializedObject;
 
         private SerializedProperty _servicesProperty;
+
+        static ServiceLocatorWindow()
+        {
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+            EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
+        }
+
+        private static void HandlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
+        {
+            switch (playModeStateChange)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                case PlayModeStateChange.ExitingEditMode:
+                {
+                    ServiceLocator.Reset();
+
+                    break;
+                }
+            }
+        }
 
         /// <summary>
         /// Opens the <see cref="ServiceLocatorWindow"/>.
@@ -57,6 +78,13 @@ namespace Coimbra.Services.Editor
             _serializedObject.Update();
 
             int arraySize = _servicesProperty.arraySize;
+
+            if (arraySize == 0)
+            {
+                EditorGUILayout.LabelField("No service set.");
+
+                return;
+            }
 
             for (int i = 0; i < arraySize; i++)
             {

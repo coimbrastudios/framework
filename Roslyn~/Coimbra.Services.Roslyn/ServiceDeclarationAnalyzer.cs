@@ -13,7 +13,7 @@ namespace Coimbra.Services.Roslyn
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteServiceShouldOnlyImplementOneService,
                                                                                                            Diagnostics.ConcreteServiceShouldNotImplementAbstractService,
                                                                                                            Diagnostics.BaseClassIsConcreteServiceAlready,
-                                                                                                           Diagnostics.InheritFromServiceActorBaseInstead,
+                                                                                                           Diagnostics.InheritFromActorInstead,
                                                                                                            Diagnostics.ScriptableSettingsShouldNotImplementService);
 
         public override void Initialize(AnalysisContext context)
@@ -43,7 +43,7 @@ namespace Coimbra.Services.Roslyn
             {
                 string containingNamespace = typeSymbol.ContainingNamespace.ToString();
 
-                if (typeSymbol.Name == CoimbraServicesTypes.ServiceActorBaseClass.Name && containingNamespace == CoimbraServicesTypes.ServiceActorBaseClass.Namespace)
+                if (typeSymbol.Name == CoimbraTypes.ActorClass.Name && containingNamespace == CoimbraTypes.ActorClass.Namespace)
                 {
                     break;
                 }
@@ -57,7 +57,7 @@ namespace Coimbra.Services.Roslyn
 
                 if (typeSymbol.Name == UnityEngineTypes.ComponentClass.Name && containingNamespace == UnityEngineTypes.ComponentClass.Namespace)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.InheritFromServiceActorBaseInstead, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.InheritFromActorInstead, classDeclarationSyntax.BaseList!.GetLocation(), classDeclarationSyntax.GetTypeName()));
 
                     return;
                 }

@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,13 @@ namespace Coimbra.Editor
         public static int? GetIndex(this SerializedProperty property)
         {
             return property.GetPropertyPathInfo().Index;
+        }
+
+        /// <inheritdoc cref="PropertyPathInfo.PropertyType"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Type GetPropertyType(this SerializedProperty property)
+        {
+            return property.GetPropertyPathInfo().PropertyType;
         }
 
         /// <summary>

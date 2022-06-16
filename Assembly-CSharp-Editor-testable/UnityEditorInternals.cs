@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace CoimbraInternal.Editor
@@ -15,6 +16,16 @@ namespace CoimbraInternal.Editor
             fieldStyle ??= EditorStyles.popup;
             labelStyle ??= EditorStyles.label;
             EditorGUI.SortingLayerField(position, label, property, fieldStyle, labelStyle);
+        }
+
+        internal static Type GetTargetType(this CustomPropertyDrawer drawer)
+        {
+            return drawer.m_Type;
+        }
+
+        internal static bool GetUseForChildren(this CustomPropertyDrawer drawer)
+        {
+            return drawer.m_UseForChildren;
         }
     }
 }

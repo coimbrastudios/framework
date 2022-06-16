@@ -77,20 +77,20 @@ namespace Coimbra.Services.Events.Roslyn
                     using (new BracesScope(sourceBuilder))
                     {
                         AddMethodBoilerplate(sourceBuilder, "AddListener");
-                        sourceBuilder.AddLine($"public static EventHandle AddListener(in Event<{typeName}>.Handler eventHandler)");
+                        sourceBuilder.AddLine($"public static EventHandle AddListener(in EventContextHandler<{typeName}> eventHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.AddListener<{typeName}>(in eventHandler) ?? default;");
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().AddListener<{typeName}>(in eventHandler);");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "AddRelevancyListener");
-                        sourceBuilder.AddLine("public static void AddRelevancyListener(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
+                        sourceBuilder.AddLine("public static void AddRelevancyListener(in EventRelevancyChangedHandler relevancyChangedHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"ServiceLocator.Get<IEventService>()?.AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                            sourceBuilder.AddLine($"ServiceLocator.GetChecked<IEventService>().AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
                         }
 
                         sourceBuilder.SkipLine();
@@ -99,7 +99,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.GetListenerCount<{typeName}>() ?? 0;");
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetListenerCount<{typeName}>();");
                         }
 
                         sourceBuilder.SkipLine();
@@ -108,16 +108,16 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.IsInvoking<{typeName}>() ?? false;");
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().IsInvoking<{typeName}>();");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "RemoveRelevancyListener");
-                        sourceBuilder.AddLine("public static void RemoveRelevancyListener(in IEventService.EventRelevancyChangedHandler relevancyChangedHandler)");
+                        sourceBuilder.AddLine("public static void RemoveRelevancyListener(in EventRelevancyChangedHandler relevancyChangedHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"ServiceLocator.Get<IEventService>()?.RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                            sourceBuilder.AddLine($"ServiceLocator.GetChecked<IEventService>().RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
                         }
 
                         sourceBuilder.SkipLine();
@@ -126,7 +126,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.RemoveAllListeners<{typeName}>() ?? false;");
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().RemoveAllListeners<{typeName}>();");
                         }
                     }
 
@@ -144,7 +144,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.Get<IEventService>()?.Invoke<{typeName}>(sender, in e) ?? false;");
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().Invoke<{typeName}>(sender, in e);");
                         }
                     }
                 }

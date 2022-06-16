@@ -16,8 +16,6 @@ namespace Coimbra.Services.Roslyn
 
         public static readonly TypeString PreloadServiceAttribute = new("PreloadServiceAttribute", Namespace);
 
-        public static readonly TypeString ServiceActorBaseClass = new("ServiceActorBase", Namespace);
-
         public static readonly TypeString ServiceInterface = new("IService", Namespace);
 
         public static readonly TypeString ServiceLocatorClass = new("ServiceLocator", Namespace);
