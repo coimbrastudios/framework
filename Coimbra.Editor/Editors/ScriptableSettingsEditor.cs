@@ -2,6 +2,9 @@
 
 namespace Coimbra.Editor
 {
+    /// <summary>
+    /// Editor for <see cref="ScriptableSettings"/>.
+    /// </summary>
     [CustomEditor(typeof(ScriptableSettings), true, isFallback = true)]
     public class ScriptableSettingsEditor : UnityEditor.Editor
     {

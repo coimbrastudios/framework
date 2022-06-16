@@ -20,6 +20,8 @@ namespace Coimbra.Editor
 
         private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
 
+        private const string RenderPipelineComponentWarningFormat = "The active render pipeline does not support the {0} component.";
+
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
         /// </summary>
@@ -349,6 +351,11 @@ namespace Coimbra.Editor
 
                 return stringBuilder.ToString();
             }
+        }
+
+        internal static void DrawComponentWarningForRenderPipeline(Type type)
+        {
+            EditorGUILayout.HelpBox(string.Format(RenderPipelineComponentWarningFormat, type.Name), MessageType.Warning);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

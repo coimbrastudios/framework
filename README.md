@@ -27,24 +27,35 @@ Package of general utilities to be used with Unity development.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
 - `MonoBehaviour` Listeners: components to be used to listen for `MonoBehaviour` callbacks:
-    - `AnimatorIKListener`: depends on an `Animator`.
-    - `AnimatorMoveListener`: depends on an `Animator`.
-    - `BecameInvisibleListener`: depends on an `Renderer`.
-    - `BecameVisibleListener`: depends on an `Renderer`.
-    - Collision Enter/Exit/Stay 2D Listener: depends on an `Collider2D`.
-    - Collision Enter/Exit/Stay Listener: depends on an `Collider`.
-    - `ControllerColliderHitListener`: depends on an `CharacterController`.
+    - `AnimatorIKListener`: depends on `Animator`.
+    - `AnimatorMoveListener`: depends on `Animator`.
+    - `BecameInvisibleListener`: depends on `Renderer`.
+    - `BecameVisibleListener`: depends on `Renderer`.
+    - `BeforeTransformParentChangedListener`: just a wrapper for `OnBeforeTransformParentChanged` callback.
+    - `CanvasGroupChangedListener`: just a wrapper for `OnCanvasGroupChanged` callback.
+    - `CanvasHierarchyChangedListener`: just a wrapper for `OnCanvasHierarchyChanged` callback.
+    - Collision Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
+    - Collision Enter/Exit/Stay Listener: depends on `Collider`.
+    - `ControllerColliderHitListener`: depends on `CharacterController`.
     - `FixedUpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
-    - `JointBreak2DListener`: depends on an `Joint2D`.
-    - `JointBreakListener`: depends on an `Joint`.
+    - `JointBreak2DListener`: depends on `Joint2D`.
+    - `JointBreakListener`: depends on `Joint`.
     - `PlayerLoopEventListener`: depends `IPlayerLoopService` and is a more efficient way to register to update calls.
     - `LateUpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
+    - `PostRenderListener`: depends on `Camera`.
+    - `PreCullListener`: depends on `Camera`.
+    - `PreRenderListener`: depends on `Camera`.
+    - `RectTransformDimensionsChangeListener`: depends on `RectTransform`.
+    - `RenderImageListener`: depends on `Camera`.
+    - `RenderObjectListener`: just a wrapper for `OnRenderObject` callback.
     - `StartListener`: it also triggers correctly late-listeners.
     - `TransformChangedListener`: manages the [transform.hasChanged](https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html) property.
-    - Trigger Enter/Exit/Stay 2D Listener: depends on an `Collider2D`.
-    - Trigger Enter/Exit/Stay Listener: depends on an `Collider`.
+    - `TransformChildrenChangedListener`: just a wrapper for `OnTransformChildrenChanged` callback.
+    - `TransformParentChangedListener`: just a wrapper for `OnTransformParentChanged` callback.
+    - Trigger Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
+    - Trigger Enter/Exit/Stay Listener: depends on `Collider`.
     - `UpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
-    - `WillRenderObjectListener`: depends on an `Renderer`.
+    - `WillRenderObjectListener`: depends on `Renderer`.
 - Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
     - `DictionaryPool`: clears the `Dictionary`.
     - `GUIContentPool`: clears the `GUIContet`.
