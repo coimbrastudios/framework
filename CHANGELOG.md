@@ -13,6 +13,12 @@
 - Added `RectTransformDimensionsChangeListener`.
 - Added `CanvasGroupChangedListener`.
 - Added `CanvasHierarchyChangedListener`.
+- Added `Collider2DParticleCollisionListener`.
+- Added `ColliderParticleCollisionListener`.
+- Added `ParticleSystemParticleCollisionListener`.
+- Added `ParticleSystemStoppedListener`.
+- Added `ParticleTriggerListener`.
+- Added `ParticleUpdateJobScheduledListener`.
 - Added `HideInServiceLocatorWindowAttribute` due test services appearing in the window.
 - Added `PropertyType` to `PropertyPathInfo` and better document what exactly `FieldInfo` refers to.
 - Added `SerializableType` which is just a serialization wrapper for `System.Type`.

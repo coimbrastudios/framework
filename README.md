@@ -34,6 +34,8 @@ Package of general utilities to be used with Unity development.
     - `BeforeTransformParentChangedListener`: just a wrapper for `OnBeforeTransformParentChanged` callback.
     - `CanvasGroupChangedListener`: just a wrapper for `OnCanvasGroupChanged` callback.
     - `CanvasHierarchyChangedListener`: just a wrapper for `OnCanvasHierarchyChanged` callback.
+    - `Collider2DParticleCollisionListener`: depends on `Collider2D`.
+    - `ColliderParticleCollisionListener`: depends on `Collider`.
     - Collision Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
     - Collision Enter/Exit/Stay Listener: depends on `Collider`.
     - `ControllerColliderHitListener`: depends on `CharacterController`.
@@ -42,6 +44,10 @@ Package of general utilities to be used with Unity development.
     - `JointBreakListener`: depends on `Joint`.
     - `PlayerLoopEventListener`: depends `IPlayerLoopService` and is a more efficient way to register to update calls.
     - `LateUpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
+    - `ParticleSystemParticleCollisionListener`: depends on `ParticleSystem`.
+    - `ParticleSystemStoppedListener`: depends on `ParticleSystem`.
+    - `ParticleTriggerListener`: depends on `ParticleSystem`.
+    - `ParticleUpdateJobScheduledListener`: depends on `ParticleSystem`.
     - `PostRenderListener`: depends on `Camera`.
     - `PreCullListener`: depends on `Camera`.
     - `PreRenderListener`: depends on `Camera`.
