@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.7.2] - UNRELEASED
+
+- Added overlap 2D listeners.
+- Changed `FixedUpdateListener` implementation to internal.
+- Changed `LateUpdateListener` implementation to internal.
+- Changed `UpdateListener` implementation to internal.
+
 ## [10.7.1] - 2022-06-16
 
 - Added `ActorComponentBase` to easily add initialization logic on components that depends on `Actor`.

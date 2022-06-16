@@ -2,13 +2,10 @@
 
 namespace Coimbra
 {
-    /// <summary>
-    /// Listen to <see cref="FixedUpdate"/> callback.
-    /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Fixed Update Listener")]
-    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html")]
-    public sealed class FixedUpdateListener : PlayerLoopListenerBase
+    [AddComponentMenu("")]
+    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html")]
+    internal sealed class UpdateListener : PlayerLoopListenerBase
     {
         /// <inheritdoc />
         public override event EventHandler OnTrigger
@@ -30,7 +27,7 @@ namespace Coimbra
             enabled = HasListener;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             Trigger(Time.deltaTime);
         }

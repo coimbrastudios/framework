@@ -26,7 +26,7 @@ Package of general utilities to be used with Unity development.
 - `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
-- `MonoBehaviour` Listeners: components to be used to listen for `MonoBehaviour` callbacks:
+- Listeners: components to be used to listen for common events:
     - `AnimatorIKListener`: depends on `Animator`.
     - `AnimatorMoveListener`: depends on `Animator`.
     - `BecameInvisibleListener`: depends on `Renderer`.
@@ -35,15 +35,14 @@ Package of general utilities to be used with Unity development.
     - `CanvasGroupChangedListener`: just a wrapper for `OnCanvasGroupChanged` callback.
     - `CanvasHierarchyChangedListener`: just a wrapper for `OnCanvasHierarchyChanged` callback.
     - `Collider2DParticleCollisionListener`: depends on `Collider2D`.
+    - `ColliderOverlap2DListener`: custom trigger enter/exit implementation that uses [Collider2D.OverlapCollider](https://docs.unity3d.com/ScriptReference/Collider2D.OverlapCollider.html).
     - `ColliderParticleCollisionListener`: depends on `Collider`.
     - Collision Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
     - Collision Enter/Exit/Stay Listener: depends on `Collider`.
     - `ControllerColliderHitListener`: depends on `CharacterController`.
-    - `FixedUpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
     - `JointBreak2DListener`: depends on `Joint2D`.
     - `JointBreakListener`: depends on `Joint`.
     - `PlayerLoopEventListener`: depends `IPlayerLoopService` and is a more efficient way to register to update calls.
-    - `LateUpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
     - `ParticleSystemParticleCollisionListener`: depends on `ParticleSystem`.
     - `ParticleSystemStoppedListener`: depends on `ParticleSystem`.
     - `ParticleTriggerListener`: depends on `ParticleSystem`.
@@ -54,13 +53,13 @@ Package of general utilities to be used with Unity development.
     - `RectTransformDimensionsChangeListener`: depends on `RectTransform`.
     - `RenderImageListener`: depends on `Camera`.
     - `RenderObjectListener`: just a wrapper for `OnRenderObject` callback.
+    - `RigidbodyOverlap2DListener`: custom trigger enter/exit implementation that uses [Rigidbody2D.OverlapCollider](https://docs.unity3d.com/ScriptReference/Rigidbody2D.OverlapCollider.html).
     - `StartListener`: it also triggers correctly late-listeners.
-    - `TransformChangedListener`: manages the [transform.hasChanged](https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html) property.
+    - `TransformChangedListener`: manages the [Transform.hasChanged](https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html) property.
     - `TransformChildrenChangedListener`: just a wrapper for `OnTransformChildrenChanged` callback.
     - `TransformParentChangedListener`: just a wrapper for `OnTransformParentChanged` callback.
     - Trigger Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
     - Trigger Enter/Exit/Stay Listener: depends on `Collider`.
-    - `UpdateListener`: is more efficient to use `PlayerLoopEventListener` instead.
     - `WillRenderObjectListener`: depends on `Renderer`.
 - Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
     - `DictionaryPool`: clears the `Dictionary`.

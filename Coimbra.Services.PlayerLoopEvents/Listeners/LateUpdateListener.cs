@@ -2,13 +2,10 @@
 
 namespace Coimbra
 {
-    /// <summary>
-    /// Listen to <see cref="Update"/> callback.
-    /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Update Listener")]
-    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html")]
-    public sealed class UpdateListener : PlayerLoopListenerBase
+    [AddComponentMenu("")]
+    [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.LateUpdate.html")]
+    internal sealed class LateUpdateListener : PlayerLoopListenerBase
     {
         /// <inheritdoc />
         public override event EventHandler OnTrigger
@@ -30,7 +27,7 @@ namespace Coimbra
             enabled = HasListener;
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             Trigger(Time.deltaTime);
         }

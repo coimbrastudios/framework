@@ -65,18 +65,18 @@ namespace Coimbra
         /// More efficient version of <see cref="List{T}.Remove"/> that doesn't care about preserving the order.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool RemoveSwapBack<T>(this List<T> list, T item)
+        public static int RemoveSwapBack<T>(this List<T> list, T item)
         {
             int index = list.IndexOf(item);
 
             if (index < 0)
             {
-                return false;
+                return index;
             }
 
             RemoveAtSwapBack(list, index);
 
-            return true;
+            return index;
         }
 
         /// <summary>
