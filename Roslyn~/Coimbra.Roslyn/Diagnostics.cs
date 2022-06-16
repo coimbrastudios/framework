@@ -125,19 +125,19 @@ namespace Coimbra.Roslyn
                                                                                                DiagnosticSeverity.Error,
                                                                                                true);
 
-        public static readonly DiagnosticDescriptor _0017 = new("COIMBRA0017",
-                                                                "",
-                                                                "",
-                                                                "",
-                                                                DiagnosticSeverity.Hidden,
-                                                                false);
+        public static readonly DiagnosticDescriptor UseActorAlternative = new("COIMBRA0017",
+                                                                              "GameObject API should be replaced by Actor API.",
+                                                                              "Use {0} instead of {1}.",
+                                                                              DefaultCategory,
+                                                                              DiagnosticSeverity.Warning,
+                                                                              false);
 
-        public static readonly DiagnosticDescriptor _0018 = new("COIMBRA0018",
-                                                                "",
-                                                                "",
-                                                                "",
-                                                                DiagnosticSeverity.Hidden,
-                                                                false);
+        public static readonly DiagnosticDescriptor ComponentMethodsShouldNotBeUsedWithActorTypes = new("COIMBRA0018",
+                                                                                                        "Component methods should not be used with Actor types.",
+                                                                                                        "Use {0} instead of {1}.",
+                                                                                                        DefaultCategory,
+                                                                                                        DiagnosticSeverity.Error,
+                                                                                                        false);
 
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
                                                                                        "Object.Destroy should not be used with Objects that can be an Actor.",
@@ -173,6 +173,20 @@ namespace Coimbra.Roslyn
                                                                                                     DefaultCategory,
                                                                                                     DiagnosticSeverity.Error,
                                                                                                     true);
+
+        public static readonly DiagnosticDescriptor UseListenerComponentInsteadOfMonoBehaviourCallback = new("COIMBRA0024",
+                                                                                                             "MonoBehaviour callbacks should be replaced with their equivalent listener when possible.",
+                                                                                                             "Use {0} instead of {1}.",
+                                                                                                             DefaultCategory,
+                                                                                                             DiagnosticSeverity.Warning,
+                                                                                                             true);
+
+        public static readonly DiagnosticDescriptor UsePlayerLoopEventListenerInsteadOfOtherPlayerLoopListeners = new("COIMBRA0025",
+                                                                                                                      "Usage of default player loop listeners is inefficient.",
+                                                                                                                      "Use PlayerLoopEventListener instead of {0}.",
+                                                                                                                      DefaultCategory,
+                                                                                                                      DiagnosticSeverity.Warning,
+                                                                                                                      true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",
