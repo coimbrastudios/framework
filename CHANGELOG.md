@@ -2,23 +2,7 @@
 
 ## [10.7.0] - 2022-06-16
 
-- Added `PreCullListener`.
-- Added `PreRenderListener`.
-- Added `PostRenderListener`.
-- Added `RenderImageListener`.
-- Added `RenderObjectListener`.
-- Added `BeforeTransformParentChangedListener`.
-- Added `TransformParentChangedListener`.
-- Added `TransformChildrenChangedListener`.
-- Added `RectTransformDimensionsChangeListener`.
-- Added `CanvasGroupChangedListener`.
-- Added `CanvasHierarchyChangedListener`.
-- Added `Collider2DParticleCollisionListener`.
-- Added `ColliderParticleCollisionListener`.
-- Added `ParticleSystemParticleCollisionListener`.
-- Added `ParticleSystemStoppedListener`.
-- Added `ParticleTriggerListener`.
-- Added `ParticleUpdateJobScheduledListener`.
+- Added listener components for all remaining callbacks.
 - Added `HideInServiceLocatorWindowAttribute` due test services appearing in the window.
 - Added `PropertyType` to `PropertyPathInfo` and better document what exactly `FieldInfo` refers to.
 - Added `SerializableType` which is just a serialization wrapper for `System.Type`.
