@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Coimbra
@@ -14,11 +13,11 @@ namespace Coimbra
         /// </summary>
         public static void PreprocessUnloadScene(Scene scene)
         {
-            IReadOnlyList<Actor> pooledActors = Actor.GetPooledActors();
+            Actor.InitializeActors();
 
-            for (int i = 0; i < pooledActors.Count; i++)
+            foreach (Actor actor in Actor.GetCachedActors())
             {
-                pooledActors[i].OnUnloadScene(scene);
+                actor.OnUnloadScene(scene);
             }
         }
 

@@ -10,7 +10,7 @@ Package of general utilities to be used with Unity development.
 
 ## List of Content
 
-- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself.
+- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`.
 - `Addressables` Helpers: some extra types to make working with it even easier.
     - `AssetReferenceComponentRestriction`: filters any `AssetReference` to only show `GameObject` with the specified components.
     - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.

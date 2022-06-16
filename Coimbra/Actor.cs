@@ -47,6 +47,58 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Used to represent the <see cref="Actor"/> states.
+        /// </summary>
+        [Flags]
+        public enum StateFlags : byte
+        {
+            /// <summary>
+            /// Default state for when the <see cref="Actor"/> is being created.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// <see cref="Actor.IsAwaken"/>.
+            /// </summary>
+            IsAwaken = 1 << 0,
+
+            /// <summary>
+            /// <see cref="Actor.IsInitialized"/>.
+            /// </summary>
+            IsInitialized = 1 << 1,
+
+            /// <summary>
+            /// <see cref="Actor.IsPrefab"/>.
+            /// </summary>
+            IsPrefab = 1 << 2,
+
+            /// <summary>
+            /// <see cref="Actor.IsPooled"/>.
+            /// </summary>
+            IsPooled = 1 << 3,
+
+            /// <summary>
+            /// <see cref="Actor.IsSpawned"/>.
+            /// </summary>
+            IsSpawned = 1 << 4,
+
+            /// <summary>
+            /// <see cref="Actor.IsDestroyed"/>.
+            /// </summary>
+            IsDestroyed = 1 << 5,
+
+            /// <summary>
+            /// <see cref="Actor.IsQuitting"/>.
+            /// </summary>
+            IsQuitting = 1 << 6,
+
+            /// <summary>
+            /// <see cref="Actor.IsUnloadingScene"/>.
+            /// </summary>
+            IsUnloadingScene = 1 << 7,
+        }
+
+        /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> active state changes.
         /// </summary>
         public delegate void ActiveStateHandler(Actor sender, bool state);
@@ -81,15 +133,11 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroying;
 
-        private static readonly List<Actor> PooledActors = new List<Actor>();
-
         private static readonly List<Actor> UninitializedActors = new List<Actor>();
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
         private static readonly ProfilerCounterValue<int> NewActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
-
-        private static readonly ProfilerCounterValue<int> PooledActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Pooled Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
         private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
@@ -118,8 +166,6 @@ namespace Coimbra
         [FormerlySerializedAsBackingFieldOf("DeactivatePrefabOnInitialize")]
         [Tooltip("If true, it will deactivate the prefab when initializing it.")]
         private bool _deactivateOnInitializePrefab;
-
-        private bool _isUnloadingScene;
 
         private GameObjectID? _gameObjectID;
 
@@ -236,39 +282,49 @@ namespace Coimbra
         public Transform Transform => IsDestroyed || !IsInitialized ? transform : _transform;
 
         /// <summary>
+        /// The current states of this <see cref="Actor"/>.
+        /// </summary>
+        public StateFlags States { get; private set; }
+
+        /// <summary>
         /// True if <see cref="Awake"/> was called already.
         /// </summary>
-        public bool IsAwaken { get; private set; }
+        public bool IsAwaken => (States & StateFlags.IsAwaken) != 0;
 
         /// <summary>
         /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>?
         /// </summary>
-        public bool IsDestroyed { get; private set; }
+        public bool IsDestroyed => (States & StateFlags.IsDestroyed) != 0;
 
         /// <summary>
         /// Was <see cref="Initialize"/> called at least once in this <see cref="Actor"/>?
         /// </summary>
-        public bool IsInitialized { get; private set; }
+        public bool IsInitialized => (States & StateFlags.IsInitialized) != 0;
 
         /// <summary>
         /// Indicates if the object was instantiated through a <see cref="GameObjectPool"/>.
         /// </summary>
-        public bool IsPooled { get; private set; }
+        public bool IsPooled => (States & StateFlags.IsPooled) != 0;
 
         /// <summary>
         /// True when this object is a prefab asset.
         /// </summary>
-        public bool IsPrefab { get; private set; }
+        public bool IsPrefab => (States & StateFlags.IsPrefab) != 0;
 
         /// <summary>
         /// True when application is quitting.
         /// </summary>
-        public bool IsQuitting { get; private set; }
+        public bool IsQuitting => (States & StateFlags.IsQuitting) != 0;
 
         /// <summary>
         /// Indicates if the object is currently spawned.
         /// </summary>
-        public bool IsSpawned { get; private set; }
+        public bool IsSpawned => (States & StateFlags.IsSpawned) != 0;
+
+        /// <summary>
+        /// Indicates if the scene of this <see cref="Actor"/> is currently unloading.
+        /// </summary>
+        public bool IsUnloadingScene => (States & StateFlags.IsUnloadingScene) != 0;
 
         /// <summary>
         /// The pool that owns this instance.
@@ -388,7 +444,7 @@ namespace Coimbra
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Awake()
         {
-            IsAwaken = true;
+            States |= StateFlags.IsAwaken;
         }
 
 #if UNITY_ASSERTIONS
@@ -437,13 +493,12 @@ namespace Coimbra
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnApplicationQuit()
         {
-            IsQuitting = true;
+            States |= StateFlags.IsQuitting;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IReadOnlyList<Actor> GetPooledActors()
+        internal static IReadOnlyCollection<Actor> GetCachedActors()
         {
-            return PooledActors;
+            return CachedActors.Values;
         }
 
         internal void Initialize(GameObjectPool pool, AsyncOperationHandle<GameObject> operationHandle)
@@ -460,11 +515,15 @@ namespace Coimbra
             _gameObject = gameObject;
             _transform = transform;
             Pool = pool;
-            IsInitialized = true;
+            States |= StateFlags.IsInitialized;
 
             // should be initialized already to work correctly
             _gameObjectID = GameObject;
-            IsPrefab = GameObject.scene.name == null;
+
+            if (GameObject.scene.name == null)
+            {
+                States |= StateFlags.IsPrefab;
+            }
 
             // should be the last call
             UninitializedActorCount.Value--;
@@ -478,7 +537,10 @@ namespace Coimbra
                 return;
             }
 
-            IsPooled = Pool != null;
+            if (Pool != null)
+            {
+                States |= StateFlags.IsPooled;
+            }
 
             using (ListPool.Pop(out List<ActorComponentBase> components))
             {
@@ -497,12 +559,7 @@ namespace Coimbra
                 }
             }
 
-            if (IsPooled)
-            {
-                PooledActorCount.Value++;
-                PooledActors.Add(this);
-            }
-            else
+            if (!IsPooled)
             {
                 Spawn();
             }
@@ -511,35 +568,42 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void OnUnloadScene(Scene scene)
         {
-            if (GameObject.scene == Pool.GameObject.scene)
+            if (GameObject.scene != scene)
             {
-                return;
-            }
-
-            if (GameObject.scene == scene)
-            {
-                _isUnloadingScene = true;
-                Despawn();
-
-                if (IsDestroyed)
+                if (Pool.GameObject.scene != scene)
                 {
                     return;
                 }
 
-                _isUnloadingScene = false;
-
-                if (Pool.KeepParentOnDespawn)
-                {
-                    Transform.SetParent(Pool.Transform, false);
-                }
+                States &= ~StateFlags.IsPooled;
+                Pool = null;
 
                 return;
             }
 
-            if (Pool.GameObject.scene == scene)
+            States |= StateFlags.IsUnloadingScene;
+
+            if (!IsPooled)
             {
-                Pool = null;
+                return;
             }
+
+            Despawn();
+
+            if (GameObject.scene != scene)
+            {
+                States &= ~StateFlags.IsUnloadingScene;
+
+                return;
+            }
+
+            if (IsDestroyed || !Pool.KeepParentOnDespawn || Pool.GameObject.scene == scene)
+            {
+                return;
+            }
+
+            States &= ~StateFlags.IsUnloadingScene;
+            Transform.SetParent(Pool.Transform, false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -550,7 +614,7 @@ namespace Coimbra
                 return;
             }
 
-            IsSpawned = true;
+            States |= StateFlags.IsSpawned;
             OnSpawn();
         }
 
@@ -583,7 +647,7 @@ namespace Coimbra
                 return;
             }
 
-            IsSpawned = false;
+            States |= StateFlags.IsSpawned;
             CancellationTokenSourceUtility.Collect(ref _despawnCancellationTokenSource);
             OnDespawn();
 
@@ -592,7 +656,7 @@ namespace Coimbra
                 return;
             }
 
-            if (IsPooled && Pool != null && Pool.CurrentState != GameObjectPool.State.Unloaded)
+            if (IsPooled && Pool != null && Pool.CurrentState == GameObjectPool.State.Loaded)
             {
                 Pool.Despawn(this);
             }
@@ -610,13 +674,7 @@ namespace Coimbra
                 return;
             }
 
-            if (IsPooled)
-            {
-                PooledActorCount.Value--;
-                PooledActors.RemoveSwapBack(this);
-            }
-
-            IsDestroyed = true;
+            States |= StateFlags.IsDestroyed;
             Despawn(false);
             CancellationTokenSourceUtility.Collect(ref _destroyCancellationTokenSource);
 
@@ -624,7 +682,7 @@ namespace Coimbra
             {
                 OnDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
             }
-            else if (_isUnloadingScene || !gameObject.scene.isLoaded)
+            else if (!GameObject.scene.isLoaded)
             {
                 OnDestroying?.Invoke(this, DestroyReason.SceneChange);
             }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.1] - 2022-06-16
+
+- Added `ActorComponentBase` to easily add initialization logic on components that depends on `Actor`.
+
 ## [10.7.0] - 2022-06-16
 
 - Added listener components for all remaining callbacks.

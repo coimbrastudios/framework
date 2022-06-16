@@ -347,12 +347,18 @@ namespace Coimbra
                 return null;
             }
 
-            if (_availableInstances.Count == 0)
-            {
-                return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
-            }
+            Actor instance;
 
-            Actor instance = _availableInstances.Pop();
+            do
+            {
+                if (_availableInstances.Count == 0)
+                {
+                    return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
+                }
+
+                instance = _availableInstances.Pop();
+            }
+            while (!instance.IsValid());
 
             if (PreloadingInstancesCount > 0)
             {
@@ -385,12 +391,18 @@ namespace Coimbra
                 return null;
             }
 
-            if (_availableInstances.Count == 0)
-            {
-                return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
-            }
+            Actor instance;
 
-            Actor instance = _availableInstances.Pop();
+            do
+            {
+                if (_availableInstances.Count == 0)
+                {
+                    return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
+                }
+
+                instance = _availableInstances.Pop();
+            }
+            while (!instance.IsValid());
 
             if (PreloadingInstancesCount > 0)
             {
