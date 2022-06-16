@@ -69,7 +69,10 @@ namespace Coimbra.Editor
 
         private void OnGUI()
         {
-            _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions);
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
+                _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup);
+            }
 
             using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;

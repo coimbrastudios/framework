@@ -76,8 +76,10 @@ Package of general utilities to be used with Unity development.
 - `SerializableType<T>`: serializes a `System.Type` that can be edited and saved from the inspector.
 - `ServiceLocator`: enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locator`. It also comes with a few built-in functionalities:
     - Attributes:
+        - `AbstractServiceAttribute`: by default, any interface implementing `IService` is considered a valid service type. Use this attribute to create interfaces that should not be considered a valid service type besides implementing `IService`.
         - `DisableDefaultFactoryAttribute`: by default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
         - `DynamicServiceAttribute`: by default, once a `IService` is set it can't be overriden. You can disable that by using that attribute, allowing to have temporary services (like per-scene).
+        - `HideInServiceLocatorWindowAttribute`: by default, all services will appear in the `Service Locator` window, even test ones. Use this attribute to hide unwanted services.
         - `PreloadServiceAttribute`: add this in your `IService` implementation to call the `ServiceLocator.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
     - Services:
         - `IApplicationStateService`: responsible for some built-in events:

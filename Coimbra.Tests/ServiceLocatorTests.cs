@@ -19,12 +19,14 @@ namespace Coimbra.Tests
             }
         }
 
+        [HideInServiceLocatorWindow]
         private interface IDummyService : IService
         {
             int Value { get; set; }
         }
 
         [DisableDefaultFactory]
+        [HideInServiceLocatorWindow]
         private sealed class DummyService : IDummyService
         {
             public int Value { get; set; }

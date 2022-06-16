@@ -1,7 +1,8 @@
 # Changelog
 
-## [10.7.0] - 2022-06-15
+## [10.7.0] - 2022-06-16
 
+- Added `HideInServiceLocatorWindowAttribute` due test services appearing in the window.
 - Added `PropertyType` to `PropertyPathInfo` and better document what exactly `FieldInfo` refers to.
 - Added `SerializableType` which is just a serialization wrapper for `System.Type`.
 - Added `CoimbraEditorGUIUtility.DrawPropertField` and `CoimbraEditorGUIUtility.GetPropertyHeight` APIs that always use the field's type drawer.
