@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
+using UnityEngine;
 
 namespace Coimbra.Editor
 {
@@ -44,14 +46,9 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (propertiesToExclude.Contains(iterator.name))
+                if (!propertiesToExclude.Contains(iterator.name))
                 {
-                    continue;
-                }
-
-                if (ScriptableSettingsProvider.CurrentSearchContext == null || CoimbraEditorGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, iterator.displayName))
-                {
-                    EditorGUILayout.PropertyField(iterator, true);
+                    TryPropertyField(iterator, true);
                 }
             }
 
@@ -75,7 +72,7 @@ namespace Coimbra.Editor
                     continue;
                 }
 
-                if (ScriptableSettingsProvider.CurrentSearchContext == null || CoimbraEditorGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, iterator.displayName))
+                if (CoimbraEditorGUIUtility.TryMatchSearch(searchContext, iterator.displayName))
                 {
                     return true;
                 }
@@ -86,6 +83,55 @@ namespace Coimbra.Editor
             return false;
         }
 
+        /// <summary>
+        /// Helper method that uses <see cref="CoimbraEditorGUIUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TryMatchSearch(string targetContent)
+        {
+            return CoimbraEditorGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
+        }
+
+        /// <inheritdoc cref="TryMatchSearch(string)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TryMatchSearch(SerializedProperty property)
+        {
+            return ScriptableSettingsProvider.CurrentSearchContext == null || TryMatchSearch(property.displayName);
+        }
+
+        /// <summary>
+        /// Helper method that uses <see cref="TryMatchSearch(string)"/> before drawing a property field.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property)
+        {
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property) : null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, bool includeChildren)
+        {
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, includeChildren) : null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label)
+        {
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label) : null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label, bool includeChildren)
+        {
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label, includeChildren) : null;
+        }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
         protected virtual void OnEnable()
         {
             Type = ScriptableSettings.GetType(target.GetType());

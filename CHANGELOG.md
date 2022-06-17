@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.5] - 2022-06-17
+
+- Added helper methods at `ScriptableSettingsEditor`.
+
 ## [10.7.4] - 2022-06-17
 
 - Added basic search support for `ScriptableSettings`.
