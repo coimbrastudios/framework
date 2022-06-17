@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -33,12 +34,71 @@ namespace Coimbra.Editor
             _type = type;
         }
 
+        /// <summary>
+        /// The current set search context.
+        /// </summary>
+        public static string? CurrentSearchContext { get; private set; }
+
         /// <inheritdoc/>
         public override void OnFooterBarGUI()
         {
             if (settingsEditor != null && settingsEditor.target != null)
             {
                 base.OnFooterBarGUI();
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasSearchInterest(string searchContext)
+        {
+            if (base.HasSearchInterest(searchContext))
+            {
+                return true;
+            }
+
+            return settingsEditor != null && settingsEditor is ScriptableSettingsEditor editor && editor.HasSearchInterest(searchContext);
+        }
+
+        /// <inheritdoc/>
+        public override void OnGUI(string searchContext)
+        {
+            if (settingsEditor != null && settingsEditor.target != null && settingsEditor.target is ScriptableSettings settings)
+            {
+                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                CurrentSearchContext = searchContext;
+
+                if (keywords.Any())
+                {
+                    foreach (string keyword in keywords)
+                    {
+                        if (!CoimbraEditorGUIUtility.TryMatchSearch(searchContext, keyword))
+                        {
+                            continue;
+                        }
+
+                        base.OnGUI(searchContext);
+
+                        break;
+                    }
+                }
+                else
+                {
+                    base.OnGUI(searchContext);
+                }
+
+                CurrentSearchContext = null;
+
+                if (changeCheckScope.changed)
+                {
+                    settings.Save();
+                }
+            }
+            else
+            {
+                if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
+                {
+                    CreateScriptableSettings();
+                }
             }
         }
 
@@ -64,29 +124,6 @@ namespace Coimbra.Editor
             if (settingsEditor != null && settingsEditor.target != null)
             {
                 base.OnTitleBarGUI();
-            }
-        }
-
-        /// <inheritdoc/>
-        public override void OnGUI(string searchContext)
-        {
-            if (settingsEditor != null && settingsEditor.target != null && settingsEditor.target is ScriptableSettings settings)
-            {
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-
-                base.OnGUI(searchContext);
-
-                if (changeCheckScope.changed)
-                {
-                    settings.Save();
-                }
-            }
-            else
-            {
-                if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
-                {
-                    CreateScriptableSettings();
-                }
             }
         }
 

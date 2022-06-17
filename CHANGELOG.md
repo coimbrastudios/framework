@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.4] - 2022-06-17
+
+- Added basic search support for `ScriptableSettings`.
+
 ## [10.7.3] - 2022-06-17
 
 - Added `Project Settings/Coimbra Framework/Editor` with option to disable local analyzers.

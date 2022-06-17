@@ -16,11 +16,16 @@ namespace Coimbra.Editor
     /// </summary>
     public static class CoimbraEditorGUIUtility
     {
+        private const string RenderPipelineComponentWarningFormat = "The active render pipeline does not support the {0} component.";
+
+        private static readonly char[] DefaultSearchSeparator =
+        {
+            ' '
+        };
+
         private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
 
         private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
-
-        private const string RenderPipelineComponentWarningFormat = "The active render pipeline does not support the {0} component.";
 
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
@@ -351,6 +356,29 @@ namespace Coimbra.Editor
 
                 return stringBuilder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Basic way to check if if a <paramref name="searchContext"/> matches the desired the <paramref name="targetContent"/>.
+        /// </summary>
+        public static bool TryMatchSearch(string searchContext, string targetContent)
+        {
+            if (string.IsNullOrWhiteSpace(searchContext))
+            {
+                return true;
+            }
+
+            string[] split = searchContext.Split(DefaultSearchSeparator, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string value in split)
+            {
+                if (targetContent.IndexOf(value, StringComparison.InvariantCultureIgnoreCase) > -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal static void DrawComponentWarningForRenderPipeline(Type type)
