@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace Coimbra
@@ -7,7 +8,8 @@ namespace Coimbra
     /// Listen to 2D overlaps.
     /// </summary>
     [DisallowMultipleComponent]
-    public abstract class Overlap2DListenerBase<T> : MonoBehaviour
+    [RequireComponent(typeof(PlayerLoopListenerBase))]
+    public abstract class Overlap2DListenerBase<T> : ActorComponentBase
     {
         public delegate void OverlapEventHandler(Overlap2DListenerBase<T> sender, Collider2D other);
 
@@ -20,6 +22,10 @@ namespace Coimbra
         /// Invoked when the overlap ends for a given collider.
         /// </summary>
         public event OverlapEventHandler OnEnd;
+
+        [SerializeField]
+        [Tooltip("If true, it will do an initial check during OnPostInitializeActor.")]
+        private bool _checkOverlapsOnPostInitializeActor = true;
 
         [SerializeField]
         [Min(0)]
@@ -39,15 +45,12 @@ namespace Coimbra
 
         private T _component;
 
+        private PlayerLoopListenerBase _playerLoopListener;
+
         /// <summary>
         /// The current amount of overlaps.
         /// </summary>
         public int OverlapCount => _currentList.Count;
-
-        /// <summary>
-        /// The component this component depends on.
-        /// </summary>
-        public T Component => _component != null ? _component : _component = GetComponent<T>();
 
         /// <summary>
         /// The time when the last overlap check happened.
@@ -55,11 +58,34 @@ namespace Coimbra
         public float LastOverlapTime { get; private set; }
 
         /// <summary>
+        /// The component this component depends on.
+        /// </summary>
+        public T Component => _component != null ? _component : _component = GetComponent<T>();
+
+        /// <summary>
+        /// The player loop listener this component depends on.
+        /// </summary>
+        public PlayerLoopListenerBase PlayerLoopListener => _playerLoopListener != null ? _playerLoopListener : _playerLoopListener = GetComponent<PlayerLoopListenerBase>();
+
+        /// <summary>
+        /// If true, it will do an initial check during <see cref="OnPostInitializeActor"/>.
+        /// </summary>
+        public bool CheckOverlapsOnPostInitializeActor
+        {
+            [DebuggerStepThrough]
+            get => _checkOverlapsOnPostInitializeActor;
+            [DebuggerStepThrough]
+            set => _checkOverlapsOnPostInitializeActor = value;
+        }
+
+        /// <summary>
         /// Min interval to check for overlaps. This is a minimum value as it is also based on the player loop listener component update rate.
         /// </summary>
         public float MinInterval
         {
+            [DebuggerStepThrough]
             get => _minInterval;
+            [DebuggerStepThrough]
             set => _minInterval = Mathf.Max(value, 0);
         }
 
@@ -68,7 +94,9 @@ namespace Coimbra
         /// </summary>
         public ContactFilter2D ContactFilter
         {
+            [DebuggerStepThrough]
             get => _contactFilter;
+            [DebuggerStepThrough]
             set => _contactFilter = value;
         }
 
@@ -99,17 +127,10 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Override this method to define how the overlap should happens.
+        /// Force update the current overlaps.
         /// </summary>
-        protected abstract int Overlap(ref ContactFilter2D contactFilter, List<Collider2D> results);
-
-        private void FixedUpdate()
+        public void ForceUpdateOverlaps()
         {
-            if (LastOverlapTime + _minInterval > Time.time)
-            {
-                return;
-            }
-
             LastOverlapTime = Time.time;
 
             HashSet<Collider2D> previousSet = _currentSet;
@@ -137,6 +158,39 @@ namespace Coimbra
 
             HashSetPool.Push(previousSet);
             ListPool.Push(previousList);
+        }
+
+        /// <summary>
+        /// Override this method to define how the overlap should happens.
+        /// </summary>
+        protected abstract int Overlap(ref ContactFilter2D contactFilter, List<Collider2D> results);
+
+        /// <inheritdoc/>
+        protected sealed override void OnPreInitializeActor()
+        {
+            PlayerLoopListener.OnTrigger += HandlePlayerLoop;
+        }
+
+        /// <inheritdoc/>
+        protected sealed override void OnPostInitializeActor()
+        {
+            if (_checkOverlapsOnPostInitializeActor)
+            {
+                ForceUpdateOverlaps();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
+        }
+
+        private void HandlePlayerLoop(PlayerLoopListenerBase sender, float deltaTime)
+        {
+            if (Time.time >= LastOverlapTime + _minInterval)
+            {
+                ForceUpdateOverlaps();
+            }
         }
     }
 }

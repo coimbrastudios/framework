@@ -16,44 +16,46 @@ namespace Coimbra
         /// <summary>
         /// Invoked inside the given <see cref="PlayerLoopListener"/>.
         /// </summary>
-        public event EventHandler OnTrigger
-        {
-            add
-            {
-                _eventHandler += value;
+        public event EventHandler OnTrigger;
 
-                if (_eventHandler == null || _isActive)
-                {
-                    return;
-                }
-
-                _isActive = true;
-                PlayerLoopListener.OnTrigger += HandlePlayerLoop;
-            }
-            remove
-            {
-                _eventHandler -= value;
-
-                if (_eventHandler != null || !_isActive)
-                {
-                    return;
-                }
-
-                _isActive = false;
-                PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
-            }
-        }
-
-        private EventHandler _eventHandler;
-
-        private bool _isActive;
+        [SerializeField]
+        private bool _resetPostInitializeActor = true;
 
         private PlayerLoopListenerBase _playerLoopListener;
+
+        /// <summary>
+        /// If true, <see cref="Transform.hasChanged"/> will be reset during <see cref="OnPostInitializeActor"/>.
+        /// </summary>
+        public bool ResetOnPostInitializeActor
+        {
+            get => _resetPostInitializeActor;
+            set => _resetPostInitializeActor = value;
+        }
 
         /// <summary>
         /// The player loop listener this component depends on.
         /// </summary>
         public PlayerLoopListenerBase PlayerLoopListener => _playerLoopListener != null ? _playerLoopListener : _playerLoopListener = GetComponent<PlayerLoopListenerBase>();
+
+        /// <inheritdoc/>
+        protected override void OnPreInitializeActor()
+        {
+            PlayerLoopListener.OnTrigger += HandlePlayerLoop;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnPostInitializeActor()
+        {
+            if (_resetPostInitializeActor)
+            {
+                Actor.Transform.hasChanged = false;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
+        }
 
         private void HandlePlayerLoop(PlayerLoopListenerBase sender, float deltaTime)
         {
@@ -63,13 +65,7 @@ namespace Coimbra
             }
 
             Actor.Transform.hasChanged = false;
-            _eventHandler?.Invoke(this);
+            OnTrigger?.Invoke(this);
         }
-
-        /// <inheritdoc/>
-        protected override void OnPreInitializeActor() { }
-
-        /// <inheritdoc/>
-        protected override void OnPostInitializeActor() { }
     }
 }
