@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.6] - 2022-06-17
+
+- Fixed warning due unnecessary reference to `Unity.Settings.Editor`.
+
 ## [10.7.5] - 2022-06-17
 
 - Added helper methods at `ScriptableSettingsEditor`.
