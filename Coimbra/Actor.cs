@@ -439,6 +439,17 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected virtual void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                Initialize();
+            }
+        }
+
+        /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]

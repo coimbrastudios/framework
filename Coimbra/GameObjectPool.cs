@@ -466,6 +466,15 @@ namespace Coimbra
             return true;
         }
 
+        /// <inheritdoc/>
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            DesiredAvailableInstancesRange = _desiredAvailableInstancesRange;
+        }
+
+        /// <inheritdoc/>
         protected override void OnInitialize()
         {
             base.OnInitialize();
@@ -476,6 +485,7 @@ namespace Coimbra
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnDestroyed()
         {
             base.OnDestroyed();
@@ -556,11 +566,6 @@ namespace Coimbra
         {
             _loadOnInitialize = true;
             _containerTransform = transform;
-        }
-
-        private void OnValidate()
-        {
-            DesiredAvailableInstancesRange = _desiredAvailableInstancesRange;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

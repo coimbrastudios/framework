@@ -24,6 +24,7 @@ namespace Coimbra
         public event OverlapEventHandler OnEnd;
 
         [SerializeField]
+        [DisableOnPlayMode]
         [Tooltip("If true, it will do an initial check during OnPostInitializeActor.")]
         private bool _checkOverlapsOnPostInitializeActor = true;
 
@@ -46,6 +47,11 @@ namespace Coimbra
         private T _component;
 
         private PlayerLoopListenerBase _playerLoopListener;
+
+        protected Overlap2DListenerBase()
+        {
+            _contactFilter.NoFilter();
+        }
 
         /// <summary>
         /// The current amount of overlaps.

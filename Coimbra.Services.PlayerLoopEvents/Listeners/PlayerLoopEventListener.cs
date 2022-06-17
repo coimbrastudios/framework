@@ -18,25 +18,19 @@ namespace Coimbra.Services.PlayerLoopEvents
             {
                 base.OnTrigger += value;
 
-                if (!HasListener || _eventHandle.HasValue)
+                if (HasListener)
                 {
-                    return;
+                    TryListenPlayerLoopService();
                 }
-
-                _eventHandle = ServiceLocator.GetChecked<IPlayerLoopService>().AddListener(_playerLoopEventType, HandlePlayerLoopEvent);
             }
             remove
             {
                 base.OnTrigger -= value;
 
-                if (HasListener || !_eventHandle.HasValue)
+                if (!HasListener)
                 {
-                    return;
+                    ForgetPlayerLoopEvent();
                 }
-
-                ServiceLocator.GetChecked<IEventService>().RemoveListener(_eventHandle.Value);
-
-                _eventHandle = null;
             }
         }
 
@@ -52,7 +46,56 @@ namespace Coimbra.Services.PlayerLoopEvents
         public SerializableType<IPlayerLoopEvent> PlayerLoopEventType
         {
             get => _playerLoopEventType;
-            set => _playerLoopEventType = value;
+            set
+            {
+                _playerLoopEventType = value;
+
+                if (!HasListener)
+                {
+                    return;
+                }
+
+                ForgetPlayerLoopEvent();
+                TryListenPlayerLoopService();
+            }
+        }
+
+        private void Reset()
+        {
+            ForgetPlayerLoopEvent();
+        }
+
+        private void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                PlayerLoopEventType = _playerLoopEventType;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            ForgetPlayerLoopEvent();
+        }
+
+        private void ForgetPlayerLoopEvent()
+        {
+            if (!_eventHandle.HasValue)
+            {
+                return;
+            }
+
+            ServiceLocator.GetChecked<IEventService>().RemoveListener(_eventHandle.Value);
+
+            _eventHandle = null;
+        }
+
+        private void TryListenPlayerLoopService()
+        {
+            if (this.IsValid() && !_eventHandle.HasValue)
+            {
+                _eventHandle = ServiceLocator.GetChecked<IPlayerLoopService>().AddListener(_playerLoopEventType, HandlePlayerLoopEvent);
+            }
         }
 
         private void HandlePlayerLoopEvent(ref EventContext context, float deltaTime)

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Coimbra
 {
     /// <summary>
-    /// Component to initialize an <see cref="Image"/>'s <see cref="Image.alphaHitTestMinimumThreshold"/> on <see cref="Awake"/>.
+    /// Component to initialize an <see cref="Image"/>'s <see cref="UnityEngine.UI.Image.alphaHitTestMinimumThreshold"/> on <see cref="Awake"/>.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
@@ -18,17 +18,36 @@ namespace Coimbra
         [Tooltip("The alpha threshold specifies the minimum alpha a pixel must have for the event to considered a 'hit' on the Image.")]
         private float _minimumThreshold = 0.5f;
 
-        /// <inheritdoc cref="Image.alphaHitTestMinimumThreshold"/>
+        private Image _image;
+
+        /// <summary>
+        /// The image this component depends on.
+        /// </summary>
+        public Image Image => _image != null ? _image : _image = GetComponent<Image>();
+
+        /// <inheritdoc cref="UnityEngine.UI.Image.alphaHitTestMinimumThreshold"/>
         public float MinimumThreshold
         {
             [DebuggerStepThrough]
             get => _minimumThreshold;
-            set => _minimumThreshold = Mathf.Clamp01(value);
+            set
+            {
+                _minimumThreshold = Mathf.Clamp01(value);
+                Image.alphaHitTestMinimumThreshold = _minimumThreshold;
+            }
+        }
+
+        private void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                Image.alphaHitTestMinimumThreshold = MinimumThreshold;
+            }
         }
 
         private void Awake()
         {
-            GetComponent<Image>().alphaHitTestMinimumThreshold = MinimumThreshold;
+            Image.alphaHitTestMinimumThreshold = MinimumThreshold;
         }
     }
 }

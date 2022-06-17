@@ -21,12 +21,20 @@ namespace Coimbra
             add
             {
                 _eventHandler += value;
-                enabled = _eventHandler != null;
+
+                if (this.IsValid())
+                {
+                    enabled = _eventHandler != null;
+                }
             }
             remove
             {
                 _eventHandler -= value;
-                enabled = _eventHandler != null;
+
+                if (this.IsValid())
+                {
+                    enabled = _eventHandler != null;
+                }
             }
         }
 

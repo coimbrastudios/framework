@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.7.2] - UNRELEASED
+## [10.7.2] - 2022-06-16
 
 - Added overlap 2D listeners.
 - Changed `FixedUpdateListener` implementation to internal.

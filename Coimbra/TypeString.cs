@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Coimbra.Editor
+namespace Coimbra
 {
     internal static class TypeString
     {

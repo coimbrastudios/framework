@@ -13,12 +13,20 @@ namespace Coimbra
             add
             {
                 base.OnTrigger += value;
-                enabled = HasListener;
+
+                if (this.IsValid())
+                {
+                    enabled = HasListener;
+                }
             }
             remove
             {
                 base.OnTrigger -= value;
-                enabled = HasListener;
+
+                if (this.IsValid())
+                {
+                    enabled = HasListener;
+                }
             }
         }
 

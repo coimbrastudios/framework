@@ -19,6 +19,7 @@ namespace Coimbra
         public event EventHandler OnTrigger;
 
         [SerializeField]
+        [DisableOnPlayMode]
         private bool _resetPostInitializeActor = true;
 
         private PlayerLoopListenerBase _playerLoopListener;

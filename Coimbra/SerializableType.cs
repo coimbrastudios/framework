@@ -67,7 +67,7 @@ namespace Coimbra
 
         public override string ToString()
         {
-            return Value == null ? "<null>" : $"{_className} ({_assemblyName})";
+            return _value == null ? "<null>" : TypeString.Get(_value);
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }
