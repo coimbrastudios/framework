@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.3] - 2022-06-17
+
+- Added `Project Settings/Coimbra Framework/Editor` with option to disable local analyzers.
+
 ## [10.7.2] - 2022-06-16
 
 - Added overlap 2D listeners.

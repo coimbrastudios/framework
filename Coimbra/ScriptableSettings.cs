@@ -35,7 +35,7 @@ namespace Coimbra
             }
 
             ScriptableSettings result = (ScriptableSettings)rawValues[0];
-            Values[type] = result;
+            Map[type] = result;
 
             return result;
         };
@@ -58,12 +58,12 @@ namespace Coimbra
             }
 
             ScriptableSettings result = (ScriptableSettings)rawValues[0];
-            Values[type] = result;
+            Map[type] = result;
 
             return result;
         };
 
-        internal static readonly Dictionary<Type, ScriptableSettings> Values = new Dictionary<Type, ScriptableSettings>();
+        internal static readonly Dictionary<Type, ScriptableSettings> Map = new Dictionary<Type, ScriptableSettings>();
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
@@ -128,7 +128,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptableSettings GetOrFind(Type type, FindHandler findCallback = null)
         {
-            if (Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
+            if (Map.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
             {
                 return value;
             }
@@ -182,7 +182,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has(Type type)
         {
-            return Values.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
+            return Map.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
         }
 
         /// <inheritdoc cref="Has"/>
@@ -242,7 +242,7 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGet(Type type, out ScriptableSettings result)
         {
-            result = Values.TryGetValue(type, out ScriptableSettings value) ? value.GetValid() : null;
+            result = Map.TryGetValue(type, out ScriptableSettings value) ? value.GetValid() : null;
 
             return result != null;
         }
@@ -389,11 +389,11 @@ namespace Coimbra
             if (value != null)
             {
                 Debug.Assert(type.IsInstanceOfType(value));
-                Values[type] = value;
+                Map[type] = value;
             }
             else
             {
-                Values.Remove(type);
+                Map.Remove(type);
             }
         }
 
@@ -403,7 +403,7 @@ namespace Coimbra
         private static void Initialize()
         {
             IsQuitting = false;
-            Values.Clear();
+            Map.Clear();
             UnityEditor.PlayerSettings.GetPreloadedAssets();
         }
 

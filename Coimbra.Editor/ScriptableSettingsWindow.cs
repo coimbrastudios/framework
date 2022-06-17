@@ -77,7 +77,7 @@ namespace Coimbra.Editor
             using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
-            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Values)
+            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
             {
                 if (_editorStates.TryGetValue(pair.Key, out EditorState editorState))
                 {

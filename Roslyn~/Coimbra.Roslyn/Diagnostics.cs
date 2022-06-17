@@ -181,13 +181,6 @@ namespace Coimbra.Roslyn
                                                                                                              DiagnosticSeverity.Warning,
                                                                                                              true);
 
-        public static readonly DiagnosticDescriptor UsePlayerLoopEventListenerInsteadOfOtherPlayerLoopListeners = new("COIMBRA0025",
-                                                                                                                      "Usage of default player loop listeners is inefficient.",
-                                                                                                                      "Use PlayerLoopEventListener instead of {0}.",
-                                                                                                                      DefaultCategory,
-                                                                                                                      DiagnosticSeverity.Warning,
-                                                                                                                      true);
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",
                                                             "",

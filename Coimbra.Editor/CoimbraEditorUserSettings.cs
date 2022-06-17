@@ -13,9 +13,14 @@ namespace Coimbra.Editor
     {
 #if UNITY_2021_3_OR_NEWER
         [Obsolete("Unity has now a built-in functionality for it in its Console window. This property will have no effect.")]
-#endif
+#else
+        /// <summary>
+        /// If true, console will be cleared upon a script reload.
+        /// </summary>
         [PublicAPI]
         [field: SerializeField]
+        [field: Tooltip("If true, console will be cleared upon a script reload.")]
+#endif
         public bool ClearConsoleOnReload { get; set; }
 
         static CoimbraEditorUserSettings()
