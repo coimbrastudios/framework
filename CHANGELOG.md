@@ -1,5 +1,16 @@
 # Changelog
 
+## [10.7.7] - 2022-06-18
+
+- Added limitations description to `TypeDropdownAttribute` and `ManagedField` summaries.
+- Added `Window/Coimbra Framework/Shared Managed Pools`.
+- Added `ManagedPool<T>.AvailableCount` API.
+- Added `COIMBRA0017`.
+- Added `COIMBRA0018`.
+- Changed `ISharedManagedPoolHandler` to `IManagedPoolHandler`.
+- Changed `TypeFilterAttributeBase` to `FilterTypeAttributeBase` and added support for multiple attributes in the same field.
+- Changed `TypeFilterAttribute` to `FilterTypeAByAssignableFromttribute` and made it sealed.
+
 ## [10.7.6] - 2022-06-17
 
 - Fixed warning due unnecessary reference to `Unity.Settings.Editor`.

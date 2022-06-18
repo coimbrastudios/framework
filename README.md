@@ -61,12 +61,12 @@ Package of general utilities to be used with Unity development.
     - Trigger Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
     - Trigger Enter/Exit/Stay Listener: depends on `Collider`.
     - `WillRenderObjectListener`: depends on `Renderer`.
-- Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations:
+- Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations that can be inspected at `Window/Coimbra Framework/Shared Managed Pools`:
     - `DictionaryPool`: clears the `Dictionary`.
     - `GUIContentPool`: clears the `GUIContet`.
     - `HashSetPool`: : clears the `HashSet`.
     - `ListPool`: clears the `List`.
-    - `ManagedPool`: allows custom clearing through the `ISharedManagedPoolHandler` interface.
+    - `ManagedPool`: allows custom clearing through the `IManagedPoolHandler` interface.
     - `QueuePool`: clears the `Queue`.
     - `StackPool`: clears the `Stack`.
     - `StringBuilderPool`: clears the `StringBuilder`.
@@ -137,6 +137,8 @@ Package of general utilities to be used with Unity development.
 | COIMBRA0014 | ScriptableSettings has an invalided FileDirectory.                                                    | Error    | No       |
 | COIMBRA0015 | ScriptableSettings attributes are not supported on abstract types.                                    | Error    | No       |
 | COIMBRA0016 | ScriptableSettings attributes are not supported on generic types.                                     | Error    | No       |
+| COIMBRA0017 | Use CreateShared method for any SharedManagedPool.                                                    | Error    | No       |
+| COIMBRA0018 | Use constructor when not a SharedManagedPool.                                                         | Error    | No       |
 | COIMBRA0019 | Object.Destroy should not be used with Objects that can be an Actor.                                  | Warning  | No       |
 | COIMBRA0020 | Type with CopyBaseConstructorsAttribute should be partial.                                            | Warning  | Yes      |
 | COIMBRA0021 | Type with CopyBaseConstructorsAttribute should not be nested.                                         | Error    | Yes      |
