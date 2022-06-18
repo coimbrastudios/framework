@@ -69,6 +69,22 @@ namespace Coimbra.Roslyn
 
                     using (new BracesScope(sourceBuilder))
                     {
+                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.AvailableCount\"/>");
+                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
+                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                        sourceBuilder.AddLine($"public static int GetAvailableCount{instanceArguments}()");
+
+                        if (!string.IsNullOrWhiteSpace(instanceConstraints))
+                        {
+                            sourceBuilder.AddLine($"    {instanceConstraints}");
+                        }
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return {valueField}.AvailableCount;");
+                        }
+
+                        sourceBuilder.SkipLine();
                         sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.MaxCapacity\"/>");
                         sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
                         sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");

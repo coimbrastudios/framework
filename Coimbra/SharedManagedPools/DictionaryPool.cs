@@ -22,7 +22,7 @@ namespace Coimbra
                     return new Dictionary<TKey, TValue>();
                 }
 
-                Value = new ManagedPool<Dictionary<TKey, TValue>>(createCallback);
+                Value = ManagedPool<Dictionary<TKey, TValue>>.CreateShared(createCallback);
 
                 Value.OnPush += delegate(Dictionary<TKey, TValue> instance)
                 {

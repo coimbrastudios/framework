@@ -33,10 +33,21 @@ namespace Coimbra.Editor
                 typeLabel.text = string.IsNullOrWhiteSpace(typeName) ? "<null>" : TypeString.Get(TypeUtility.GetType(typeName));
                 typeLabel.tooltip = typeLabel.text;
 
-                TypeDropdown.DrawReferenceField(position, property.GetPropertyType(), property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
+                if (context.Depth > 0 && context.ScopeInfo!.PropertyType.IsGenericType && context.ScopeInfo.PropertyType.GetGenericTypeDefinition() == typeof(ManagedField<>))
                 {
-                    TypeDropdown.FilterTypes(targets, context, list);
-                });
+                    TypeDropdown.DrawReferenceField(position, context.ScopeInfo.PropertyType.GenericTypeArguments[0], property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
+                    {
+                        TypeDropdown.FilterTypes(targets, context.ScopeInfo, list);
+                    });
+                }
+                else
+                {
+                    TypeDropdown.DrawReferenceField(position, property.GetPropertyType(), property, typeLabel, ChangeUndoKey, delegate(List<Type> list)
+                    {
+                        TypeDropdown.FilterTypes(targets, context, list);
+                    });
+                }
+
             }
 
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(valuePosition, label, property);

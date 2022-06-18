@@ -19,7 +19,7 @@ namespace Coimbra
                 return new StringBuilder();
             }
 
-            Value = new ManagedPool<StringBuilder>(createCallback);
+            Value = ManagedPool<StringBuilder>.CreateShared(createCallback);
 
             Value.OnPush += delegate(StringBuilder instance)
             {

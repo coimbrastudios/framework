@@ -19,7 +19,7 @@ namespace Coimbra
                 return new GUIContent();
             }
 
-            Value = new ManagedPool<GUIContent>(createCallback);
+            Value = ManagedPool<GUIContent>.CreateShared(createCallback);
 
             Value.OnPush += delegate(GUIContent instance)
             {

@@ -5,7 +5,7 @@ namespace Coimbra
     /// <summary>
     /// Listen for pop and push events from <see cref="ManagedPool"/>.
     /// </summary>
-    public interface ISharedManagedPoolHandler : IDisposable
+    public interface IManagedPoolHandler : IDisposable
     {
         /// <summary>
         /// Called when picking this instance from the pool.

@@ -4,17 +4,18 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Apply this to either a <see cref="ManagedField{T}"/>, or <see cref="Reference{T}"/>, or a field with <see cref="TypeDropdownAttribute"/> to filter which types should be available.
+    /// Filter the types using <see cref="Type.IsAssignableFrom"/>.
     /// </summary>
+    /// <seealso cref="FilterTypesAttributeBase"/>
     [AttributeUsage(AttributeTargets.Field)]
-    public class TypeFilterAttribute : TypeFilterAttributeBase
+    public sealed class FilterTypesByAssignableFromAttribute : FilterTypesAttributeBase
     {
         /// <summary>
         /// The type needs to implement all those interfaces.
         /// </summary>
         public readonly Type[] All;
 
-        public TypeFilterAttribute(params Type[] all)
+        public FilterTypesByAssignableFromAttribute(params Type[] all)
         {
             All = all;
             Any = null;

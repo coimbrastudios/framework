@@ -1,5 +1,4 @@
-﻿using Coimbra.Editor;
-using System;
+﻿using System;
 using System.Reflection;
 using UnityEngine;
 

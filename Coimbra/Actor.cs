@@ -137,12 +137,11 @@ namespace Coimbra
 
         private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
 
-        private static readonly ProfilerCounterValue<int> NewActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
+        private static readonly ProfilerCounterValue<int> NewActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
 
-        private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
-        private static readonly ProfilerCounterValue<int> UninitializedActorCount =
-            new ProfilerCounterValue<int>(CoimbraUtility.ProfilerCategory, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> UninitializedActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
         [SerializeField]
         [DisableOnPlayMode]

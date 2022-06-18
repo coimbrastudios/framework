@@ -22,7 +22,7 @@ namespace Coimbra
                     return new Stack<T>();
                 }
 
-                Value = new ManagedPool<Stack<T>>(createCallback);
+                Value = ManagedPool<Stack<T>>.CreateShared(createCallback);
 
                 Value.OnPush += delegate(Stack<T> instance)
                 {

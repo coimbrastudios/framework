@@ -1,4 +1,3 @@
-using Unity.Profiling;
 using UnityEngine;
 
 namespace Coimbra
@@ -29,8 +28,6 @@ namespace Coimbra
         internal const string UserPreferencesPath = "Preferences/Coimbra Framework";
 
         internal const string WindowMenuPath = "Window/Coimbra Framework/";
-
-        internal static readonly ProfilerCategory ProfilerCategory = new ProfilerCategory("Coimbra Framework");
 
         /// <summary>
         /// Returns true if the application is currently in Edit Mode. Always return false in a build.

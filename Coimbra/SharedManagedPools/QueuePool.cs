@@ -22,7 +22,7 @@ namespace Coimbra
                     return new Queue<T>();
                 }
 
-                Value = new ManagedPool<Queue<T>>(createCallback);
+                Value = ManagedPool<Queue<T>>.CreateShared(createCallback);
 
                 Value.OnPush += delegate(Queue<T> instance)
                 {

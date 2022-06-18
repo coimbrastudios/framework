@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -9,7 +10,7 @@ namespace Coimbra
     /// Stack-based tread-safe pool for any managed object. For pooling <see cref="GameObject"/> consider using <see cref="GameObjectPool"/>.
     /// </summary>
     [Preserve]
-    public sealed class ManagedPool<T>
+    public sealed class ManagedPool<T> : IManagedPool
         where T : class
     {
         /// <summary>
@@ -109,14 +110,70 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// The current amount of instances available.
+        /// </summary>
+        [field: SerializeField]
+        [field: Disable]
+        [field: Tooltip("The current amount of instances available.")]
+        public int AvailableCount { get; private set; }
+
+        /// <summary>
         /// Max amount of instances in the pool. If 0 it is treated as infinity capacity.
         /// </summary>
+        [field: SerializeField]
+        [field: Disable]
+        [field: Tooltip("Max amount of instances in the pool. If 0 it is treated as infinity capacity.")]
         public int MaxCapacity { get; private set; }
 
         /// <summary>
         /// Amount of instances available from the beginning.
         /// </summary>
+        [field: SerializeField]
+        [field: Disable]
+        [field: Tooltip("Amount of instances available from the beginning.")]
         public int PreloadCount { get; private set; }
+
+        /// <summary>
+        /// Should only be used from inside a type with <see cref="SharedManagedPoolAttribute"/>.
+        /// </summary>
+        /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
+        public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback = null)
+        {
+            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, disposeCallback);
+            SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
+
+            return managedPool;
+        }
+
+        /// <summary>
+        /// Should only be used from inside a type with <see cref="SharedManagedPoolAttribute"/>.
+        /// </summary>
+        /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
+        /// <param name="preloadCount">Amount of instances available from the beginning.</param>
+        /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
+        public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, int preloadCount, int maxCapacity)
+        {
+            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, preloadCount, maxCapacity);
+            SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
+
+            return managedPool;
+        }
+
+        /// <summary>
+        /// Should only be used from inside a type with <see cref="SharedManagedPoolAttribute"/>.
+        /// </summary>
+        /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
+        /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
+        /// <param name="preloadCount">Amount of instances available from the beginning.</param>
+        /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
+        public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback, int preloadCount, int maxCapacity)
+        {
+            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, disposeCallback, preloadCount, maxCapacity);
+            SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
+
+            return managedPool;
+        }
 
         /// <summary>
         /// Initializes the pool, returning it to its initial state if already being used.
@@ -137,9 +194,9 @@ namespace Coimbra
                     MaxCapacity = Mathf.Max(maxCapacity.Value, 0);
                 }
 
-                int targetCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
+                AvailableCount = MaxCapacity > 0 ? Mathf.Min(PreloadCount, MaxCapacity) : PreloadCount;
 
-                if (_availableStack.Count < targetCount)
+                if (_availableStack.Count < AvailableCount)
                 {
                     do
                     {
@@ -147,11 +204,11 @@ namespace Coimbra
                         _availableSet.Add(instance);
                         _availableStack.Push(instance);
                     }
-                    while (_availableStack.Count < targetCount);
+                    while (_availableStack.Count < AvailableCount);
                 }
                 else
                 {
-                    while (_availableStack.Count > targetCount)
+                    while (_availableStack.Count > AvailableCount)
                     {
                         T instance = _availableStack.Pop();
                         _availableSet.Remove(instance);
@@ -176,6 +233,7 @@ namespace Coimbra
                 {
                     item = _availableStack.Pop();
                     _availableSet.Remove(item);
+                    AvailableCount--;
                 }
             }
 
@@ -211,6 +269,7 @@ namespace Coimbra
 
                 if (MaxCapacity == 0 || _availableStack.Count < MaxCapacity)
                 {
+                    AvailableCount++;
                     _availableStack.Push(instance);
                     _availableSet.Add(instance);
                     OnPush?.Invoke(instance);
@@ -225,46 +284,6 @@ namespace Coimbra
 
             OnDelete?.Invoke(instance);
             _disposeCallback?.Invoke(instance);
-        }
-    }
-
-    /// <summary>
-    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="ISharedManagedPoolHandler"/>
-    /// </summary>
-    [Preserve]
-    [SharedManagedPool("Value", "Instance")]
-    public static partial class ManagedPool
-    {
-        [Preserve]
-        private static class Instance<T>
-            where T : class, ISharedManagedPoolHandler, new()
-        {
-            internal static readonly ManagedPool<T> Value;
-
-            static Instance()
-            {
-                static T onCreate()
-                {
-                    return new T();
-                }
-
-                static void onDispose(T instance)
-                {
-                    instance.Dispose();
-                }
-
-                Value = new ManagedPool<T>(onCreate, onDispose);
-
-                Value.OnPop += delegate(T instance)
-                {
-                    instance.OnPop();
-                };
-
-                Value.OnPush += delegate(T instance)
-                {
-                    instance.OnPush();
-                };
-            }
         }
     }
 }

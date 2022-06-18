@@ -22,7 +22,7 @@ namespace Coimbra
                     return new HashSet<T>();
                 }
 
-                Value = new ManagedPool<HashSet<T>>(createCallback);
+                Value = ManagedPool<HashSet<T>>.CreateShared(createCallback);
 
                 Value.OnPush += delegate(HashSet<T> instance)
                 {

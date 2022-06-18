@@ -51,12 +51,10 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    if (!derivedType.IsValueType && derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) == null)
+                    if (derivedType.IsValueType || derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) != null)
                     {
-                        continue;
+                        types.Add(derivedType);
                     }
-
-                    types.Add(derivedType);
                 }
 
                 _current = property;
@@ -99,37 +97,25 @@ namespace Coimbra.Editor
 
         internal static void FilterTypes(Object[] targets, PropertyPathInfo propertyPathInfo, List<Type> types)
         {
-            TypeFilterAttributeBase typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttributeBase>();
+            IEnumerable<FilterTypesAttributeBase> filterTypesAttributes;
 
-            if (typeFilterAttribute == null)
+            if (propertyPathInfo.Depth > 0 && propertyPathInfo.ScopeInfo!.PropertyType.IsGenericType && propertyPathInfo.ScopeInfo.PropertyType.GetGenericTypeDefinition() == typeof(Reference<>))
             {
-                propertyPathInfo = propertyPathInfo.ScopeInfo;
-
-                if (propertyPathInfo == null)
-                {
-                    return;
-                }
-
-                Type propertyType = propertyPathInfo.PropertyType!;
-
-                if (!propertyType.IsGenericType || propertyType.GetGenericTypeDefinition() != typeof(Reference<>))
-                {
-                    return;
-                }
-
-                typeFilterAttribute = propertyPathInfo.FieldInfo.GetCustomAttribute<TypeFilterAttributeBase>();
-
-                if (typeFilterAttribute == null)
-                {
-                    return;
-                }
+                filterTypesAttributes = propertyPathInfo.ScopeInfo.FieldInfo.GetCustomAttributes<FilterTypesAttributeBase>();
+            }
+            else
+            {
+                filterTypesAttributes = propertyPathInfo.FieldInfo.GetCustomAttributes<FilterTypesAttributeBase>();
             }
 
-            for (int i = types.Count - 1; i >= 0; i--)
+            foreach (FilterTypesAttributeBase filterTypeAttribute in filterTypesAttributes)
             {
-                if (!typeFilterAttribute.Validate(propertyPathInfo, targets, types[i]))
+                for (int i = types.Count - 1; i >= 0; i--)
                 {
-                    types.RemoveAt(i);
+                    if (!filterTypeAttribute.Validate(propertyPathInfo, targets, types[i]))
+                    {
+                        types.RemoveAt(i);
+                    }
                 }
             }
         }

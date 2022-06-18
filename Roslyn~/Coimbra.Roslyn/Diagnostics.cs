@@ -125,19 +125,21 @@ namespace Coimbra.Roslyn
                                                                                                DiagnosticSeverity.Error,
                                                                                                true);
 
-        public static readonly DiagnosticDescriptor UseActorAlternative = new("COIMBRA0017",
-                                                                              "GameObject API should be replaced by Actor API.",
-                                                                              "Use {0} instead of {1}.",
-                                                                              DefaultCategory,
-                                                                              DiagnosticSeverity.Warning,
-                                                                              false);
+        // TODO: codefix
+        public static readonly DiagnosticDescriptor SharedManagedPoolRequiresToUseCreateShared = new("COIMBRA0017",
+                                                                                                     "Use CreateShared method for any SharedManagedPool.",
+                                                                                                     "Use {0}.CreateShared instead of new {0}.",
+                                                                                                     DefaultCategory,
+                                                                                                     DiagnosticSeverity.Error,
+                                                                                                     true);
 
-        public static readonly DiagnosticDescriptor ComponentMethodsShouldNotBeUsedWithActorTypes = new("COIMBRA0018",
-                                                                                                        "Component methods should not be used with Actor types.",
-                                                                                                        "Use {0} instead of {1}.",
-                                                                                                        DefaultCategory,
-                                                                                                        DiagnosticSeverity.Error,
-                                                                                                        false);
+        // TODO: codefix
+        public static readonly DiagnosticDescriptor DoNotUseCreateSharedOutsideFromSharedManagedPool = new("COIMBRA0018",
+                                                                                                           "Use constructor when not a SharedManagedPool.",
+                                                                                                           "Use new {0} instead of {0}.CreateShared.",
+                                                                                                           DefaultCategory,
+                                                                                                           DiagnosticSeverity.Error,
+                                                                                                           true);
 
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA0019",
                                                                                        "Object.Destroy should not be used with Objects that can be an Actor.",
@@ -180,6 +182,43 @@ namespace Coimbra.Roslyn
                                                                                                              DefaultCategory,
                                                                                                              DiagnosticSeverity.Warning,
                                                                                                              true);
+
+        // TODO: codefix
+        public static readonly DiagnosticDescriptor UseActorAlternative = new("COIMBRA0025",
+                                                                              "GameObject API should be replaced by Actor API.",
+                                                                              "Use {0} instead of {1}.",
+                                                                              DefaultCategory,
+                                                                              DiagnosticSeverity.Warning,
+                                                                              false);
+
+        // TODO: codefix
+        public static readonly DiagnosticDescriptor ComponentMethodsShouldNotBeUsedWithActorTypes = new("COIMBRA0026",
+                                                                                                        "Component methods should not be used with Actor types.",
+                                                                                                        "Use {0} instead of {1}.",
+                                                                                                        DefaultCategory,
+                                                                                                        DiagnosticSeverity.Error,
+                                                                                                        false);
+
+        public static readonly DiagnosticDescriptor FilterTypesAttributeUsedWithIncompatibleField = new("COIMBRA0027",
+                                                                                                        "FilterTypesAttribute being used with incompatible field type.",
+                                                                                                        "Remove {0} from {1} or change {1} type.",
+                                                                                                        DefaultCategory,
+                                                                                                        DiagnosticSeverity.Warning,
+                                                                                                        false);
+
+        public static readonly DiagnosticDescriptor IncorrectTypeDropdownAttributeUsage = new("COIMBRA0028",
+                                                                                              "TypeDropdownAttribute being used with incompatible field type.",
+                                                                                              "Remove {0} from {1} or change {1} type.",
+                                                                                              DefaultCategory,
+                                                                                              DiagnosticSeverity.Error,
+                                                                                              false);
+
+        public static readonly DiagnosticDescriptor IncorrectManagedFieldGenericParameter = new("COIMBRA0028",
+                                                                                                "ManagedField being used with incompatible type parameter.",
+                                                                                                "Change {0} to a compatible type.",
+                                                                                                DefaultCategory,
+                                                                                                DiagnosticSeverity.Error,
+                                                                                                false);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA",

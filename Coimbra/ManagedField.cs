@@ -7,7 +7,13 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Unified way to expose a managed field in the inspector.
+    /// Unified way to expose a managed field in the inspector. For it to be drawn it needs to either be a <see cref="Object"/> or satisfy the following conditions:
+    /// <list type="bullet">
+    /// <item>Not be abstract</item>
+    /// <item>Not be generic</item>
+    /// <item>Have the <see cref="SerializableAttribute"/></item>
+    /// <item>Have a parameterless constructor</item>
+    /// </list>
     /// </summary>
     /// <typeparam name="T">The managed type.</typeparam>
     [Preserve]
