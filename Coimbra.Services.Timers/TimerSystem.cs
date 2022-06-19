@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +14,9 @@ namespace Coimbra.Services.Timers
     {
         private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
 
-        private ManagedPool<TimerComponent> _timerComponentPool;
+        [SerializeField]
+        [Disable]
+        private ManagedPool<TimerComponent> _timerComponentPool = null!;
 
         private TimerSystem() { }
 
@@ -22,42 +26,57 @@ namespace Coimbra.Services.Timers
             return _instances.TryGetValue(timerHandle, out TimerComponent context) && context.enabled;
         }
 
-        /// <inheritdoc/>
-        public TimerHandle StartTimer(Action callback, float duration)
+        /// <inheritdoc />
+        public bool IsTimerActive(in TimerHandle timerHandle, out float delay, out float rate, out int targetLoops, out int completedLoops)
         {
-            if (callback == null)
+            if (!_instances.TryGetValue(timerHandle, out TimerComponent context) || !context.enabled)
             {
-                return new TimerHandle();
+                delay = 0;
+                rate = 0;
+                targetLoops = 0;
+                completedLoops = 0;
+
+                return false;
             }
 
+            delay = context.Delay;
+            rate = context.Rate;
+            targetLoops = context.TargetLoops;
+            completedLoops = context.CompletedLoops;
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public TimerHandle StartTimer(in Action callback, float delay)
+        {
             TimerComponent component = _timerComponentPool.Pop();
             TimerHandle handle = TimerHandle.Create();
-            component.CompletedLoops = 0;
+            component.Delay = Mathf.Max(delay, 0);
+            component.Rate = -1;
             component.TargetLoops = 1;
+            component.CompletedLoops = 0;
             component.Callback = callback;
             component.Handle = handle;
             _instances[handle] = component;
-            component.Invoke(nameof(TimerComponent.Run), duration);
+            component.Invoke(nameof(TimerComponent.Run), component.Delay);
 
             return handle;
         }
 
         /// <inheritdoc/>
-        public TimerHandle StartTimer(Action callback, float delay, float rate, int loops = 0)
+        public TimerHandle StartTimer(in Action callback, float delay, float rate, int loops = 0)
         {
-            if (callback == null)
-            {
-                return new TimerHandle();
-            }
-
             TimerComponent component = _timerComponentPool.Pop();
             TimerHandle handle = TimerHandle.Create();
+            component.Delay = Mathf.Max(delay, 0);
+            component.Rate = Mathf.Max(rate, 0);
+            component.TargetLoops = Mathf.Max(loops, 0);
             component.CompletedLoops = 0;
-            component.TargetLoops = loops;
             component.Callback = callback;
             component.Handle = handle;
             _instances[handle] = component;
-            component.InvokeRepeating(nameof(TimerComponent.Run), delay, rate);
+            component.InvokeRepeating(nameof(TimerComponent.Run), component.Delay, component.Rate);
 
             return handle;
         }
@@ -91,7 +110,6 @@ namespace Coimbra.Services.Timers
             base.OnDestroyed();
             StopAllTimers();
             _timerComponentPool.Initialize(0, 0);
-            _timerComponentPool = null;
         }
 
         /// <inheritdoc/>

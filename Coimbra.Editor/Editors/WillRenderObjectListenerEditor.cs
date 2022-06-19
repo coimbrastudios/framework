@@ -7,6 +7,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="WillRenderObjectListener"/>.
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(WillRenderObjectListener))]
     public sealed class WillRenderObjectListenerEditor : UnityEditor.Editor
     {

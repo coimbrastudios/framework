@@ -7,6 +7,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="PreCullListener"/>.
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(PreCullListener))]
     public sealed class PreCullListenerEditor : UnityEditor.Editor
     {

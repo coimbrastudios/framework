@@ -10,6 +10,7 @@ namespace Coimbra
     /// Stack-based tread-safe pool for any managed object. For pooling <see cref="GameObject"/> consider using <see cref="GameObjectPool"/>.
     /// </summary>
     [Preserve]
+    [Serializable]
     public sealed class ManagedPool<T> : IManagedPool
         where T : class
     {

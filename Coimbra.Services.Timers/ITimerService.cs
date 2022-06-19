@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -13,25 +15,36 @@ namespace Coimbra.Services.Timers
         /// <summary>
         /// Is the timer still valid and running?
         /// </summary>
-        /// <param name="timerHandle">It will get reset if not valid anymore.</param>
+        /// <param name="timerHandle">The timer to check.</param>
         /// <returns>True if the timer is still valid and running.</returns>
         bool IsTimerActive(in TimerHandle timerHandle);
 
         /// <summary>
-        /// Starts a new timer.
+        /// Is the timer still valid and running?
         /// </summary>
-        /// <param name="callback">What should happen when the timer finishes.</param>
-        /// <param name="duration">The timer duration.</param>
-        TimerHandle StartTimer(Action callback, float duration);
+        /// <param name="timerHandle">The timer to check.</param>
+        /// <param name="delay">Gets the configured delay for the given timer.</param>
+        /// <param name="rate">Gets the configured rate for the given timer. If no rate was configured, will return -1.</param>
+        /// <param name="targetLoops">Gets the configured loops for the given timer. If no loops was configured, will return 1.</param>
+        /// <param name="completedLoops">Gets the amount of completed loops for the given timer.</param>
+        /// <returns>True if the timer is still valid and running.</returns>
+        bool IsTimerActive(in TimerHandle timerHandle, out float delay, out float rate, out int targetLoops, out int completedLoops);
 
         /// <summary>
-        /// Starts a new timer.
+        /// Starts a new timer that fires only once.
+        /// </summary>
+        /// <param name="callback">What should happen when the timer finishes.</param>
+        /// <param name="delay">The timer duration. Is set to 0 if negative.</param>
+        TimerHandle StartTimer(in Action callback, float delay);
+
+        /// <summary>
+        /// Starts a new timer that can fire multiple times.
         /// </summary>
         /// <param name="callback">What should happen each time the timer triggers.</param>
-        /// <param name="delay">The delay to trigger the first time.</param>
-        /// <param name="rate">The interval between each trigger.</param>
+        /// <param name="delay">The delay to trigger the first time. Is set to 0 if negative.</param>
+        /// <param name="rate">The interval between each trigger. Each frame if 0 or negative..</param>
         /// <param name="loops">The amount of times it should trigger. Infinite if 0 or negative.</param>
-        TimerHandle StartTimer(Action callback, float delay, float rate, int loops = 0);
+        TimerHandle StartTimer(in Action callback, float delay, float rate, int loops = 0);
 
         /// <summary>
         /// Stops all existing timers.

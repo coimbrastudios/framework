@@ -60,6 +60,15 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PropertyPathInfo GetPropertyPathInfo(this Object o, in string propertyPath)
+        {
+            return o.GetType().GetPropertyPathInfo(in propertyPath);
+        }
+
+        /// <summary>
         /// Gets a valid object to be used with ?. and ?? operators.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

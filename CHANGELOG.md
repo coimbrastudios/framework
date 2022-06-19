@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.7.8] - 2022-06-19
+
+- Added `Active Timers` profiler counter.
+- Added some debug information to `TimerComponent` inspector.
+- Added drawer for `TimerHandle`.
+- Added `ITimerService.IsTimerActive` overload that also returns the timer data.
+
 ## [10.7.7] - 2022-06-18
 
 - Added limitations description to `TypeDropdownAttribute` and `ManagedField` summaries.

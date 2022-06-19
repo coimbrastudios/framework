@@ -7,6 +7,7 @@ namespace Coimbra.Services.Timers
     /// Handle for a timer from <see cref="ITimerService"/>.
     /// </summary>
     [Preserve]
+    [Serializable]
     public readonly struct TimerHandle : IEquatable<TimerHandle>
     {
         public readonly Guid Guid;

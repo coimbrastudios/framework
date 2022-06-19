@@ -7,6 +7,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="BecameVisibleListener"/>.
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(BecameVisibleListener))]
     public sealed class BecameVisibleListenerEditor : UnityEditor.Editor
     {

@@ -40,7 +40,7 @@ namespace Coimbra.Editor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PropertyPathInfo GetPropertyPathInfo(this SerializedObject serializedObject, in string propertyPath)
         {
-            return serializedObject.targetObject.GetType().GetPropertyPathInfo(in propertyPath);
+            return serializedObject.targetObject.GetPropertyPathInfo(in propertyPath);
         }
 
         /// <summary>

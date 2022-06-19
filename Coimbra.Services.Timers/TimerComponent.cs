@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -8,9 +9,23 @@ namespace Coimbra.Services.Timers
     [AddComponentMenu("")]
     internal sealed class TimerComponent : MonoBehaviour
     {
-        internal int CompletedLoops;
+        private static readonly ProfilerCounterValue<int> ActiveTimers = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Active Timers", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
+        [SerializeField]
+        [Disable]
+        internal float Delay;
+
+        [SerializeField]
+        [Disable]
+        internal float Rate;
+
+        [SerializeField]
+        [Disable]
         internal int TargetLoops;
+
+        [SerializeField]
+        [Disable]
+        internal int CompletedLoops;
 
         internal ITimerService Service;
 
@@ -22,26 +37,24 @@ namespace Coimbra.Services.Timers
         {
             Callback.Invoke();
 
-            if (TargetLoops <= 0)
-            {
-                return;
-            }
-
             CompletedLoops++;
 
-            if (CompletedLoops < TargetLoops)
+            if (TargetLoops > 0 && CompletedLoops == TargetLoops)
             {
-                return;
+                Service.StopTimer(in Handle);
             }
+        }
 
-            Service.StopTimer(in Handle);
+        private void OnEnable()
+        {
+            ActiveTimers.Value++;
         }
 
         private void OnDisable()
         {
-            CancelInvoke();
-
             Callback = null;
+            ActiveTimers.Value--;
+            CancelInvoke();
         }
     }
 }

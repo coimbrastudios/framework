@@ -7,6 +7,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="PreRenderListener"/>.
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(PreRenderListener))]
     public sealed class PreRenderListenerEditor : UnityEditor.Editor
     {

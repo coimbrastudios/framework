@@ -252,6 +252,11 @@ namespace Coimbra
         /// </summary>
         public bool HasMultipleDifferentValues([NotNull] Object[] targets)
         {
+            if (targets.Length <= 1)
+            {
+                return false;
+            }
+
             using (ListPool.Pop(out List<object> list))
             {
                 GetValues(targets, list);

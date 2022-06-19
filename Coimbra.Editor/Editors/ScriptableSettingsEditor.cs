@@ -8,6 +8,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="ScriptableSettings"/>.
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(ScriptableSettings), true, isFallback = true)]
     public class ScriptableSettingsEditor : UnityEditor.Editor
     {
@@ -46,7 +47,16 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (!propertiesToExclude.Contains(iterator.name))
+                if (propertiesToExclude.Contains(iterator.name))
+                {
+                    continue;
+                }
+
+                if (Type == ScriptableSettingsType.Custom)
+                {
+                    EditorGUILayout.PropertyField(iterator, true);
+                }
+                else
                 {
                     TryPropertyField(iterator, true);
                 }
