@@ -45,7 +45,7 @@ namespace Coimbra
         {
             get
             {
-                if (!typeof(TKey).IsValueType && _new == null)
+                if (!typeof(TKey).IsValueType && !_new.IsValid())
                 {
                     return false;
                 }

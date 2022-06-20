@@ -187,7 +187,9 @@ namespace Coimbra.Editor
                 Object target = list.GetTargetObject();
                 Undo.RecordObject(target, "Add Element To Dictionary");
                 list.GrabKeyboardFocus();
-                list.serializedProperty.GetScope<ISerializableDictionary>()!.Add();
+
+                PropertyPathInfo scope = list.serializedProperty.GetScopeInfo()!;
+                scope.GetValue<ISerializableDictionary>(target)!.Add();
                 list.GetSerializedObject().ApplyModifiedPropertiesWithoutUndo();
                 list.GetSerializedObject().UpdateIfRequiredOrScript();
 
