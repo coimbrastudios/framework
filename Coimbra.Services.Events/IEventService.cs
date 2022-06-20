@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using UnityEngine.Scripting;
 
 namespace Coimbra.Services.Events
@@ -41,6 +42,33 @@ namespace Coimbra.Services.Events
         /// <param name="eventType">The event type.</param>
         /// <returns>The number of listeners for this event on this service.</returns>
         int GetListenerCount(Type eventType);
+
+        /// <summary>
+        /// Gets the listeners for the given event handle.
+        /// </summary>
+        int GetListeners(in EventHandle eventHandle, List<DelegateListener> listeners);
+
+        /// <summary>
+        /// Gets the listeners for the given event type.
+        /// </summary>
+        int GetListeners<TEvent>(List<DelegateListener> listeners)
+            where TEvent : IEvent;
+
+        /// <summary>
+        /// Gets the listeners for the given event type.
+        /// </summary>
+        int GetListeners(Type eventType, List<DelegateListener> listeners);
+
+        /// <summary>
+        /// Gets the relevancy listeners for the given event type.
+        /// </summary>
+        int GetRelevancyListeners<TEvent>(List<DelegateListener> listeners)
+            where TEvent : IEvent;
+
+        /// <summary>
+        /// Gets the relevancy listeners for the given event type.
+        /// </summary>
+        int GetRelevancyListeners(Type eventType, List<DelegateListener> listeners);
 
         /// <summary>
         /// Checks if the event handle belongs to this service.

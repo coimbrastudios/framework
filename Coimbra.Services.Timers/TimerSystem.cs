@@ -21,13 +21,7 @@ namespace Coimbra.Services.Timers
         private TimerSystem() { }
 
         /// <inheritdoc/>
-        public bool IsTimerActive(in TimerHandle timerHandle)
-        {
-            return _instances.TryGetValue(timerHandle, out TimerComponent context) && context.enabled;
-        }
-
-        /// <inheritdoc />
-        public bool IsTimerActive(in TimerHandle timerHandle, out Action? callback, out float delay, out float rate, out int targetLoops, out int completedLoops)
+        public bool GetTimerData(in TimerHandle timerHandle, out Action? callback, out float delay, out float rate, out int targetLoops, out int completedLoops)
         {
             if (!_instances.TryGetValue(timerHandle, out TimerComponent context) || !context.enabled)
             {
@@ -47,6 +41,12 @@ namespace Coimbra.Services.Timers
             completedLoops = context.CompletedLoops;
 
             return true;
+        }
+
+        /// <inheritdoc/>
+        public bool IsTimerActive(in TimerHandle timerHandle)
+        {
+            return _instances.TryGetValue(timerHandle, out TimerComponent context) && context.enabled;
         }
 
         /// <inheritdoc/>

@@ -13,23 +13,23 @@ namespace Coimbra.Services.Timers
     public interface ITimerService : IService
     {
         /// <summary>
-        /// Is the timer still valid and running?
+        /// Get the timer data for the given timer handle.
         /// </summary>
-        /// <param name="timerHandle">The timer to check.</param>
-        /// <returns>True if the timer is still valid and running.</returns>
-        bool IsTimerActive(in TimerHandle timerHandle);
-
-        /// <summary>
-        /// Is the timer still valid and running?
-        /// </summary>
-        /// <param name="timerHandle">The timer to check.</param>
+        /// <param name="timerHandle">The timer to get the data.</param>
         /// <param name="callback">Gets the callback configured for the given timer.</param>
         /// <param name="delay">Gets the configured delay for the given timer.</param>
         /// <param name="rate">Gets the configured rate for the given timer. If no rate was configured, will return -1.</param>
         /// <param name="targetLoops">Gets the configured loops for the given timer. If no loops was configured, will return 1.</param>
         /// <param name="completedLoops">Gets the amount of completed loops for the given timer.</param>
         /// <returns>True if the timer is still valid and running.</returns>
-        bool IsTimerActive(in TimerHandle timerHandle, out Action? callback, out float delay, out float rate, out int targetLoops, out int completedLoops);
+        bool GetTimerData(in TimerHandle timerHandle, out Action? callback, out float delay, out float rate, out int targetLoops, out int completedLoops);
+
+        /// <summary>
+        /// Is the timer still valid and running?
+        /// </summary>
+        /// <param name="timerHandle">The timer to check.</param>
+        /// <returns>True if the timer is still valid and running.</returns>
+        bool IsTimerActive(in TimerHandle timerHandle);
 
         /// <summary>
         /// Starts a new timer that fires only once.

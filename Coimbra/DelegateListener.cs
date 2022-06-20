@@ -6,10 +6,10 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    /// Helper struct to describe a delegate in a serializable-friendly way.
+    /// Describes a <see cref="Delegate"/> listener.
     /// </summary>
     [Serializable]
-    public struct DelegateInfo
+    public struct DelegateListener
     {
         [SerializeField]
         private string _target;
@@ -17,7 +17,7 @@ namespace Coimbra
         [SerializeField]
         private string _method;
 
-        public DelegateInfo(in Delegate entry)
+        public DelegateListener(in Delegate entry)
         {
             if (entry.Target != null)
             {

@@ -73,9 +73,9 @@ namespace Coimbra.Services.Timers.Editor
                     temp.text = "Callback";
 
                     TimerComponent timerComponent = (TimerComponent)target;
-                    position.height = CoimbraEditorGUIUtility.GetDelegateHeight(in timerComponent.Callback, serializedObject.isEditingMultipleObjects);
+                    position.height = CoimbraEditorGUIUtility.GetDelegateListenersHeight(in timerComponent.Callback, serializedObject.isEditingMultipleObjects);
                     position = EditorGUILayout.GetControlRect(false, position.height);
-                    CoimbraEditorGUIUtility.DrawDelegate(position, temp, in timerComponent.Callback, serializedObject.isEditingMultipleObjects);
+                    CoimbraEditorGUIUtility.DrawDelegateListeners(position, temp, in timerComponent.Callback, serializedObject.isEditingMultipleObjects);
                 }
             }
 

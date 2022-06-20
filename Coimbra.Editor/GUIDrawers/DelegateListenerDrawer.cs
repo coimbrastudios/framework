@@ -4,11 +4,20 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Drawer for <see cref="DelegateInfo"/>
+    /// Drawer for <see cref="DelegateListener"/>
     /// </summary>
-    [CustomPropertyDrawer(typeof(DelegateInfo))]
-    public sealed class DelegateInfoDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(DelegateListener))]
+    public sealed class DelegateListenerDrawer : PropertyDrawer
     {
+        public static void DrawGUI(Rect position, GUIContent target, string method)
+        {
+            using (new EditorGUI.DisabledScope(true))
+            {
+                position = EditorGUI.PrefixLabel(position, target);
+                EditorGUI.TextField(position, method);
+            }
+        }
+
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -22,10 +31,8 @@ namespace Coimbra.Editor
             {
                 SerializedProperty target = property.FindPropertyRelative("_target");
                 label.text = target.hasMultipleDifferentValues ? "-" : target.stringValue;
-                position = EditorGUI.PrefixLabel(position, label);
-
                 SerializedProperty method = property.FindPropertyRelative("_method");
-                EditorGUI.TextField(position, method.hasMultipleDifferentValues ? "-" : method.stringValue);
+                DrawGUI(position, label, method.hasMultipleDifferentValues ? "-" : method.stringValue);
             }
         }
     }

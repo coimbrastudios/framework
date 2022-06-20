@@ -37,6 +37,9 @@ namespace Coimbra.Services.Events
         internal event EventRelevancyChangedHandler OnRelevancyChanged;
 
         [NotNull]
+        internal readonly Func<EventHandle, List<DelegateListener>, int> GetListenersHandler;
+
+        [NotNull]
         private readonly IEventService _service;
 
         [NotNull]
@@ -51,11 +54,12 @@ namespace Coimbra.Services.Events
         [NotNull]
         private Func<EventHandle, bool> _removeCallbackHandler;
 
-        private Event([NotNull] IEventService service, [NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler)
+        private Event([NotNull] IEventService service, [NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler, [NotNull] Func<EventHandle, List<DelegateListener>, int> getListenersHandler)
         {
             _service = service;
             _type = type;
             _removeCallbackHandler = removeCallbackHandler;
+            GetListenersHandler = getListenersHandler;
         }
 
         internal EventHandle this[int index] => _handles[index];
@@ -69,7 +73,7 @@ namespace Coimbra.Services.Events
         internal static Event Create<T>([NotNull] IEventService eventService)
             where T : IEvent
         {
-            return new Event(eventService, typeof(T), EventCallbacks<T>.RemoveHandler);
+            return new Event(eventService, typeof(T), EventCallbacks<T>.RemoveHandler, EventCallbacks<T>.GetListenersHandler);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,6 +85,25 @@ namespace Coimbra.Services.Events
             {
                 OnRelevancyChanged?.Invoke(_service, _type, true);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetListeners(List<DelegateListener> listeners)
+        {
+            int count = 0;
+
+            foreach (EventHandle handle in _handles)
+            {
+                count += GetListenersHandler.Invoke(handle, listeners);
+            }
+
+            return count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetRelevancyListeners(List<DelegateListener> listeners)
+        {
+            return OnRelevancyChanged?.GetListeners(listeners) ?? 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

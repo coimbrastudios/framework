@@ -70,6 +70,38 @@ namespace Coimbra.Services.Events
         }
 
         /// <inheritdoc/>
+        public int GetListeners(in EventHandle eventHandle, List<DelegateListener> listeners)
+        {
+            return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) ? e.GetListenersHandler(eventHandle, listeners) : 0;
+        }
+
+        /// <inheritdoc/>
+        public int GetListeners<TEvent>(List<DelegateListener> listeners)
+            where TEvent : IEvent
+        {
+            return GetListeners(typeof(TEvent), listeners);
+        }
+
+        /// <inheritdoc/>
+        public int GetListeners(Type eventType, List<DelegateListener> listeners)
+        {
+            return _events.TryGetValue(eventType, out Event e) ? e.GetListeners(listeners) : 0;
+        }
+
+        /// <inheritdoc/>
+        public int GetRelevancyListeners<TEvent>(List<DelegateListener> listeners)
+            where TEvent : IEvent
+        {
+            return GetRelevancyListeners(typeof(TEvent), listeners);
+        }
+
+        /// <inheritdoc/>
+        public int GetRelevancyListeners(Type eventType, List<DelegateListener> listeners)
+        {
+            return _events.TryGetValue(eventType, out Event e) ? e.GetRelevancyListeners(listeners) : 0;
+        }
+
+        /// <inheritdoc/>
         public bool HasListener(in EventHandle eventHandle)
         {
             return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) && e.HasListener(in eventHandle);

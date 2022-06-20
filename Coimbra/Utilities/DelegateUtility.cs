@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Coimbra
 {
@@ -12,12 +11,12 @@ namespace Coimbra
     public static class DelegateUtility
     {
         /// <summary>
-        /// Gets the list of targets and theirs methods to be invoked.
+        /// Gets the list of <see cref="DelegateListener"/> for the given <paramref name="handler"/>.
         /// </summary>
         /// <param name="handler">The delegate instance.</param>
-        /// <param name="invocations">The list to add the pairs of target and method name.</param>
-        /// <returns>The amount of items added to <paramref name="invocations"/>.</returns>
-        public static int GetInvocationList(this Delegate? handler, List<DelegateInfo> invocations)
+        /// <param name="listeners">The list of listeners.</param>
+        /// <returns>The amount of items added to <paramref name="listeners"/>.</returns>
+        public static int GetListeners(this Delegate? handler, List<DelegateListener> listeners)
         {
             if (handler == null)
             {
@@ -28,7 +27,7 @@ namespace Coimbra
 
             foreach (Delegate item in handlers)
             {
-                invocations.Add(new DelegateInfo(in item));
+                listeners.Add(new DelegateListener(in item));
             }
 
             return handlers.Length;

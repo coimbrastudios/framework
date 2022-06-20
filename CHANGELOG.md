@@ -2,7 +2,9 @@
 
 ## [10.7.9] - 2022-06-20
 
-- Added information about the callback's invocation list at the `TimerHandleDrawer` and `TimerComponentEditor`.
+- Added information about the callback listeners at the `TimerHandleDrawer` and `TimerComponentEditor`.
+- Added `IEventService` APIs to the listener list for any given event or `EventHandle`.
+- Changed new `IsTimerActive` overload to `GetTimerData` to make its behaviour more obvious.
 - Fixed assembly creator not making the generated editor assembly reference the generated runtime assembly.
 - Fixed `SerializableDictionary` not working properly when used as an array or list.
 

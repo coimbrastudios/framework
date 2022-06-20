@@ -103,6 +103,24 @@ namespace Coimbra.Services.Events.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "GetListeners");
+                        sourceBuilder.AddLine("public static int GetListeners(List<DelegateListener> listeners)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetListeners<{typeName}>(listeners);");
+                        }
+
+                        sourceBuilder.SkipLine();
+                        AddMethodBoilerplate(sourceBuilder, "GetRelevancyListeners");
+                        sourceBuilder.AddLine("public static int GetRelevancyListeners(List<DelegateListener> listeners)");
+
+                        using (new BracesScope(sourceBuilder))
+                        {
+                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetRelevancyListeners<{typeName}>(listeners);");
+                        }
+
+                        sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "IsInvoking");
                         sourceBuilder.AddLine("public static bool IsInvoking()");
 
