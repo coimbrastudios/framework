@@ -23,9 +23,54 @@ namespace Coimbra.Editor
             ' '
         };
 
+        private static readonly ReorderableList DelegateInfos = new ReorderableList(null, typeof(DelegateInfo), false, true, false, false);
+
         private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
 
         private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
+
+        static CoimbraEditorGUIUtility()
+        {
+            DelegateInfos.headerHeight = EditorGUIUtility.singleLineHeight;
+            DelegateInfos.elementHeight = EditorGUIUtility.singleLineHeight;
+            DelegateInfos.footerHeight = 0;
+
+            DelegateInfos.drawHeaderCallback = delegate
+            {
+                // empty
+            };
+
+            DelegateInfos.drawNoneElementCallback = delegate(Rect rect)
+            {
+                if (DelegateInfos.list != null)
+                {
+                    ReorderableList.defaultBehaviours.DrawNoneElement(rect, false);
+                }
+                else
+                {
+                    EditorGUI.LabelField(rect, "Can't inspect multiple objects!");
+                }
+            };
+
+            DelegateInfos.drawElementCallback = delegate(Rect rect, int index, bool active, bool focused)
+            {
+                if (DelegateInfos.serializedProperty != null)
+                {
+                    EditorGUI.PropertyField(rect, DelegateInfos.serializedProperty.GetArrayElementAtIndex(index));
+                }
+                else if (DelegateInfos.list != null)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    using (GUIContentPool.Pop(out GUIContent temp))
+                    {
+                        DelegateInfo info = (DelegateInfo)DelegateInfos.list[index];
+                        temp.text = info.Target;
+                        rect = EditorGUI.PrefixLabel(rect, temp);
+                        EditorGUI.TextField(rect, info.Method);
+                    }
+                }
+            };
+        }
 
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
@@ -48,6 +93,45 @@ namespace Coimbra.Editor
 
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Draws a delegate invocation list.
+        /// </summary>
+        /// <param name="position">The position to draw.</param>
+        /// <param name="label">The label to draw.</param>
+        /// <param name="value">The delegate value to get the invocation list.</param>
+        /// <param name="isMultiEditing">If true, a warning will appear instead of the actual invocation list.</param>
+        /// <returns>If the list is still expanded.</returns>
+        public static void DrawDelegate<T>(Rect position, GUIContent label, in T value, bool isMultiEditing)
+            where T : Delegate
+        {
+            const int countFieldSize = 50;
+            Rect headerPosition = position;
+            headerPosition.x -= EditorGUI.indentLevel * 15f;
+            headerPosition.height = EditorGUIUtility.singleLineHeight;
+
+            using (ListPool.Pop(out List<DelegateInfo> list))
+            {
+                value.GetInvocationList(list);
+
+                if (!isMultiEditing)
+                {
+                    DelegateInfos.list = list;
+                }
+
+                DelegateInfos.DoList(position);
+
+                DelegateInfos.list = null;
+                headerPosition.xMin += 6f;
+                headerPosition.xMax -= 6f;
+                headerPosition.height -= 2f;
+                headerPosition.y++;
+                EditorGUI.LabelField(headerPosition, label);
+
+                headerPosition.xMin += headerPosition.width - countFieldSize;
+                EditorGUI.IntField(headerPosition, list.Count);
             }
         }
 
@@ -118,6 +202,30 @@ namespace Coimbra.Editor
             else
             {
                 EditorGUI.PropertyField(position, property, label);
+            }
+        }
+
+        /// <summary>
+        /// Gets the necessary height to draw a delegate in the inspector.
+        /// </summary>
+        public static float GetDelegateHeight<T>(in T value, bool isMultiEditing)
+            where T : Delegate
+        {
+            if (isMultiEditing)
+            {
+                return DelegateInfos.GetHeight();
+            }
+
+            using (ListPool.Pop(out List<DelegateInfo> list))
+            {
+                value.GetInvocationList(list);
+
+                DelegateInfos.list = list;
+
+                float result = DelegateInfos.GetHeight();
+                DelegateInfos.list = null;
+
+                return result;
             }
         }
 

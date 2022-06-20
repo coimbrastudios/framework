@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.7.9] - 2022-06-20
+
+- Added information about the callback's invocation list at the `TimerHandleDrawer` and `TimerComponentEditor`.
+- Fixed assembly creator not making the generated editor assembly reference the generated runtime assembly.
+- Fixed `SerializableDictionary` not working properly when used as an array or list.
+
 ## [10.7.8] - 2022-06-19
 
 - Added `Active Timers` profiler counter.

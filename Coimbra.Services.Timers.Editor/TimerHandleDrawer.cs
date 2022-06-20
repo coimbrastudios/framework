@@ -1,4 +1,5 @@
 using Coimbra.Editor;
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,12 +14,15 @@ namespace Coimbra.Services.Timers.Editor
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            if (!property.isExpanded || !ServiceLocator.IsSet(out ITimerService timerService) || !timerService!.IsTimerActive(property.GetValue<TimerHandle>()) || property.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
+            if (!property.isExpanded
+             || !ServiceLocator.IsSet(out ITimerService timerService)
+             || !timerService!.IsTimerActive(property.GetValue<TimerHandle>(), out Action callback, out _, out _, out _, out _)
+             || property.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
             {
                 return EditorGUIUtility.singleLineHeight;
             }
 
-            return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing * 3;
+            return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing * 4 + CoimbraEditorGUIUtility.GetDelegateHeight(in callback, property.serializedObject.isEditingMultipleObjects);
         }
 
         /// <inheritdoc/>
@@ -43,7 +47,7 @@ namespace Coimbra.Services.Timers.Editor
 
             TimerHandle timerHandle = info.GetValue<TimerHandle>(property.serializedObject.targetObject);
 
-            if (!ServiceLocator.IsSet(out ITimerService timerService) || !timerService!.IsTimerActive(in timerHandle, out float delay, out float rate, out int targetLoops, out int completedLoops))
+            if (!ServiceLocator.IsSet(out ITimerService timerService) || !timerService!.IsTimerActive(in timerHandle, out Action callback, out float delay, out float rate, out int targetLoops, out int completedLoops))
             {
                 using (GUIContentPool.Pop(out GUIContent temp))
                 {
@@ -65,54 +69,72 @@ namespace Coimbra.Services.Timers.Editor
                 return;
             }
 
-            using (new EditorGUI.IndentLevelScope())
             using (new EditorGUI.DisabledScope(true))
             {
-                position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
+                Rect callbackPosition = position;
 
-                EditorGUI.FloatField(position, "Delay", delay);
-
-                position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
-
-                if (rate < 0)
+                using (new EditorGUI.IndentLevelScope())
                 {
-                    EditorGUI.LabelField(position, "Rate", "Once");
-                }
-                else
-                {
-                    EditorGUI.FloatField(position, "Rate", rate);
-                }
+                    position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
 
-                position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.FloatField(position, "Delay", delay);
+
+                    position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
+
+                    if (rate < 0)
+                    {
+                        EditorGUI.LabelField(position, "Rate", "Once");
+                    }
+                    else
+                    {
+                        EditorGUI.FloatField(position, "Rate", rate);
+                    }
+
+                    position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
+
+                    using (GUIContentPool.Pop(out GUIContent temp))
+                    {
+                        temp.text = "Loops";
+                        position = EditorGUI.PrefixLabel(position, temp);
+                    }
+                }
 
                 using (GUIContentPool.Pop(out GUIContent temp))
                 {
-                    temp.text = "Loops";
-                    position = EditorGUI.PrefixLabel(position, temp);
+                    temp.text = "/";
+
+                    float separatorWidth = EditorStyles.label.CalcSize(temp).x;
+                    position.width = position.width * 0.5f - 2 - separatorWidth - EditorGUIUtility.standardVerticalSpacing * 2;
+                    EditorGUI.IntField(position, completedLoops);
+                    position.x += position.width + separatorWidth + EditorGUIUtility.standardVerticalSpacing * 2;
+
+                    if (targetLoops == 0)
+                    {
+                        EditorGUI.LabelField(position, "Infinity");
+                    }
+                    else
+                    {
+                        EditorGUI.IntField(position, targetLoops);
+                    }
+
+                    position.x -= separatorWidth + EditorGUIUtility.standardVerticalSpacing;
+                    position.width = separatorWidth;
+                    EditorGUI.LabelField(position, temp);
+                }
+
+                using (new EditorGUI.IndentLevelScope())
+                using (GUIContentPool.Pop(out GUIContent temp))
+                {
+                    temp.text = "Callback";
+                    callbackPosition.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
+                    callbackPosition.height = CoimbraEditorGUIUtility.GetDelegateHeight(in callback, property.serializedObject.isEditingMultipleObjects);
+                    CoimbraEditorGUIUtility.DrawDelegate(EditorGUI.IndentedRect(callbackPosition), temp, in callback, property.serializedObject.isEditingMultipleObjects);
                 }
             }
 
-            using (GUIContentPool.Pop(out GUIContent temp))
+            foreach (UnityEditor.Editor editor in ActiveEditorTracker.sharedTracker.activeEditors)
             {
-                temp.text = "/";
-
-                float separatorWidth = EditorStyles.label.CalcSize(temp).x;
-                position.width = position.width * 0.5f - 2 - separatorWidth - EditorGUIUtility.standardVerticalSpacing * 2;
-                EditorGUI.IntField(position, completedLoops);
-                position.x += position.width + separatorWidth + EditorGUIUtility.standardVerticalSpacing * 2;
-
-                if (targetLoops == 0)
-                {
-                    EditorGUI.LabelField(position, "Infinity");
-                }
-                else
-                {
-                    EditorGUI.IntField(position, targetLoops);
-                }
-
-                position.x -= separatorWidth + EditorGUIUtility.standardVerticalSpacing;
-                position.width = separatorWidth;
-                EditorGUI.LabelField(position, temp);
+                editor.Repaint();
             }
         }
     }
