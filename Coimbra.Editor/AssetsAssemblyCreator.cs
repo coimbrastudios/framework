@@ -134,9 +134,9 @@ namespace Coimbra.Editor
                 }
 
                 CreateAssetsAssemblyDefinition(ref runtimePath, runtimeAssembly, runtimeGuids);
+                editorGuids.Add(string.Format(GuidFormat, AssetDatabase.AssetPathToGUID(runtimePath)));
                 CreateAssetsEditorAssemblyDefinition(ref editorPath, editorAssembly, editorGuids);
                 ignoredFolders.Add(Path.GetDirectoryName(editorPath)!.Replace('\\', '/'));
-                AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
                 CreateAssetsEditorAssemblyReferences(ignoredFolders);
             }
         }
@@ -160,6 +160,7 @@ namespace Coimbra.Editor
             }
 
             File.WriteAllText(assemblyPath, JsonUtility.ToJson(assemblyDefinition, true));
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
         }
 
         private static void CreateAssetsEditorAssemblyDefinition(ref string assemblyPath, AssemblyDefinition assemblyDefinition, ISet<string> autoReferencedGuids)
@@ -187,6 +188,7 @@ namespace Coimbra.Editor
             }
 
             File.WriteAllText(assemblyPath, JsonUtility.ToJson(assemblyDefinition, true));
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
         }
 
         private static void CreateAssetsEditorAssemblyReferences(IReadOnlyList<string> ignoredFolders)
