@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.7.12] - UNRELEASED
+
+- Added online documentation link.
+- Added online license link.
+- Added online changelog link.
+- Changed [README](README.md) to only contains some basic information, details were moved to the new [documentation](Documentation~/Index.md).
+
 ## [10.7.11] - 2022-06-21
 
 - Added missing [LICENSE](LICENSE.md).
