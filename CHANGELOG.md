@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.7.11] - 2022-06-21
+
+- Added missing [LICENSE](LICENSE.md).
+
 ## [10.7.10] - 2022-06-21
 
 - Fixed missing `System` directive at `CoimbraEditorUserSettings` in Unity 2021.
