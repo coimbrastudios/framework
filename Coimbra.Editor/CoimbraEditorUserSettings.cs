@@ -12,7 +12,7 @@ namespace Coimbra.Editor
     public sealed class CoimbraEditorUserSettings : ScriptableSettings
     {
 #if UNITY_2021_3_OR_NEWER
-        [Obsolete("Unity has now a built-in functionality for it in its Console window. This property will have no effect.")]
+        [System.Obsolete("Unity has now a built-in functionality for it in its Console window. This property will have no effect.")]
 #else
         /// <summary>
         /// If true, console will be cleared upon a script reload.
