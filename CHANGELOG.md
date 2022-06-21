@@ -2,6 +2,8 @@
 
 ## [10.7.9] - 2022-06-20
 
+- Added `SelectableLabelAttribute` and its drawer.
+- Added information about the listeners at the `EventHandle` and `EventSystemDrawer`.
 - Added information about the callback listeners at the `TimerHandleDrawer` and `TimerComponentEditor`.
 - Added `IEventService` APIs to the listener list for any given event or `EventHandle`.
 - Changed new `IsTimerActive` overload to `GetTimerData` to make its behaviour more obvious.

@@ -1,3 +1,4 @@
+using Coimbra.Editor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -101,27 +102,30 @@ namespace Coimbra.Services.Editor
             using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
-            switch (_windowMode)
+            using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * 0.4f, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                case WindowMode.CurrentServices:
+                switch (_windowMode)
                 {
-                    DrawCurrentServices();
+                    case WindowMode.CurrentServices:
+                    {
+                        DrawCurrentServices();
 
-                    break;
-                }
+                        break;
+                    }
 
-                case WindowMode.ServicesClasses:
-                {
-                    DrawServiceClasses();
+                    case WindowMode.ServicesClasses:
+                    {
+                        DrawServiceClasses();
 
-                    break;
-                }
+                        break;
+                    }
 
-                case WindowMode.ServicesInterfaces:
-                {
-                    DrawServiceInterfaces();
+                    case WindowMode.ServicesInterfaces:
+                    {
+                        DrawServiceInterfaces();
 
-                    break;
+                        break;
+                    }
                 }
             }
         }

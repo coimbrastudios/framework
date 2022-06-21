@@ -41,7 +41,7 @@ namespace Coimbra
         /// </summary>
         public Type Value
         {
-            get => _value;
+            get => _value ?? typeof(T);
             set
             {
                 _value = value;
@@ -53,8 +53,8 @@ namespace Coimbra
                 }
                 else
                 {
-                    _assemblyName = null;
-                    _className = null;
+                    _assemblyName = typeof(T).Assembly.FullName;
+                    _className = typeof(T).FullName;
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace Coimbra
 
         public override string ToString()
         {
-            return _value == null ? "<null>" : TypeString.Get(_value);
+            return TypeString.Get(Value);
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }
@@ -78,26 +78,13 @@ namespace Coimbra
             {
                 if (string.IsNullOrEmpty(_assemblyName) || string.IsNullOrEmpty(_className))
                 {
-                    _value = null;
+                    Value = null;
                 }
                 else
                 {
                     Assembly assembly = Assembly.Load(_assemblyName);
-
-                    if (assembly != null)
-                    {
-                        _value = assembly.GetType(_className);
-                    }
+                    Value = assembly != null ? assembly.GetType(_className) : null;
                 }
-
-                if (typeof(T).IsAssignableFrom(_value))
-                {
-                    return;
-                }
-
-                _assemblyName = null;
-                _className = null;
-                _value = null;
             }
             catch (Exception e)
             {

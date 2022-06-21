@@ -38,7 +38,8 @@ namespace Coimbra.Services.PlayerLoopEvents
         [Tooltip("The player loop event type to use.")]
         private SerializableType<IPlayerLoopEvent> _playerLoopEventType;
 
-        private EventHandle? _eventHandle;
+        [SerializeField]
+        private EventHandle _eventHandle;
 
         /// <summary>
         /// The <see cref="IPlayerLoopEvent"/> type to use.
@@ -80,19 +81,19 @@ namespace Coimbra.Services.PlayerLoopEvents
 
         private void ForgetPlayerLoopEvent()
         {
-            if (!_eventHandle.HasValue)
+            if (!_eventHandle.IsValid)
             {
                 return;
             }
 
-            ServiceLocator.GetChecked<IEventService>().RemoveListener(_eventHandle.Value);
+            _eventHandle.Service.RemoveListener(in _eventHandle);
 
-            _eventHandle = null;
+            _eventHandle = default;
         }
 
         private void TryListenPlayerLoopService()
         {
-            if (this.IsValid() && !_eventHandle.HasValue)
+            if (this.IsValid() && !_eventHandle.IsValid)
             {
                 _eventHandle = ServiceLocator.GetChecked<IPlayerLoopService>().AddListener(_playerLoopEventType, HandlePlayerLoopEvent);
             }

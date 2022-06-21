@@ -53,7 +53,7 @@ namespace Coimbra.Services.Timers
         public TimerHandle StartTimer(in Action callback, float delay)
         {
             TimerComponent component = _timerComponentPool.Pop();
-            TimerHandle handle = TimerHandle.Create();
+            TimerHandle handle = TimerHandle.Create(this);
             component.Delay = Mathf.Max(delay, 0);
             component.Rate = -1;
             component.TargetLoops = 1;
@@ -70,7 +70,7 @@ namespace Coimbra.Services.Timers
         public TimerHandle StartTimer(in Action callback, float delay, float rate, int loops = 0)
         {
             TimerComponent component = _timerComponentPool.Pop();
-            TimerHandle handle = TimerHandle.Create();
+            TimerHandle handle = TimerHandle.Create(this);
             component.Delay = Mathf.Max(delay, 0);
             component.Rate = Mathf.Max(rate, 0);
             component.TargetLoops = Mathf.Max(loops, 0);
@@ -130,10 +130,7 @@ namespace Coimbra.Services.Timers
 
             TimerComponent createCallback()
             {
-                TimerComponent instance = GameObject.AddComponent<TimerComponent>();
-                instance.Service = this;
-
-                return instance;
+                return GameObject.AddComponent<TimerComponent>();
             }
 
             static void onPop(TimerComponent component)

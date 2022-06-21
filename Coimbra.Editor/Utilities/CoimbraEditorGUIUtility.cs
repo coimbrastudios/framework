@@ -23,52 +23,11 @@ namespace Coimbra.Editor
             ' '
         };
 
-        private static readonly ReorderableList DelegateListeners = new ReorderableList(null, typeof(DelegateListener), false, true, false, false);
-
         private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
 
         private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
 
-        static CoimbraEditorGUIUtility()
-        {
-            DelegateListeners.headerHeight = EditorGUIUtility.singleLineHeight;
-            DelegateListeners.elementHeight = EditorGUIUtility.singleLineHeight;
-            DelegateListeners.footerHeight = 0;
-
-            DelegateListeners.drawHeaderCallback = delegate
-            {
-                // empty
-            };
-
-            DelegateListeners.drawNoneElementCallback = delegate(Rect rect)
-            {
-                if (DelegateListeners.list != null)
-                {
-                    ReorderableList.defaultBehaviours.DrawNoneElement(rect, false);
-                }
-                else
-                {
-                    EditorGUI.LabelField(rect, "Can't inspect multiple objects!");
-                }
-            };
-
-            DelegateListeners.drawElementCallback = delegate(Rect rect, int index, bool active, bool focused)
-            {
-                if (DelegateListeners.serializedProperty != null)
-                {
-                    EditorGUI.PropertyField(rect, DelegateListeners.serializedProperty.GetArrayElementAtIndex(index));
-                }
-                else if (DelegateListeners.list != null)
-                {
-                    using (GUIContentPool.Pop(out GUIContent temp))
-                    {
-                        DelegateListener listener = (DelegateListener)DelegateListeners.list[index];
-                        temp.text = listener.Target;
-                        DelegateListenerDrawer.DrawGUI(rect, temp, listener.Method);
-                    }
-                }
-            };
-        }
+        private static ReorderableList _delegateListeners;
 
         /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
@@ -99,29 +58,28 @@ namespace Coimbra.Editor
         /// </summary>
         /// <param name="position">The position to draw.</param>
         /// <param name="label">The label to draw.</param>
-        /// <param name="value">The delegate value to get the invocation list.</param>
+        /// <param name="list">The list to draw.</param>
         /// <param name="isMultiEditing">If true, a warning will appear instead of the actual invocation list.</param>
         /// <returns>If the list is still expanded.</returns>
-        public static void DrawDelegateListeners<T>(Rect position, GUIContent label, in T value, bool isMultiEditing)
-            where T : Delegate
+        public static void DrawDelegateListeners(Rect position, GUIContent label, List<DelegateListener> list, bool isMultiEditing)
         {
-            const int countFieldSize = 50;
-            Rect headerPosition = position;
-            headerPosition.x -= EditorGUI.indentLevel * 15f;
-            headerPosition.height = EditorGUIUtility.singleLineHeight;
+            InitializeDelegateListeners();
+            position = EditorGUI.IndentedRect(position);
 
-            using (ListPool.Pop(out List<DelegateListener> list))
+            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
             {
-                value.GetListeners(list);
+                const int countFieldSize = 50;
+                Rect headerPosition = position;
+                headerPosition.height = EditorGUIUtility.singleLineHeight;
 
                 if (!isMultiEditing)
                 {
-                    DelegateListeners.list = list;
+                    _delegateListeners.list = list;
                 }
 
-                DelegateListeners.DoList(position);
+                _delegateListeners.DoList(position);
 
-                DelegateListeners.list = null;
+                _delegateListeners.list = null;
                 headerPosition.xMin += 6f;
                 headerPosition.height -= 2f;
                 headerPosition.y++;
@@ -129,6 +87,24 @@ namespace Coimbra.Editor
 
                 headerPosition.xMin += headerPosition.width - countFieldSize;
                 EditorGUI.IntField(headerPosition, list.Count);
+            }
+        }
+
+        /// <summary>
+        /// Draws a delegate invocation list.
+        /// </summary>
+        /// <param name="position">The position to draw.</param>
+        /// <param name="label">The label to draw.</param>
+        /// <param name="value">The delegate value to get the listeners to draw.</param>
+        /// <param name="isMultiEditing">If true, a warning will appear instead of the actual invocation list.</param>
+        /// <returns>If the list is still expanded.</returns>
+        public static void DrawDelegateListeners<T>(Rect position, GUIContent label, in T value, bool isMultiEditing)
+            where T : Delegate
+        {
+            using (ListPool.Pop(out List<DelegateListener> list))
+            {
+                value.GetListeners(list);
+                DrawDelegateListeners(position, label, list, isMultiEditing);
             }
         }
 
@@ -203,27 +179,37 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Gets the necessary height to draw a delegate in the inspector.
+        /// Gets the necessary height to draw a list of listeners in the inspector.
         /// </summary>
         public static float GetDelegateListenersHeight<T>(in T value, bool isMultiEditing)
             where T : Delegate
         {
-            if (isMultiEditing)
-            {
-                return DelegateListeners.GetHeight();
-            }
-
             using (ListPool.Pop(out List<DelegateListener> list))
             {
                 value.GetListeners(list);
 
-                DelegateListeners.list = list;
-
-                float result = DelegateListeners.GetHeight();
-                DelegateListeners.list = null;
-
-                return result;
+                return GetDelegateListenersHeight(list, isMultiEditing);
             }
+        }
+
+        /// <summary>
+        /// Gets the necessary height to draw a list of listeners in the inspector.
+        /// </summary>
+        public static float GetDelegateListenersHeight(List<DelegateListener> list, bool isMultiEditing)
+        {
+            InitializeDelegateListeners();
+
+            if (isMultiEditing)
+            {
+                return _delegateListeners.GetHeight();
+            }
+
+            _delegateListeners.list = list;
+
+            float result = _delegateListeners.GetHeight();
+            _delegateListeners.list = null;
+
+            return result;
         }
 
         /// <summary>
@@ -546,6 +532,58 @@ namespace Coimbra.Editor
 #else
             return (targetHash, propertyPathHash).GetHashCode();
 #endif
+        }
+
+        private static void InitializeDelegateListeners()
+        {
+            if (_delegateListeners != null)
+            {
+                return;
+            }
+
+            _delegateListeners = new ReorderableList(null, typeof(DelegateListener), false, true, false, false)
+            {
+                headerHeight = EditorGUIUtility.singleLineHeight,
+                elementHeight = EditorGUIUtility.singleLineHeight,
+                footerHeight = 0,
+                drawHeaderCallback = delegate
+                {
+                    // empty
+                },
+                onSelectCallback = delegate(ReorderableList list)
+                {
+                    list.index = -1;
+                },
+            };
+
+            _delegateListeners.drawNoneElementCallback = delegate(Rect rect)
+            {
+                if (_delegateListeners.list != null)
+                {
+                    ReorderableList.defaultBehaviours.DrawNoneElement(rect, false);
+                }
+                else
+                {
+                    EditorGUI.LabelField(rect, "Can't inspect multiple objects!");
+                }
+            };
+
+            _delegateListeners.drawElementCallback = delegate(Rect rect, int index, bool active, bool focused)
+            {
+                if (_delegateListeners.serializedProperty != null)
+                {
+                    EditorGUI.PropertyField(rect, _delegateListeners.serializedProperty.GetArrayElementAtIndex(index));
+                }
+                else if (_delegateListeners.list != null)
+                {
+                    using (GUIContentPool.Pop(out GUIContent temp))
+                    {
+                        DelegateListener listener = (DelegateListener)_delegateListeners.list[index];
+                        temp.text = listener.Target;
+                        DelegateListenerDrawer.DrawGUI(rect, temp, listener.Method);
+                    }
+                }
+            };
         }
 
         private static void InitializePropertyDrawers()

@@ -10,18 +10,21 @@ namespace Coimbra.Services.Timers
     [Serializable]
     public readonly struct TimerHandle : IEquatable<TimerHandle>
     {
+        public readonly ITimerService Service;
+
         public readonly Guid Guid;
 
-        private TimerHandle(Guid guid)
+        private TimerHandle(ITimerService service, Guid guid)
         {
+            Service = service;
             Guid = guid;
         }
 
-        public bool IsValid => Guid != Guid.Empty;
+        public bool IsValid => Guid != Guid.Empty && Service != null && Service.IsTimerActive(in this);
 
-        public static TimerHandle Create()
+        public static TimerHandle Create(ITimerService service)
         {
-            return new TimerHandle(Guid.NewGuid());
+            return new TimerHandle(service, Guid.NewGuid());
         }
 
         public static bool operator ==(TimerHandle left, TimerHandle right)
@@ -34,19 +37,28 @@ namespace Coimbra.Services.Timers
             return !left.Equals(right);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return obj is TimerHandle other && Equals(other);
         }
 
+        /// <inheritdoc/>
         public bool Equals(TimerHandle other)
         {
             return Guid.Equals(other.Guid);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return Guid.GetHashCode();
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return Guid.ToString();
         }
     }
 }

@@ -16,12 +16,12 @@ namespace Coimbra.Services.Editor
         internal bool IsDynamic;
 
         [SerializeField]
-        [Disable]
+        [SelectableLabel]
         [Tooltip("The Factory set for this type.")]
         internal string Factory;
 
         [SerializeField]
-        [Disable]
+        [DisablePicker]
         [Tooltip("The current value set.")]
         internal ManagedField<IService> Value;
 
@@ -29,8 +29,8 @@ namespace Coimbra.Services.Editor
         {
             IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
             Type = TypeString.Get(type);
-            Factory = service.Factory != null ? TypeString.Get(service.Factory.GetType()) : "<null>";
             Value = new ManagedField<IService>(service.Value);
+            Factory = service.Factory != null ? TypeString.Get(service.Factory.GetType()) : "<null>";
         }
     }
 }

@@ -20,11 +20,14 @@ namespace Coimbra.Editor
 
         private static SerializedProperty _current;
 
+        private readonly string _defaultValue;
+
         private readonly Type[] _types;
 
-        public TypeDropdown(IEnumerable<Type> types, AdvancedDropdownState state)
+        public TypeDropdown(IEnumerable<Type> types, AdvancedDropdownState state, string defaultValue = "<null>")
             : base(state)
         {
+            _defaultValue = defaultValue;
             _types = types.ToArray();
             minimumSize = new Vector2(MinWidth, EditorGUIUtility.singleLineHeight * MinLineCount + EditorGUIUtility.singleLineHeight * 2);
         }
@@ -125,7 +128,7 @@ namespace Coimbra.Editor
             int itemCount = 0;
             AdvancedDropdownItem root = new AdvancedDropdownItem("Select Type");
 
-            TypeDropdownItem defaultItem = new TypeDropdownItem(null, "<null>")
+            TypeDropdownItem defaultItem = new TypeDropdownItem(null, _defaultValue)
             {
                 id = itemCount++
             };

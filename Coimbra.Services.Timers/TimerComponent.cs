@@ -13,23 +13,15 @@ namespace Coimbra.Services.Timers
 
         [SerializeField]
         [Disable]
+        internal TimerHandle Handle;
+
         internal float Delay;
 
-        [SerializeField]
-        [Disable]
         internal float Rate;
 
-        [SerializeField]
-        [Disable]
         internal int TargetLoops;
 
-        [SerializeField]
-        [Disable]
         internal int CompletedLoops;
-
-        internal ITimerService Service;
-
-        internal TimerHandle Handle;
 
         internal Action Callback;
 
@@ -41,7 +33,7 @@ namespace Coimbra.Services.Timers
 
             if (TargetLoops > 0 && CompletedLoops == TargetLoops)
             {
-                Service.StopTimer(in Handle);
+                Handle.Service.StopTimer(in Handle);
             }
         }
 

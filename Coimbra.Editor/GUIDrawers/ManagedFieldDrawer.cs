@@ -62,6 +62,7 @@ namespace Coimbra.Editor
         public void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
         {
             TooltipAttribute tooltipAttribute = property.GetFieldInfo().GetCustomAttribute<TooltipAttribute>();
+            bool enableObjectPicker = GUI.enabled && property.GetFieldInfo().GetCustomAttribute<DisablePickerAttribute>() == null;
 
             if (tooltipAttribute != null)
             {
@@ -82,7 +83,7 @@ namespace Coimbra.Editor
                     position.height = EditorGUIUtility.singleLineHeight;
                     EditorGUI.LabelField(position, propertyScope.content, value);
 
-                    if (GUI.enabled)
+                    if (enableObjectPicker)
                     {
                         position.xMin = position.xMax - MinButtonSize;
 
@@ -111,14 +112,14 @@ namespace Coimbra.Editor
             {
                 position.height = EditorGUI.GetPropertyHeight(unityObject, true);
 
-                if (GUI.enabled)
+                if (enableObjectPicker)
                 {
                     position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
                 }
 
                 DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
 
-                if (GUI.enabled)
+                if (enableObjectPicker)
                 {
                     position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
                     position.width = MinButtonSize;
@@ -156,7 +157,8 @@ namespace Coimbra.Editor
                 {
                     Rect valuePosition = position;
                     valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                    position.xMin += EditorGUIUtility.labelWidth;
+                    position.x = EditorGUIUtility.labelWidth;
+                    position.width = EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth;
                     position.height = EditorGUIUtility.singleLineHeight;
 
                     using (GUIContentPool.Pop(out GUIContent typeLabel))
@@ -167,7 +169,7 @@ namespace Coimbra.Editor
                         EditorGUI.LabelField(position, typeLabel);
                     }
 
-                    if (GUI.enabled)
+                    if (enableObjectPicker)
                     {
                         position.xMin = position.xMax - MinButtonSize;
 

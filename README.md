@@ -25,7 +25,7 @@ Package of general utilities to be used with Unity development.
 - `FormerlySerializedAsBackingFieldOfAttribute`: `FormerlySerializedAs` subclass that correctly formats the input to `<{propertyName}>k__BackingField`.
 - `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
-- Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced.
+- Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
 - Listeners: components to be used to listen for common events:
     - `AnimatorIKListener`: depends on `Animator`.
     - `AnimatorMoveListener`: depends on `Animator`.
@@ -80,6 +80,7 @@ Package of general utilities to be used with Unity development.
     - `NotGreaterThan`: prevents an int field to have a value greater than the a given value.
     - `NotLessThan`: prevents an int field to have a value smaller than the a given value.
     - `RangeSlider`: draws a property using the Unity's `MinMaxSlider`.
+    - `SelectableLabel`: turns a string field into a selectable label.
     - `SortingLayerID`: turns an int field into a sorting layer popup field.
     - `TagSelector`: turns a string field into a tag popup field.
     - `TypeDropdownAttribute`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `TypeFilterAttribute`.

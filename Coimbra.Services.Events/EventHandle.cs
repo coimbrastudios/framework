@@ -9,23 +9,27 @@ namespace Coimbra.Services.Events
     /// Handle for an event from <see cref="IEventService"/>.
     /// </summary>
     [Preserve]
+    [Serializable]
     public readonly struct EventHandle : IEquatable<EventHandle>
     {
+        public readonly IEventService Service;
+
         public readonly Guid Guid;
 
-        public readonly Type Type;
+        public readonly Type? Type;
 
-        private EventHandle(Guid guid, Type type)
+        private EventHandle(IEventService service, Guid guid, Type type)
         {
+            Service = service;
             Guid = guid;
             Type = type;
         }
 
-        public bool IsValid => Guid != Guid.Empty && Type != null;
+        public bool IsValid => Guid != Guid.Empty && Service != null && Service.HasListener(in this);
 
-        public static EventHandle Create(Type type)
+        public static EventHandle Create(IEventService service, Type type)
         {
-            return new EventHandle(Guid.NewGuid(), type);
+            return new EventHandle(service, Guid.NewGuid(), type);
         }
 
         public static bool operator ==(EventHandle left, EventHandle right)
@@ -38,19 +42,28 @@ namespace Coimbra.Services.Events
             return !left.Equals(right);
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return obj is EventHandle other && Equals(other);
         }
 
+        /// <inheritdoc/>
         public bool Equals(EventHandle other)
         {
             return Guid.Equals(other.Guid);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return Guid.GetHashCode();
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return Guid.ToString();
         }
     }
 }

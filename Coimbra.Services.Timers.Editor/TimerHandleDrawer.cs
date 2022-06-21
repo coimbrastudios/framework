@@ -14,15 +14,21 @@ namespace Coimbra.Services.Timers.Editor
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            if (!property.isExpanded
-             || !ServiceLocator.IsSet(out ITimerService timerService)
-             || !timerService!.GetTimerData(property.GetValue<TimerHandle>(), out Action callback, out _, out _, out _, out _)
-             || property.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
+            if (!property.isExpanded)
             {
                 return EditorGUIUtility.singleLineHeight;
             }
 
-            return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing * 4 + CoimbraEditorGUIUtility.GetDelegateListenersHeight(in callback, property.serializedObject.isEditingMultipleObjects);
+            TimerHandle timerHandle = property.GetValue<TimerHandle>();
+
+            if (!timerHandle.IsValid || property.GetPropertyPathInfo().HasMultipleDifferentValues(property.serializedObject.targetObjects))
+            {
+                return EditorGUIUtility.singleLineHeight;
+            }
+
+            timerHandle.Service.GetTimerData(in timerHandle, out Action callback, out _, out _, out _, out _);
+
+            return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing * 4 + CoimbraEditorGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
         }
 
         /// <inheritdoc/>
@@ -47,11 +53,11 @@ namespace Coimbra.Services.Timers.Editor
 
             TimerHandle timerHandle = info.GetValue<TimerHandle>(property.serializedObject.targetObject);
 
-            if (!ServiceLocator.IsSet(out ITimerService timerService) || !timerService!.GetTimerData(in timerHandle, out Action callback, out float delay, out float rate, out int targetLoops, out int completedLoops))
+            if (!timerHandle.IsValid || !timerHandle.Service.GetTimerData(in timerHandle, out Action callback, out float delay, out float rate, out int targetLoops, out int completedLoops))
             {
                 using (GUIContentPool.Pop(out GUIContent temp))
                 {
-                    temp.text = "Inactive";
+                    temp.text = "Invalid";
                     EditorGUI.LabelField(position, propertyScope.content, temp);
                 }
 
@@ -60,7 +66,7 @@ namespace Coimbra.Services.Timers.Editor
 
             Rect fieldPosition = position;
             fieldPosition.xMin += EditorGUIUtility.labelWidth;
-            EditorGUI.LabelField(fieldPosition, "Active");
+            EditorGUI.LabelField(fieldPosition, timerHandle.ToString());
 
             property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
 
@@ -122,13 +128,13 @@ namespace Coimbra.Services.Timers.Editor
                     EditorGUI.LabelField(position, temp);
                 }
 
+                using (new EditorGUI.IndentLevelScope())
                 using (GUIContentPool.Pop(out GUIContent temp))
                 {
                     temp.text = "Callback";
-                    callbackPosition.xMin += 15;
                     callbackPosition.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
-                    callbackPosition.height = CoimbraEditorGUIUtility.GetDelegateListenersHeight(in callback, property.serializedObject.isEditingMultipleObjects);
-                    CoimbraEditorGUIUtility.DrawDelegateListeners(callbackPosition, temp, in callback, property.serializedObject.isEditingMultipleObjects);
+                    callbackPosition.height = CoimbraEditorGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
+                    CoimbraEditorGUIUtility.DrawDelegateListeners(callbackPosition, temp, callback, property.serializedObject.isEditingMultipleObjects);
                 }
             }
 

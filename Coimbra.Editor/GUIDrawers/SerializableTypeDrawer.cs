@@ -65,7 +65,9 @@ namespace Coimbra.Editor
 
             using (ListPool.Pop(out List<Type> types))
             {
-                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(context.PropertyType.GenericTypeArguments[0]))
+                Type baseType = context.PropertyType.GenericTypeArguments[0];
+
+                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(baseType))
                 {
                     if (!derivedType.IsDefined(typeof(CompilerGeneratedAttribute)))
                     {
@@ -98,7 +100,7 @@ namespace Coimbra.Editor
                     _current.serializedObject.Update();
                 }
 
-                TypeDropdown dropdown = new TypeDropdown(types, new AdvancedDropdownState());
+                TypeDropdown dropdown = new TypeDropdown(types, new AdvancedDropdownState(), TypeString.Get(baseType));
                 dropdown.OnItemSelected += handleItemSelected;
                 dropdown.Show(position);
             }

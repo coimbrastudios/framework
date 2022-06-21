@@ -170,7 +170,7 @@ namespace Coimbra.Services.PlayerLoopEvents
 
                 default:
                 {
-                    throw new NotImplementedException($"Missing implementation for {eventType}!");
+                    return default;
                 }
             }
         }

@@ -16,11 +16,13 @@ namespace Coimbra.Services.Events
     {
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
 
+        internal IReadOnlyDictionary<Type, Event> Events => _events;
+
         /// <inheritdoc/>
         public EventHandle AddListener<T>(in EventContextHandler<T> eventHandler)
             where T : IEvent
         {
-            EventHandle handle = EventHandle.Create(typeof(T));
+            EventHandle handle = EventHandle.Create(this, typeof(T));
             EventCallbacks<T>.Value.Add(handle, eventHandler);
 
             if (!_events.TryGetValue(typeof(T), out Event e))
@@ -72,7 +74,7 @@ namespace Coimbra.Services.Events
         /// <inheritdoc/>
         public int GetListeners(in EventHandle eventHandle, List<DelegateListener> listeners)
         {
-            return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) ? e.GetListenersHandler(eventHandle, listeners) : 0;
+            return eventHandle.Type != null && _events.TryGetValue(eventHandle.Type, out Event e) ? e.GetListenersHandler(eventHandle, listeners) : 0;
         }
 
         /// <inheritdoc/>
@@ -104,7 +106,7 @@ namespace Coimbra.Services.Events
         /// <inheritdoc/>
         public bool HasListener(in EventHandle eventHandle)
         {
-            return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) && e.HasListener(in eventHandle);
+            return eventHandle.Type != null && _events.TryGetValue(eventHandle.Type, out Event e) && e.HasListener(in eventHandle);
         }
 
         /// <inheritdoc/>
@@ -139,7 +141,7 @@ namespace Coimbra.Services.Events
         /// <inheritdoc/>
         public bool RemoveListener(in EventHandle eventHandle)
         {
-            return eventHandle.IsValid && _events.TryGetValue(eventHandle.Type, out Event e) && e.RemoveListener(in eventHandle);
+            return eventHandle.Type != null && _events.TryGetValue(eventHandle.Type, out Event e) && e.RemoveListener(in eventHandle);
         }
 
         /// <inheritdoc/>
