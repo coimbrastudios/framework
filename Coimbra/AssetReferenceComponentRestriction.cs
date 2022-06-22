@@ -55,44 +55,69 @@ namespace Coimbra
             return false;
         }
 
-        private bool ValidateAsset(GameObject gameObject)
+        private bool ValidateComponentsInAll(GameObject gameObject)
         {
-            if (All != null)
+            if (All == null)
             {
-                foreach (Type type in All)
-                {
-                    if (!gameObject.TryGetComponent(type, out _))
-                    {
-                        return false;
-                    }
-                }
+                return true;
             }
 
-            if (None != null)
+            foreach (Type type in All)
             {
-                foreach (Type type in None)
+                if (!gameObject.TryGetComponent(type, out _))
                 {
-                    if (gameObject.TryGetComponent(type, out _))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-            }
-
-            if (Any != null && Any.Length > 0)
-            {
-                foreach (Type type in Any)
-                {
-                    if (gameObject.TryGetComponent(type, out _))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
             }
 
             return true;
+        }
+
+        private bool ValidateComponentsInNone(GameObject gameObject)
+        {
+            if (None == null)
+            {
+                return true;
+            }
+
+            foreach (Type type in None)
+            {
+                if (gameObject.TryGetComponent(type, out _))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ValidateAsset(GameObject gameObject)
+        {
+            if (!ValidateComponentsInAll(gameObject))
+            {
+                return false;
+            }
+
+            if (!ValidateComponentsInNone(gameObject))
+            {
+                return false;
+            }
+
+            if (Any == null || Any.Length == 0)
+            {
+                return true;
+            }
+
+            foreach (Type type in Any)
+            {
+                if (gameObject.TryGetComponent(type, out _))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
         }
     }
 }

@@ -79,97 +79,19 @@ namespace Coimbra.Editor
 
             foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
             {
-                if (_editorStates.TryGetValue(pair.Key, out EditorState editorState))
-                {
-                    if (editorState.Editor.target != pair.Value)
-                    {
-                        DestroyImmediate(editorState.Editor);
-
-                        if (pair.Value == null)
-                        {
-                            _editorStates.Remove(pair.Key);
-
-                            continue;
-                        }
-
-                        ScriptableSettingsUtility.TryGetAttributeData(pair.Key, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
-
-                        editorState.Editor = UnityEditor.Editor.CreateEditor(pair.Value);
-                        _editorStates[pair.Key] = editorState;
-                    }
-                }
-                else
-                {
-                    if (pair.Value == null)
-                    {
-                        continue;
-                    }
-
-                    editorState.Editor = UnityEditor.Editor.CreateEditor(pair.Value);
-                    ScriptableSettingsUtility.TryGetAttributeData(pair.Key, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
-                    _editorStates.Add(pair.Key, editorState);
-                }
-
                 if (_filter != 0 && (_filter & 1 << (int)ScriptableSettings.GetType(pair.Key)) == 0)
+                {
+                    continue;
+                }
+
+                if (!TryGetEditorState(pair.Key, pair.Value, out EditorState editorState))
                 {
                     continue;
                 }
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
-                using (new EditorGUI.DisabledScope(editorState.SettingsScope != null && editorState.WindowPath == null))
-                {
-                    editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Editor);
-
-                    if (editorState.IsOpen)
-                    {
-                        using (GUIContentPool.Pop(out GUIContent label))
-                        {
-                            using (new EditorGUI.DisabledScope(true))
-                            {
-                                EditorGUILayout.EnumPopup("Type", pair.Value.Type);
-                            }
-
-                            switch (pair.Value.Type)
-                            {
-                                case ScriptableSettingsType.Custom:
-                                case ScriptableSettingsType.RuntimeProjectSettings:
-                                {
-                                    using (new EditorGUI.DisabledScope(true))
-                                    {
-                                        EditorGUILayout.ObjectField("Asset", pair.Value, pair.Key, false);
-                                    }
-
-                                    break;
-                                }
-
-                                case ScriptableSettingsType.EditorUserPreferences:
-                                {
-                                    label.text = "Asset Key";
-
-                                    Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-                                    rect = EditorGUI.PrefixLabel(rect, label);
-                                    EditorGUI.SelectableLabel(rect, ScriptableSettingsUtility.GetPrefsKey(pair.Key));
-
-                                    break;
-                                }
-
-                                default:
-                                {
-                                    label.text = "Asset Path";
-
-                                    Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-                                    rect = EditorGUI.PrefixLabel(rect, label);
-                                    EditorGUI.SelectableLabel(rect, editorState.AssetPath);
-
-                                    break;
-                                }
-                            }
-                        }
-
-                        editorState.Editor.OnInspectorGUI();
-                    }
-                }
+                DrawEditor(pair.Key, pair.Value, ref editorState);
 
                 if (!changeCheckScope.changed)
                 {
@@ -179,6 +101,99 @@ namespace Coimbra.Editor
                 _editorStates[pair.Key] = editorState;
                 pair.Value.Save();
             }
+        }
+
+        private void DrawEditor(Type type, ScriptableSettings value, ref EditorState editorState)
+        {
+            using (new EditorGUI.DisabledScope(editorState.SettingsScope != null && editorState.WindowPath == null))
+            {
+                editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Editor);
+
+                if (editorState.IsOpen)
+                {
+                    using (GUIContentPool.Pop(out GUIContent label))
+                    {
+                        using (new EditorGUI.DisabledScope(true))
+                        {
+                            EditorGUILayout.EnumPopup("Type", value.Type);
+                        }
+
+                        switch (value.Type)
+                        {
+                            case ScriptableSettingsType.Custom:
+                            case ScriptableSettingsType.RuntimeProjectSettings:
+                            {
+                                using (new EditorGUI.DisabledScope(true))
+                                {
+                                    EditorGUILayout.ObjectField("Asset", value, type, false);
+                                }
+
+                                break;
+                            }
+
+                            case ScriptableSettingsType.EditorUserPreferences:
+                            {
+                                label.text = "Asset Key";
+
+                                Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                                rect = EditorGUI.PrefixLabel(rect, label);
+                                EditorGUI.SelectableLabel(rect, ScriptableSettingsUtility.GetPrefsKey(type));
+
+                                break;
+                            }
+
+                            default:
+                            {
+                                label.text = "Asset Path";
+
+                                Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                                rect = EditorGUI.PrefixLabel(rect, label);
+                                EditorGUI.SelectableLabel(rect, editorState.AssetPath);
+
+                                break;
+                            }
+                        }
+                    }
+
+                    editorState.Editor.OnInspectorGUI();
+                }
+            }
+        }
+
+        private bool TryGetEditorState(Type type, ScriptableSettings value, out EditorState editorState)
+        {
+            if (_editorStates.TryGetValue(type, out editorState))
+            {
+                if (editorState.Editor.target != value)
+                {
+                    DestroyImmediate(editorState.Editor);
+
+                    if (value == null)
+                    {
+                        _editorStates.Remove(type);
+
+                        return false;
+                    }
+
+                    ScriptableSettingsUtility.TryGetAttributeData(type, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
+
+                    editorState.Editor = UnityEditor.Editor.CreateEditor(value);
+                    _editorStates[type] = editorState;
+                }
+            }
+            else
+            {
+                if (value == null)
+                {
+                    return false;
+                }
+
+                editorState.Editor = UnityEditor.Editor.CreateEditor(value);
+                ScriptableSettingsUtility.TryGetAttributeData(type, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
+                _editorStates.Add(type, editorState);
+            }
+
+            return true;
         }
     }
 }

@@ -67,21 +67,7 @@ namespace Coimbra.Editor
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
                 CurrentSearchContext = searchContext;
 
-                if (keywords.Any())
-                {
-                    foreach (string keyword in keywords)
-                    {
-                        if (!CoimbraGUIUtility.TryMatchSearch(searchContext, keyword))
-                        {
-                            continue;
-                        }
-
-                        base.OnGUI(searchContext);
-
-                        break;
-                    }
-                }
-                else
+                if (!keywords.Any() || TryMatchKeywords(searchContext))
                 {
                     base.OnGUI(searchContext);
                 }
@@ -189,6 +175,19 @@ namespace Coimbra.Editor
             {
                 value
             });
+        }
+
+        private bool TryMatchKeywords(string searchContext)
+        {
+            foreach (string keyword in keywords)
+            {
+                if (CoimbraGUIUtility.TryMatchSearch(searchContext, keyword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -33,25 +33,7 @@ namespace Coimbra.Editor
 
         private static void ConfigureStartupScene(PlayModeStateChange state)
         {
-            ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneInternalSettings internalSettings, FindSingle);
-            Debug.Assert(internalSettings);
-
-            switch (state)
-            {
-                case PlayModeStateChange.ExitingPlayMode:
-                case PlayModeStateChange.EnteredEditMode:
-                {
-                    if (internalSettings.HasSavedStartupScene)
-                    {
-                        EditorSceneManager.playModeStartScene = internalSettings.SavedStartupScene;
-                        internalSettings.HasSavedStartupScene = false;
-                        internalSettings.Save();
-                    }
-
-                    break;
-                }
-            }
-
+            StartupSceneInternalSettings internalSettings = GetInternalSettings(state);
             ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneManager settings, FindSingle);
             Debug.Assert(settings);
 
@@ -96,6 +78,30 @@ namespace Coimbra.Editor
                     break;
                 }
             }
+        }
+
+        private static StartupSceneInternalSettings GetInternalSettings(PlayModeStateChange state)
+        {
+            ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneInternalSettings internalSettings, FindSingle);
+            Debug.Assert(internalSettings);
+
+            switch (state)
+            {
+                case PlayModeStateChange.ExitingPlayMode:
+                case PlayModeStateChange.EnteredEditMode:
+                {
+                    if (internalSettings.HasSavedStartupScene)
+                    {
+                        EditorSceneManager.playModeStartScene = internalSettings.SavedStartupScene;
+                        internalSettings.HasSavedStartupScene = false;
+                        internalSettings.Save();
+                    }
+
+                    break;
+                }
+            }
+
+            return internalSettings;
         }
     }
 }

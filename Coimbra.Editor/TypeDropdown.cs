@@ -39,8 +39,6 @@ namespace Coimbra.Editor
                 return;
             }
 
-            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
             using (ListPool.Pop(out List<Type> types))
             {
                 foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(type))
@@ -54,7 +52,7 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    if (derivedType.IsValueType || derivedType.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) != null)
+                    if (derivedType.CanCreateInstance())
                     {
                         types.Add(derivedType);
                     }
@@ -74,14 +72,7 @@ namespace Coimbra.Editor
                     {
                         _current.SetValues(true, delegate
                         {
-                            try
-                            {
-                                return Activator.CreateInstance(item.Type);
-                            }
-                            catch
-                            {
-                                return item.Type.GetConstructor(bindingFlags, null, Type.EmptyTypes, null)!.Invoke(null);
-                            }
+                            return item.Type.CreateInstance();
                         });
                     }
 

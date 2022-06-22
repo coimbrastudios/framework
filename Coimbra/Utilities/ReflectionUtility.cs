@@ -7,13 +7,18 @@ using System.Text;
 
 namespace Coimbra.Editor
 {
-    internal static class ReflectionUtility
+    /// <summary>
+    /// Utility methods for reflection code.
+    /// </summary>
+    public static class ReflectionUtility
     {
         private const string SignatureFormat = "{0}({1})";
 
-        private const BindingFlags DefaultMethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
+        private const BindingFlags ConstructorBindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        private const BindingFlags PrivateMethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        private const BindingFlags DefaultBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
+
+        private const BindingFlags PrivateBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         private static readonly Dictionary<Type, Dictionary<int, FieldInfo?>> FieldsByNameFromType = new Dictionary<Type, Dictionary<int, FieldInfo?>>();
 
@@ -23,7 +28,26 @@ namespace Coimbra.Editor
 
         private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> SetterByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
 
-        internal static FieldInfo? FindFieldByName(this Type type, in string name)
+        /// <summary>
+        /// Create an instance of the given type by using either the <see cref="Activator"/> class or by any parameterless constructor on it.
+        /// </summary>
+        /// <seealso cref="TryCreateInstance{T}"/>
+        public static object CreateInstance(this Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch
+            {
+                return type.GetConstructor(ConstructorBindingFlags, null, Type.EmptyTypes, null)!.Invoke(null);
+            }
+        }
+
+        /// <summary>
+        /// Search for a field by its name. It will also search on base types for private fields if none is found in the target type.
+        /// </summary>
+        public static FieldInfo? FindFieldByName(this Type type, in string name)
         {
             int hash = name.GetHashCode();
 
@@ -37,7 +61,7 @@ namespace Coimbra.Editor
                 return result;
             }
 
-            FieldInfo? fieldInfo = type.GetField(name, DefaultMethodBindingFlags);
+            FieldInfo? fieldInfo = type.GetField(name, DefaultBindingFlags);
 
             if (fieldInfo != null)
             {
@@ -49,7 +73,7 @@ namespace Coimbra.Editor
             while (type.BaseType != null)
             {
                 type = type.BaseType;
-                fieldInfo = type.GetField(name, PrivateMethodBindingFlags);
+                fieldInfo = type.GetField(name, PrivateBindingFlags);
 
                 if (fieldInfo != null)
                 {
@@ -62,7 +86,10 @@ namespace Coimbra.Editor
             return fieldInfo;
         }
 
-        internal static MethodInfo? FindMethodByName(this Type type, in string name)
+        /// <summary>
+        /// Search for a method by its name. It will also search on base types for private methods if none is found in the target type.
+        /// </summary>
+        public static MethodInfo? FindMethodByName(this Type type, in string name)
         {
             int hash = name.GetHashCode();
 
@@ -76,7 +103,7 @@ namespace Coimbra.Editor
                 return result;
             }
 
-            MethodInfo? methodInfo = type.GetMethod(name, DefaultMethodBindingFlags);
+            MethodInfo? methodInfo = type.GetMethod(name, DefaultBindingFlags);
 
             if (methodInfo != null)
             {
@@ -88,7 +115,7 @@ namespace Coimbra.Editor
             while (type.BaseType != null)
             {
                 type = type.BaseType;
-                methodInfo = type.GetMethod(name, PrivateMethodBindingFlags);
+                methodInfo = type.GetMethod(name, PrivateBindingFlags);
 
                 if (methodInfo != null)
                 {
@@ -101,7 +128,10 @@ namespace Coimbra.Editor
             return methodInfo;
         }
 
-        internal static MethodInfo? FindMethodBySignature(this Type type, in string name, params Type[] parameters)
+        /// <summary>
+        /// Search for a method by its signature. It will also search on base types for private methods if none is found in the target type.
+        /// </summary>
+        public static MethodInfo? FindMethodBySignature(this Type type, in string name, params Type[] parameters)
         {
             int hash = GetSignature(name, parameters).GetHashCode();
 
@@ -115,7 +145,7 @@ namespace Coimbra.Editor
                 return result;
             }
 
-            MethodInfo? methodInfo = type.GetMethod(name, DefaultMethodBindingFlags, null, parameters, null);
+            MethodInfo? methodInfo = type.GetMethod(name, DefaultBindingFlags, null, parameters, null);
 
             if (methodInfo != null)
             {
@@ -127,7 +157,7 @@ namespace Coimbra.Editor
             while (type.BaseType != null)
             {
                 type = type.BaseType;
-                methodInfo = type.GetMethod(name, PrivateMethodBindingFlags, null, parameters, null);
+                methodInfo = type.GetMethod(name, PrivateBindingFlags, null, parameters, null);
 
                 if (methodInfo != null)
                 {
@@ -140,7 +170,10 @@ namespace Coimbra.Editor
             return methodInfo;
         }
 
-        internal static MethodInfo? FindSetterByName(this Type type, in string name)
+        /// <summary>
+        /// Search for a setter by its name. It will also search on base types for private setters if none is found in the target type.
+        /// </summary>
+        public static MethodInfo? FindSetterByName(this Type type, in string name)
         {
             int hash = name.GetHashCode();
 
@@ -154,7 +187,7 @@ namespace Coimbra.Editor
                 return result;
             }
 
-            MethodInfo? methodInfo = type.GetProperty(name, DefaultMethodBindingFlags)?.GetSetMethod(true);
+            MethodInfo? methodInfo = type.GetProperty(name, DefaultBindingFlags)?.GetSetMethod(true);
 
             if (methodInfo != null)
             {
@@ -166,7 +199,7 @@ namespace Coimbra.Editor
             while (type.BaseType != null)
             {
                 type = type.BaseType;
-                methodInfo = type.GetProperty(name, PrivateMethodBindingFlags)?.GetSetMethod(true);
+                methodInfo = type.GetProperty(name, PrivateBindingFlags)?.GetSetMethod(true);
 
                 if (methodInfo != null)
                 {
@@ -179,28 +212,32 @@ namespace Coimbra.Editor
             return methodInfo;
         }
 
-        internal static bool TryCreateInstance<T>(this Type type, out T instance)
+        /// <summary>
+        /// True if the type is a value type or contains a parameterless constructor.
+        /// </summary>
+        /// <returns></returns>
+        public static bool CanCreateInstance(this Type type)
+        {
+            return type.IsValueType || type.GetConstructor(ConstructorBindingFlags, null, Type.EmptyTypes, null) != null;
+        }
+
+        /// <summary>
+        /// Tries to create an instance of the given type by using either the <see cref="Activator"/> class or by any parameterless constructor on it.
+        /// </summary>
+        /// <seealso cref="CreateInstance"/>
+        public static bool TryCreateInstance<T>(this Type type, out T instance)
         {
             try
             {
-                instance = (T)Activator.CreateInstance(type);
+                instance = (T)type.CreateInstance();
 
                 return true;
             }
             catch
             {
-                try
-                {
-                    instance = (T)type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!.Invoke(null);
+                instance = default!;
 
-                    return true;
-                }
-                catch
-                {
-                    instance = default!;
-
-                    return false;
-                }
+                return false;
             }
         }
 

@@ -34,16 +34,9 @@ namespace Coimbra.Editor
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                Object[] objects = InternalEditorUtility.LoadSerializedFileAndForget(filePath);
-
-                foreach (Object o in objects)
+                if (TryLoad(type, filePath, filter, out ScriptableSettings? scriptableSettings))
                 {
-                    if (o is ScriptableSettings match && match.Type == filter)
-                    {
-                        ScriptableSettings.Set(type, match);
-
-                        return match;
-                    }
+                    return scriptableSettings;
                 }
 
                 value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
@@ -155,9 +148,32 @@ namespace Coimbra.Editor
             return scriptableSettings != null;
         }
 
-        internal static string GetPrefsKey(Type type)
+        /// <summary>
+        /// Gets the prefs key to use with a given type.
+        /// </summary>
+        public static string GetPrefsKey(Type type)
         {
             return $"{CoimbraUtility.PackageName}.{type.FullName}";
+        }
+
+        private static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, out ScriptableSettings? scriptableSettings)
+        {
+            Object[] objects = InternalEditorUtility.LoadSerializedFileAndForget(filePath);
+
+            foreach (Object o in objects)
+            {
+                if (o is ScriptableSettings match && match.Type == filter)
+                {
+                    ScriptableSettings.Set(type, match);
+                    scriptableSettings = match;
+
+                    return true;
+                }
+            }
+
+            scriptableSettings = null;
+
+            return false;
         }
     }
 }

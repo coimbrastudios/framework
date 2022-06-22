@@ -575,7 +575,6 @@ namespace Coimbra
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void OnUnloadScene(Scene scene)
         {
             if (GameObject.scene != scene)
@@ -676,7 +675,6 @@ namespace Coimbra
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Destroy(bool callObjectDestroy)
         {
             if (IsDestroyed)

@@ -13,6 +13,6 @@ namespace Coimbra.Editor
         /// </summary>
         [field: SerializeField]
         [field: Tooltip("If true, local analyzers will be disabled for the generated CS project")]
-        public bool DisableLocalAnalyzers { get; set; }
+        public bool DisableLocalAnalyzers { get; set; } = false;
     }
 }

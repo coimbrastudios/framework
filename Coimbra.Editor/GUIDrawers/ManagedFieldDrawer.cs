@@ -76,37 +76,81 @@ namespace Coimbra.Editor
 
             if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(targets))
             {
-                using (GUIContentPool.Pop(out GUIContent value))
+                DrawMultiEditMessage(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker);
+            }
+            else
+            {
+                DrawManagedField(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker, allowSceneObjects);
+            }
+        }
+
+        private static void DrawInterfaceField(Rect position, GUIContent label, Object[] targets, SerializedProperty systemObject, SerializedProperty unityObject, bool enableObjectPicker, bool allowSceneObjects, Type type)
+        {
+            string typename = systemObject.managedReferenceFullTypename;
+
+            if (string.IsNullOrWhiteSpace(typename))
+            {
+                position.height = EditorGUI.GetPropertyHeight(unityObject, true);
+                position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
+                DrawObjectField(position, type, unityObject, label, allowSceneObjects, false);
+
+                position.x = position.xMax + EditorGUIUtility.standardVerticalSpacing;
+                position.width = MinButtonSize;
+                position.height = EditorGUIUtility.singleLineHeight;
+
+                TypeDropdown.DrawReferenceField(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
                 {
-                    value.text = "Editing multiple different values!";
-                    value.tooltip = value.text;
-                    position.height = EditorGUIUtility.singleLineHeight;
-                    EditorGUI.LabelField(position, propertyScope.content, value);
+                    TypeDropdown.FilterTypes(targets, systemObject.GetScopeInfo(), list);
+                });
+            }
+            else
+            {
+                Rect valuePosition = position;
+                valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
+                position.x = EditorGUIUtility.labelWidth;
+                position.width = EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth;
+                position.height = EditorGUIUtility.singleLineHeight;
 
-                    if (enableObjectPicker)
+                using (GUIContentPool.Pop(out GUIContent typeLabel))
+                {
+                    Type selectedType = TypeUtility.GetType(in typename);
+                    typeLabel.text = TypeString.Get(selectedType);
+                    typeLabel.tooltip = typeLabel.text;
+                    EditorGUI.LabelField(position, typeLabel);
+                }
+
+                if (enableObjectPicker)
+                {
+                    position.xMin = position.xMax - MinButtonSize;
+
+                    if (GUI.Button(position, ClearLabel))
                     {
-                        position.xMin = position.xMax - MinButtonSize;
-
-                        if (GUI.Button(position, ClearLabel))
-                        {
-                            Undo.RecordObjects(targets, ClearUndoKey);
-                            systemObject.SetValues(null);
-                            unityObject.SetValues(null);
-                            unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                            unityObject.serializedObject.UpdateIfRequiredOrScript();
-                        }
+                        Undo.RecordObjects(targets, ClearUndoKey);
+                        systemObject.SetValues(null);
+                        systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                        systemObject.serializedObject.UpdateIfRequiredOrScript();
                     }
 
-                    return;
+                    EditorGUI.PropertyField(valuePosition, systemObject, label, true);
+
+                    // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
+                    GUI.Button(position, ClearLabel);
+                }
+                else
+                {
+                    EditorGUI.PropertyField(valuePosition, systemObject, label, true);
                 }
             }
+        }
 
+        private static void DrawManagedField(Rect position, GUIContent label, Object[] targets, SerializedProperty systemObject, SerializedProperty unityObject, bool enableObjectPicker, bool allowSceneObjects)
+        {
             Type type = systemObject.GetPropertyType();
 
             if (typeof(Object).IsAssignableFrom(type))
             {
                 position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-                DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, true);
+                DrawObjectField(position, type, unityObject, label, allowSceneObjects, true);
             }
             else if (unityObject.objectReferenceValue != null)
             {
@@ -117,84 +161,63 @@ namespace Coimbra.Editor
                     position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
                 }
 
-                DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
+                DrawObjectField(position, type, unityObject, label, allowSceneObjects, false);
 
-                if (enableObjectPicker)
+                if (!enableObjectPicker)
                 {
-                    position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
-                    position.width = MinButtonSize;
-                    position.height = EditorGUIUtility.singleLineHeight;
-
-                    if (GUI.Button(position, ClearLabel))
-                    {
-                        Undo.RecordObjects(targets, ClearUndoKey);
-                        unityObject.SetValues(null);
-                        unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                        unityObject.serializedObject.UpdateIfRequiredOrScript();
-                    }
+                    return;
                 }
+
+                position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+                position.width = MinButtonSize;
+                position.height = EditorGUIUtility.singleLineHeight;
+
+                if (!GUI.Button(position, ClearLabel))
+                {
+                    return;
+                }
+
+                Undo.RecordObjects(targets, ClearUndoKey);
+                unityObject.SetValues(null);
+                unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                unityObject.serializedObject.UpdateIfRequiredOrScript();
             }
             else if (type.IsInterface)
             {
-                string typename = systemObject.managedReferenceFullTypename;
-
-                if (string.IsNullOrWhiteSpace(typename))
-                {
-                    position.height = EditorGUI.GetPropertyHeight(unityObject, true);
-                    position.width -= MinButtonSize + EditorGUIUtility.standardVerticalSpacing;
-                    DrawObjectField(position, type, unityObject, propertyScope.content, allowSceneObjects, false);
-
-                    position.x = position.xMax + EditorGUIUtility.standardVerticalSpacing;
-                    position.width = MinButtonSize;
-                    position.height = EditorGUIUtility.singleLineHeight;
-
-                    TypeDropdown.DrawReferenceField(position, type, systemObject, NewLabel, NewUndoKey, delegate(List<Type> list)
-                    {
-                        TypeDropdown.FilterTypes(targets, systemObject.GetScopeInfo(), list);
-                    });
-                }
-                else
-                {
-                    Rect valuePosition = position;
-                    valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                    position.x = EditorGUIUtility.labelWidth;
-                    position.width = EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth;
-                    position.height = EditorGUIUtility.singleLineHeight;
-
-                    using (GUIContentPool.Pop(out GUIContent typeLabel))
-                    {
-                        Type selectedType = TypeUtility.GetType(in typename);
-                        typeLabel.text = TypeString.Get(selectedType);
-                        typeLabel.tooltip = typeLabel.text;
-                        EditorGUI.LabelField(position, typeLabel);
-                    }
-
-                    if (enableObjectPicker)
-                    {
-                        position.xMin = position.xMax - MinButtonSize;
-
-                        if (GUI.Button(position, ClearLabel))
-                        {
-                            Undo.RecordObjects(targets, ClearUndoKey);
-                            systemObject.SetValues(null);
-                            systemObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                            systemObject.serializedObject.UpdateIfRequiredOrScript();
-                        }
-
-                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-
-                        // HACK: buttons needs to be drawn before to receive the input, but we want to always draw it over the field
-                        GUI.Button(position, ClearLabel);
-                    }
-                    else
-                    {
-                        EditorGUI.PropertyField(valuePosition, systemObject, propertyScope.content, true);
-                    }
-                }
+                DrawInterfaceField(position, label, targets, systemObject, unityObject, enableObjectPicker, allowSceneObjects, type);
             }
             else
             {
-                TypeDropdownDrawer.OnGUI(position, systemObject, propertyScope.content);
+                TypeDropdownDrawer.OnGUI(position, systemObject, label);
+            }
+        }
+
+        private static void DrawMultiEditMessage(Rect position, GUIContent label, Object[] targets, SerializedProperty systemObject, SerializedProperty unityObject, bool enableObjectPicker)
+        {
+            using (GUIContentPool.Pop(out GUIContent value))
+            {
+                value.text = "Editing multiple different values!";
+                value.tooltip = value.text;
+                position.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.LabelField(position, label, value);
+
+                if (!enableObjectPicker)
+                {
+                    return;
+                }
+
+                position.xMin = position.xMax - MinButtonSize;
+
+                if (!GUI.Button(position, ClearLabel))
+                {
+                    return;
+                }
+
+                Undo.RecordObjects(targets, ClearUndoKey);
+                systemObject.SetValues(null);
+                unityObject.SetValues(null);
+                unityObject.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                unityObject.serializedObject.UpdateIfRequiredOrScript();
             }
         }
 

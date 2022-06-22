@@ -16,7 +16,6 @@ namespace Coimbra
         /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, initializing it as the specified type if no <see cref="Actor"/> component is found.
         /// </summary>
         [CanBeNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TActor AsActor<TActor>(this GameObject gameObject)
             where TActor : Actor
         {
@@ -39,7 +38,6 @@ namespace Coimbra
         /// Gets the <see cref="Actor"/> representing a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
         /// </summary>
         [NotNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Actor AsActor(this GameObject gameObject)
         {
             if (Actor.HasCachedActor(gameObject, out Actor actor))

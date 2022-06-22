@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -26,6 +27,7 @@ namespace Coimbra.Editor
             "Assets"
         };
 
+        [SuppressMessage("ReSharper", "CognitiveComplexity", Justification = "This method can't be simplified further without making it less legible.")]
         internal static void CreateAssetsAssemblies()
         {
             using (ListPool.Pop(out List<string> ignoredFolders))
@@ -109,30 +111,9 @@ namespace Coimbra.Editor
                             ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
                         }
                     }
-
-                    foreach (string guid in AssetDatabase.FindAssets($"t:{AssemblyDefinitionReferenceExtension}", AssetsFolderOnly))
-                    {
-                        string path = AssetDatabase.GUIDToAssetPath(guid);
-                        TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
-
-                        if (asset == null)
-                        {
-                            continue;
-                        }
-
-                        string text = asset.text;
-                        AssemblyDefinitionReference assembly = JsonUtility.FromJson<AssemblyDefinitionReference>(text);
-
-                        const string guidPrefix = "GUID:";
-                        string reference = assembly.reference.StartsWith(guidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(assembly.reference.Substring(guidPrefix.Length))) : assembly.reference;
-
-                        if (reference != AssetsAssemblyDefinitionName && reference != AssetsEditorAssemblyDefinitionName)
-                        {
-                            ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
-                        }
-                    }
                 }
 
+                PopulateIgnoredFolders(ignoredFolders);
                 CreateAssetsAssemblyDefinition(ref runtimePath, runtimeAssembly, runtimeGuids);
                 editorGuids.Add(string.Format(GuidFormat, AssetDatabase.AssetPathToGUID(runtimePath)));
                 CreateAssetsEditorAssemblyDefinition(ref editorPath, editorAssembly, editorGuids);
@@ -226,6 +207,31 @@ namespace Coimbra.Editor
             }
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
+        }
+
+        private static void PopulateIgnoredFolders(ICollection<string> ignoredFolders)
+        {
+            foreach (string guid in AssetDatabase.FindAssets($"t:{AssemblyDefinitionReferenceExtension}", AssetsFolderOnly))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+
+                if (asset == null)
+                {
+                    continue;
+                }
+
+                string text = asset.text;
+                AssemblyDefinitionReference assembly = JsonUtility.FromJson<AssemblyDefinitionReference>(text);
+
+                const string guidPrefix = "GUID:";
+                string reference = assembly.reference.StartsWith(guidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(assembly.reference.Substring(guidPrefix.Length))) : assembly.reference;
+
+                if (reference != AssetsAssemblyDefinitionName && reference != AssetsEditorAssemblyDefinitionName)
+                {
+                    ignoredFolders.Add(Path.GetDirectoryName(path)!.Replace('\\', '/'));
+                }
+            }
         }
     }
 }

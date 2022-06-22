@@ -4,10 +4,16 @@ using System.Text;
 
 namespace Coimbra
 {
-    internal static class TypeString
+    /// <summary>
+    /// Helper class to get the string representing a type in a more human-friendly way without allocating memory when using the same type. The format used is "{name} ({namespace})".
+    /// </summary>
+    public static class TypeString
     {
         private static readonly Dictionary<Type, string> Cache = new Dictionary<Type, string>();
 
+        /// <summary>
+        /// Gets the <see cref="string"/> for the specified <see cref="Type"/>..
+        /// </summary>
         public static string Get(Type type)
         {
             if (Cache.TryGetValue(type, out string value))

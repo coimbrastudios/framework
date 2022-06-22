@@ -23,82 +23,14 @@ namespace Coimbra.Editor
             {
                 case SerializedPropertyType.Integer:
                 {
-                    string[] layers = InternalEditorUtility.layers;
-
-                    int setValue(PropertyPathInfo sender, Object target)
-                    {
-                        sender.TryGetValue(target, out int value);
-
-                        if (string.IsNullOrEmpty(LayerMask.LayerToName(value)))
-                        {
-                            return LayerMask.NameToLayer(layers[0]);
-                        }
-
-                        for (int i = 0; i < layers.Length; i++)
-                        {
-                            if (LayerMask.LayerToName(value) == layers[i])
-                            {
-                                return value;
-                            }
-                        }
-
-                        return LayerMask.NameToLayer(layers[0]);
-                    }
-
-                    context.SetValues(targets, true, setValue);
-
-                    using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-
-                    {
-                        int value = EditorGUI.LayerField(position, propertyScope.content, property.intValue);
-
-                        if (changeCheckScope.changed)
-                        {
-                            property.intValue = value;
-                        }
-                    }
+                    DrawIntField(position, property, label, context, targets);
 
                     break;
                 }
 
                 case SerializedPropertyType.String:
                 {
-                    string[] layers = InternalEditorUtility.layers;
-
-                    string setValue(PropertyPathInfo sender, Object target)
-                    {
-                        sender.TryGetValue(target, out string value);
-
-                        if (string.IsNullOrEmpty(value))
-                        {
-                            return layers[0];
-                        }
-
-                        for (int i = 0; i < layers.Length; i++)
-                        {
-                            if (value == layers[i])
-                            {
-                                return value;
-                            }
-                        }
-
-                        return layers[0];
-                    }
-
-                    context.SetValues(targets, true, setValue);
-
-                    using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-
-                    {
-                        int value = EditorGUI.LayerField(position, propertyScope.content, LayerMask.NameToLayer(property.stringValue));
-
-                        if (changeCheckScope.changed)
-                        {
-                            property.stringValue = LayerMask.LayerToName(value);
-                        }
-                    }
+                    DrawStringField(position, property, label, context, targets);
 
                     break;
                 }
@@ -108,6 +40,84 @@ namespace Coimbra.Editor
                     EditorGUI.LabelField(position, label.text, "Use LayerSelector with int or string.");
 
                     break;
+                }
+            }
+        }
+
+        private static void DrawIntField(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets)
+        {
+            string[] layers = InternalEditorUtility.layers;
+
+            int setValue(PropertyPathInfo sender, Object target)
+            {
+                sender.TryGetValue(target, out int value);
+
+                if (string.IsNullOrEmpty(LayerMask.LayerToName(value)))
+                {
+                    return LayerMask.NameToLayer(layers[0]);
+                }
+
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    if (LayerMask.LayerToName(value) == layers[i])
+                    {
+                        return value;
+                    }
+                }
+
+                return LayerMask.NameToLayer(layers[0]);
+            }
+
+            context.SetValues(targets, true, setValue);
+
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+
+            {
+                int value = EditorGUI.LayerField(position, propertyScope.content, property.intValue);
+
+                if (changeCheckScope.changed)
+                {
+                    property.intValue = value;
+                }
+            }
+        }
+
+        private static void DrawStringField(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets)
+        {
+            string[] layers = InternalEditorUtility.layers;
+
+            string setValue(PropertyPathInfo sender, Object target)
+            {
+                sender.TryGetValue(target, out string value);
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    return layers[0];
+                }
+
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    if (value == layers[i])
+                    {
+                        return value;
+                    }
+                }
+
+                return layers[0];
+            }
+
+            context.SetValues(targets, true, setValue);
+
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+
+            {
+                int value = EditorGUI.LayerField(position, propertyScope.content, LayerMask.NameToLayer(property.stringValue));
+
+                if (changeCheckScope.changed)
+                {
+                    property.stringValue = LayerMask.LayerToName(value);
                 }
             }
         }

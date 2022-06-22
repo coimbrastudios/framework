@@ -92,7 +92,6 @@ namespace Coimbra
         /// <summary>
         /// More efficient version of <see cref="List{T}.RemoveAll"/> that doesn't care about preserving the order.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int RemoveAllSwapBack<T>(this List<T> list, Predicate<T> match)
         {
             if (match == null)

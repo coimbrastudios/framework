@@ -60,6 +60,21 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Returns true if the code is running inside Unity Cloud Build.
+        /// </summary>
+        public static bool IsUnityCloudBuild
+        {
+            get
+            {
+#if UNITY_CLOUD_BUILD
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
+        /// <summary>
         /// Are scripts currently reloading?
         /// </summary>
         public static bool IsReloadingScripts { get; internal set; }

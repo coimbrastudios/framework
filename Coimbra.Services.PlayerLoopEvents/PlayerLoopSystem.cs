@@ -3,6 +3,7 @@
 using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -226,6 +227,7 @@ namespace Coimbra.Services.PlayerLoopEvents
             while (!DestroyCancellationToken.IsCancellationRequested && HasAnyFixedUpdateTiming());
         }
 
+        [SuppressMessage("ReSharper", "CognitiveComplexity", Justification = "Can't simplify more without hurting performance or readability.")]
         private async UniTask InvokeMainUpdateEvents()
         {
             do
