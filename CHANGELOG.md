@@ -1,11 +1,14 @@
 # Changelog
 
-## [10.7.12] - UNRELEASED
+## [10.8.0] - UNRELEASED
 
 - Added online documentation link.
 - Added online license link.
 - Added online changelog link.
+- Added support for dynamic `PropertyPathInfo`. Those aren't cached but fully supports inheritance trees.
+- Added debug information for `EventSystem`.
 - Changed [README](README.md) to only contains some basic information, details were moved to the new [documentation](Documentation~/Index.md).
+- Removed support for int fields for `AnimatorParameterAttribute`.
 
 ## [10.7.11] - 2022-06-21
 
