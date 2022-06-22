@@ -63,7 +63,7 @@
     - `StackPool`: clears the `Stack`.
     - `StringBuilderPool`: clears the `StringBuilder`.
 - Property Attributes: property attributes fully compatible with Unity's standard workflow:
-    - `AnimatorParameter`: draws a parameter selector for a given animator.
+    - `AnimatorParameter`: turns a string field into a parameter selector for a given animator.
     - `AssetsOnly`: prevents to assign a scene object to a `UnityEngine.Object` field.
     - `EnumFlags`: turns an enum field into a enum mask popup field.
     - `IntRange`: draws a property as if it was a `IntRange`.

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditorInternal;
@@ -15,8 +13,6 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
     public sealed class SerializableDictionaryDrawer : PropertyDrawer
     {
-        private const float CountFieldSize = 50;
-
         private const float KeyWidthPercent = 0.4f;
 
         private const float LabelWidthPercent = 0.5f;
@@ -69,7 +65,7 @@ namespace Coimbra.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             ReorderableList list = property.FindPropertyRelative(ListProperty).ToReorderableList(InitializeReorderableList);
-            Rect headerPosition = DrawHeader(position, label, property, list);
+            CoimbraGUIUtility.DrawListHeader(position, label, property, list);
 
             if (!property.isExpanded)
             {
@@ -81,7 +77,7 @@ namespace Coimbra.Editor
             list.displayAdd = canResize;
             list.displayRemove = canResize;
             list.footerHeight = canResize ? EditorGUIUtility.singleLineHeight : 0;
-            listPosition.yMin += headerPosition.height + EditorGUIUtility.standardVerticalSpacing;
+            listPosition.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             listPosition.height = list.GetHeight();
 
             using (new LabelWidthScope(position.width * KeyWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
@@ -94,7 +90,7 @@ namespace Coimbra.Editor
                 return;
             }
 
-            position.y += headerPosition.height + EditorGUIUtility.standardVerticalSpacing + listPosition.height - EditorGUIUtility.singleLineHeight;
+            position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + listPosition.height - EditorGUIUtility.singleLineHeight;
 
             if (property.serializedObject.isEditingMultipleObjects)
             {
@@ -116,46 +112,6 @@ namespace Coimbra.Editor
             {
                 EditorGUI.PropertyField(position, newProperty, true);
             }
-        }
-
-        private static Rect DrawHeader(Rect position, GUIContent label, SerializedProperty property, ReorderableList list)
-        {
-            bool isEditingMultipleObjects = property.serializedObject.isEditingMultipleObjects;
-            Rect headerPosition = position;
-            headerPosition.height = EditorGUIUtility.singleLineHeight;
-            EditorGUI.PropertyField(headerPosition, property, label, false);
-
-            using (new EditorGUI.DisabledScope(true))
-            {
-                headerPosition.xMin += headerPosition.width - CountFieldSize;
-
-                static bool shouldShowMixedValue(SerializedProperty property)
-                {
-                    using (ListPool.Pop(out List<ICollection> collections))
-                    {
-                        property.GetValues(collections);
-
-                        int size = property.arraySize;
-
-                        foreach (ICollection collection in collections)
-                        {
-                            if (collection.Count != size)
-                            {
-                                return true;
-                            }
-                        }
-
-                        return false;
-                    }
-                }
-
-                using (new ShowMixedValueScope(isEditingMultipleObjects && shouldShowMixedValue(list.serializedProperty)))
-                {
-                    EditorGUI.IntField(headerPosition, list.serializedProperty.arraySize);
-                }
-            }
-
-            return headerPosition;
         }
 
         private static UndoPropertyModification[] HandlePostprocessModifications(UndoPropertyModification[] modifications)

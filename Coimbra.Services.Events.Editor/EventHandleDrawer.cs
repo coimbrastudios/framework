@@ -30,7 +30,7 @@ namespace Coimbra.Services.Events.Editor
             {
                 eventHandle.Service.GetListeners(in eventHandle, list);
 
-                return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + CoimbraEditorGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
+                return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + CoimbraGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
             }
         }
 
@@ -67,11 +67,18 @@ namespace Coimbra.Services.Events.Editor
                 return;
             }
 
-            Rect fieldPosition = position;
-            fieldPosition.xMin += EditorGUIUtility.labelWidth;
-            EditorGUI.LabelField(fieldPosition, eventHandle.ToString());
+            if (label == GUIContent.none)
+            {
+                property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, eventHandle.ToString(), true);
+            }
+            else
+            {
+                Rect fieldPosition = position;
+                fieldPosition.xMin += EditorGUIUtility.labelWidth;
+                EditorGUI.LabelField(fieldPosition, eventHandle.ToString());
 
-            property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
+                property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
+            }
 
             if (!property.isExpanded)
             {
@@ -79,7 +86,6 @@ namespace Coimbra.Services.Events.Editor
             }
 
             using (new EditorGUI.IndentLevelScope())
-            using (new EditorGUI.DisabledScope(true))
             using (ListPool.Pop(out List<DelegateListener> list))
             using (GUIContentPool.Pop(out GUIContent temp))
             {
@@ -87,8 +93,8 @@ namespace Coimbra.Services.Events.Editor
                 eventHandle.Service.GetListeners(in eventHandle, list);
 
                 position.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
-                position.height = CoimbraEditorGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
-                CoimbraEditorGUIUtility.DrawDelegateListeners(position, temp, list, property.serializedObject.isEditingMultipleObjects);
+                position.height = CoimbraGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
+                CoimbraGUIUtility.DrawDelegateListeners(position, temp, list, property.serializedObject.isEditingMultipleObjects);
             }
 
             foreach (UnityEditor.Editor editor in ActiveEditorTracker.sharedTracker.activeEditors)

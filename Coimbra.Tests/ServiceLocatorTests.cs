@@ -19,6 +19,7 @@ namespace Coimbra.Tests
             }
         }
 
+        [DynamicService]
         [HideInServiceLocatorWindow]
         private interface IDummyService : IService
         {

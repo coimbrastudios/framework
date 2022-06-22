@@ -9,12 +9,24 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(DelegateListener))]
     public sealed class DelegateListenerDrawer : PropertyDrawer
     {
-        public static void DrawGUI(Rect position, GUIContent target, string method)
+        public static void DrawGUI(Rect position, in string target, in string method, bool isStatic)
         {
-            using (new EditorGUI.DisabledScope(true))
+            if (isStatic)
             {
-                position = EditorGUI.PrefixLabel(position, target);
                 EditorGUI.TextField(position, method);
+            }
+            else
+            {
+                using (GUIContentPool.Pop(out GUIContent temp))
+                {
+                    temp.text = target;
+
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        position = EditorGUI.PrefixLabel(position, temp);
+                        EditorGUI.TextField(position, method);
+                    }
+                }
             }
         }
 
@@ -29,10 +41,24 @@ namespace Coimbra.Editor
         {
             using (new EditorGUI.DisabledScope(true))
             {
-                SerializedProperty target = property.FindPropertyRelative("_target");
-                label.text = target.hasMultipleDifferentValues ? "-" : target.stringValue;
-                SerializedProperty method = property.FindPropertyRelative("_method");
-                DrawGUI(position, label, method.hasMultipleDifferentValues ? "-" : method.stringValue);
+                SerializedProperty isStatic = property.FindPropertyRelative("_isStatic");
+
+                if (isStatic.hasMultipleDifferentValues)
+                {
+                    EditorGUI.LabelField(position, "-");
+                }
+                else if (isStatic.boolValue)
+                {
+                    SerializedProperty method = property.FindPropertyRelative("_method");
+                    DrawGUI(position, null, method.hasMultipleDifferentValues ? "-" : method.stringValue, true);
+                }
+                else
+                {
+                    SerializedProperty target = property.FindPropertyRelative("_target");
+                    label.text = target.hasMultipleDifferentValues ? "-" : target.stringValue;
+                    SerializedProperty method = property.FindPropertyRelative("_method");
+                    DrawGUI(position, label.text, method.hasMultipleDifferentValues ? "-" : method.stringValue, false);
+                }
             }
         }
     }

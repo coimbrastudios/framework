@@ -17,19 +17,29 @@ namespace Coimbra
         [SerializeField]
         private string _method;
 
+        [SerializeField]
+        private bool _isStatic;
+
         public DelegateListener(in Delegate entry)
         {
             if (entry.Target != null)
             {
                 _target = entry.Target.ToString();
                 _method = entry.Method.Name;
+                _isStatic = false;
             }
             else
             {
-                _target = "<null>";
+                _target = string.Empty;
                 _method = $"{entry.Method.DeclaringType!.FullName}.{entry.Method.Name}";
+                _isStatic = true;
             }
         }
+
+        /// <summary>
+        /// Is the listener static?
+        /// </summary>
+        public bool IsStatic => _isStatic;
 
         /// <summary>
         /// The target instance.
@@ -44,7 +54,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{_target}::{_method}";
+            return _isStatic ? _method : $"{_target} {_method}";
         }
     }
 }

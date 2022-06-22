@@ -26,7 +26,7 @@ namespace Coimbra.Editor
         [Conditional("WITH_URP")]
         private void DisplayRenderPipelineWarning()
         {
-            CoimbraEditorGUIUtility.DrawComponentWarningForRenderPipeline(target.GetType());
+            CoimbraGUIUtility.DrawComponentWarningForRenderPipeline(target.GetType());
         }
     }
 }

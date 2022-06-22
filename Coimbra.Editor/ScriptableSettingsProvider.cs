@@ -71,7 +71,7 @@ namespace Coimbra.Editor
                 {
                     foreach (string keyword in keywords)
                     {
-                        if (!CoimbraEditorGUIUtility.TryMatchSearch(searchContext, keyword))
+                        if (!CoimbraGUIUtility.TryMatchSearch(searchContext, keyword))
                         {
                             continue;
                         }

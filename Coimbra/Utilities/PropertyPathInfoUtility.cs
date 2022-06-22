@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Coimbra.Editor;
+using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -11,30 +14,28 @@ namespace Coimbra
     /// </summary>
     public static class PropertyPathInfoUtility
     {
-        private const BindingFlags PropertyPathInfoFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy;
-
         private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromRootType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
 
         /// <summary>
         /// Creates or gets a cached <see cref="PropertyPathInfo"/>.
         /// </summary>
-        public static PropertyPathInfo GetPropertyPathInfo(this Type type, in string propertyPath)
+        public static PropertyPathInfo GetPropertyPathInfo(this Object o, in string propertyPath)
         {
+            Type type = o.GetType();
+
             if (!PropertyPathInfoMapFromRootType.TryGetValue(type, out Dictionary<string, PropertyPathInfo> propertyPathInfoMap))
             {
                 propertyPathInfoMap = new Dictionary<string, PropertyPathInfo>();
                 PropertyPathInfoMapFromRootType.Add(type, propertyPathInfoMap);
             }
 
-            if (propertyPathInfoMap.TryGetValue(propertyPath, out PropertyPathInfo propertyPathInfo))
+            if (!propertyPathInfoMap.TryGetValue(propertyPath, out PropertyPathInfo propertyPathInfo))
             {
-                return propertyPathInfo;
+                propertyPathInfo = GetPropertyPathInfo(type, propertyPath.Split('.'), propertyPathInfoMap, null);
+                propertyPathInfoMap[propertyPath] = propertyPathInfo;
             }
 
-            propertyPathInfo = GetPropertyPathInfo(type, propertyPath.Split('.'), propertyPathInfoMap);
-            propertyPathInfoMap[propertyPath] = propertyPathInfo;
-
-            return propertyPathInfo;
+            return propertyPathInfo ?? GetPropertyPathInfo(type, propertyPath.Split('.'), propertyPathInfoMap, o);
         }
 
         internal static void ClearCaches()
@@ -66,18 +67,13 @@ namespace Coimbra
                 }
             }
 
-            FieldInfo result = null;
-
-            for (; result == null && type != null; type = type.BaseType)
-            {
-                result = type.GetField(field, PropertyPathInfoFlags);
-            }
-
-            return result;
+            return type.FindFieldByName(field);
         }
 
-        private static PropertyPathInfo GetPropertyPathInfo(Type rootType, IEnumerable<string> splitPropertyPathArray, IDictionary<string, PropertyPathInfo> cache)
+        private static PropertyPathInfo GetPropertyPathInfo(Type rootType, IEnumerable<string> splitPropertyPathArray, IDictionary<string, PropertyPathInfo> cache, Object target)
         {
+            bool isDynamic = target != null;
+
             using (StringBuilderPool.Pop(out StringBuilder propertyPathBuilder))
             {
                 using (ListPool.Pop(out List<string> splitPropertyPath))
@@ -100,6 +96,8 @@ namespace Coimbra
                         propertyPathBuilder.Append(splitPropertyPath[0]);
                         splitPropertyPath.RemoveAt(0);
 
+                        string propertyPath = propertyPathBuilder.ToString();
+
                         if (fieldInfo == null)
                         {
                             currentPropertyPathInfo = null;
@@ -107,24 +105,11 @@ namespace Coimbra
                             break;
                         }
 
-                        string propertyPath = propertyPathBuilder.ToString();
-
-                        if (!cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
-                        {
-                            cachedPropertyPathInfo = new PropertyPathInfo(fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath);
-                            cache.Add(propertyPath, cachedPropertyPathInfo);
-                        }
-
-                        currentPropertyPathInfo = cachedPropertyPathInfo;
-                        currentType = fieldInfo.FieldType;
+                        currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath, isDynamic);
+                        currentType = isDynamic ? currentPropertyPathInfo.GetValue(target)!.GetType() : fieldInfo.FieldType;
                         currentDepth++;
 
-                        if (splitPropertyPath.Count <= 1
-                         || splitPropertyPath[0] != "Array"
-                         || splitPropertyPath[1].Length <= 6
-                         || !splitPropertyPath[1].StartsWith("data[")
-                         || !splitPropertyPath[1].EndsWith("]")
-                         || !int.TryParse(splitPropertyPath[1].Substring(5, splitPropertyPath[1].Length - 6), out int index))
+                        if (!TryGetIndex(splitPropertyPath, out int index))
                         {
                             continue;
                         }
@@ -137,21 +122,61 @@ namespace Coimbra
 
                         Type propertyType = GetCollectionType(fieldInfo.FieldType);
                         propertyPath = propertyPathBuilder.ToString();
-
-                        if (!cache.TryGetValue(propertyPath, out cachedPropertyPathInfo))
-                        {
-                            cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath);
-                            cache.Add(propertyPath, cachedPropertyPathInfo);
-                        }
-
-                        currentPropertyPathInfo = cachedPropertyPathInfo;
-                        currentType = propertyType;
+                        currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath, isDynamic);
+                        currentType = isDynamic ? currentPropertyPathInfo.GetValue(target)!.GetType() : propertyType;
                         currentDepth++;
                     }
 
                     return currentPropertyPathInfo;
                 }
             }
+        }
+
+        private static PropertyPathInfo GetPropertyPathInfoFromCacheOrCreate(IDictionary<string, PropertyPathInfo> cache,
+                                                                             [NotNull] Type propertyType,
+                                                                             [NotNull] Type rootType,
+                                                                             [NotNull] FieldInfo fieldInfo,
+                                                                             [CanBeNull] PropertyPathInfo scopeInfo,
+                                                                             int depth,
+                                                                             int? index,
+                                                                             string propertyPath,
+                                                                             bool isDynamic)
+        {
+            if (cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
+            {
+                if (isDynamic && cachedPropertyPathInfo == null)
+                {
+                    return new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, true);
+                }
+
+                return cachedPropertyPathInfo;
+            }
+
+            cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, isDynamic);
+
+            if (!isDynamic)
+            {
+                cache.Add(propertyPath, cachedPropertyPathInfo);
+            }
+
+            return cachedPropertyPathInfo;
+        }
+
+        private static bool TryGetIndex(IReadOnlyList<string> splitPropertyPath, out int index)
+        {
+            if (splitPropertyPath.Count > 1
+             && splitPropertyPath[0] == "Array"
+             && splitPropertyPath[1].Length > 6
+             && splitPropertyPath[1].StartsWith("data[")
+             && splitPropertyPath[1].EndsWith("]")
+             && int.TryParse(splitPropertyPath[1].Substring(5, splitPropertyPath[1].Length - 6), out index))
+            {
+                return true;
+            }
+
+            index = -1;
+
+            return false;
         }
     }
 }

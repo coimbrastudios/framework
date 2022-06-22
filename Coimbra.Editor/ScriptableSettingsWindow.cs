@@ -41,7 +41,7 @@ namespace Coimbra.Editor
 
             for (int i = 0; i < FilterOptions.Length; i++)
             {
-                FilterOptions[i] = CoimbraEditorGUIUtility.ToDisplayName(FilterOptions[i]);
+                FilterOptions[i] = CoimbraGUIUtility.GetDisplayName(FilterOptions[i]);
             }
         }
 

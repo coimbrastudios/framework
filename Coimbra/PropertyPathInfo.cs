@@ -20,6 +20,11 @@ namespace Coimbra
         public delegate T SetValuesHandler<out T>(PropertyPathInfo sender, Object target);
 
         /// <summary>
+        /// If true, this <see cref="PropertyPathInfo"/> is not cached due being dependant on its scope value type.
+        /// </summary>
+        public readonly bool IsDynamic;
+
+        /// <summary>
         /// Nesting depth of the property.
         /// </summary>
         public readonly int Depth;
@@ -57,7 +62,7 @@ namespace Coimbra
 
         private PropertyPathInfo[] _chainBackingField;
 
-        internal PropertyPathInfo([NotNull] Type propertyType, [NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath)
+        internal PropertyPathInfo([NotNull] Type propertyType, [NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath, bool isDynamic)
         {
             _propertyPath = propertyPath;
             Depth = depth;
@@ -66,6 +71,7 @@ namespace Coimbra
             PropertyType = propertyType;
             RootType = rootType;
             ScopeInfo = scopeInfo;
+            IsDynamic = isDynamic;
         }
 
         /// <summary>

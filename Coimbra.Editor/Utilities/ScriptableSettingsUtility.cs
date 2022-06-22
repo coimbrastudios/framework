@@ -126,7 +126,7 @@ namespace Coimbra.Editor
             if (projectSettingsAttribute != null)
             {
                 settingsScope = SettingsScope.Project;
-                windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name)}";
+                windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? CoimbraGUIUtility.GetDisplayName(type.Name)}";
                 filePath = projectSettingsAttribute.IsEditorOnly ? $"{projectSettingsAttribute.FileDirectory}/{(projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset")}" : null;
                 keywords = projectSettingsAttribute.Keywords;
             }
@@ -136,7 +136,7 @@ namespace Coimbra.Editor
             if (preferencesAttribute != null)
             {
                 settingsScope = SettingsScope.User;
-                windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? CoimbraEditorGUIUtility.ToDisplayName(type.Name)}" : null;
+                windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? CoimbraGUIUtility.GetDisplayName(type.Name)}" : null;
                 filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{(preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset")}";
                 keywords = preferencesAttribute.Keywords;
             }

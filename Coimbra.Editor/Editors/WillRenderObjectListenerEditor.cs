@@ -25,7 +25,7 @@ namespace Coimbra.Editor
         [Conditional("WITH_HDRP")]
         private void DisplayRenderPipelineWarning()
         {
-            CoimbraEditorGUIUtility.DrawComponentWarningForRenderPipeline(target.GetType());
+            CoimbraGUIUtility.DrawComponentWarningForRenderPipeline(target.GetType());
         }
     }
 }

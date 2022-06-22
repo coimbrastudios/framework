@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace Coimbra.Services.Events
 {
     [Preserve]
+    [Serializable]
     internal sealed class Event : IDisposable
     {
         internal readonly ref struct InvokeScope
@@ -45,8 +47,13 @@ namespace Coimbra.Services.Events
         [NotNull]
         private readonly Type _type;
 
+        [CanBeNull]
+        [SerializeField]
+        private string _label;
+
         [NotNull]
-        private readonly List<EventHandle> _handles = new List<EventHandle>();
+        [SerializeField]
+        private List<EventHandle> _listeners = new List<EventHandle>();
 
         [NotNull]
         private readonly HashSet<EventHandle> _removeSet = new HashSet<EventHandle>();
@@ -60,13 +67,16 @@ namespace Coimbra.Services.Events
             _type = type;
             _removeCallbackHandler = removeCallbackHandler;
             GetListenersHandler = getListenersHandler;
+#if UNITY_EDITOR
+            _label = TypeString.Get(_type);
+#endif
         }
 
-        internal EventHandle this[int index] => _handles[index];
+        internal EventHandle this[int index] => _listeners[index];
 
         internal bool IsInvoking { get; private set; }
 
-        internal int ListenerCount => _handles.Count;
+        internal int ListenerCount => _listeners.Count;
 
         [NotNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,9 +89,9 @@ namespace Coimbra.Services.Events
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Add(in EventHandle handle)
         {
-            _handles.Add(handle);
+            _listeners.Add(handle);
 
-            if (_handles.Count == 1)
+            if (_listeners.Count == 1)
             {
                 OnRelevancyChanged?.Invoke(_service, _type, true);
             }
@@ -92,7 +102,7 @@ namespace Coimbra.Services.Events
         {
             int count = 0;
 
-            foreach (EventHandle handle in _handles)
+            foreach (EventHandle handle in _listeners)
             {
                 count += GetListenersHandler.Invoke(handle, listeners);
             }
@@ -109,7 +119,7 @@ namespace Coimbra.Services.Events
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool HasListener(in EventHandle handle)
         {
-            return _handles.Contains(handle) && !IsRemoving(in handle);
+            return _listeners.Contains(handle) && !IsRemoving(in handle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,19 +135,19 @@ namespace Coimbra.Services.Events
 
             if (IsInvoking)
             {
-                foreach (EventHandle handle in _handles)
+                foreach (EventHandle handle in _listeners)
                 {
                     result |= _removeSet.Add(handle);
                 }
             }
             else
             {
-                foreach (EventHandle handle in _handles)
+                foreach (EventHandle handle in _listeners)
                 {
                     result |= _removeCallbackHandler.Invoke(handle);
                 }
 
-                _handles.Clear();
+                _listeners.Clear();
 
                 if (result)
                 {
@@ -162,7 +172,7 @@ namespace Coimbra.Services.Events
                 return false;
             }
 
-            if (_handles.Remove(handle) && _handles.Count == 0)
+            if (_listeners.Remove(handle) && _listeners.Count == 0)
             {
                 OnRelevancyChanged?.Invoke(_service, _type, false);
             }

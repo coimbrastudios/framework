@@ -15,13 +15,54 @@ namespace Coimbra.Editor
 
         private const BindingFlags PrivateMethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
+        private static readonly Dictionary<Type, Dictionary<int, FieldInfo?>> FieldsByNameFromType = new Dictionary<Type, Dictionary<int, FieldInfo?>>();
+
         private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
 
         private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsBySignatureFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
 
         private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> SetterByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
 
-        internal static MethodInfo? FindMethodByName(this Type type, string name)
+        internal static FieldInfo? FindFieldByName(this Type type, in string name)
+        {
+            int hash = name.GetHashCode();
+
+            if (!FieldsByNameFromType.TryGetValue(type, out Dictionary<int, FieldInfo?> fields))
+            {
+                fields = new Dictionary<int, FieldInfo?>();
+                FieldsByNameFromType.Add(type, fields);
+            }
+            else if (fields.TryGetValue(hash, out FieldInfo? result))
+            {
+                return result;
+            }
+
+            FieldInfo? fieldInfo = type.GetField(name, DefaultMethodBindingFlags);
+
+            if (fieldInfo != null)
+            {
+                fields.Add(hash, fieldInfo);
+
+                return fieldInfo;
+            }
+
+            while (type.BaseType != null)
+            {
+                type = type.BaseType;
+                fieldInfo = type.GetField(name, PrivateMethodBindingFlags);
+
+                if (fieldInfo != null)
+                {
+                    break;
+                }
+            }
+
+            fields.Add(hash, fieldInfo);
+
+            return fieldInfo;
+        }
+
+        internal static MethodInfo? FindMethodByName(this Type type, in string name)
         {
             int hash = name.GetHashCode();
 
@@ -60,7 +101,7 @@ namespace Coimbra.Editor
             return methodInfo;
         }
 
-        internal static MethodInfo? FindMethodBySignature(this Type type, string name, params Type[] parameters)
+        internal static MethodInfo? FindMethodBySignature(this Type type, in string name, params Type[] parameters)
         {
             int hash = GetSignature(name, parameters).GetHashCode();
 
@@ -99,7 +140,7 @@ namespace Coimbra.Editor
             return methodInfo;
         }
 
-        internal static MethodInfo? FindSetterByName(this Type type, string name)
+        internal static MethodInfo? FindSetterByName(this Type type, in string name)
         {
             int hash = name.GetHashCode();
 
@@ -136,6 +177,31 @@ namespace Coimbra.Editor
             methods.Add(hash, methodInfo);
 
             return methodInfo;
+        }
+
+        internal static bool TryCreateInstance<T>(this Type type, out T instance)
+        {
+            try
+            {
+                instance = (T)Activator.CreateInstance(type);
+
+                return true;
+            }
+            catch
+            {
+                try
+                {
+                    instance = (T)type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!.Invoke(null);
+
+                    return true;
+                }
+                catch
+                {
+                    instance = default!;
+
+                    return false;
+                }
+            }
         }
 
         private static string GetSignature(string name, IReadOnlyList<Type>? parameters)

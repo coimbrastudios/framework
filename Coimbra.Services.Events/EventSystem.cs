@@ -12,9 +12,12 @@ namespace Coimbra.Services.Events
     /// Default implementation for <see cref="IEventService"/>.
     /// </summary>
     [Serializable]
-    public sealed class EventSystem : IEventService
+    public sealed class EventSystem : IEventService, ISerializationCallbackReceiver
     {
         private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
+
+        [SerializeField]
+        private List<Event>? _list;
 
         internal IReadOnlyDictionary<Type, Event> Events => _events;
 
@@ -210,6 +213,24 @@ namespace Coimbra.Services.Events
             }
 
             return true;
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() { }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+#if UNITY_EDITOR
+            if (_list == null)
+            {
+                _list = new List<Event>();
+            }
+            else
+            {
+                _list.Clear();
+            }
+
+            _list.AddRange(_events.Values);
+#endif
         }
     }
 }

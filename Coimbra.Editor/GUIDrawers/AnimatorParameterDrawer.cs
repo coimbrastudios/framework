@@ -12,8 +12,6 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(AnimatorParameterAttribute))]
     public sealed class AnimatorParameterDrawer : ValidateDrawer
     {
-        private const BindingFlags SerializedFieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
         private const string NoParameterFoundError = "No {0} parameter found in Animator Controller.";
 
         private static readonly string[] OverrideControllerError =
@@ -25,8 +23,6 @@ namespace Coimbra.Editor
         {
             "Cannot multi-edit different controllers."
         };
-
-        private static readonly List<int> Options = new List<int>();
 
         private static readonly List<object> Targets = new List<object>();
 
@@ -61,151 +57,26 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
-            if (property.propertyType != SerializedPropertyType.Integer && property.propertyType != SerializedPropertyType.String)
+            if (property.propertyType != SerializedPropertyType.String)
             {
-                EditorGUI.LabelField(position, label.text, "Use AnimatorParameter with int or string.");
+                EditorGUI.LabelField(position, label.text, "Use AnimatorParameter with string.");
 
                 return;
             }
 
             AnimatorParameterAttribute animatorParameterAttribute = (AnimatorParameterAttribute)attribute;
-            Targets.Clear();
-            context.GetScopes(targets, Targets);
 
-            FieldInfo animatorFieldInfo = null;
-
-            if (string.IsNullOrEmpty(animatorParameterAttribute.AnimatorField))
+            if (!TryGetParameters(position, label, context, targets, animatorParameterAttribute, out AnimatorControllerParameter[] parameters))
             {
-                foreach (FieldInfo field in Targets[0].GetType().GetFields(SerializedFieldFlags))
-                {
-                    if (field.FieldType != typeof(Animator))
-                    {
-                        continue;
-                    }
-
-                    animatorFieldInfo = field;
-
-                    break;
-                }
-
-                if (animatorFieldInfo == null)
-                {
-                    EditorGUI.LabelField(position, label.text, "No field of type Animator was found.");
-
-                    return;
-                }
-            }
-            else
-            {
-                animatorFieldInfo = Targets[0].GetType().GetField(animatorParameterAttribute.AnimatorField, SerializedFieldFlags);
-
-                if (animatorFieldInfo == null)
-                {
-                    EditorGUI.LabelField(position, label.text, "Animator field is invalid.");
-
-                    return;
-                }
-
-                if (animatorFieldInfo.FieldType != typeof(Animator))
-                {
-                    EditorGUI.LabelField(position, label.text, "Animator field is not of type Animator.");
-
-                    return;
-                }
-            }
-
-            Animator animator = (Animator)animatorFieldInfo.GetValue(Targets[0]);
-
-            if (animator == null)
-            {
-                if (HasDifferentControllers(animatorFieldInfo, Targets, a => a != null))
-                {
-                    ShowDifferentControllersPopup(position, label.text);
-
-                    return;
-                }
-
-                EditorGUI.LabelField(position, label.text, "Animator is null.");
-
                 return;
             }
 
-            bool isNullOrDifferent(Animator otherAnimator)
-            {
-                return otherAnimator == null || otherAnimator.runtimeAnimatorController != animator.runtimeAnimatorController;
-            }
-
-            if (HasDifferentControllers(animatorFieldInfo, Targets, isNullOrDifferent))
-            {
-                ShowDifferentControllersPopup(position, label.text);
-
-                return;
-            }
-
-            if (animator.runtimeAnimatorController == null)
-            {
-                EditorGUI.LabelField(position, label.text, "Animator Controller is null.");
-
-                return;
-            }
-
-            AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
-
-            if (animatorController == null)
-            {
-                using (new EditorGUI.DisabledScope(true))
-                {
-                    EditorGUI.Popup(position, label.text, 0, OverrideControllerError);
-                }
-
-                return;
-            }
-
-            AnimatorControllerParameter[] parameters = animatorController.parameters;
-
-            if (parameters.Length == 0)
-            {
-                ShowInvalidParameterTypePopup(position, label.text, animatorParameterAttribute);
-
-                return;
-            }
-
-            if (property.propertyType == SerializedPropertyType.String)
-            {
-                DrawStringPopup(position, property, label, context, targets, animatorParameterAttribute, parameters);
-            }
-            else
-            {
-                DrawIntPopup(position, property, label, context, targets, animatorParameterAttribute, parameters);
-            }
+            PopulateContents(animatorParameterAttribute, parameters, property.stringValue, out int selectedIndex);
+            DrawPopup(position, property, label, context, targets, animatorParameterAttribute, selectedIndex);
         }
 
-        private static void DrawIntPopup(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, AnimatorControllerParameter[] parameters)
+        private static void DrawPopup(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, int selectedIndex)
         {
-            int index = 0;
-            Contents.Clear();
-            Options.Clear();
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                AnimatorControllerParameter parameter = parameters[i];
-
-                if (parameter.type != attribute.ParameterType)
-                {
-                    continue;
-                }
-
-                int hash = Animator.StringToHash(parameter.name);
-
-                if (hash == property.intValue)
-                {
-                    index = Contents.Count;
-                }
-
-                Contents.Add(new GUIContent(parameter.name));
-                Options.Add(hash);
-            }
-
             if (Contents.Count == 0)
             {
                 ShowInvalidParameterTypePopup(position, label.text, attribute);
@@ -215,68 +86,7 @@ namespace Coimbra.Editor
 
             if (property.hasMultipleDifferentValues)
             {
-                index = -1;
-            }
-
-            static int setValue(PropertyPathInfo sender, Object target)
-            {
-                sender.TryGetValue(target, out int value);
-
-                for (int i = 0; i < Options.Count; i++)
-                {
-                    if (Options[i] == value)
-                    {
-                        return value;
-                    }
-                }
-
-                return Options[0];
-            }
-
-            context.SetValues(targets, true, setValue);
-
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-            int value = EditorGUI.Popup(position, propertyScope.content, index, Contents.ToArray());
-
-            if (changeCheckScope.changed)
-            {
-                property.intValue = Options[value];
-            }
-        }
-
-        private static void DrawStringPopup(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, AnimatorControllerParameter[] parameters)
-        {
-            int index = 0;
-            Contents.Clear();
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                AnimatorControllerParameter parameter = parameters[i];
-
-                if (parameter.type != attribute.ParameterType)
-                {
-                    continue;
-                }
-
-                if (parameter.name == property.stringValue)
-                {
-                    index = Contents.Count;
-                }
-
-                Contents.Add(new GUIContent(parameter.name));
-            }
-
-            if (Contents.Count == 0)
-            {
-                ShowInvalidParameterTypePopup(position, label.text, attribute);
-
-                return;
-            }
-
-            if (property.hasMultipleDifferentValues)
-            {
-                index = -1;
+                selectedIndex = -1;
             }
 
             static string setValue(PropertyPathInfo sender, Object target)
@@ -303,7 +113,7 @@ namespace Coimbra.Editor
 
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-            int value = EditorGUI.Popup(position, propertyScope.content, index, Contents.ToArray());
+            int value = EditorGUI.Popup(position, propertyScope.content, selectedIndex, Contents.ToArray());
 
             if (changeCheckScope.changed)
             {
@@ -311,22 +121,47 @@ namespace Coimbra.Editor
             }
         }
 
-        private static bool HasDifferentControllers(FieldInfo fieldInfo, List<object> targets, System.Predicate<Animator> condition)
+        private static bool HasDifferentControllers(FieldInfo fieldInfo, IReadOnlyList<object> targets, System.Predicate<Animator> condition)
         {
-            if (targets.Count > 1)
+            if (targets.Count <= 1)
             {
-                for (int i = 1; i < targets.Count; i++)
-                {
-                    object o = fieldInfo.GetValue(targets[i]);
+                return false;
+            }
 
-                    if (condition.Invoke(o as Animator))
-                    {
-                        return true;
-                    }
+            for (int i = 1; i < targets.Count; i++)
+            {
+                object o = fieldInfo.GetValue(targets[i]);
+
+                if (condition.Invoke(o as Animator))
+                {
+                    return true;
                 }
             }
 
             return false;
+        }
+
+        private static void PopulateContents(AnimatorParameterAttribute attribute, IReadOnlyList<AnimatorControllerParameter> parameters, string selectedValue, out int selectedIndex)
+        {
+            selectedIndex = -1;
+            Contents.Clear();
+
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                AnimatorControllerParameter parameter = parameters[i];
+
+                if (parameter.type != attribute.ParameterType)
+                {
+                    continue;
+                }
+
+                if (parameter.name == selectedValue)
+                {
+                    selectedIndex = Contents.Count;
+                }
+
+                Contents.Add(new GUIContent(parameter.name));
+            }
         }
 
         private static void ShowDifferentControllersPopup(Rect position, string text)
@@ -343,6 +178,80 @@ namespace Coimbra.Editor
             {
                 EditorGUI.Popup(position, text, 0, NoParameterFoundErrorDictionary[attribute.ParameterType]);
             }
+        }
+
+        private static bool TryGetParameters(Rect position, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, out AnimatorControllerParameter[] parameters)
+        {
+            parameters = null;
+            Targets.Clear();
+            context.GetScopes(targets, Targets);
+
+            FieldInfo animatorFieldInfo = Targets[0].GetType().FindFieldByName(attribute.AnimatorField);
+
+            if (animatorFieldInfo == null || animatorFieldInfo.FieldType != typeof(Animator))
+            {
+                EditorGUI.LabelField(position, label.text, "Animator field is invalid.");
+
+                return false;
+            }
+
+            Animator animator = (Animator)animatorFieldInfo.GetValue(Targets[0]);
+
+            if (animator == null)
+            {
+                if (HasDifferentControllers(animatorFieldInfo, Targets, ObjectUtility.IsValid))
+                {
+                    ShowDifferentControllersPopup(position, label.text);
+
+                    return false;
+                }
+
+                EditorGUI.LabelField(position, label.text, "Animator is null.");
+
+                return false;
+            }
+
+            bool isNullOrDifferent(Animator otherAnimator)
+            {
+                return otherAnimator == null || otherAnimator.runtimeAnimatorController != animator.runtimeAnimatorController;
+            }
+
+            if (HasDifferentControllers(animatorFieldInfo, Targets, isNullOrDifferent))
+            {
+                ShowDifferentControllersPopup(position, label.text);
+
+                return false;
+            }
+
+            if (animator.runtimeAnimatorController == null)
+            {
+                EditorGUI.LabelField(position, label.text, "Animator Controller is null.");
+
+                return false;
+            }
+
+            AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
+
+            if (animatorController == null)
+            {
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    EditorGUI.Popup(position, label.text, 0, OverrideControllerError);
+                }
+
+                return false;
+            }
+
+            parameters = animatorController.parameters;
+
+            if (parameters.Length != 0)
+            {
+                return true;
+            }
+
+            ShowInvalidParameterTypePopup(position, label.text, attribute);
+
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -154,6 +155,34 @@ namespace Coimbra.Editor
         public static void GetValues<T>(this SerializedProperty property, [NotNull] List<T> append)
         {
             property.GetPropertyPathInfo().GetValues(property.serializedObject.targetObjects, append);
+        }
+
+        /// <summary>
+        /// Checks if a given property has multiple different <see cref="SerializedProperty.arraySize"/>.
+        /// </summary>
+        public static bool HasMultipleDifferentArraySizes(this SerializedProperty property)
+        {
+            if (!property.hasMultipleDifferentValues)
+            {
+                return false;
+            }
+
+            using (ListPool.Pop(out List<ICollection> collections))
+            {
+                property.GetValues(collections);
+
+                int size = property.arraySize;
+
+                foreach (ICollection collection in collections)
+                {
+                    if (collection.Count != size)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         /// <inheritdoc cref="PropertyPathInfo.SetValue(UnityEngine.Object,object)"/>

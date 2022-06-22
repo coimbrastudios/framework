@@ -14,8 +14,13 @@ namespace Coimbra.Editor
     /// <summary>
     /// General editor GUI utilities.
     /// </summary>
-    public static class CoimbraEditorGUIUtility
+    public static class CoimbraGUIUtility
     {
+        /// <summary>
+        /// Gets the default count field size for any list or array.
+        /// </summary>
+        public const int ListCountFieldSize = 50;
+
         private const string RenderPipelineComponentWarningFormat = "The active render pipeline does not support the {0} component.";
 
         private static readonly char[] DefaultSearchSeparator =
@@ -68,7 +73,6 @@ namespace Coimbra.Editor
 
             using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
             {
-                const int countFieldSize = 50;
                 Rect headerPosition = position;
                 headerPosition.height = EditorGUIUtility.singleLineHeight;
 
@@ -85,7 +89,7 @@ namespace Coimbra.Editor
                 headerPosition.y++;
                 EditorGUI.LabelField(headerPosition, label);
 
-                headerPosition.xMin += headerPosition.width - countFieldSize;
+                headerPosition.xMin += headerPosition.width - ListCountFieldSize;
                 EditorGUI.IntField(headerPosition, list.Count);
             }
         }
@@ -213,6 +217,69 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
+        /// Create a more human-readable string from the input value. Ex: CSEditorGUIUtility turns into CS Editor GUI Utility.
+        /// </summary>
+        /// <param name="value">The input value.</param>
+        /// <returns>The more human-readable string.</returns>
+        public static string GetDisplayName(string value)
+        {
+            if (IsNullOrUnderscores(ref value, out int i))
+            {
+                return string.Empty;
+            }
+
+            const char underscore = '_';
+
+            using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
+            {
+                stringBuilder.EnsureCapacity(value.Length * 2);
+
+                char currentInput = value[i];
+                char lastOutput = char.ToUpper(currentInput);
+                int underscoreSequence = 0;
+                int letterSequence = char.IsNumber(lastOutput) ? 0 : 1;
+                stringBuilder.Append(lastOutput);
+
+                for (i++; i < value.Length; i++)
+                {
+                    char lastInput = currentInput;
+                    currentInput = value[i];
+
+                    if (currentInput == underscore)
+                    {
+                        letterSequence = 0;
+                        underscoreSequence++;
+
+                        continue;
+                    }
+
+                    bool hasUnderscoreSequence = underscoreSequence > 1;
+                    underscoreSequence = 0;
+
+                    if (TryAppendNumber(stringBuilder, currentInput, ref lastOutput, ref letterSequence, lastInput, hasUnderscoreSequence, underscore))
+                    {
+                        continue;
+                    }
+
+                    if (TryAppendUpper(stringBuilder, currentInput, ref lastOutput, ref letterSequence, in value, i))
+                    {
+                        continue;
+                    }
+
+                    if (TryAppendLower(stringBuilder, currentInput, ref lastOutput, ref letterSequence, lastInput, underscore))
+                    {
+                        continue;
+                    }
+
+                    // ignore unsupported char
+                    currentInput = lastInput;
+                }
+
+                return stringBuilder.ToString();
+            }
+        }
+
+        /// <summary>
         /// Get the required height to draw a message box with a given message and type.
         /// </summary>
         /// <param name="message">The message text.</param>
@@ -292,164 +359,6 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Create a more human-readable string from the input value. Ex: CSEditorGUIUtility turns into CS Editor GUI Utility.
-        /// </summary>
-        /// <param name="value">The input value.</param>
-        /// <returns>The more human-readable string.</returns>
-        public static string ToDisplayName(string value)
-        {
-            const char underscore = '_';
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            const string startBackingField = "<";
-            const string endBackingField = ">k__BackingField";
-
-            if (value.StartsWith(startBackingField) && value.EndsWith(endBackingField))
-            {
-                value = value.Substring(1, value.Length - startBackingField.Length - endBackingField.Length);
-            }
-
-            int i = 0;
-
-            if (value.Length > 1 && value[1] == underscore)
-            {
-                i += 2;
-            }
-
-            if (value.Length <= i)
-            {
-                return string.Empty;
-            }
-
-            while (value[i] == underscore)
-            {
-                i++;
-
-                if (value.Length == i)
-                {
-                    return string.Empty;
-                }
-            }
-
-            using (StringBuilderPool.Pop(out StringBuilder stringBuilder))
-            {
-                stringBuilder.EnsureCapacity(value.Length * 2);
-
-                char currentInput = value[i];
-                char lastOutput = char.ToUpper(currentInput);
-                stringBuilder.Append(lastOutput);
-                i++;
-
-                int underscoreSequence = 0;
-                int letterSequence = char.IsNumber(lastOutput) ? 0 : 1;
-
-                for (; i < value.Length; i++)
-                {
-                    char lastInput = currentInput;
-                    currentInput = value[i];
-
-                    if (currentInput == underscore)
-                    {
-                        letterSequence = 0;
-                        underscoreSequence++;
-
-                        continue;
-                    }
-
-                    bool hasUnderscoreSequence = underscoreSequence > 1;
-                    underscoreSequence = 0;
-
-                    if (char.IsNumber(currentInput))
-                    {
-                        letterSequence = 0;
-
-                        if (char.IsNumber(lastOutput))
-                        {
-                            if (lastInput == underscore)
-                            {
-                                stringBuilder.Append(hasUnderscoreSequence ? ' ' : '.');
-                            }
-                        }
-                        else
-                        {
-                            stringBuilder.Append(' ');
-                        }
-
-                        lastOutput = currentInput;
-                        stringBuilder.Append(lastOutput);
-
-                        continue;
-                    }
-
-                    if (char.IsUpper(currentInput))
-                    {
-                        if (char.IsNumber(lastOutput) || char.IsLower(lastOutput))
-                        {
-                            stringBuilder.Append(' ');
-                        }
-                        else if (char.IsUpper(lastOutput) && i + 1 < value.Length && char.IsLower(value[i + 1]))
-                        {
-                            stringBuilder.Append(' ');
-                        }
-
-                        lastOutput = currentInput;
-                        stringBuilder.Append(lastOutput);
-                        letterSequence++;
-
-                        continue;
-                    }
-
-                    if (char.IsLower(currentInput))
-                    {
-                        if (char.IsNumber(lastOutput) || lastInput == underscore)
-                        {
-                            lastOutput = char.ToUpper(currentInput);
-                            stringBuilder.Append(' ');
-                            stringBuilder.Append(lastOutput);
-                            letterSequence++;
-
-                            continue;
-                        }
-
-                        if (char.IsLower(lastOutput))
-                        {
-                            lastOutput = currentInput;
-                            stringBuilder.Append(lastOutput);
-                            letterSequence++;
-
-                            continue;
-                        }
-
-                        if (letterSequence == 0)
-                        {
-                            lastOutput = char.ToUpper(currentInput);
-                            stringBuilder.Append(lastOutput);
-                        }
-                        else
-                        {
-                            lastOutput = currentInput;
-                            stringBuilder.Append(lastOutput);
-                        }
-
-                        letterSequence++;
-
-                        continue;
-                    }
-
-                    Debug.LogWarning($"Invalid char {currentInput} on {value}! The only supported chars are digits, letters and underscore.");
-
-                    currentInput = lastInput;
-                }
-
-                return stringBuilder.ToString();
-            }
-        }
-
-        /// <summary>
         /// Basic way to check if if a <paramref name="searchContext"/> matches the desired the <paramref name="targetContent"/>.
         /// </summary>
         public static bool TryMatchSearch(string searchContext, string targetContent)
@@ -475,6 +384,23 @@ namespace Coimbra.Editor
         internal static void DrawComponentWarningForRenderPipeline(Type type)
         {
             EditorGUILayout.HelpBox(string.Format(RenderPipelineComponentWarningFormat, type.Name), MessageType.Warning);
+        }
+
+        internal static int DrawListHeader(Rect position, GUIContent label, SerializedProperty property, ReorderableList list)
+        {
+            position.height = EditorGUIUtility.singleLineHeight;
+            EditorGUI.PropertyField(position, property, label, false);
+
+            using (new EditorGUI.DisabledScope(true))
+            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            {
+                position.xMin += position.width - ListCountFieldSize;
+
+                using (new ShowMixedValueScope(list.serializedProperty.HasMultipleDifferentArraySizes()))
+                {
+                    return EditorGUI.IntField(position, list.serializedProperty.arraySize);
+                }
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -576,12 +502,8 @@ namespace Coimbra.Editor
                 }
                 else if (_delegateListeners.list != null)
                 {
-                    using (GUIContentPool.Pop(out GUIContent temp))
-                    {
-                        DelegateListener listener = (DelegateListener)_delegateListeners.list[index];
-                        temp.text = listener.Target;
-                        DelegateListenerDrawer.DrawGUI(rect, temp, listener.Method);
-                    }
+                    DelegateListener listener = (DelegateListener)_delegateListeners.list[index];
+                    DelegateListenerDrawer.DrawGUI(rect, listener.Target, listener.Method, listener.IsStatic);
                 }
             };
         }
@@ -595,46 +517,170 @@ namespace Coimbra.Editor
 
             _propertyDrawers = new Dictionary<Type, PropertyDrawer>();
 
-            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            static void setPropertyDrawerForChildren(CustomPropertyDrawer attribute, PropertyDrawer propertyDrawer)
+            {
+                if (!attribute.GetUseForChildren())
+                {
+                    return;
+                }
+
+                foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(attribute.GetTargetType()))
+                {
+                    if (!_propertyDrawers.ContainsKey(derivedType))
+                    {
+                        _propertyDrawers.Add(derivedType, propertyDrawer);
+                    }
+                }
+            }
 
             foreach (Type type in TypeCache.GetTypesWithAttribute<CustomPropertyDrawer>())
             {
-                PropertyDrawer propertyDrawer;
-
-                try
+                if (!type.TryCreateInstance(out PropertyDrawer propertyDrawer))
                 {
-                    propertyDrawer = (PropertyDrawer)Activator.CreateInstance(type);
-                }
-                catch
-                {
-                    try
-                    {
-                        propertyDrawer = (PropertyDrawer)type.GetConstructor(bindingFlags, null, Type.EmptyTypes, null)!.Invoke(null);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 foreach (CustomPropertyDrawer attribute in type.GetCustomAttributes<CustomPropertyDrawer>(true))
                 {
                     _propertyDrawers[attribute.GetTargetType()] = propertyDrawer;
-
-                    if (!attribute.GetUseForChildren())
-                    {
-                        continue;
-                    }
-
-                    foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(attribute.GetTargetType()))
-                    {
-                        if (!_propertyDrawers.ContainsKey(derivedType))
-                        {
-                            _propertyDrawers.Add(derivedType, propertyDrawer);
-                        }
-                    }
+                    setPropertyDrawerForChildren(attribute, propertyDrawer);
                 }
             }
+        }
+
+        private static bool IsNullOrUnderscores(ref string value, out int firstIndexOfNonUnderscore)
+        {
+            const char underscore = '_';
+            firstIndexOfNonUnderscore = 0;
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return true;
+            }
+
+            const string startBackingField = "<";
+            const string endBackingField = ">k__BackingField";
+
+            if (value.StartsWith(startBackingField) && value.EndsWith(endBackingField))
+            {
+                value = value.Substring(1, value.Length - startBackingField.Length - endBackingField.Length);
+            }
+
+            if (value.Length > 1 && value[1] == underscore)
+            {
+                firstIndexOfNonUnderscore += 2;
+            }
+
+            if (value.Length <= firstIndexOfNonUnderscore)
+            {
+                return true;
+            }
+
+            while (value[firstIndexOfNonUnderscore] == underscore)
+            {
+                firstIndexOfNonUnderscore++;
+
+                if (value.Length != firstIndexOfNonUnderscore)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryAppendLower(StringBuilder stringBuilder, char currentInput, ref char lastOutput, ref int letterSequence, char lastInput, char underscore)
+        {
+            if (!char.IsLower(currentInput))
+            {
+                return false;
+            }
+
+            if (char.IsNumber(lastOutput) || lastInput == underscore)
+            {
+                lastOutput = char.ToUpper(currentInput);
+                stringBuilder.Append(' ');
+                stringBuilder.Append(lastOutput);
+                letterSequence++;
+
+                return true;
+            }
+
+            if (char.IsLower(lastOutput))
+            {
+                lastOutput = currentInput;
+                stringBuilder.Append(lastOutput);
+                letterSequence++;
+
+                return true;
+            }
+
+            if (letterSequence == 0)
+            {
+                lastOutput = char.ToUpper(currentInput);
+                stringBuilder.Append(lastOutput);
+            }
+            else
+            {
+                lastOutput = currentInput;
+                stringBuilder.Append(lastOutput);
+            }
+
+            letterSequence++;
+
+            return true;
+        }
+
+        private static bool TryAppendNumber(StringBuilder stringBuilder, char currentInput, ref char lastOutput, ref int letterSequence, char lastInput, bool hasUnderscoreSequence, char underscore)
+        {
+            if (!char.IsNumber(currentInput))
+            {
+                return false;
+            }
+
+            letterSequence = 0;
+
+            if (char.IsNumber(lastOutput))
+            {
+                if (lastInput == underscore)
+                {
+                    stringBuilder.Append(hasUnderscoreSequence ? ' ' : '.');
+                }
+            }
+            else
+            {
+                stringBuilder.Append(' ');
+            }
+
+            lastOutput = currentInput;
+            stringBuilder.Append(lastOutput);
+
+            return true;
+        }
+
+        private static bool TryAppendUpper(StringBuilder stringBuilder, char currentInput, ref char lastOutput, ref int letterSequence, in string rawInput, int currentIndex)
+        {
+            if (!char.IsUpper(currentInput))
+            {
+                return false;
+            }
+
+            if (char.IsNumber(lastOutput) || char.IsLower(lastOutput))
+            {
+                stringBuilder.Append(' ');
+            }
+            else if (char.IsUpper(lastOutput) && currentIndex + 1 < rawInput.Length && char.IsLower(rawInput[currentIndex + 1]))
+            {
+                stringBuilder.Append(' ');
+            }
+
+            lastOutput = currentInput;
+            stringBuilder.Append(lastOutput);
+            letterSequence++;
+
+            return true;
         }
     }
 }

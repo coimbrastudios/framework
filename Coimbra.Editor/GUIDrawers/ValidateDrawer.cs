@@ -81,7 +81,7 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return CoimbraEditorGUIUtility.GetPropertyHeight(property, label);
+            return CoimbraGUIUtility.GetPropertyHeight(property, label);
         }
 
         /// <inheritdoc cref="OnGUI"/>
@@ -114,7 +114,7 @@ namespace Coimbra.Editor
 
                     default:
                     {
-                        CoimbraEditorGUIUtility.DrawPropertyField(position, property, label);
+                        CoimbraGUIUtility.DrawPropertyField(position, property, label);
 
                         break;
                     }
@@ -122,7 +122,7 @@ namespace Coimbra.Editor
             }
             else
             {
-                CoimbraEditorGUIUtility.DrawPropertyField(position, property, label);
+                CoimbraGUIUtility.DrawPropertyField(position, property, label);
             }
         }
     }

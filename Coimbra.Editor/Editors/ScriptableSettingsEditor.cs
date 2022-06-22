@@ -82,7 +82,7 @@ namespace Coimbra.Editor
                     continue;
                 }
 
-                if (CoimbraEditorGUIUtility.TryMatchSearch(searchContext, iterator.displayName))
+                if (CoimbraGUIUtility.TryMatchSearch(searchContext, iterator.displayName))
                 {
                     return true;
                 }
@@ -94,12 +94,12 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Helper method that uses <see cref="CoimbraEditorGUIUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
+        /// Helper method that uses <see cref="CoimbraGUIUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool TryMatchSearch(string targetContent)
         {
-            return CoimbraEditorGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
+            return CoimbraGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
         }
 
         /// <inheritdoc cref="TryMatchSearch(string)"/>

@@ -24,7 +24,7 @@ namespace Coimbra.Editor
                 {
                     MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
 
-                    return CoimbraEditorGUIUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area, base.GetHeight());
+                    return CoimbraGUIUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area, base.GetHeight());
                 }
             }
         }
@@ -38,7 +38,7 @@ namespace Coimbra.Editor
             }
 
             MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
-            CoimbraEditorGUIUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area);
+            CoimbraGUIUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area);
         }
     }
 }
