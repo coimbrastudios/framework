@@ -10,6 +10,13 @@
   "unity": "2020.3",
   "unityRelease": "30f1",
   "description": "Package of general utilities to be used with Unity development.",
+  "samples": [
+    {
+      "displayName": "Managed Jobs: Concat Strings",
+      "description": "Example classes of how to create simple managed jobs.",
+      "path": "Samples~/Concat Strings"
+    }
+  ],
   "dependencies": {
     "com.cysharp.unitask": "2.3.1",
     "com.unity.addressables": "1.18.19",

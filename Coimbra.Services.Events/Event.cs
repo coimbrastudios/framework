@@ -63,8 +63,8 @@ namespace Coimbra.Services.Events
 
         private Event([NotNull] IEventService service, [NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler, [NotNull] Func<EventHandle, List<DelegateListener>, int> getListenersHandler)
         {
-            _service = service;
             _type = type;
+            _service = service;
             _removeCallbackHandler = removeCallbackHandler;
             GetListenersHandler = getListenersHandler;
 #if UNITY_EDITOR
@@ -75,6 +75,8 @@ namespace Coimbra.Services.Events
         internal EventHandle this[int index] => _listeners[index];
 
         internal bool IsInvoking { get; private set; }
+
+        internal string Label => _label;
 
         internal int ListenerCount => _listeners.Count;
 
@@ -128,7 +130,6 @@ namespace Coimbra.Services.Events
             return _removeSet.Contains(handle);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool RemoveAllListeners()
         {
             bool result = false;
@@ -164,7 +165,6 @@ namespace Coimbra.Services.Events
             return IsInvoking ? _removeSet.Add(handle) : RemoveListenerUnsafe(in handle);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool RemoveListenerUnsafe(in EventHandle handle)
         {
             if (!_removeCallbackHandler.Invoke(handle))

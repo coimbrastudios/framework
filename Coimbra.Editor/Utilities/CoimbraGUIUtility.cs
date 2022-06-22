@@ -361,7 +361,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Basic way to check if if a <paramref name="searchContext"/> matches the desired the <paramref name="targetContent"/>.
         /// </summary>
-        public static bool TryMatchSearch(string searchContext, string targetContent)
+        public static bool TryMatchSearch(in string searchContext, in string targetContent)
         {
             if (string.IsNullOrWhiteSpace(searchContext))
             {

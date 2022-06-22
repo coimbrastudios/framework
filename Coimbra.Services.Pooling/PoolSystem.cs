@@ -13,20 +13,26 @@ namespace Coimbra.Services.Pooling
     /// </summary>
     [AddComponentMenu("")]
     [PreloadService]
-    public sealed class PoolSystem : Actor, IPoolService
+    public sealed class PoolSystem : Actor, IPoolService, ISerializationCallbackReceiver
     {
-        private readonly List<GameObjectPool> _loadingList = new List<GameObjectPool>();
-
         private readonly HashSet<object> _prefabsSet = new HashSet<object>();
 
         private readonly HashSet<GameObjectPool> _poolsSet = new HashSet<GameObjectPool>();
 
         private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
 
+        [SerializeField]
+        [Disable]
+        private List<GameObjectPool> _loadedPools = new List<GameObjectPool>();
+
+        [SerializeField]
+        [Disable]
+        private List<GameObjectPool> _loadingPools = new List<GameObjectPool>();
+
         private PoolSystem() { }
 
         /// <inheritdoc/>
-        public int LoadingPoolCount => _loadingList.Count;
+        public int LoadingPoolCount => _loadingPools.Count;
 
         /// <inheritdoc/>
         public bool AddPool(GameObjectPool pool)
@@ -42,7 +48,7 @@ namespace Coimbra.Services.Pooling
             pool.OnDestroying += HandlePoolDestroying;
             pool.OnPoolStateChanged += HandlePoolStateChanged;
             _prefabsSet.Add(pool.PrefabReference.RuntimeKey);
-            _loadingList.Add(pool);
+            _loadingPools.Add(pool);
 
             if (pool.CurrentState == GameObjectPool.State.Unloaded)
             {
@@ -92,7 +98,7 @@ namespace Coimbra.Services.Pooling
             }
             else
             {
-                _loadingList.Remove(pool);
+                _loadingPools.Remove(pool);
             }
 
             _prefabsSet.Remove(pool.PrefabReference.RuntimeKey);
@@ -177,7 +183,7 @@ namespace Coimbra.Services.Pooling
         {
             base.OnDestroyed();
             _poolFromPrefab.Clear();
-            _loadingList.Clear();
+            _loadingPools.Clear();
             _prefabsSet.Clear();
 
             foreach (GameObjectPool pool in _poolsSet)
@@ -239,7 +245,7 @@ namespace Coimbra.Services.Pooling
             {
                 case GameObjectPool.State.Unloaded:
                 {
-                    _loadingList.Remove(pool);
+                    _loadingPools.Remove(pool);
                     RemovePool(pool, false);
 
                     break;
@@ -247,12 +253,22 @@ namespace Coimbra.Services.Pooling
 
                 case GameObjectPool.State.Loaded:
                 {
-                    _loadingList.Remove(pool);
+                    _loadingPools.Remove(pool);
                     _poolFromPrefab.Add(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()), pool);
 
                     break;
                 }
             }
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() { }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+#if UNITY_EDITOR
+            _loadedPools.Clear();
+            _loadedPools.AddRange(_poolsSet);
+#endif
         }
     }
 }

@@ -1,0 +1,16 @@
+{
+    "name": "Coimbra.Samples.ConcatStrings",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e1958682c4a85ec4da78add2f612c79f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

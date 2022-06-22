@@ -1,12 +1,14 @@
 # Changelog
 
-## [10.8.0] - UNRELEASED
+## [10.8.0] - 2022-06-22
 
 - Added online documentation link.
 - Added online license link.
 - Added online changelog link.
 - Added support for dynamic `PropertyPathInfo`. Those aren't cached but fully supports inheritance trees.
 - Added debug information for `EventSystem`.
+- Added debug information for `PoolSystem`.
+- Added Managed Jobs APIs.
 - Changed [README](README.md) to only contains some basic information, details were moved to the new [documentation](Documentation~/Index.md).
 - Removed support for int fields for `AnimatorParameterAttribute`.
 

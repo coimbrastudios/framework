@@ -53,6 +53,7 @@
     - Trigger Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
     - Trigger Enter/Exit/Stay Listener: depends on `Collider`.
     - `WillRenderObjectListener`: depends on `Renderer`.
+- Managed Jobs: use `IManagedJob` and `IManagedJobParallelFor` to create custom jobs that makes use of managed objects.
 - Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations that can be inspected at `Window/Coimbra Framework/Shared Managed Pools`:
     - `DictionaryPool`: clears the `Dictionary`.
     - `GUIContentPool`: clears the `GUIContet`.
