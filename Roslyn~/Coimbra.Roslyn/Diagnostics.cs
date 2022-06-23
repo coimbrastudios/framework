@@ -213,7 +213,7 @@ namespace Coimbra.Roslyn
                                                                                               DiagnosticSeverity.Error,
                                                                                               false);
 
-        public static readonly DiagnosticDescriptor IncorrectManagedFieldGenericParameter = new("COIMBRA0028",
+        public static readonly DiagnosticDescriptor IncorrectManagedFieldGenericParameter = new("COIMBRA0029",
                                                                                                 "ManagedField being used with incompatible type parameter.",
                                                                                                 "Change {0} to a compatible type.",
                                                                                                 DefaultCategory,

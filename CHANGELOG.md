@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.8.1] - 2022-06-23
+
+- Fixed events outside the `Coimbra` namespace being generated with errors.
+
 ## [10.8.0] - 2022-06-22
 
 - Added online documentation link.

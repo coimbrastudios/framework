@@ -21,6 +21,7 @@ namespace Coimbra.Services.Events.Roslyn
                 sourceBuilder.AddLine("#nullable enable");
                 sourceBuilder.SkipLine();
 
+                sourceBuilder.AddUsing("Coimbra");
                 sourceBuilder.AddUsing("Coimbra.Services");
                 sourceBuilder.AddUsing("Coimbra.Services.Events");
                 sourceBuilder.AddUsing("System.CodeDom.Compiler");
