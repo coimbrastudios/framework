@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -12,47 +14,21 @@ namespace Coimbra
     {
         private const string DontDestroyOnLoadScene = "DontDestroyOnLoad";
 
-        /// <summary>
-        /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, initializing it as the specified type if no <see cref="Actor"/> component is found.
-        /// </summary>
-        [CanBeNull]
-        public static TActor AsActor<TActor>(this GameObject gameObject)
-            where TActor : Actor
-        {
-            if (Actor.HasCachedActor(gameObject, out Actor actor))
-            {
-                return actor as TActor;
-            }
-
-            if (!gameObject.TryGetComponent(out actor))
-            {
-                actor = gameObject.AddComponent<TActor>();
-            }
-
-            actor.Initialize();
-
-            return actor as TActor;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Actor"/> representing a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
-        /// </summary>
+        /// <inheritdoc cref="GetActor"/>
         [NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Actor AsActor(this GameObject gameObject)
         {
-            if (Actor.HasCachedActor(gameObject, out Actor actor))
-            {
-                return actor;
-            }
+            return gameObject.GetActor();
+        }
 
-            if (!gameObject.TryGetComponent(out actor))
-            {
-                actor = gameObject.AddComponent<Actor>();
-            }
-
-            actor.Initialize();
-
-            return actor;
+        /// <inheritdoc cref="GetActor{T}"/>
+        [CanBeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T AsActor<T>(this GameObject gameObject)
+            where T : Actor
+        {
+            return gameObject.GetActor<T>();
         }
 
         /// <summary>
@@ -81,6 +57,84 @@ namespace Coimbra
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Actor"/> representing a <see cref="GameObject"/>, creating a default <see cref="Actor"/> for it if missing.
+        /// </summary>
+        [NotNull]
+        public static Actor GetActor(this GameObject gameObject)
+        {
+            if (Actor.HasCachedActor(gameObject, out Actor actor))
+            {
+                return actor;
+            }
+
+            if (!gameObject.TryGetComponent(out actor))
+            {
+                actor = gameObject.AddComponent<Actor>();
+            }
+
+            actor.Initialize();
+
+            return actor;
+        }
+
+        /// <summary>
+        /// Tries to get the specified type of <see cref="Actor"/> for a <see cref="GameObject"/>, initializing it as the specified type if no <see cref="Actor"/> component is found.
+        /// </summary>
+        [CanBeNull]
+        public static T GetActor<T>(this GameObject gameObject)
+            where T : Actor
+        {
+            if (Actor.HasCachedActor(gameObject, out Actor actor))
+            {
+                return actor as T;
+            }
+
+            if (!gameObject.TryGetComponent(out actor))
+            {
+                actor = gameObject.AddComponent<T>();
+            }
+
+            actor.Initialize();
+
+            return actor as T;
+        }
+
+        /// <summary>
+        /// Gets or adds the given component type.
+        /// </summary>
+        [NotNull]
+        public static T GetOrAddComponent<T>(this GameObject gameObject)
+            where T : Component
+        {
+            return gameObject.TryGetComponent(out T component) ? component : gameObject.AddComponent<T>();
+        }
+
+        /// <summary>
+        /// Gets or adds the given component type.
+        /// </summary>
+        [NotNull]
+        public static Component GetOrAddComponent(this GameObject gameObject, SerializableType<Component> type)
+        {
+            return gameObject.TryGetComponent(type.Value, out Component component) ? component : gameObject.AddComponent(type.Value);
+        }
+
+        /// <summary>
+        /// Does the game object have the given component type?
+        /// </summary>
+        public static bool HasComponent<T>(this GameObject gameObject)
+        {
+            return gameObject.TryGetComponent<T>(out _);
+        }
+
+        /// <summary>
+        /// Does the game object have the given component type?
+        /// </summary>
+        public static bool HasComponent(this GameObject gameObject, [NotNull] Type type)
+        {
+            return gameObject.TryGetComponent(type, out _);
         }
 
         /// <summary>
