@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.8.2] - UNRELEASED
+
+- Changed `AssemblyDefinition` and `AssemblyDefinitinoReference` types to be public.
+
 ## [10.8.1] - 2022-06-23
 
 - Fixed events outside the `Coimbra` namespace being generated with errors.

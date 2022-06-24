@@ -65,12 +65,12 @@ namespace Coimbra.Editor
                         string text = asset.text;
                         AssemblyDefinition assembly = JsonUtility.FromJson<AssemblyDefinition>(text);
 
-                        if (!assembly.autoReferenced && text.Contains("autoReferenced"))
+                        if (!assembly.AutoReferenced && text.Contains("autoReferenced"))
                         {
                             continue;
                         }
 
-                        switch (assembly.name)
+                        switch (assembly.Name)
                         {
                             case AssetsAssemblyDefinitionName:
                             {
@@ -89,18 +89,18 @@ namespace Coimbra.Editor
                             }
                         }
 
-                        if (runtimeNames.Contains(assembly.name))
+                        if (runtimeNames.Contains(assembly.Name))
                         {
                             string assemblyGuid = string.Format(GuidFormat, guid);
                             editorGuids.Add(assemblyGuid);
                             runtimeGuids.Add(assemblyGuid);
                         }
-                        else if (editorNames.Contains(assembly.name))
+                        else if (editorNames.Contains(assembly.Name))
                         {
                             string assemblyGuid = string.Format(GuidFormat, guid);
                             editorGuids.Add(assemblyGuid);
 
-                            if (assembly.name == "UnityEditor.UI")
+                            if (assembly.Name == "UnityEditor.UI")
                             {
                                 runtimeGuids.Add(assemblyGuid);
                             }
@@ -135,9 +135,9 @@ namespace Coimbra.Editor
             }
             else
             {
-                autoReferencedGuids.UnionWith(assemblyDefinition.references);
+                autoReferencedGuids.UnionWith(assemblyDefinition.References);
 
-                assemblyDefinition.references = autoReferencedGuids.ToArray();
+                assemblyDefinition.References = autoReferencedGuids.ToArray();
             }
 
             File.WriteAllText(assemblyPath, JsonUtility.ToJson(assemblyDefinition, true));
@@ -158,14 +158,14 @@ namespace Coimbra.Editor
                 const string defaultAssemblyPath = defaultAssemblyFolder + "/" + AssetsEditorAssemblyDefinitionName + "." + AssemblyDefinitionExtension;
                 const string defaultScriptPath = defaultAssemblyFolder + "/" + DefaultScriptFile;
                 assemblyPath = defaultAssemblyPath;
-                assemblyDefinition = new AssemblyDefinition(AssetsEditorAssemblyDefinitionName, autoReferencedGuids.ToArray(), true);
+                assemblyDefinition = new AssemblyDefinition(AssetsEditorAssemblyDefinitionName, autoReferencedGuids.ToArray(), true, true);
                 File.WriteAllText(defaultScriptPath, string.Empty);
             }
             else
             {
-                autoReferencedGuids.UnionWith(assemblyDefinition.references);
+                autoReferencedGuids.UnionWith(assemblyDefinition.References);
 
-                assemblyDefinition.references = autoReferencedGuids.ToArray();
+                assemblyDefinition.References = autoReferencedGuids.ToArray();
             }
 
             File.WriteAllText(assemblyPath, JsonUtility.ToJson(assemblyDefinition, true));
@@ -225,7 +225,7 @@ namespace Coimbra.Editor
                 AssemblyDefinitionReference assembly = JsonUtility.FromJson<AssemblyDefinitionReference>(text);
 
                 const string guidPrefix = "GUID:";
-                string reference = assembly.reference.StartsWith(guidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(assembly.reference.Substring(guidPrefix.Length))) : assembly.reference;
+                string reference = assembly.Reference.StartsWith(guidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(assembly.Reference.Substring(guidPrefix.Length))) : assembly.Reference;
 
                 if (reference != AssetsAssemblyDefinitionName && reference != AssetsEditorAssemblyDefinitionName)
                 {
