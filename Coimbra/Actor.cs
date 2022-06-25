@@ -459,7 +459,7 @@ namespace Coimbra
 
 #if UNITY_ASSERTIONS
         /// <summary>
-        /// Non-virtual by design, use <see cref="StartListener"/> instead.
+        /// Non-virtual by design, use 'Coimbra.Listeners.StartListener' instead or another alternative.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void Start()

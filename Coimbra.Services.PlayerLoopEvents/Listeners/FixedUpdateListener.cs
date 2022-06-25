@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using Coimbra.Listeners;
+using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace Coimbra
+namespace Coimbra.Services.PlayerLoopEvents
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html")]
+    [MovedFrom(true, "Coimbra")]
     internal sealed class FixedUpdateListener : PlayerLoopListenerBase
     {
         /// <inheritdoc />

@@ -8,7 +8,7 @@ namespace Coimbra.Editor
     /// General <see cref="ScriptableSettingsType.EditorUserPreferences"/> settings.
     /// </summary>
     [InitializeOnLoad]
-    [Preferences(CoimbraUtility.UserPreferencesPath, "Editor", true)]
+    [Preferences(CoimbraUtility.UserPreferencesPath, "Editor Settings", true)]
     public sealed class CoimbraEditorUserSettings : ScriptableSettings
     {
 #if UNITY_2021_3_OR_NEWER

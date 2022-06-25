@@ -1,0 +1,20 @@
+{
+    "name": "Coimbra.Listeners.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
+        "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
+        "GUID:ac17336691094e9ab0122a69024b9f92"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

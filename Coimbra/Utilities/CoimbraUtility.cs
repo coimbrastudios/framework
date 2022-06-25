@@ -7,27 +7,50 @@ namespace Coimbra
     /// </summary>
     public static class CoimbraUtility
     {
-        internal const string EditorUserPreferencesPath = UserPreferencesPath + "/Editor";
+        /// <summary>
+        /// Default menu item name.
+        /// </summary>
+        public const string GeneralMenuName = "Coimbra Framework";
 
-        internal const string GeneralMenuPath = "Coimbra Framework/";
+        /// <summary>
+        /// Default menu item path.
+        /// </summary>
+        public const string GeneralMenuPath = GeneralMenuName + "/";
 
-        internal const string PackageName = "com.coimbrastudios.core";
+        /// <summary>
+        /// The package name.
+        /// </summary>
+        public const string PackageName = "com.coimbrastudios.core";
 
-        internal const string PreferencesMenuPath = ToolsMenuPath + "Preferences/";
+        /// <summary>
+        /// Default project settings file path for any <see cref="ScriptableSettingsType.EditorProjectSettings"/>.
+        /// </summary>
+        public const string ProjectSettingsFilePath = "ProjectSettings/Packages/" + PackageName;
 
-        internal const string ProjectAssetsFolderPath = "Assets/" + PackageName;
+        /// <summary>
+        /// Default project settings menu path for any <see cref="ScriptableSettingsType.EditorProjectSettings"/> or <see cref="ScriptableSettingsType.RuntimeProjectSettings"/>.
+        /// </summary>
+        public const string ProjectSettingsPath = "Project/" + GeneralMenuName;
 
-        internal const string ProjectSettingsFilePath = "ProjectSettings/Packages/" + PackageName;
+        /// <summary>
+        /// Default menu item path for any editor utility method.
+        /// </summary>
+        public const string ToolsMenuPath = "Tools/" + GeneralMenuPath;
 
-        internal const string ProjectSettingsPath = "Project/Coimbra Framework";
+        /// <summary>
+        /// Default project settings file path for any <see cref="ScriptableSettingsType.ProjectUserPreferences"/>.
+        /// </summary>
+        public const string UserPreferencesFilePath = "UserSettings/Packages/" + PackageName;
 
-        internal const string ProjectUserPreferencesPath = UserPreferencesPath + "/Project";
+        /// <summary>
+        /// Default preferences menu path for any <see cref="ScriptableSettingsType.EditorUserPreferences"/> or <see cref="ScriptableSettingsType.ProjectUserPreferences"/>.
+        /// </summary>
+        public const string UserPreferencesPath = "Preferences/" + GeneralMenuName;
 
-        internal const string ToolsMenuPath = "Tools/Coimbra Framework/";
-
-        internal const string UserPreferencesPath = "Preferences/Coimbra Framework";
-
-        internal const string WindowMenuPath = "Window/Coimbra Framework/";
+        /// <summary>
+        /// Default menu item path for any editor window.
+        /// </summary>
+        public const string WindowMenuPath = "Window/" + GeneralMenuPath;
 
         /// <summary>
         /// Returns true if the application is currently in Edit Mode. Always return false in a build.
@@ -60,6 +83,11 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Are scripts currently reloading?
+        /// </summary>
+        public static bool IsReloadingScripts { get; internal set; }
+
+        /// <summary>
         /// Returns true if the code is running inside Unity Cloud Build.
         /// </summary>
         public static bool IsUnityCloudBuild
@@ -73,10 +101,5 @@ namespace Coimbra
 #endif
             }
         }
-
-        /// <summary>
-        /// Are scripts currently reloading?
-        /// </summary>
-        public static bool IsReloadingScripts { get; internal set; }
     }
 }

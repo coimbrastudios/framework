@@ -5,7 +5,7 @@ namespace Coimbra.Editor
     /// <summary>
     /// General <see cref="ScriptableSettingsType.EditorProjectSettings"/> settings.
     /// </summary>
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, "Editor", true)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, "Editor Settings", true)]
     public sealed class CoimbraEditorProjectSettings : ScriptableSettings
     {
         /// <summary>

@@ -3,6 +3,8 @@
 ## [10.8.2] - UNRELEASED
 
 - Changed `AssemblyDefinition` and `AssemblyDefinitinoReference` types to be public.
+- Changed listener classes to a new assembly `Coimbra.Listeners`.
+- Changed ui classes to new assembly `Coimbra.UI`.
 
 ## [10.8.1] - 2022-06-23
 
