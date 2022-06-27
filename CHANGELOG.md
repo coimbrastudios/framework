@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.8.2] - UNRELEASED
+## [10.8.2] - 2022-06-27
 
 - Added `Coimbra.Linting` and `Coimbra.Linting.Editor` to prepare for `StyleCop.Analyzers` support.
 - Added basic linting support for assembly definition files.
