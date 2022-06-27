@@ -91,6 +91,21 @@ namespace Coimbra.Linting.Editor
             return false;
         }
 
+        internal static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
+        {
+            int count = regexes.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (regexes[i].IsMatch(assemblyDefinitionPath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         protected virtual void Reset()
         {
             _displayError = true;
@@ -121,21 +136,6 @@ namespace Coimbra.Linting.Editor
                     _excludedMask[i] += $".{asmdef}";
                 }
             }
-        }
-
-        private static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
-        {
-            int count = regexes.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                if (regexes[i].IsMatch(assemblyDefinitionPath))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private void InitializeCaches()

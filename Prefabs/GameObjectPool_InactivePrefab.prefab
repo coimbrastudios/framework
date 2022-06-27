@@ -43,20 +43,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5b916a4724340068ed38122daada026, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <IsPooled>k__BackingField: 0
-  <IsSpawned>k__BackingField: 0
-  <Pool>k__BackingField: {fileID: 0}
+  _assertAwake: 0
+  _activateOnSpawn: 0
+  _deactivateOnDespawn: 0
+  _deactivateOnInitializePrefab: 0
   _currentState: 0
   _prefabReference:
     m_AssetGUID: 8c3e8fbdab30d4b40885f42605bc14c2
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  _autoLoad: 0
+  _containerTransform: {fileID: 8488589644302647447}
+  _loadOnInitialize: 0
   _canInstantiateOnSpawn: 1
   _changeNameOnInstantiate: 1
-  _deactivatePreloadedInstances: 1
   _keepParentOnDespawn: 1
-  _preloadCount: 1
-  _maxCapacity: 1
-  _containerTransform: {fileID: 8488589644302647447}
+  _desiredAvailableInstancesRange:
+    _min: 1
+    _max: 1
+  _expandStep: 0
+  _shrinkStep: 0
+  _availableInstances: []
+  <PreloadingInstancesCount>k__BackingField: 0

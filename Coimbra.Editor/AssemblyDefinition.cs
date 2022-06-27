@@ -61,34 +61,34 @@ namespace Coimbra.Editor
         private string rootNamespace;
 
         [SerializeField]
-        private bool allowUnsafeCode;
-
-        [SerializeField]
-        private bool autoReferenced;
-
-        [SerializeField]
-        private bool noEngineReferences33;
-
-        [SerializeField]
-        private bool overrideReferences;
-
-        [SerializeField]
-        private string[] defineConstraints;
-
-        [SerializeField]
-        private string[] excludePlatforms;
+        private string[] references;
 
         [SerializeField]
         private string[] includePlatforms;
 
         [SerializeField]
+        private string[] excludePlatforms;
+
+        [SerializeField]
+        private bool allowUnsafeCode;
+
+        [SerializeField]
+        private bool overrideReferences;
+
+        [SerializeField]
         private string[] precompiledReferences;
 
         [SerializeField]
-        private string[] references;
+        private bool autoReferenced;
+
+        [SerializeField]
+        private string[] defineConstraints;
 
         [SerializeField]
         private VersionDefine[] versionDefines;
+
+        [SerializeField]
+        private bool noEngineReferences33;
 
         public AssemblyDefinition(string name, string[] references, bool autoReferenced = true, bool isEditorOnly = false, bool isTestsOnly = false)
         {

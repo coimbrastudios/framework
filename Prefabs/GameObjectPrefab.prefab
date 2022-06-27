@@ -43,4 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a89d4f085dfc431ea6ce9f86c2b623b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Pool>k__BackingField: {fileID: 0}
+  _assertAwake: 0
+  _activateOnSpawn: 0
+  _deactivateOnDespawn: 0
+  _deactivateOnInitializePrefab: 0

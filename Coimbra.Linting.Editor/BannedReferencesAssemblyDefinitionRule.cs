@@ -46,9 +46,9 @@ namespace Coimbra.Linting.Editor
                 {
                     string referenceName = reference.StartsWith(GuidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(reference.Substring(GuidPrefix.Length))) : reference;
 
-                    if (IsBannedReference(referenceName))
+                    if (HasAnyMatch(_bannedReferencesRegexes, referenceName))
                     {
-                        Debug.LogWarning($"{assemblyDefinition.Name} had banned reference to {referenceName}!");
+                        Debug.LogWarning($"{assemblyDefinition.Name} had banned reference {referenceName}!");
 
                         continue;
                     }
@@ -90,19 +90,6 @@ namespace Coimbra.Linting.Editor
             }
 
             _hasCache = true;
-        }
-
-        private bool IsBannedReference(in string reference)
-        {
-            foreach (Regex regex in _bannedReferencesRegexes)
-            {
-                if (regex.IsMatch(reference))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

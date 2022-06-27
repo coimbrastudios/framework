@@ -53,7 +53,7 @@ namespace Coimbra.Linting.Editor
                     }
 
                     list.Add(guid);
-                    Debug.LogWarning($"{assemblyDefinition.Name} was missing required reference to {asset.name}!");
+                    Debug.LogWarning($"{assemblyDefinition.Name} was missing required reference {asset.name}!");
                 }
 
                 if (assemblyDefinition.References.Length == list.Count)

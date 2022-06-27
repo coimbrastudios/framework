@@ -2,6 +2,8 @@
 
 ## [10.8.2] - UNRELEASED
 
+- Added `Coimbra.Linting` and `Coimbra.Linting.Editor` to prepare for `StyleCop.Analyzers` support.
+- Added basic linting support for assembly definition files.
 - Changed `AssemblyDefinition` and `AssemblyDefinitinoReference` types to be public.
 - Changed listener classes to a new assembly `Coimbra.Listeners`.
 - Changed ui classes to new assembly `Coimbra.UI`.
