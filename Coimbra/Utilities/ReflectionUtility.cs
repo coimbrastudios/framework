@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Coimbra.Editor
+namespace Coimbra
 {
     /// <summary>
     /// Utility methods for reflection code.

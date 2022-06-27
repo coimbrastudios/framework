@@ -1,5 +1,4 @@
-﻿using Coimbra.Editor;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

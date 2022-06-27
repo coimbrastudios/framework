@@ -93,6 +93,15 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
+        /// Saves all assets changes to disk.
+        /// </summary>
+        [MenuItem(CoimbraUtility.ToolsMenuPath + "Save Assets &#S")]
+        public static void SaveAllAssets()
+        {
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>
         /// Clears the console windows.
         /// </summary>
         public static void ClearConsoleWindow()

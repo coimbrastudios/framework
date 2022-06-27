@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    internal static class CoimbraRoslynUtility
+    internal static class RoslynUtility
     {
         private static readonly string PackageDirectory = Path.Combine(Environment.CurrentDirectory, "Packages", "com.coimbrastudios");
 

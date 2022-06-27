@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -9,6 +10,33 @@ namespace Coimbra
     /// </summary>
     public static class ListUtility
     {
+        /// <summary>
+        /// Add the same value multiple times to the list.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddRange<T>(this List<T> list, T value, int count)
+        {
+            EnsureCapacity(list, list.Count + count);
+
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(value);
+            }
+        }
+        /// <summary>
+        /// Add the same value multiple times to the list.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddRange<T>(this List<T> list, int count, [NotNull] Func<int, T> valueGetter)
+        {
+            EnsureCapacity(list, list.Count + count);
+
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(valueGetter(i));
+            }
+        }
+
         /// <summary>
         /// Shorthand for clearing a list and ensuring a min capacity on it.
         /// </summary>
@@ -64,7 +92,6 @@ namespace Coimbra
         /// <summary>
         /// More efficient version of <see cref="List{T}.Remove"/> that doesn't care about preserving the order.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int RemoveSwapBack<T>(this List<T> list, T item)
         {
             int index = list.IndexOf(item);

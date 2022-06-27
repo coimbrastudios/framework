@@ -8,6 +8,12 @@ namespace Coimbra.Editor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
+            Initialize();
+        }
+
+        [InitializeOnLoadMethod]
+        private static void Initialize()
+        {
             using (ListPool.Pop(out List<Object> pooledList))
             {
                 pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
