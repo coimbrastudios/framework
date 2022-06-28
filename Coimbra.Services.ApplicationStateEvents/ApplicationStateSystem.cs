@@ -53,7 +53,7 @@ namespace Coimbra.Services.ApplicationStateEvents
         {
             if (reason == DestroyReason.ApplicationQuit)
             {
-                new ApplicationQuitEvent().Invoke(this);
+                default(ApplicationQuitEvent).Invoke(this);
             }
         }
     }

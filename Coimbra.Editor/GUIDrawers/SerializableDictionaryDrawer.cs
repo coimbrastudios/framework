@@ -17,7 +17,7 @@ namespace Coimbra.Editor
 
         private const float LabelWidthPercent = 0.5f;
 
-        private const string KeyProperty = "Key";
+        private const string KeyProperty = "_key";
 
         private const string ListProperty = "_list";
 
@@ -25,7 +25,7 @@ namespace Coimbra.Editor
 
         private const string NewProperty = "_new";
 
-        private const string ValueProperty = "Value";
+        private const string ValueProperty = "_value";
 
         static SerializableDictionaryDrawer()
         {
@@ -108,7 +108,7 @@ namespace Coimbra.Editor
             position.x += +EditorStyles.foldout.CalcSize(GUIContent.none).x;
             position.height = EditorGUI.GetPropertyHeight(newProperty, true);
 
-            using (new LabelWidthScope(position.width * LabelWidthPercent + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
+            using (new LabelWidthScope((position.width * LabelWidthPercent) + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
             {
                 EditorGUI.PropertyField(position, newProperty, true);
             }

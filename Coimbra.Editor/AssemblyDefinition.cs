@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace Coimbra.Editor
     /// Serializable representation of <see cref="UnityEditorInternal.AssemblyDefinitionAsset"/>.
     /// </summary>
     [Serializable]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SX1309:Field names should begin with underscore", Justification = "Serialization compatibility.")]
     public sealed class AssemblyDefinition
     {
         /// <summary>
@@ -99,7 +101,7 @@ namespace Coimbra.Editor
             {
                 IncludePlatforms = new[]
                 {
-                    EditorPlatform
+                    EditorPlatform,
                 };
             }
 
@@ -123,12 +125,12 @@ namespace Coimbra.Editor
 
             DefineConstraints = new[]
             {
-                TestsDefineConstraint
+                TestsDefineConstraint,
             };
 
             PrecompiledReferences = new[]
             {
-                TestsPrecompiledReference
+                TestsPrecompiledReference,
             };
         }
 

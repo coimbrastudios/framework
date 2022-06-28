@@ -19,7 +19,7 @@ namespace Coimbra.Listeners
         private T _component;
 
         /// <summary>
-        /// The component this component depends on.
+        /// Gets the component this component depends on.
         /// </summary>
         public T Component => _component != null ? _component : _component = GetComponent<T>();
 

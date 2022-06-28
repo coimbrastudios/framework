@@ -85,12 +85,12 @@ namespace Coimbra.Editor
 
                     Type[] constructorTypes =
                     {
-                        typeof(Type)
+                        typeof(Type),
                     };
 
                     object[] constructorParameters =
                     {
-                        item.Type
+                        item.Type,
                     };
 
                     object value = context.PropertyType.GetConstructor(bindingFlags, null, constructorTypes, null)!.Invoke(constructorParameters);

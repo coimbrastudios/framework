@@ -23,12 +23,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The <see cref="GameObject"/> need to have at least one of those components.
+        /// Gets or sets the components that <see cref="GameObject"/> should have at least one.
         /// </summary>
         public Type[] Any { get; set; }
 
         /// <summary>
-        /// The <see cref="GameObject"/> should not have any of those components.
+        /// Gets or sets the components that <see cref="GameObject"/> should not have.
         /// </summary>
         public Type[] None { get; set; }
 
@@ -117,7 +117,6 @@ namespace Coimbra
             }
 
             return false;
-
         }
     }
 }

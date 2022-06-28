@@ -9,19 +9,19 @@ namespace Coimbra.Editor
     /// </summary>
     public static class ReorderableListUtility
     {
-        /// <see cref="SerializedProperty.serializedObject"/>
+        /// <inheritdoc cref="SerializedProperty.serializedObject"/>
         public static SerializedObject GetSerializedObject(this ReorderableList reorderableList)
         {
             return reorderableList.serializedProperty.serializedObject;
         }
 
-        /// <see cref="SerializedObject.targetObject"/>
+        /// <inheritdoc cref="SerializedObject.targetObject"/>
         public static Object GetTargetObject(this ReorderableList reorderableList)
         {
             return reorderableList.serializedProperty.serializedObject.targetObject;
         }
 
-        /// <see cref="SerializedObject.targetObjects"/>
+        /// <inheritdoc cref="SerializedObject.targetObjects"/>
         public static Object[] GetTargetObjects(this ReorderableList reorderableList)
         {
             return reorderableList.serializedProperty.serializedObject.targetObjects;

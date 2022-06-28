@@ -3,7 +3,7 @@
 namespace Coimbra
 {
     /// <summary>
-    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="IManagedPoolHandler"/>
+    /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="IManagedPoolHandler"/>.
     /// </summary>
     [Preserve]
     [SharedManagedPool("Value", "Instance")]

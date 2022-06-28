@@ -7,6 +7,13 @@ namespace Coimbra.Tests
     [TestOf(typeof(ServiceLocator))]
     public class ServiceLocatorTests
     {
+        [DynamicService]
+        [HideInServiceLocatorWindow]
+        private interface IDummyService : IService
+        {
+            int Value { get; set; }
+        }
+
         private sealed class DummyServiceFactory : IServiceFactory
         {
             public static readonly DummyServiceFactory Instance = new DummyServiceFactory();
@@ -17,13 +24,6 @@ namespace Coimbra.Tests
             {
                 return new DummyService();
             }
-        }
-
-        [DynamicService]
-        [HideInServiceLocatorWindow]
-        private interface IDummyService : IService
-        {
-            int Value { get; set; }
         }
 
         [DisableDefaultFactory]

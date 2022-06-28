@@ -10,32 +10,34 @@ namespace Coimbra.Jobs
     [PublicAPI]
     public static class ManagedJobParallelForUtility
     {
-        /// <see cref="IJobParallelForExtensions.Run{T}"/>
-        public static void Run<T>(this T jobData, int arrayLength) where T : class, IManagedJobParallelFor
+        /// <inheritdoc cref="IJobParallelForExtensions.Run{T}"/>
+        public static void Run<T>(this T jobData, int arrayLength)
+            where T : class, IManagedJobParallelFor
         {
             GCHandle gcHandle = GCHandle.Alloc(jobData);
 
             new ManagedJobParallelFor<T>()
             {
-                Handle = gcHandle
+                Handle = gcHandle,
             }.Run(arrayLength);
 
             gcHandle.Free();
         }
 
-        /// <see cref="IJobParallelForExtensions.Schedule{T}"/>
-        public static ManagedJobHandle Schedule<T>(this T jobData, int arrayLength, int innerLoopBatchCount, JobHandle dependsOn = default) where T : class, IManagedJobParallelFor
+        /// <inheritdoc cref="IJobParallelForExtensions.Schedule{T}"/>
+        public static ManagedJobHandle Schedule<T>(this T jobData, int arrayLength, int innerLoopBatchCount, JobHandle dependsOn = default)
+            where T : class, IManagedJobParallelFor
         {
             GCHandle gcHandle = GCHandle.Alloc(jobData);
             JobHandle jobHandle = new ManagedJobParallelFor<T>()
             {
-                Handle = gcHandle
+                Handle = gcHandle,
             }.Schedule(arrayLength, innerLoopBatchCount, dependsOn);
 
             return new ManagedJobHandle()
             {
                 GCHandle = gcHandle,
-                JobHandle = jobHandle
+                JobHandle = jobHandle,
             };
         }
     }

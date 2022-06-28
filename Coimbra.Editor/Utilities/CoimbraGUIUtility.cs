@@ -25,7 +25,7 @@ namespace Coimbra.Editor
 
         private static readonly char[] DefaultSearchSeparator =
         {
-            ' '
+            ' ',
         };
 
         private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
@@ -65,7 +65,6 @@ namespace Coimbra.Editor
         /// <param name="label">The label to draw.</param>
         /// <param name="list">The list to draw.</param>
         /// <param name="isMultiEditing">If true, a warning will appear instead of the actual invocation list.</param>
-        /// <returns>If the list is still expanded.</returns>
         public static void DrawDelegateListeners(Rect position, GUIContent label, List<DelegateListener> list, bool isMultiEditing)
         {
             InitializeDelegateListeners();
@@ -101,7 +100,6 @@ namespace Coimbra.Editor
         /// <param name="label">The label to draw.</param>
         /// <param name="value">The delegate value to get the listeners to draw.</param>
         /// <param name="isMultiEditing">If true, a warning will appear instead of the actual invocation list.</param>
-        /// <returns>If the list is still expanded.</returns>
         public static void DrawDelegateListeners<T>(Rect position, GUIContent label, in T value, bool isMultiEditing)
             where T : Delegate
         {
@@ -286,7 +284,6 @@ namespace Coimbra.Editor
         /// <param name="type">The type of message.</param>
         /// <param name="area">The inspector area to be used.</param>
         /// <param name="defaultMinContentHeight">The default min content height when no icon is present.</param>
-        /// <returns></returns>
         public static float GetMessageBoxHeight(string message, MessageBoxType type, InspectorArea area, float defaultMinContentHeight)
         {
             using (GUIContentPool.Pop(out GUIContent content))

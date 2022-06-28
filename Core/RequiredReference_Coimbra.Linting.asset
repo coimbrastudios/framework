@@ -17,6 +17,7 @@ MonoBehaviour:
   - '*/com.coimbrastudios.core/*'
   _excludedMask:
   - '*/Coimbra.Linting.asmdef'
+  - '*/Coimbra.ThirdParty.*'
   _displayError: 0
   _requiredReferences:
   - {fileID: 5897886265953266890, guid: e10668b017190974fa18141cc6f7bb36, type: 3}

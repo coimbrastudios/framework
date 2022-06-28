@@ -39,15 +39,24 @@ namespace Coimbra
         /// </summary>
         public readonly string? WindowPath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PreferencesAttribute"/> class.
+        /// </summary>
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
         public PreferencesAttribute(bool useEditorPrefs)
             : this(DefaultWindowPath, null, useEditorPrefs) { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PreferencesAttribute"/> class.
+        /// </summary>
         /// <param name="windowPath">The path on the preferences window.</param>
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
         public PreferencesAttribute(string? windowPath, bool useEditorPrefs)
             : this(windowPath, null, useEditorPrefs) { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PreferencesAttribute"/> class.
+        /// </summary>
         /// <param name="windowPath">The path on the preferences window.</param>
         /// <param name="nameOverride">If null, the name in the preferences window will be the display name of the type.</param>
         /// <param name="useEditorPrefs">If true, the data will be shared between all instances of the editor for the current user. The key will be the defined file name. <seealso cref="FileNameOverride"/></param>
@@ -59,17 +68,20 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The directory to save the file if <see cref="UseEditorPrefs"/> is false.
+        /// Gets or sets the directory to save the file if <see cref="UseEditorPrefs"/> is false.
         /// </summary>
         public string FileDirectory { get; set; } = DefaultFileDirectory;
 
         /// <summary>
-        /// If null, the file name will be in the format "{type}.asset".
+        /// Gets or sets a value that overrides the default file name.
         /// </summary>
+        /// <value>
+        /// If null, the file name will be in the format "{type}.asset".
+        /// </value>
         public string? FileNameOverride { get; set; } = null;
 
         /// <summary>
-        /// The keywords to be used in the search functionality.
+        /// Gets or sets the keywords to be used in the search functionality.
         /// </summary>
         public string[]? Keywords { get; set; } = null;
     }

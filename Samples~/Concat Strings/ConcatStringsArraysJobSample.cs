@@ -8,11 +8,11 @@ namespace Coimbra.Samples.ConcatStrings
     {
         private sealed class ConcatStringsArraysJob : IManagedJobParallelFor
         {
-            public string[] Left;
+            public string[] Left { get; set; }
 
-            public string[] Right;
+            public string[] Right { get; set; }
 
-            public string[] Result;
+            public string[] Result { get; set; }
 
             public void Execute(int i)
             {
@@ -25,7 +25,7 @@ namespace Coimbra.Samples.ConcatStrings
         {
             "First",
             "Second",
-            "Third"
+            "Third",
         };
 
         [SerializeField]
@@ -33,7 +33,7 @@ namespace Coimbra.Samples.ConcatStrings
         {
             "Example 1",
             "Example 2",
-            "Example 3"
+            "Example 3",
         };
 
         [SerializeField]
@@ -47,7 +47,7 @@ namespace Coimbra.Samples.ConcatStrings
             {
                 Left = _left,
                 Right = _right,
-                Result = new string[length]
+                Result = new string[length],
             };
 
             ManagedJobHandle handle = task.Schedule(length, _innerLoopBatchCount);

@@ -6,9 +6,6 @@ namespace Coimbra.Listeners
     /// <summary>
     /// Listen to player loop callbacks.
     /// </summary>
-    /// <seealso cref="FixedUpdateListener"/>
-    /// <seealso cref="LateUpdateListener"/>
-    /// <seealso cref="UpdateListener"/>
     public abstract class PlayerLoopListenerBase : MonoBehaviour
     {
         public delegate void EventHandler(PlayerLoopListenerBase sender, float deltaTime);
@@ -25,7 +22,7 @@ namespace Coimbra.Listeners
         private EventHandler _eventHandler;
 
         /// <summary>
-        /// True if <see cref="OnTrigger"/> has any listener.
+        /// Gets a value indicating whether <see cref="OnTrigger"/> has any listener.
         /// </summary>
         protected bool HasListener => _eventHandler != null;
 

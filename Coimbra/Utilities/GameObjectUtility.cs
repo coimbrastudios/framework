@@ -122,7 +122,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Does the game object have the given component type?
+        /// Checks if the game object have the given component type.
         /// </summary>
         public static bool HasComponent<T>(this GameObject gameObject)
         {
@@ -130,7 +130,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Does the game object have the given component type?
+        /// Checks if the game object have the given component type.
         /// </summary>
         public static bool HasComponent(this GameObject gameObject, [NotNull] Type type)
         {

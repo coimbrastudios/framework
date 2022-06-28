@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace Coimbra.Editor
     /// Serializable representation of <see cref="UnityEditorInternal.AssemblyDefinitionReferenceAsset"/>.
     /// </summary>
     [Serializable]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SX1309:Field names should begin with underscore", Justification = "Serialization compatibility.")]
     public sealed class AssemblyDefinitionReference
     {
         [SerializeField]

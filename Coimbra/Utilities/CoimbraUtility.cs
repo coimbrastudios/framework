@@ -53,7 +53,7 @@ namespace Coimbra
         public const string WindowMenuPath = "Window/" + GeneralMenuPath;
 
         /// <summary>
-        /// Returns true if the application is currently in Edit Mode. Always return false in a build.
+        /// Gets a value indicating whether the application is currently in Edit Mode. Always return false in a build.
         /// </summary>
         public static bool IsEditMode
         {
@@ -68,7 +68,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Returns true if the application is currently in Play Mode. Always return true in a build.
+        /// Gets a value indicating whether the application is currently in Play Mode. Always return true in a build.
         /// </summary>
         public static bool IsPlayMode
         {
@@ -83,12 +83,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Are scripts currently reloading?
+        /// Gets a value indicating whether the scripts currently reloading.
         /// </summary>
         public static bool IsReloadingScripts { get; internal set; }
 
         /// <summary>
-        /// Returns true if the code is running inside Unity Cloud Build.
+        /// Gets a value indicating whether the code is running inside Unity Cloud Build.
         /// </summary>
         public static bool IsUnityCloudBuild
         {

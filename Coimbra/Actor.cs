@@ -186,7 +186,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, it will activate the object when spawning it.
+        /// Gets or sets a value indicating whether it will activate the object when spawning it.
         /// </summary>
         public bool ActivateOnSpawn
         {
@@ -197,7 +197,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, it will check if <see cref="Awake"/> was called before <see cref="Initialize"/>.
+        /// Gets or sets a value indicating whether it will check if <see cref="Awake"/> was called before <see cref="Initialize"/>.
         /// </summary>
         public bool AssertAwake
         {
@@ -208,7 +208,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, it will deactivate the object when despawning it.
+        /// Gets or sets a value indicating whether it will deactivate the object when despawning it.
         /// </summary>
         public bool DeactivateOnDespawn
         {
@@ -219,7 +219,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, it will deactivate the prefab when initializing it.
+        /// Gets or sets a value indicating whether it will deactivate the prefab when initializing it.
         /// </summary>
         public bool DeactivateOnInitializePrefab
         {
@@ -230,7 +230,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be despawned.
+        /// Gets the <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be despawned.
         /// </summary>
         public CancellationToken DespawnCancellationToken
         {
@@ -248,7 +248,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be destroyed.
+        /// Gets the <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be destroyed.
         /// </summary>
         public CancellationToken DestroyCancellationToken
         {
@@ -266,67 +266,67 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
+        /// Gets the cached version of <see cref="MonoBehaviour.gameObject"/>.<see cref="Object.GetInstanceID"/>.
         /// </summary>
         public GameObjectID GameObjectID => _gameObjectID ?? (_gameObjectID = GameObject).Value;
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
+        /// Gets the cached version of <see cref="MonoBehaviour.gameObject"/> to avoid the C++ interop.
         /// </summary>
         public GameObject GameObject => IsDestroyed || !IsInitialized ? gameObject : _gameObject;
 
         /// <summary>
-        /// Cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
+        /// Gets the cached version of <see cref="MonoBehaviour.transform"/> to avoid the C++ interop.
         /// </summary>
         public Transform Transform => IsDestroyed || !IsInitialized ? transform : _transform;
 
         /// <summary>
-        /// The current states of this <see cref="Actor"/>.
+        /// Gets the current states of this <see cref="Actor"/>.
         /// </summary>
         public StateFlags States { get; private set; }
 
         /// <summary>
-        /// True if <see cref="Awake"/> was called already.
+        /// Gets a value indicating whether <see cref="Awake"/> was called already.
         /// </summary>
         public bool IsAwaken => (States & StateFlags.IsAwaken) != 0;
 
         /// <summary>
-        /// Was <see cref="Destroy"/> called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>?
+        /// Gets a value indicating whether <see cref="Destroy"/> was called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>.
         /// </summary>
         public bool IsDestroyed => (States & StateFlags.IsDestroyed) != 0;
 
         /// <summary>
-        /// Was <see cref="Initialize"/> called at least once in this <see cref="Actor"/>?
+        /// Gets a value indicating whether <see cref="Initialize"/> was called at least once in this <see cref="Actor"/>.
         /// </summary>
         public bool IsInitialized => (States & StateFlags.IsInitialized) != 0;
 
         /// <summary>
-        /// Indicates if the object was instantiated through a <see cref="GameObjectPool"/>.
+        /// Gets a value indicating whether the object was instantiated through a <see cref="GameObjectPool"/>.
         /// </summary>
         public bool IsPooled => (States & StateFlags.IsPooled) != 0;
 
         /// <summary>
-        /// True when this object is a prefab asset.
+        /// Gets a value indicating whether this object is a prefab asset.
         /// </summary>
         public bool IsPrefab => (States & StateFlags.IsPrefab) != 0;
 
         /// <summary>
-        /// True when application is quitting.
+        /// Gets a value indicating whether the application is quitting.
         /// </summary>
         public bool IsQuitting => (States & StateFlags.IsQuitting) != 0;
 
         /// <summary>
-        /// Indicates if the object is currently spawned.
+        /// Gets a value indicating whether the object is currently spawned.
         /// </summary>
         public bool IsSpawned => (States & StateFlags.IsSpawned) != 0;
 
         /// <summary>
-        /// Indicates if the scene of this <see cref="Actor"/> is currently unloading.
+        /// Gets a value indicating whether the scene of this <see cref="Actor"/> is currently unloading.
         /// </summary>
         public bool IsUnloadingScene => (States & StateFlags.IsUnloadingScene) != 0;
 
         /// <summary>
-        /// The pool that owns this instance.
+        /// Gets the pool that owns this instance.
         /// </summary>
         public GameObjectPool Pool { get; private set; }
 
@@ -337,7 +337,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Is the <see cref="Actor"/> representation of specified game object ID cached?
+        /// Returns if the <see cref="Actor"/> representation of specified game object ID is cached.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasCachedActor(GameObjectID gameObjectID, out Actor actor)
@@ -392,118 +392,6 @@ namespace Coimbra
         public void Initialize()
         {
             Initialize(null, default);
-        }
-
-        /// <summary>
-        /// Called each time this object is despawned. By default, it deactivates the object.
-        /// </summary>
-        protected virtual void OnDespawn()
-        {
-            if (DeactivateOnDespawn)
-            {
-                GameObject.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
-        /// </summary>
-        protected virtual void OnDestroyed() { }
-
-        /// <summary>
-        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
-        /// </summary>
-        protected virtual void OnInitialize() { }
-
-        /// <summary>
-        /// Use this for one-time initializations on prefabs.
-        /// </summary>
-        protected virtual void OnInitializePrefab()
-        {
-            if (_deactivateOnInitializePrefab)
-            {
-                GameObject.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Called each time this object is spawned. By default, it activates the object.
-        /// </summary>
-        protected virtual void OnSpawn()
-        {
-            if (ActivateOnSpawn)
-            {
-                GameObject.SetActive(true);
-            }
-        }
-
-        /// <summary>
-        /// Unity callback.
-        /// </summary>
-        protected virtual void OnValidate()
-        {
-            if (Application.isPlaying)
-            {
-                Initialize();
-            }
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void Awake()
-        {
-            States |= StateFlags.IsAwaken;
-        }
-
-#if UNITY_ASSERTIONS
-        /// <summary>
-        /// Non-virtual by design, use 'Coimbra.Listeners.StartListener' instead or another alternative.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void Start()
-        {
-            const string message = nameof(Actor) + "." + nameof(Initialize) + " needs to be called before the " + nameof(Start) + " callback!";
-            Debug.Assert(IsInitialized, message, this);
-        }
-
-#endif
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void OnEnable()
-        {
-            OnActiveStateChanged?.Invoke(this, true);
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void OnDisable()
-        {
-            OnActiveStateChanged?.Invoke(this, false);
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnDestroyed"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void OnDestroy()
-        {
-            Destroy(false);
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="Application.quitting"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void OnApplicationQuit()
-        {
-            States |= StateFlags.IsQuitting;
         }
 
         internal static IReadOnlyCollection<Actor> GetCachedActors()
@@ -625,6 +513,118 @@ namespace Coimbra
 
             States |= StateFlags.IsSpawned;
             OnSpawn();
+        }
+
+        /// <summary>
+        /// Called each time this object is despawned. By default, it deactivates the object.
+        /// </summary>
+        protected virtual void OnDespawn()
+        {
+            if (DeactivateOnDespawn)
+            {
+                GameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
+        /// </summary>
+        protected virtual void OnDestroyed() { }
+
+        /// <summary>
+        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
+        /// </summary>
+        protected virtual void OnInitialize() { }
+
+        /// <summary>
+        /// Use this for one-time initializations on prefabs.
+        /// </summary>
+        protected virtual void OnInitializePrefab()
+        {
+            if (_deactivateOnInitializePrefab)
+            {
+                GameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Called each time this object is spawned. By default, it activates the object.
+        /// </summary>
+        protected virtual void OnSpawn()
+        {
+            if (ActivateOnSpawn)
+            {
+                GameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected virtual void OnValidate()
+        {
+            if (Application.isPlaying)
+            {
+                Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void Awake()
+        {
+            States |= StateFlags.IsAwaken;
+        }
+
+#if UNITY_ASSERTIONS
+        /// <summary>
+        /// Non-virtual by design, use 'Coimbra.Listeners.StartListener' instead or another alternative.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void Start()
+        {
+            const string message = nameof(Actor) + "." + nameof(Initialize) + " needs to be called before the " + nameof(Start) + " callback!";
+            Debug.Assert(IsInitialized, message, this);
+        }
+
+#endif
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void OnEnable()
+        {
+            OnActiveStateChanged?.Invoke(this, true);
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnActiveStateChanged"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void OnDisable()
+        {
+            OnActiveStateChanged?.Invoke(this, false);
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnDestroyed"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void OnDestroy()
+        {
+            Destroy(false);
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="Application.quitting"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void OnApplicationQuit()
+        {
+            States |= StateFlags.IsQuitting;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

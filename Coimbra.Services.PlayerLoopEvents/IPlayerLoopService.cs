@@ -8,7 +8,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     public interface IPlayerLoopService : IService
     {
         /// <summary>
-        /// The list of events currently being fired.
+        /// Gets or sets the list of events currently being fired.
         /// </summary>
         PlayerLoopTimingEvents CurrentTimings { get; set; }
 

@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private Renderer _renderer;
 
         /// <summary>
-        /// The renderer this component depends on.
+        /// Gets the renderer this component depends on.
         /// </summary>
         public Renderer Renderer => _renderer != null ? _renderer : _renderer = GetComponent<Renderer>();
 

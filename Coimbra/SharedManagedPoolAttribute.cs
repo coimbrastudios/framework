@@ -24,13 +24,15 @@ namespace Coimbra
         [UsedImplicitly]
         public readonly string? NestedInstanceWrapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SharedManagedPoolAttribute"/> class.
+        /// </summary>
         /// <param name="instanceValueField">The name of the static field containing the <see cref="ManagedPool{T}"/> instance value.</param>
         /// <param name="nestedInstanceWrapper">The nested static class name wrapping the <paramref name="instanceValueField"/>, if any.</param>
         public SharedManagedPoolAttribute(string instanceValueField, string? nestedInstanceWrapper = null)
         {
             InstanceValueField = instanceValueField;
             NestedInstanceWrapper = nestedInstanceWrapper;
-
         }
     }
 }

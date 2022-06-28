@@ -25,7 +25,7 @@ namespace Coimbra.Linting.Editor
         private Regex[] _bannedReferencesRegexes;
 
         /// <summary>
-        /// The list of <see cref="AssemblyDefinition"/> names to ban. Any '*' will be used as wildcards.
+        /// Gets or sets the list of <see cref="AssemblyDefinition"/> names to ban. Any '*' will be used as wildcards.
         /// </summary>
         public IReadOnlyList<string> BannedReferences
         {

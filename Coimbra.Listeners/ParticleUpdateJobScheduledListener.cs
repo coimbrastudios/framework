@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private ParticleSystem _particleSystem;
 
         /// <summary>
-        /// The particle system this component depends on.
+        /// Gets the particle system this component depends on.
         /// </summary>
         public ParticleSystem ParticleSystem => _particleSystem != null ? _particleSystem : _particleSystem = GetComponent<ParticleSystem>();
 

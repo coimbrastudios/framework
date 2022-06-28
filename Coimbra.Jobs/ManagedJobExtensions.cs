@@ -10,32 +10,34 @@ namespace Coimbra.Jobs
     [PublicAPI]
     public static class ManagedJobExtensions
     {
-        /// <see cref="IJobExtensions.Run{T}"/>
-        public static void Run<T>(this T jobData) where T : class, IManagedJob
+        /// <inheritdoc cref="IJobExtensions.Run{T}"/>
+        public static void Run<T>(this T jobData)
+            where T : class, IManagedJob
         {
             GCHandle gcHandle = GCHandle.Alloc(jobData);
 
             new ManagedJob<T>()
             {
-                Handle = gcHandle
+                Handle = gcHandle,
             }.Run();
 
             gcHandle.Free();
         }
 
-        /// <see cref="IJobExtensions.Schedule{T}"/>
-        public static ManagedJobHandle Schedule<T>(this T jobData, JobHandle dependsOn = default) where T : class, IManagedJob
+        /// <inheritdoc cref="IJobExtensions.Schedule{T}"/>
+        public static ManagedJobHandle Schedule<T>(this T jobData, JobHandle dependsOn = default)
+            where T : class, IManagedJob
         {
             GCHandle gcHandle = GCHandle.Alloc(jobData);
             JobHandle jobHandle = new ManagedJob<T>()
             {
-                Handle = gcHandle
+                Handle = gcHandle,
             }.Schedule(dependsOn);
 
             return new ManagedJobHandle()
             {
                 GCHandle = gcHandle,
-                JobHandle = jobHandle
+                JobHandle = jobHandle,
             };
         }
     }

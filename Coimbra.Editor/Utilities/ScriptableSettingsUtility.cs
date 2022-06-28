@@ -18,6 +18,8 @@ namespace Coimbra.Editor
     [InitializeOnLoad]
     public static class ScriptableSettingsUtility
     {
+        private static readonly Object?[] SaveTarget = new Object?[1];
+
         static ScriptableSettingsUtility()
         {
             UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
@@ -156,10 +158,10 @@ namespace Coimbra.Editor
                 Directory.CreateDirectory(directoryName);
             }
 
-            InternalEditorUtility.SaveToSerializedFileAndForget(new Object[]
-            {
-                scriptableSettings
-            }, filePath, true);
+            SaveTarget[0] = scriptableSettings;
+            InternalEditorUtility.SaveToSerializedFileAndForget(SaveTarget, filePath, true);
+
+            SaveTarget[0] = null;
         }
 
         /// <summary>
@@ -178,7 +180,7 @@ namespace Coimbra.Editor
             {
                 settingsScope = SettingsScope.Project;
                 windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? CoimbraGUIUtility.GetDisplayName(type.Name)}";
-                filePath = projectSettingsAttribute.IsEditorOnly ? $"{projectSettingsAttribute.FileDirectory}/{(projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset")}" : null;
+                filePath = projectSettingsAttribute.IsEditorOnly ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
                 keywords = projectSettingsAttribute.Keywords;
             }
 
@@ -188,7 +190,7 @@ namespace Coimbra.Editor
             {
                 settingsScope = SettingsScope.User;
                 windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? CoimbraGUIUtility.GetDisplayName(type.Name)}" : null;
-                filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{(preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset")}";
+                filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset"}";
                 keywords = preferencesAttribute.Keywords;
             }
 

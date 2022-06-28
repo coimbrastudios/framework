@@ -28,8 +28,9 @@ namespace Coimbra
         [SerializeField]
         private int _max;
 
-        /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
-        /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IntRange"/> struct.
+        /// </summary>
         public IntRange(int a, int b = 0)
         {
             _min = a < b ? a : b;
@@ -37,27 +38,27 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The diff between <see cref="Max"/> and <see cref="Min"/>.
+        /// Gets the diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
         public int Lenght => Max - Min;
 
         /// <summary>
-        /// The biggest value on the range.
+        /// Gets the biggest value on the range.
         /// </summary>
         public int Max => _max;
 
         /// <summary>
-        /// The smallest value on the range.
+        /// Gets the smallest value on the range.
         /// </summary>
         public int Min => _min;
 
         /// <summary>
-        /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
+        /// Gets a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [exclusive].
         /// </summary>
         public int RandomExclusive => Random.Range(Min, Max);
 
         /// <summary>
-        /// Returns a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
+        /// Gets a random integer number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
         public int RandomInclusive => Random.Range(Min, Max + 1);
 

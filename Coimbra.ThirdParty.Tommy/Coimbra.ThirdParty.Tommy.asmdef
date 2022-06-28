@@ -1,16 +1,15 @@
 {
-    "name": "Coimbra.Services",
+    "name": "Coimbra.ThirdParty.Tommy",
     "rootNamespace": "",
-    "references": [
-        "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+    "references": [],
+    "includePlatforms": [
+        "Editor"
     ],
-    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

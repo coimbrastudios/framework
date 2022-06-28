@@ -16,12 +16,12 @@ namespace Coimbra.Editor
 
         private static readonly string[] OverrideControllerError =
         {
-            "Using an Animator Override Controller is not supported."
+            "Using an Animator Override Controller is not supported.",
         };
 
         private static readonly string[] MultiEditErrorError =
         {
-            "Cannot multi-edit different controllers."
+            "Cannot multi-edit different controllers.",
         };
 
         private static readonly List<object> Targets = new List<object>();
@@ -32,20 +32,20 @@ namespace Coimbra.Editor
         {
             [AnimatorControllerParameterType.Float] = new[]
             {
-                string.Format(NoParameterFoundError, "float")
+                string.Format(NoParameterFoundError, "float"),
             },
             [AnimatorControllerParameterType.Int] = new[]
             {
-                string.Format(NoParameterFoundError, "int")
+                string.Format(NoParameterFoundError, "int"),
             },
             [AnimatorControllerParameterType.Bool] = new[]
             {
-                string.Format(NoParameterFoundError, "bool")
+                string.Format(NoParameterFoundError, "bool"),
             },
             [AnimatorControllerParameterType.Trigger] = new[]
             {
-                string.Format(NoParameterFoundError, "trigger")
-            }
+                string.Format(NoParameterFoundError, "trigger"),
+            },
         };
 
         /// <inheritdoc/>

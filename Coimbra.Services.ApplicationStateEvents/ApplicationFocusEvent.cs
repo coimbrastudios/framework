@@ -10,6 +10,9 @@
         /// </summary>
         public readonly bool IsFocused;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationFocusEvent"/> struct.
+        /// </summary>
         /// <param name="isFocused">True if currently focused.</param>
         public ApplicationFocusEvent(bool isFocused)
         {

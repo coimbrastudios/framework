@@ -34,7 +34,7 @@ namespace Coimbra.Tests.Editor
 
         [UnityTest]
         [Timeout(1000)]
-        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex", Justification = "Scene index is added during test execution.")]
         public IEnumerator GivenActiveInstance_WhenDestroyedBySceneChange_ThenResultIsSceneChange()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");

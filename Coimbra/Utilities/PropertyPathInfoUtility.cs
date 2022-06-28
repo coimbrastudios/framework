@@ -131,15 +131,16 @@ namespace Coimbra
             }
         }
 
-        private static PropertyPathInfo GetPropertyPathInfoFromCacheOrCreate(IDictionary<string, PropertyPathInfo> cache,
-                                                                             [NotNull] Type propertyType,
-                                                                             [NotNull] Type rootType,
-                                                                             [NotNull] FieldInfo fieldInfo,
-                                                                             [CanBeNull] PropertyPathInfo scopeInfo,
-                                                                             int depth,
-                                                                             int? index,
-                                                                             string propertyPath,
-                                                                             bool isDynamic)
+        private static PropertyPathInfo GetPropertyPathInfoFromCacheOrCreate(
+            IDictionary<string, PropertyPathInfo> cache,
+            [NotNull] Type propertyType,
+            [NotNull] Type rootType,
+            [NotNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyPathInfo scopeInfo,
+            int depth,
+            int? index,
+            string propertyPath,
+            bool isDynamic)
         {
             if (cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
             {

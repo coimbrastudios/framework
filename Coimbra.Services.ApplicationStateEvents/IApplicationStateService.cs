@@ -9,17 +9,17 @@ namespace Coimbra.Services.ApplicationStateEvents
     public interface IApplicationStateService : IService
     {
         /// <summary>
-        /// True when application is focused.
+        /// Gets a value indicating whether application is focused.
         /// </summary>
         bool IsFocused { get; }
 
         /// <summary>
-        /// True when application is paused.
+        /// Gets a value indicating whether application is paused.
         /// </summary>
         bool IsPaused { get; }
 
         /// <summary>
-        /// True when application is quitting.
+        /// Gets a value indicating whether application is quitting.
         /// </summary>
         bool IsQuitting { get; }
 

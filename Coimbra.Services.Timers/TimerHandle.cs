@@ -22,11 +22,6 @@ namespace Coimbra.Services.Timers
 
         public bool IsValid => Guid != Guid.Empty && Service != null && Service.IsTimerActive(in this);
 
-        public static TimerHandle Create(ITimerService service)
-        {
-            return new TimerHandle(service, Guid.NewGuid());
-        }
-
         public static bool operator ==(TimerHandle left, TimerHandle right)
         {
             return left.Equals(right);
@@ -35,6 +30,11 @@ namespace Coimbra.Services.Timers
         public static bool operator !=(TimerHandle left, TimerHandle right)
         {
             return !left.Equals(right);
+        }
+
+        public static TimerHandle Create(ITimerService service)
+        {
+            return new TimerHandle(service, Guid.NewGuid());
         }
 
         /// <inheritdoc/>

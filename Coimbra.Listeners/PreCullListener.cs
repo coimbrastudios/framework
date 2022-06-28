@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private Camera _camera;
 
         /// <summary>
-        /// The animator this component depends on.
+        /// Gets the animator this component depends on.
         /// </summary>
         public Camera Camera => _camera != null ? _camera : _camera = GetComponent<Camera>();
 

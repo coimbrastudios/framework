@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Drawer for <see cref="DelegateListener"/>
+    /// Drawer for <see cref="DelegateListener"/>.
     /// </summary>
     [CustomPropertyDrawer(typeof(DelegateListener))]
     public sealed class DelegateListenerDrawer : PropertyDrawer

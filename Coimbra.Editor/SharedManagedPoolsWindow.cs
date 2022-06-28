@@ -17,7 +17,7 @@ namespace Coimbra.Editor
         {
             [SerializeField]
             [HideInInspector]
-            private string Name;
+            internal string Name;
 
             [SerializeField]
             [Disable]

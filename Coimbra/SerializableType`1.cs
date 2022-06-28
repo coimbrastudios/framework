@@ -20,16 +20,6 @@ namespace Coimbra
 
         private Type _value;
 
-        /// <summary>
-        /// The assembly of the type.
-        /// </summary>
-        public string AssemblyName => _assemblyName;
-
-        /// <summary>
-        /// The name of the type.
-        /// </summary>
-        public string ClassName => _className;
-
         public SerializableType(Type type)
             : this()
         {
@@ -37,7 +27,17 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Get and set the serialized type.
+        /// Gets the assembly of the type.
+        /// </summary>
+        public string AssemblyName => _assemblyName;
+
+        /// <summary>
+        /// Gets the name of the type.
+        /// </summary>
+        public string ClassName => _className;
+
+        /// <summary>
+        /// Gets or sets the serialized type.
         /// </summary>
         public Type Value
         {

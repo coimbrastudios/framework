@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private Joint _joint;
 
         /// <summary>
-        /// The joint this component depends on.
+        /// Gets the joint this component depends on.
         /// </summary>
         public Joint Joint => _joint != null ? _joint : _joint = GetComponent<Joint>();
 

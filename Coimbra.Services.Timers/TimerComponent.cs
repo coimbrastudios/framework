@@ -11,19 +11,19 @@ namespace Coimbra.Services.Timers
     {
         private static readonly ProfilerCounterValue<int> ActiveTimers = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Active Timers", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
-        [SerializeField]
-        [Disable]
-        internal TimerHandle Handle;
+        [field: SerializeField]
+        [field: Disable]
+        internal TimerHandle Handle { get; set; }
 
-        internal float Delay;
+        internal float Delay { get; set; }
 
-        internal float Rate;
+        internal float Rate { get; set; }
 
-        internal int TargetLoops;
+        internal int TargetLoops { get; set; }
 
-        internal int CompletedLoops;
+        internal int CompletedLoops { get; set; }
 
-        internal Action Callback;
+        internal Action Callback { get; set; }
 
         internal void Run()
         {
@@ -33,7 +33,7 @@ namespace Coimbra.Services.Timers
 
             if (TargetLoops > 0 && CompletedLoops == TargetLoops)
             {
-                Handle.Service.StopTimer(in Handle);
+                Handle.Service.StopTimer(Handle);
             }
         }
 

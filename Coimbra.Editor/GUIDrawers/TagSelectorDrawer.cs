@@ -52,7 +52,6 @@ namespace Coimbra.Editor
 
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-
             {
                 string value = EditorGUI.TagField(position, propertyScope.content, property.hasMultipleDifferentValues ? "-" : property.stringValue);
 

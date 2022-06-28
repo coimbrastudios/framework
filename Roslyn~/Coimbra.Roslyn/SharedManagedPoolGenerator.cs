@@ -55,11 +55,16 @@ namespace Coimbra.Roslyn
                 ITypeSymbol valueTypeSymbol = valueTypeInfo.Type ?? valueTypeInfo.ConvertedType;
                 string valueType = valueTypeSyntax.TypeArgumentList.Arguments.ToString();
                 sourceBuilder.Initialize();
-                sourceBuilder.AddUsing("Coimbra");
-                sourceBuilder.AddUsing("JetBrains.Annotations");
-                sourceBuilder.AddUsing("System.CodeDom.Compiler");
-                sourceBuilder.AddUsing("System.Runtime.CompilerServices");
-                sourceBuilder.AddUsing(valueTypeSymbol!.ContainingNamespace.ToString());
+
+                using (UsingScope usingScope = sourceBuilder.BeginUsing())
+                {
+                    usingScope.AddContent("Coimbra");
+                    usingScope.AddContent("JetBrains.Annotations");
+                    usingScope.AddContent("System.CodeDom.Compiler");
+                    usingScope.AddContent("System.Runtime.CompilerServices");
+                    usingScope.AddContent(valueTypeSymbol!.ContainingNamespace.ToString());
+                }
+
                 sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, typeDeclaration.GetNamespace()))

@@ -38,14 +38,13 @@ namespace Coimbra.Editor
             const float spacing = 2;
             const float labelWidth = 28;
             float totalWidth = position.width;
-            float fieldWith = totalWidth / 2 - spacing / 2 - labelWidth;
+            float fieldWith = (totalWidth / 2) - (spacing / 2) - labelWidth;
 
             using (GUIContentPool.Pop(out GUIContent label))
             {
                 label.text = nameof(FloatRange.Min);
 
                 using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, minProperty);
-
                 {
                     position.width = labelWidth;
                     EditorGUI.LabelField(position, propertyScope.content);
@@ -72,7 +71,6 @@ namespace Coimbra.Editor
                 label.text = nameof(FloatRange.Max);
 
                 using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, maxProperty);
-
                 {
                     position.x += position.width + spacing;
                     position.width = labelWidth;

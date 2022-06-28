@@ -28,6 +28,9 @@ namespace Coimbra
 
             private bool _isDisposed;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Instance"/> struct.
+            /// </summary>
             public Instance([CanBeNull] in T value, [NotNull] ManagedPool<T> pool)
             {
                 Value = value;
@@ -83,6 +86,9 @@ namespace Coimbra
 
         private readonly CreateHandler _createCallback;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagedPool{T}"/> class.
+        /// </summary>
         /// <param name="createCallback">Called when creating a new item for the pool. It should never return null.</param>
         /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
         public ManagedPool([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback = null)
@@ -91,6 +97,9 @@ namespace Coimbra
             _disposeCallback = disposeCallback;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagedPool{T}"/> class.
+        /// </summary>
         /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
         /// <param name="preloadCount">Amount of instances available from the beginning.</param>
         /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
@@ -100,6 +109,9 @@ namespace Coimbra
             Initialize(preloadCount, maxCapacity);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagedPool{T}"/> class.
+        /// </summary>
         /// <param name="createCallback">Called when creating a new instance for the pool. It should never return null.</param>
         /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
         /// <param name="preloadCount">Amount of instances available from the beginning.</param>
@@ -111,7 +123,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The current amount of instances available.
+        /// Gets the current amount of instances available.
         /// </summary>
         [field: SerializeField]
         [field: Disable]
@@ -119,7 +131,7 @@ namespace Coimbra
         public int AvailableCount { get; private set; }
 
         /// <summary>
-        /// Max amount of instances in the pool. If 0 it is treated as infinity capacity.
+        /// Gets max amount of instances in the pool. If 0 it is treated as infinity capacity.
         /// </summary>
         [field: SerializeField]
         [field: Disable]
@@ -127,7 +139,7 @@ namespace Coimbra
         public int MaxCapacity { get; private set; }
 
         /// <summary>
-        /// Amount of instances available from the beginning.
+        /// Gets amount of instances available from the beginning.
         /// </summary>
         [field: SerializeField]
         [field: Disable]

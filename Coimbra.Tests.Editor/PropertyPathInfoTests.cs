@@ -162,7 +162,7 @@ namespace Coimbra.Tests.Editor
             string testPath = $"{nameof(PropertyPathInfoTestBehaviourBase.StructList)}.Array.data[{testIndex}].{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct.String)}";
             PropertyPathInfoTestBehaviour testBehaviour = new GameObject().AddComponent<PropertyPathInfoTestBehaviour>();
             testBehaviour.StructList.AddRange(new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct[testSize]);
-            testBehaviour.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct();
+            testBehaviour.StructList[testIndex] = default;
 
             try
             {
@@ -187,7 +187,7 @@ namespace Coimbra.Tests.Editor
 
             testBehaviour.Reference = new PropertyPathInfoTestBehaviourBase.NestedClass
             {
-                NestedStructValue = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct(),
+                NestedStructValue = default,
             };
 
             try
@@ -363,7 +363,7 @@ namespace Coimbra.Tests.Editor
                 using SerializedObject serializedObject = new SerializedObject(new Object[]
                 {
                     testBehaviour1,
-                    testBehaviour2
+                    testBehaviour2,
                 });
 
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
@@ -406,7 +406,7 @@ namespace Coimbra.Tests.Editor
                 using SerializedObject serializedObject = new SerializedObject(new Object[]
                 {
                     testBehaviour1,
-                    testBehaviour2
+                    testBehaviour2,
                 });
 
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
@@ -467,7 +467,7 @@ namespace Coimbra.Tests.Editor
                 using SerializedObject serializedObject = new SerializedObject(new Object[]
                 {
                     testBehaviour1,
-                    testBehaviour2
+                    testBehaviour2,
                 });
 
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);

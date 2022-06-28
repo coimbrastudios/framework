@@ -27,7 +27,7 @@ namespace Coimbra.Listeners
         private PlayerLoopListenerBase _playerLoopListener;
 
         /// <summary>
-        /// If true, <see cref="Transform.hasChanged"/> will be reset during <see cref="OnPostInitializeActor"/>.
+        /// Gets or sets a value indicating whether <see cref="Transform.hasChanged"/> should be reset during <see cref="OnPostInitializeActor"/>.
         /// </summary>
         public bool ResetOnPostInitializeActor
         {
@@ -36,7 +36,7 @@ namespace Coimbra.Listeners
         }
 
         /// <summary>
-        /// The player loop listener this component depends on.
+        /// Gets the player loop listener this component depends on.
         /// </summary>
         public PlayerLoopListenerBase PlayerLoopListener => _playerLoopListener != null ? _playerLoopListener : _playerLoopListener = GetComponent<PlayerLoopListenerBase>();
 

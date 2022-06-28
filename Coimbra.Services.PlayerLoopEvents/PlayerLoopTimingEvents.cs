@@ -38,84 +38,52 @@ namespace Coimbra.Services.PlayerLoopEvents
                 | FirstUpdate
                 | LastPostLateUpdate,
 
-        /// <summary>
-        /// <see cref="FirstInitializationEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstInitializationEvent"/>
         FirstInitialization = 1,
 
-        /// <summary>
-        /// <see cref="LastInitializationEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastInitializationEvent"/>
         LastInitialization = 2,
 
-        /// <summary>
-        /// <see cref="FirstEarlyUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstEarlyUpdateEvent"/>
         FirstEarlyUpdate = 4,
 
-        /// <summary>
-        /// <see cref="LastEarlyUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastEarlyUpdateEvent"/>
         LastEarlyUpdate = 8,
 
-        /// <summary>
-        /// <see cref="FirstFixedUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstFixedUpdateEvent"/>
         FirstFixedUpdate = 16,
 
-        /// <summary>
-        /// <see cref="LastFixedUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastFixedUpdateEvent"/>
         LastFixedUpdate = 32,
 
-        /// <summary>
-        /// <see cref="FirstPreUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstPreUpdateEvent"/>
         FirstPreUpdate = 64,
 
-        /// <summary>
-        /// <see cref="LastPreUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastPreUpdateEvent"/>
         LastPreUpdate = 128,
 
-        /// <summary>
-        /// <see cref="FirstUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstUpdateEvent"/>
         FirstUpdate = 256,
 
-        /// <summary>
-        /// <see cref="LastUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastUpdateEvent"/>
         LastUpdate = 512,
 
-        /// <summary>
-        /// <see cref="PreLateUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="PreLateUpdateEvent"/>
         PreLateUpdate = 1024,
 
-        /// <summary>
-        /// <see cref="FirstPostLateUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="FirstPostLateUpdateEvent"/>
         FirstPostLateUpdate = 2048,
 
-        /// <summary>
-        /// <see cref="PostLateUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="PostLateUpdateEvent"/>
         PostLateUpdate = 4096,
 
-        /// <summary>
-        /// <see cref="LastPostLateUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="LastPostLateUpdateEvent"/>
         LastPostLateUpdate = 8192,
 
-        /// <summary>
-        /// <see cref="PreTimeUpdateEvent"/>
-        /// </summary>
+        /// <inheritdoc cref="PreTimeUpdateEvent"/>
         PreTimeUpdate = 16384,
 
-        /// <summary>
-        /// <see cref="PostTimeUpdateEvent"/>
-        /// </summary>
-        PostTimeUpdate = 32768
+        /// <inheritdoc cref="PostTimeUpdateEvent"/>
+        PostTimeUpdate = 32768,
     }
 }

@@ -29,7 +29,7 @@ namespace Coimbra.Editor
         {
             _defaultValue = defaultValue;
             _types = types.ToArray();
-            minimumSize = new Vector2(MinWidth, EditorGUIUtility.singleLineHeight * MinLineCount + EditorGUIUtility.singleLineHeight * 2);
+            minimumSize = new Vector2(MinWidth, (EditorGUIUtility.singleLineHeight * MinLineCount) + (EditorGUIUtility.singleLineHeight * 2));
         }
 
         internal static void DrawReferenceField(Rect position, Type type, SerializedProperty property, GUIContent label, string undoKey, Action<List<Type>> filterCallback)
@@ -121,7 +121,7 @@ namespace Coimbra.Editor
 
             TypeDropdownItem defaultItem = new TypeDropdownItem(null, _defaultValue)
             {
-                id = itemCount++
+                id = itemCount++,
             };
 
             root.AddChild(defaultItem);
@@ -130,7 +130,7 @@ namespace Coimbra.Editor
             {
                 TypeDropdownItem item = new TypeDropdownItem(type, TypeString.Get(type))
                 {
-                    id = itemCount++
+                    id = itemCount++,
                 };
 
                 root.AddChild(item);

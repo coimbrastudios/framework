@@ -12,6 +12,7 @@ namespace Coimbra.Tests
             new DummyStruct(),
             new DummyClass(),
         };
+
         private DummyAsset _asset;
 
         [SetUp]
@@ -39,6 +40,7 @@ namespace Coimbra.Tests
             Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
 
             dummy.Integer = value;
+            Assert.That(_asset.ManagedField.Value, Is.Not.Null);
             Assert.That(_asset.ManagedField.Value.Integer, Is.EqualTo(value));
             Assert.That(_asset.ManagedField, Is.EqualTo(dummy));
         }
@@ -56,6 +58,7 @@ namespace Coimbra.Tests
             Assert.That(_asset.ManagedField.IsUnityObject, Is.True);
 
             _asset.Integer = value;
+            Assert.That(_asset.ManagedField.Value, Is.Not.Null);
             Assert.That(_asset.ManagedField.Value.Integer, Is.EqualTo(value));
             Assert.That(_asset.ManagedField, Is.EqualTo(_asset));
         }
@@ -71,6 +74,7 @@ namespace Coimbra.Tests
             Assert.That(_asset.ManagedField.HasValue, Is.True);
             Assert.That(_asset.ManagedField.IsSystemObject, Is.True);
             Assert.That(_asset.ManagedField.IsUnityObject, Is.False);
+            Assert.That(_asset.ManagedField.Value, Is.Not.Null);
 
             _asset.ManagedField.Value.Integer = value;
             Assert.That(dummy.Integer, Is.EqualTo(value));
@@ -88,6 +92,7 @@ namespace Coimbra.Tests
             Assert.That(_asset.ManagedField.HasValue, Is.True);
             Assert.That(_asset.ManagedField.IsSystemObject, Is.False);
             Assert.That(_asset.ManagedField.IsUnityObject, Is.True);
+            Assert.That(_asset.ManagedField.Value, Is.Not.Null);
 
             _asset.ManagedField.Value.Integer = value;
             Assert.That(_asset.Integer, Is.EqualTo(value));

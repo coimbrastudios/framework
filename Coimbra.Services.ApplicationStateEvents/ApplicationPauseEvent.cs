@@ -10,6 +10,9 @@
         /// </summary>
         public readonly bool IsPaused;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationPauseEvent"/> struct.
+        /// </summary>
         /// <param name="isPaused">True if currently paused.</param>
         public ApplicationPauseEvent(bool isPaused)
         {

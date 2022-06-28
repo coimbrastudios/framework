@@ -30,23 +30,30 @@ namespace Coimbra.Tests
         public IEnumerator TimersExecuteInOrder()
         {
             int id = 0;
-            _timerService.StartTimer(delegate
+
+            void callback1()
             {
                 Assert.That(id == 1);
                 id++;
-            }, 0.1f);
+            }
 
-            _timerService.StartTimer(delegate
+            _timerService.StartTimer(callback1, 0.1f);
+
+            void callback2()
             {
                 Assert.That(id == 0);
                 id++;
-            }, 0.05f);
+            }
 
-            _timerService.StartTimer(delegate
+            _timerService.StartTimer(callback2, 0.05f);
+
+            void callback3()
             {
                 Assert.That(id == 2);
                 id++;
-            }, 0.15f);
+            }
+
+            _timerService.StartTimer(callback3, 0.15f);
 
             yield return new WaitForSeconds(0.2f);
 
@@ -57,10 +64,13 @@ namespace Coimbra.Tests
         public IEnumerator TimerLoopsCorrectly()
         {
             int id = 0;
-            TimerHandle timerHandle = _timerService.StartTimer(delegate
+
+            void callback()
             {
                 id++;
-            }, 0, 0.01f, 5);
+            }
+
+            TimerHandle timerHandle = _timerService.StartTimer(callback, 0, 0.01f, 5);
 
             yield return new WaitForSeconds(0.1f);
 
@@ -72,15 +82,20 @@ namespace Coimbra.Tests
         public IEnumerator TimerStopsCorrectly()
         {
             int id = 0;
-            TimerHandle targetTimerHandle = _timerService.StartTimer(delegate
+
+            void callback1()
             {
                 id++;
-            }, 0.15f);
+            }
 
-            _timerService.StartTimer(delegate
+            TimerHandle targetTimerHandle = _timerService.StartTimer(callback1, 0.15f);
+
+            void callback2()
             {
                 _timerService.StopTimer(in targetTimerHandle);
-            }, 0.05f);
+            }
+
+            _timerService.StartTimer(callback2, 0.05f);
 
             yield return new WaitForSeconds(0.1f);
 

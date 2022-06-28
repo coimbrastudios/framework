@@ -22,6 +22,7 @@ namespace Coimbra.Services.PlayerLoopEvents
                     enabled = HasListener;
                 }
             }
+
             remove
             {
                 base.OnTrigger -= value;

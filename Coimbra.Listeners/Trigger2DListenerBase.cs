@@ -21,7 +21,7 @@ namespace Coimbra.Listeners
         private Collider2D _collider;
 
         /// <summary>
-        /// The collider this component depends on.
+        /// Gets the collider this component depends on.
         /// </summary>
         public Collider2D Collider => _collider != null ? _collider : _collider = GetComponent<Collider2D>();
 

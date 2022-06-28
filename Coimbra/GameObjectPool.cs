@@ -123,12 +123,12 @@ namespace Coimbra
         private GameObjectPool() { }
 
         /// <summary>
-        /// The amount of instances currently available.
+        /// Gets the amount of instances currently available.
         /// </summary>
         public int AvailableInstancesCount => _availableInstances?.Count ?? 0;
 
         /// <summary>
-        /// The amount of instances that still need to preload.
+        /// Gets the amount of instances that still need to preload.
         /// </summary>
         [field: SerializeField]
         [field: Disable]
@@ -136,12 +136,12 @@ namespace Coimbra
         public int PreloadingInstancesCount { get; private set; }
 
         /// <summary>
-        /// The current pool state.
+        /// Gets the current pool state.
         /// </summary>
         public State CurrentState => _currentState;
 
         /// <summary>
-        /// If true, instantiate will be used when there is no available instance.
+        /// Gets or sets a value indicating whether  instantiate will be used when there is no available instance.
         /// </summary>
         public bool CanInstantiateOnSpawn
         {
@@ -152,7 +152,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, new instances will receive a more descriptive name. (Editor Only)
+        /// Gets or sets a value indicating whether new instances will receive a more descriptive name (Editor Only).
         /// </summary>
         public bool ChangeNameOnInstantiate
         {
@@ -163,7 +163,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The amount of instances to preload each time we are below the minimum amount of desired available instances. If 0, then it will never expand.
+        /// Gets or sets the amount of instances to preload each time we are below the minimum amount of desired available instances. If 0, then it will never expand.
         /// </summary>
         public int ExpandStep
         {
@@ -173,7 +173,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, parent will not change automatically when despawned. Changing to false affects performance.
+        /// Gets or sets a value indicating whether the parent will not change automatically when despawned. Changing to false affects performance.
         /// </summary>
         public bool KeepParentOnDespawn
         {
@@ -184,7 +184,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// If true, this pool will automatically load when initializing.
+        /// Gets or sets a value indicating whether this pool will automatically load when initializing.
         /// </summary>
         public bool LoadOnInitialize
         {
@@ -202,7 +202,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Destroy this amount of instance when we are above the maximum amount of desired available instances by this same amount. If 0, then it will never shrink.
+        /// Gets or sets the amount of instance to destroy when we are above the maximum amount of desired available instances by this same amount. If 0, then it will never shrink.
         /// </summary>
         public int ShrinkStep
         {
@@ -212,7 +212,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The range of instances desired to be available.
+        /// Gets or sets the range of instances desired to be available.
         /// </summary>
         public IntRange DesiredAvailableInstancesRange
         {
@@ -222,7 +222,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The prefab that this pool is using.
+        /// Gets or sets the prefab that this pool is using.
         /// </summary>
         public AssetReferenceT<GameObject> PrefabReference
         {
@@ -242,7 +242,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The transform to be used as the container.
+        /// Gets or sets the transform to be used as the container.
         /// </summary>
         public Transform ContainerTransform
         {
@@ -466,6 +466,29 @@ namespace Coimbra
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Despawn(Actor instance)
+        {
+            if (!_keepParentOnDespawn)
+            {
+                instance.Transform.SetParent(_containerTransform, false);
+            }
+
+            _availableInstances.Add(instance);
+
+            if (PreloadingInstancesCount > 0)
+            {
+                PreloadingInstancesCount--;
+            }
+            else if (_shrinkStep > 0 && _availableInstances.Count >= _desiredAvailableInstancesRange.Max + _shrinkStep)
+            {
+                for (int i = 0; i < _shrinkStep; i++)
+                {
+                    _availableInstances.Pop().Destroy();
+                }
+            }
+        }
+
         /// <inheritdoc/>
         protected override void OnValidate()
         {
@@ -493,29 +516,6 @@ namespace Coimbra
             if (_currentState != State.Unloaded)
             {
                 Unload();
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Despawn(Actor instance)
-        {
-            if (!_keepParentOnDespawn)
-            {
-                instance.Transform.SetParent(_containerTransform, false);
-            }
-
-            _availableInstances.Add(instance);
-
-            if (PreloadingInstancesCount > 0)
-            {
-                PreloadingInstancesCount--;
-            }
-            else if (_shrinkStep > 0 && _availableInstances.Count >= _desiredAvailableInstancesRange.Max + _shrinkStep)
-            {
-                for (int i = 0; i < _shrinkStep; i++)
-                {
-                    _availableInstances.Pop().Destroy();
-                }
             }
         }
 
