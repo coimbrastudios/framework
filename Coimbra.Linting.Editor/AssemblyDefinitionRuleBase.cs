@@ -73,6 +73,21 @@ namespace Coimbra.Linting.Editor
         /// <returns>True if the assembly definition was actually modified, false otherwise.</returns>
         public abstract bool Apply(AssemblyDefinition assemblyDefinition, Object context);
 
+        internal static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
+        {
+            int count = regexes.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (regexes[i].IsMatch(assemblyDefinitionPath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         internal bool CanApply(string assemblyDefinitionPath)
         {
             InitializeCaches();
@@ -88,21 +103,6 @@ namespace Coimbra.Linting.Editor
             }
 
             Debug.LogError("Rule should always have at least one mask (either included or excluded).", this);
-
-            return false;
-        }
-
-        internal static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
-        {
-            int count = regexes.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                if (regexes[i].IsMatch(assemblyDefinitionPath))
-                {
-                    return true;
-                }
-            }
 
             return false;
         }
