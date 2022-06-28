@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.8.3] - 2022-06-27
+
+- Added assembly definition rules to reorder the references.
+- Fixed `AssemblyDefinition` serialization.
+
 ## [10.8.2] - 2022-06-27
 
 - Added `Coimbra.Linting` and `Coimbra.Linting.Editor` to prepare for `StyleCop.Analyzers` support.

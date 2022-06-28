@@ -15,24 +15,12 @@ namespace Coimbra.Linting.Editor
     {
         private const string Filter = "t:asmdef";
 
-        private static readonly string[] AssetsFolderOnly =
-        {
-            "Assets"
-        };
-
         /// <summary>
         /// If true, local analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
         /// </summary>
         [field: SerializeField]
         [field: Tooltip("If true, local analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.")]
         public bool DisableLocalUnityAnalyzers { get; set; } = false;
-
-        /// <summary>
-        /// If false, it will ignore Packages assemblies.;
-        /// </summary>
-        [field: SerializeField]
-        [field: Tooltip("If false, it will ignore Packages assemblies.")]
-        public bool ApplyAssemblyDefinitionRulesInPackages { get; set; } = false;
 
         /// <summary>
         /// Collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.
@@ -48,9 +36,7 @@ namespace Coimbra.Linting.Editor
             ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings, FindSingle);
             Debug.Assert(settings);
 
-            string[] guids = settings.ApplyAssemblyDefinitionRulesInPackages ? AssetDatabase.FindAssets(Filter) : AssetDatabase.FindAssets(Filter, AssetsFolderOnly);
-
-            foreach (string guid in guids)
+            foreach (string guid in AssetDatabase.FindAssets(Filter))
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 

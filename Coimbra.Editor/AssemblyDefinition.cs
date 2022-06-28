@@ -88,7 +88,7 @@ namespace Coimbra.Editor
         private VersionDefine[] versionDefines;
 
         [SerializeField]
-        private bool noEngineReferences33;
+        private bool noEngineReferences;
 
         public AssemblyDefinition(string name, string[] references, bool autoReferenced = true, bool isEditorOnly = false, bool isTestsOnly = false)
         {
@@ -158,8 +158,8 @@ namespace Coimbra.Editor
 
         public bool NoEngineReferences33
         {
-            get => noEngineReferences33;
-            set => noEngineReferences33 = value;
+            get => noEngineReferences;
+            set => noEngineReferences = value;
         }
 
         public bool OverrideReferences
