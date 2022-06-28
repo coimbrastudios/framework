@@ -35,13 +35,6 @@ namespace Coimbra.Editor.UPM
 
         private bool IsInitialized { get; set; }
 
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
-            IsInitialized = false;
-        }
-
         [InitializeOnLoadMethod]
         internal static void Update()
         {
@@ -132,6 +125,13 @@ namespace Coimbra.Editor.UPM
             {
                 Debug.LogException(e);
             }
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            IsInitialized = false;
         }
     }
 }
