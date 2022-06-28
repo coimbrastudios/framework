@@ -42,8 +42,7 @@ namespace Coimbra.Linting.Editor
                         settings.AssemblyDefinitionRules.Add(rule);
                     }
 
-                    EditorUtility.SetDirty(settings);
-                    AssetDatabase.SaveAssetIfDirty(settings);
+                    settings.Save();
                     LintingSettings.InitializeAssemblyDefinitionRules();
                 }
             }
@@ -61,8 +60,7 @@ namespace Coimbra.Linting.Editor
                         settings.AssemblyDefinitionRules.Remove(rule);
                     }
 
-                    EditorUtility.SetDirty(settings);
-                    AssetDatabase.SaveAssetIfDirty(settings);
+                    settings.Save();
                     LintingSettings.InitializeAssemblyDefinitionRules();
                 }
             }

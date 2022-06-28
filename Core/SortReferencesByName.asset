@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ed591b4040743858fb352fd8522feba, type: 3}
-  m_Name: SortReferenceByName
+  m_Name: SortReferencesByName
   m_EditorClassIdentifier: 
   _includedMask:
   - Assets/_Project/*

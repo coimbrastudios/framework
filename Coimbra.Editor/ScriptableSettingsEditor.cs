@@ -39,6 +39,7 @@ namespace Coimbra.Editor
         {
             serializedObject.UpdateIfRequiredOrScript();
 
+            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
             HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;
@@ -62,9 +63,26 @@ namespace Coimbra.Editor
                 }
             }
 
+            if (!changeCheckScope.changed)
+            {
+                return;
+            }
+
             serializedObject.ApplyModifiedProperties();
+
+            foreach (Object o in targets)
+            {
+                if (o is ScriptableSettings settings)
+                {
+                    EditorUtility.ClearDirty(o);
+                    settings.Save();
+                }
+            }
         }
 
+        /// <summary>
+        /// Override this to define a custom searching logic.
+        /// </summary>
         public virtual bool HasSearchInterest(string searchContext)
         {
             serializedObject.UpdateIfRequiredOrScript();
@@ -87,8 +105,6 @@ namespace Coimbra.Editor
                     return true;
                 }
             }
-
-            serializedObject.ApplyModifiedProperties();
 
             return false;
         }

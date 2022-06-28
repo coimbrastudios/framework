@@ -14,36 +14,41 @@ namespace Coimbra.Editor
         [InitializeOnLoadMethod]
         private static void Initialize()
         {
-            using (ListPool.Pop(out List<Object> pooledList))
+            static void initialize()
             {
-                pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
-
-                int count = pooledList.Count;
-
-                for (int i = count - 1; i >= 0; i--)
+                using (ListPool.Pop(out List<Object> pooledList))
                 {
-                    if (pooledList[i] == null)
+                    pooledList.AddRange(PlayerSettings.GetPreloadedAssets());
+
+                    int count = pooledList.Count;
+
+                    for (int i = count - 1; i >= 0; i--)
                     {
-                        pooledList.RemoveAt(i);
+                        if (pooledList[i] == null)
+                        {
+                            pooledList.RemoveAt(i);
+                        }
+                    }
+
+                    if (count != pooledList.Count)
+                    {
+                        PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
                     }
                 }
 
-                if (count != pooledList.Count)
+                foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(ScriptableSettings)}"))
                 {
-                    PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    ScriptableSettings settings = AssetDatabase.LoadAssetAtPath<ScriptableSettings>(path);
+
+                    if (settings != null && settings.Type.IsEditorOnly())
+                    {
+                        Debug.LogError($"{settings} is editor-only but exists in the Assets folder. This is not supported!", settings);
+                    }
                 }
             }
 
-            foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(ScriptableSettings)}"))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                ScriptableSettings settings = AssetDatabase.LoadAssetAtPath<ScriptableSettings>(path);
-
-                if (settings != null && settings.Type.IsEditorOnly())
-                {
-                    Debug.LogError($"{settings} is editor-only but exists in the Assets folder. This is not supported!", settings);
-                }
-            }
+            EditorApplication.delayCall += initialize;
         }
     }
 }

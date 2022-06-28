@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
+using CoimbraInternal.Editor;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -13,23 +15,77 @@ namespace Coimbra.Editor
     /// <summary>
     /// Utility methods for <see cref="ScriptableSettings"/>.
     /// </summary>
+    [InitializeOnLoad]
     public static class ScriptableSettingsUtility
     {
+        static ScriptableSettingsUtility()
+        {
+            UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
+            UnityEditorInternals.OnEditorApplicationFocusChanged += HandleEditorApplicationFocusChanged;
+        }
+
+        /// <summary>
+        /// Reloads a <see cref="ScriptableSettings"/>.
+        /// </summary>
+        public static void Reload(this ScriptableSettings scriptableSettings)
+        {
+            Type type = scriptableSettings.GetType();
+
+            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                if (!TryLoad(type, filePath, scriptableSettings.Type, out ScriptableSettings? target))
+                {
+                    target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+                    scriptableSettings.name = type.Name;
+                }
+
+                JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(target), scriptableSettings);
+                Object.DestroyImmediate(target, false);
+            }
+            else if (settingsScope == SettingsScope.User)
+            {
+                ScriptableSettings target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
+                target.name = type.Name;
+
+                string defaultValue = EditorJsonUtility.ToJson(target, false);
+                string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
+                EditorJsonUtility.FromJsonOverwrite(newValue, scriptableSettings);
+
+                if (scriptableSettings.Type != ScriptableSettings.GetType(type))
+                {
+                    JsonUtility.FromJsonOverwrite(defaultValue, scriptableSettings);
+                }
+
+                Object.DestroyImmediate(target, false);
+            }
+        }
+
         /// <summary>
         /// Create or load a <see cref="ScriptableSettings"/>.
         /// </summary>
         public static ScriptableSettings? LoadOrCreate(Type type, ScriptableSettings.FindHandler? findCallback = null)
         {
+            ScriptableSettingsType filter = ScriptableSettings.GetType(type);
+
+            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value, findCallback))
+            {
+                if (value.Type == filter)
+                {
+                    return value;
+                }
+
+                Debug.LogWarning($"Destroying {value} because its type changed from {value.Type} to {filter}!", value);
+                Object.DestroyImmediate(value, true);
+            }
+
             if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
             {
                 return null;
-            }
-
-            ScriptableSettingsType filter = ScriptableSettings.GetType(type);
-
-            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value, findCallback) && value.Type == filter)
-            {
-                return value;
             }
 
             if (!string.IsNullOrEmpty(filePath))
@@ -53,6 +109,8 @@ namespace Coimbra.Editor
 
                 if (value.Type != filter)
                 {
+                    Object.DestroyImmediate(value, false);
+
                     value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
                     value.name = type.Name;
                 }
@@ -154,6 +212,14 @@ namespace Coimbra.Editor
         public static string GetPrefsKey(Type type)
         {
             return $"{CoimbraUtility.PackageName}.{type.FullName}";
+        }
+
+        private static void HandleEditorApplicationFocusChanged(bool isFocused)
+        {
+            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
+            {
+                pair.Value.Reload();
+            }
         }
 
         private static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, out ScriptableSettings? scriptableSettings)

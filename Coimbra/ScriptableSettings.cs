@@ -307,6 +307,9 @@ namespace Coimbra
         protected virtual void OnValidate()
         {
 #if UNITY_EDITOR
+            GUI.changed = true;
+            UnityEditor.EditorUtility.SetDirty(this);
+
             if (Type.IsEditorOnly())
             {
                 Preload = false;
@@ -366,11 +369,7 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
-                    {
-                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
-                        Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
-                    }
+                    LogIfOverriding(type, value, currentValue);
                 }
                 else
                 {
@@ -395,6 +394,17 @@ namespace Coimbra
             {
                 Map.Remove(type);
             }
+        }
+
+        private static void LogIfOverriding(Type type, ScriptableSettings value, ScriptableSettings currentValue)
+        {
+            if (CoimbraUtility.IsReloadingScripts || IsQuitting || GetType(type).IsEditorOnly())
+            {
+                return;
+            }
+
+            Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
+            Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
         }
 
 #if UNITY_EDITOR

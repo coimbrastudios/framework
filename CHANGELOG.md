@@ -1,9 +1,10 @@
 # Changelog
 
-## [10.8.4] - UNRELEASED
+## [10.8.4] - 2022-06-28
 
 - Added context parameter to `AssemblyDefinitionRuleBase.Apply` to make troubleshooting easier.
 - Changed [LICENSE](LICENSE.md) to MIT.
+- Fixed some `ScriptableSettings` not writing to disk correctly when being saved.
 
 ## [10.8.3] - 2022-06-27
 

@@ -6,6 +6,12 @@ namespace CoimbraInternal.Editor
 {
     internal static class UnityEditorInternals
     {
+        internal static event Action<bool> OnEditorApplicationFocusChanged
+        {
+            add => EditorApplication.focusChanged += value;
+            remove => EditorApplication.focusChanged -= value;
+        }
+
         internal static void ClearLogEntries()
         {
             LogEntries.Clear();
