@@ -37,17 +37,17 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Is the listener static?
+        /// Gets a value indicating whether the listener static.
         /// </summary>
         public bool IsStatic => _isStatic;
 
         /// <summary>
-        /// The target instance.
+        /// Gets the target instance.
         /// </summary>
         public string Target => _target;
 
         /// <summary>
-        /// The method to be invoked.
+        /// Gets the method to be invoked.
         /// </summary>
         public string Method => _method;
 

@@ -92,7 +92,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Should this setting be included in the preloaded assets?
+        /// Gets or sets a value indicating whether this setting should be included in the preloaded assets.
         /// </summary>
         [PublicAPI]
         public bool Preload
@@ -104,7 +104,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
+        /// Gets the type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
         /// </summary>
         public ScriptableSettingsType Type
         {
@@ -115,7 +115,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// True when application is quitting.
+        /// Gets a value indicating whether the application is quitting.
         /// </summary>
         protected static bool IsQuitting { get; private set; }
 
@@ -123,7 +123,7 @@ namespace Coimbra
         /// Gets the last set value for the specified type, but also tries to find one if not set.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
-        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/></param>.
+        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScriptableSettings GetOrFind(Type type, FindHandler findCallback = null)
@@ -269,8 +269,8 @@ namespace Coimbra
         /// </summary>
         /// <param name="type">The type of the settings.</param>
         /// <param name="result">The settings if set and still valid or if a new one could be found.</param>
-        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/></param>.
-        /// <returns>The settings if set and still valid or if a new one could be found.</returns>
+        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
+        /// <returns>True if the settings is set and still valid or if a new one could be found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetOrFind(Type type, out ScriptableSettings result, FindHandler findCallback = null)
         {
@@ -332,7 +332,10 @@ namespace Coimbra
                         return;
                     }
 
-                    while (pooledList.Remove(this)) { }
+                    while (pooledList.Remove(this))
+                    {
+                        // remove all occurrences
+                    }
 
                     UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
                 }

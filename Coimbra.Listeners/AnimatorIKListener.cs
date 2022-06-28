@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private Animator _animator;
 
         /// <summary>
-        /// The animator this component depends on.
+        /// Gets the animator this component depends on.
         /// </summary>
         public Animator Animator => _animator != null ? _animator : _animator = GetComponent<Animator>();
 

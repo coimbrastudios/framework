@@ -67,7 +67,7 @@ namespace Coimbra.Editor
             using (new ShowMixedValueScope(minProperty.hasMultipleDifferentValues || maxProperty.hasMultipleDifferentValues))
             {
                 position.x += position.width + spacing;
-                position.width = totalWidth - fieldWidth * 2 - spacing * 2;
+                position.width = totalWidth - (fieldWidth * 2) - (spacing * 2);
 
                 using (EditorGUI.ChangeCheckScope sliderCheckScope = new EditorGUI.ChangeCheckScope())
                 {
@@ -133,7 +133,7 @@ namespace Coimbra.Editor
             using (new ShowMixedValueScope(minProperty.hasMultipleDifferentValues || maxProperty.hasMultipleDifferentValues))
             {
                 position.x += position.width + spacing;
-                position.width = totalWidth - fieldWidth * 2 - spacing * 2;
+                position.width = totalWidth - (fieldWidth * 2) - (spacing * 2);
 
                 using (EditorGUI.ChangeCheckScope sliderCheckScope = new EditorGUI.ChangeCheckScope())
                 {

@@ -27,11 +27,6 @@ namespace Coimbra.Services.Events
 
         public bool IsValid => Guid != Guid.Empty && Service != null && Service.HasListener(in this);
 
-        public static EventHandle Create(IEventService service, Type type)
-        {
-            return new EventHandle(service, Guid.NewGuid(), type);
-        }
-
         public static bool operator ==(EventHandle left, EventHandle right)
         {
             return left.Equals(right);
@@ -40,6 +35,11 @@ namespace Coimbra.Services.Events
         public static bool operator !=(EventHandle left, EventHandle right)
         {
             return !left.Equals(right);
+        }
+
+        public static EventHandle Create(IEventService service, Type type)
+        {
+            return new EventHandle(service, Guid.NewGuid(), type);
         }
 
         /// <inheritdoc/>

@@ -23,7 +23,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// The scene to use as the startup scene when inside the editor. If null, then no startup scene will be used.
+        /// Gets or sets the scene to use as the startup scene when inside the editor. If null, then no startup scene will be used.
         /// </summary>
         public SceneAsset StartupScene
         {

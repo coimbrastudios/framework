@@ -16,6 +16,9 @@ namespace Coimbra
         /// </summary>
         public readonly bool Delayed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidateAttribute"/> class.
+        /// </summary>
         /// <param name="callback">The method or property to be called when settings the value.</param>
         /// <param name="delayed">If false, the callback will be called for each user input on it.</param>
         public ValidateAttribute(string callback, bool delayed = true)
@@ -24,8 +27,14 @@ namespace Coimbra
             Delayed = delayed;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidateAttribute"/> class.
+        /// </summary>
         protected ValidateAttribute() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidateAttribute"/> class.
+        /// </summary>
         /// <param name="delayed">If false, the callback will be called for each user input on it.</param>
         protected ValidateAttribute(bool delayed)
         {
@@ -33,7 +42,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The method or property to be called when settings the value.
+        /// Gets or sets the method or property to be called when setting the value.
         /// <para></para>
         /// If a method is used it will be called after the value is set and it should one of the following signatures: void() or void(T), where T is the previous value.
         /// <para></para>

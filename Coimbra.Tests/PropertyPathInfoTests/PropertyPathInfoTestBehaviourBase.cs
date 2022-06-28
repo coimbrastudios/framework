@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable SA1401
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,14 +23,14 @@ namespace Coimbra.Tests
             internal NestedStruct NestedStructValue;
         }
 
-        internal const string FieldName = nameof(_field);
-
         public string[] StringArray = new string[5];
 
         public List<NestedClass.NestedStruct> StructList = new List<NestedClass.NestedStruct>
         {
-            default
+            default,
         };
+
+        internal const string FieldName = nameof(_field);
 
         [SerializeReference]
         internal NestedClass Reference = new NestedClass();
@@ -44,3 +45,4 @@ namespace Coimbra.Tests
         }
     }
 }
+#pragma warning restore SA1401

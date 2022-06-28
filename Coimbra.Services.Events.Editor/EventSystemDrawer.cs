@@ -40,7 +40,7 @@ namespace Coimbra.Services.Events.Editor
 
                 if (!hasFilter || TryMatchSearch(elementProperty.GetValue<Event>()))
                 {
-                    height += EditorGUI.GetPropertyHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight * 0.4f;
+                    height += EditorGUI.GetPropertyHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing + (EditorGUIUtility.singleLineHeight * 0.4f);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace Coimbra.Services.Events.Editor
                         continue;
                     }
 
-                    position.y += position.height + EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight * 0.2f;
+                    position.y += position.height + EditorGUIUtility.standardVerticalSpacing + (EditorGUIUtility.singleLineHeight * 0.2f);
                     position.height = EditorGUI.GetPropertyHeight(elementProperty);
                     EditorGUI.PropertyField(position, elementProperty);
 

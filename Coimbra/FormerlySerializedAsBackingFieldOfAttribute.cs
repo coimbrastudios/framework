@@ -9,7 +9,9 @@ namespace Coimbra
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public sealed class FormerlySerializedAsBackingFieldOfAttribute : FormerlySerializedAsAttribute
     {
-        /// <inheritdoc/>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormerlySerializedAsBackingFieldOfAttribute"/> class.
+        /// </summary>
         public FormerlySerializedAsBackingFieldOfAttribute(string propertyName)
             : base($"<{propertyName}>k__BackingField") { }
     }

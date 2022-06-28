@@ -6,7 +6,9 @@ using UnityEngine.TestTools;
 
 namespace Coimbra.Tests
 {
+#pragma warning disable SA1402
     public readonly partial struct TestEvent : IEvent { }
+#pragma warning restore SA1402
 
     [TestFixture]
     [TestOf(typeof(EventSystem))]
@@ -38,7 +40,7 @@ namespace Coimbra.Tests
             });
 
             LogAssert.Expect(LogType.Log, log);
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
         }
 
         [Test]
@@ -59,17 +61,17 @@ namespace Coimbra.Tests
 
             LogAssert.Expect(LogType.Log, logA);
             LogAssert.Expect(LogType.Log, logB);
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
+        [SuppressMessage("ReSharper", "AccessToModifiedClosure", Justification = "Values are temporary values for testing.")]
         public void RemoveListener_WhenInvoking()
         {
-            EventHandle handle1 = new EventHandle();
-            EventHandle handle2 = new EventHandle();
-            EventHandle handle3 = new EventHandle();
-            EventHandle handle4 = new EventHandle();
+            EventHandle handle1 = default;
+            EventHandle handle2 = default;
+            EventHandle handle3 = default;
+            EventHandle handle4 = default;
 
             void callback1(ref EventContext context, in TestEvent e)
             {
@@ -104,9 +106,9 @@ namespace Coimbra.Tests
             LogAssert.Expect(LogType.Log, nameof(callback2));
             LogAssert.Expect(LogType.Log, nameof(callback3));
             LogAssert.Expect(LogType.Log, nameof(callback4));
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -114,7 +116,7 @@ namespace Coimbra.Tests
         public void RemoveListener_Empty()
         {
             _eventSystem.RemoveListener(EventHandle.Create(_eventSystem, typeof(TestEvent)));
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -130,7 +132,7 @@ namespace Coimbra.Tests
 
             EventHandle handle = _eventSystem.AddListener<TestEvent>(callback);
             _eventSystem.RemoveListener(handle);
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -155,7 +157,7 @@ namespace Coimbra.Tests
             _eventSystem.RemoveListener(handle);
 
             LogAssert.Expect(LogType.Log, logB);
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -163,7 +165,7 @@ namespace Coimbra.Tests
         public void RemoveAllListeners_Empty()
         {
             _eventSystem.RemoveAllListeners<TestEvent>();
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
 
@@ -184,7 +186,7 @@ namespace Coimbra.Tests
             });
 
             _eventSystem.RemoveAllListeners<TestEvent>();
-            _eventSystem.Invoke(this, new TestEvent());
+            _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }
     }

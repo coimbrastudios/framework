@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -28,12 +27,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// True if the <see cref="Value"/> is not null.
+        /// Gets a value indicating whether the <see cref="Value"/> is not null.
         /// </summary>
         public bool HasValue => _value.IsValid();
 
         /// <summary>
-        /// The current value set.
+        /// Gets or sets the current value.
         /// </summary>
         [CanBeNull]
         public T Value
@@ -46,7 +45,7 @@ namespace Coimbra
         [CanBeNull]
         public static implicit operator T([CanBeNull] Reference<T> target)
         {
-            return target != default ?  target.Value : default;
+            return target != default ? target.Value : default;
         }
 
         [Pure]

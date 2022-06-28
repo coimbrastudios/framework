@@ -40,7 +40,7 @@ namespace Coimbra.Linting.Editor
         private Regex[] _includedRegexes;
 
         /// <summary>
-        /// The list of targets to apply this rule. It accepts any path relative to the project folder. If empty it will include everything by default.
+        /// Gets or sets the list of targets to apply this rule. It accepts any path relative to the project folder. If empty it will include everything by default.
         /// </summary>
         [NotNull]
         public IReadOnlyList<string> ExcludedMask
@@ -54,7 +54,7 @@ namespace Coimbra.Linting.Editor
         }
 
         /// <summary>
-        /// The list of exceptions in the Included Mask to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.
+        /// Gets or sets the list of exceptions in the Included Mask to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.
         /// </summary>
         [NotNull]
         public IReadOnlyList<string> IncludedMask

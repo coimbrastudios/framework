@@ -75,7 +75,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The chain of <see cref="PropertyPathInfo"/> to reach this one.
+        /// Gets the chain of <see cref="PropertyPathInfo"/> to reach this one.
         /// </summary>
         public IReadOnlyList<PropertyPathInfo> Chain
         {
@@ -254,7 +254,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Does this property represent multiple different values due to multi-object editing?
+        /// Checks if this property represent multiple different values due to multi-object editing.
         /// </summary>
         public bool HasMultipleDifferentValues([NotNull] Object[] targets)
         {

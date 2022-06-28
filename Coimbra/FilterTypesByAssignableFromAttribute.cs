@@ -23,51 +23,75 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The type needs to extend at least one of those types.
+        /// Gets or sets the types that at least one should be extended.
         /// </summary>
         public Type[] Any { get; set; }
 
         /// <summary>
-        /// The type should not extend any of those types.
+        /// Gets or sets the types that should not be extended.
         /// </summary>
         public Type[] None { get; set; }
 
         /// <inheritdoc/>
         public override bool Validate(PropertyPathInfo context, Object[] targets, Type type)
         {
-            if (All != null)
+            if (!ValidateTypesInAll(type))
             {
-                foreach (Type t in All)
-                {
-                    if (!t.IsAssignableFrom(type))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (None != null)
-            {
-                foreach (Type t in None)
-                {
-                    if (t.IsAssignableFrom(type))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (Any != null && Any.Length > 0)
-            {
-                foreach (Type t in Any)
-                {
-                    if (t.IsAssignableFrom(type))
-                    {
-                        return true;
-                    }
-                }
-
                 return false;
+            }
+
+            if (!ValidateTypesInNone(type))
+            {
+                return false;
+            }
+
+            if (Any == null || Any.Length == 0)
+            {
+                return true;
+            }
+
+            foreach (Type t in Any)
+            {
+                if (t.IsAssignableFrom(type))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool ValidateTypesInAll(Type type)
+        {
+            if (All == null)
+            {
+                return true;
+            }
+
+            foreach (Type t in All)
+            {
+                if (!t.IsAssignableFrom(type))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ValidateTypesInNone(Type type)
+        {
+            if (None == null)
+            {
+                return true;
+            }
+
+            foreach (Type t in None)
+            {
+                if (t.IsAssignableFrom(type))
+                {
+                    return false;
+                }
             }
 
             return true;

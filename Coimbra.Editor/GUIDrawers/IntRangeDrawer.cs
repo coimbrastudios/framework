@@ -38,7 +38,7 @@ namespace Coimbra.Editor
             const float spacing = 2;
             const float labelWidth = 28;
             float totalWidth = position.width;
-            float fieldWith = totalWidth / 2 - spacing / 2 - labelWidth;
+            float fieldWith = (totalWidth / 2) - (spacing / 2) - labelWidth;
 
             using (GUIContentPool.Pop(out GUIContent label))
             {

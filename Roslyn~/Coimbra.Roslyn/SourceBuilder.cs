@@ -43,6 +43,11 @@ namespace Coimbra.Roslyn
             return new LineScope(_stringBuilder);
         }
 
+        public UsingScope BeginUsing()
+        {
+            return new UsingScope(_stringBuilder, _usingSet);
+        }
+
         public void SkipLine()
         {
             _stringBuilder.AppendLine();

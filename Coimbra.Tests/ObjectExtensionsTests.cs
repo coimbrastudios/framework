@@ -32,7 +32,7 @@ namespace Coimbra.Tests
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull")]
+        [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull", Justification = "Needs to test the redundant cases as Unity objects null check works differently.")]
         public void GetValid_ReturnsInvalidSystemObject()
         {
             object o = null;
@@ -89,7 +89,7 @@ namespace Coimbra.Tests
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull")]
+        [SuppressMessage("ReSharper", "ExpressionIsAlwaysNull", Justification = "Needs to test the redundant cases as Unity objects null check works differently.")]
         public void IsValid_ReturnsInvalidSystemObject()
         {
             object o = null;

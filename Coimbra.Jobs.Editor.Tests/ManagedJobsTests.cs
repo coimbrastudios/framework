@@ -1,6 +1,6 @@
-using UnityEngine.TestTools;
 using NUnit.Framework;
 using System.Collections;
+using UnityEngine.TestTools;
 using Assert = UnityEngine.Assertions.Assert;
 
 namespace Coimbra.Jobs.Editor.Tests
@@ -9,9 +9,11 @@ namespace Coimbra.Jobs.Editor.Tests
     {
         private sealed class TestManagedJob : IManagedJob
         {
-            public string Left;
-            public string Right;
-            public string Result;
+            public string Left { get; set; }
+
+            public string Right { get; set; }
+
+            public string Result { get; set; }
 
             public void Execute()
             {
@@ -28,7 +30,7 @@ namespace Coimbra.Jobs.Editor.Tests
             TestManagedJob task = new TestManagedJob()
             {
                 Left = left,
-                Right = right
+                Right = right,
             };
 
             task.Run();
@@ -45,7 +47,7 @@ namespace Coimbra.Jobs.Editor.Tests
             TestManagedJob task = new TestManagedJob()
             {
                 Left = left,
-                Right = right
+                Right = right,
             };
 
             task.Schedule().Complete();
@@ -62,7 +64,7 @@ namespace Coimbra.Jobs.Editor.Tests
             TestManagedJob task = new TestManagedJob()
             {
                 Left = left,
-                Right = right
+                Right = right,
             };
 
             task.Run();
@@ -81,7 +83,7 @@ namespace Coimbra.Jobs.Editor.Tests
             TestManagedJob task = new TestManagedJob()
             {
                 Left = left,
-                Right = right
+                Right = right,
             };
 
             ManagedJobHandle handle = task.Schedule();
@@ -101,7 +103,7 @@ namespace Coimbra.Jobs.Editor.Tests
             TestManagedJob task = new TestManagedJob()
             {
                 Left = left,
-                Right = right
+                Right = right,
             };
 
             ManagedJobHandle handle = task.Schedule();

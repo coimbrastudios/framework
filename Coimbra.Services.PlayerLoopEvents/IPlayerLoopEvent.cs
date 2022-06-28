@@ -11,7 +11,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     public interface IPlayerLoopEvent : IEvent
     {
         /// <summary>
-        /// Cached value for <see cref="UnityEngine.Time.deltaTime"/>.
+        /// Gets cached value for <see cref="UnityEngine.Time.deltaTime"/>.
         /// </summary>
         float DeltaTime { get; }
     }

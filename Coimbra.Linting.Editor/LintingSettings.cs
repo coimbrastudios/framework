@@ -16,14 +16,14 @@ namespace Coimbra.Linting.Editor
         private const string Filter = "t:asmdef";
 
         /// <summary>
-        /// If true, local analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
+        /// Gets or sets a value indicating whether the local Unity analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
         /// </summary>
         [field: SerializeField]
         [field: Tooltip("If true, local analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.")]
         public bool DisableLocalUnityAnalyzers { get; set; } = false;
 
         /// <summary>
-        /// Collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.
+        /// Gets or sets collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.
         /// </summary>
         [NotNull]
         [field: SerializeField]

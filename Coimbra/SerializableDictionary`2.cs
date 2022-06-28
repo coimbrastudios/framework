@@ -18,18 +18,26 @@ namespace Coimbra
         private sealed class SerializableItem
         {
             [SerializeField]
-            internal TKey Key;
+            [FormerlySerializedAs("Key")]
+            private TKey _key;
 
             [SerializeField]
-            internal TValue Value;
+            [FormerlySerializedAs("Value")]
+            private TValue _value;
+
+            internal SerializableItem(TKey key, TValue value)
+            {
+                _key = key;
+                _value = value;
+            }
+
+            internal TKey Key => _key;
+
+            internal TValue Value => _value;
 
             public static implicit operator SerializableItem(KeyValuePair<TKey, TValue> pair)
             {
-                return new SerializableItem
-                {
-                    Key = pair.Key,
-                    Value = pair.Value,
-                };
+                return new SerializableItem(pair.Key, pair.Value);
             }
         }
 
@@ -56,11 +64,7 @@ namespace Coimbra
 
         void ISerializableDictionary.Add()
         {
-            SerializableItem item = new SerializableItem
-            {
-                Key = _new,
-            };
-
+            SerializableItem item = new SerializableItem(_new, default);
             _list.Add(item);
             Add(item.Key, item.Value);
 

@@ -8,14 +8,15 @@ namespace Coimbra.Jobs
     /// Job type that supports managed types.
     /// </summary>
     [PublicAPI]
-    public struct ManagedJobParallelFor<T> : IJobParallelFor where T : IManagedJobParallelFor
+    public struct ManagedJob<T> : IJob
+        where T : IManagedJob
     {
         public GCHandle Handle;
 
-        public void Execute(int index)
+        public void Execute()
         {
             T job = (T)Handle.Target;
-            job.Execute(index);
+            job.Execute();
         }
     }
 }

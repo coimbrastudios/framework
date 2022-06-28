@@ -31,10 +31,15 @@ namespace Coimbra.Services.Roslyn
             {
                 TypeString source = new($"{typeData.ClassSymbol.Name}Loader", typeData.ClassSymbol.ContainingNamespace.ToString());
                 sourceBuilder.Initialize();
-                sourceBuilder.AddUsing("Coimbra.Services");
-                sourceBuilder.AddUsing("System.CodeDom.Compiler");
-                sourceBuilder.AddUsing("UnityEngine");
-                sourceBuilder.AddUsing(typeData.InterfaceSymbol.ContainingNamespace.ToString());
+
+                using (UsingScope usingScope = sourceBuilder.BeginUsing())
+                {
+                    usingScope.AddContent("Coimbra.Services");
+                    usingScope.AddContent("System.CodeDom.Compiler");
+                    usingScope.AddContent("UnityEngine");
+                    usingScope.AddContent(typeData.InterfaceSymbol.ContainingNamespace.ToString());
+                }
+
                 sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, source.Namespace))

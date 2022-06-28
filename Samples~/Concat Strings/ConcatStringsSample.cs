@@ -8,11 +8,11 @@ namespace Coimbra.Samples.ConcatStrings
     {
         private sealed class ConcatStringsJob : IManagedJob
         {
-            public string Left;
+            public string Left { get; set; }
 
-            public string Right;
+            public string Right { get; set; }
 
-            public string Result;
+            public string Result { get; set; }
 
             public void Execute()
             {
@@ -31,7 +31,7 @@ namespace Coimbra.Samples.ConcatStrings
             ConcatStringsJob task = new ConcatStringsJob()
             {
                 Left = _left,
-                Right = _right
+                Right = _right,
             };
 
             ManagedJobHandle handle = task.Schedule();

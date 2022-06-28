@@ -47,7 +47,6 @@ namespace Coimbra.Editor
                         TypeDropdown.FilterTypes(targets, context, list);
                     });
                 }
-
             }
 
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(valuePosition, label, property);

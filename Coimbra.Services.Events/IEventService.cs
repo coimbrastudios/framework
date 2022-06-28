@@ -80,7 +80,7 @@ namespace Coimbra.Services.Events
         /// <summary>
         /// Checks if an event is currently being invoked.
         /// </summary>
-        /// <typeparam name="TEvent">The event type</typeparam>
+        /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>True if the event is currently being invoked.</returns>
         bool IsInvoking<TEvent>()
             where TEvent : IEvent;
@@ -88,7 +88,7 @@ namespace Coimbra.Services.Events
         /// <summary>
         /// Checks if an event is currently being invoked.
         /// </summary>
-        /// <param name="eventType">The event type</param>
+        /// <param name="eventType">The event type.</param>
         /// <returns>True if the event is currently being invoked.</returns>
         bool IsInvoking(Type eventType);
 

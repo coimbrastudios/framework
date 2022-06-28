@@ -6,18 +6,41 @@ namespace Coimbra.Tests
     [Serializable]
     public class DummyClass : IDummyInterface
     {
-        [SerializeField] private int _integer;
-        [SerializeField] private string _string;
-        [SerializeField] private Vector3Int _vector;
-        [SerializeField] private DummyAsset _asset;
-        [SerializeField] private DummyBehaviour _behaviour;
-        [SerializeField] private Texture _texture;
-        [SerializeField] private int[] _integerArray;
-        [SerializeField] private string[] _stringArray;
-        [SerializeField] private Vector3Int[] _vectorArray;
-        [SerializeField] private DummyAsset[] _assetArray;
-        [SerializeField] private DummyBehaviour[] _behaviourArray;
-        [SerializeField] private Texture[] _textureArray;
+        [SerializeField]
+        private int _integer;
+
+        [SerializeField]
+        private string _string;
+
+        [SerializeField]
+        private Vector3Int _vector;
+
+        [SerializeField]
+        private DummyAsset _asset;
+
+        [SerializeField]
+        private DummyBehaviour _behaviour;
+
+        [SerializeField]
+        private Texture _texture;
+
+        [SerializeField]
+        private int[] _integerArray;
+
+        [SerializeField]
+        private string[] _stringArray;
+
+        [SerializeField]
+        private Vector3Int[] _vectorArray;
+
+        [SerializeField]
+        private DummyAsset[] _assetArray;
+
+        [SerializeField]
+        private DummyBehaviour[] _behaviourArray;
+
+        [SerializeField]
+        private Texture[] _textureArray;
 
         public DummyAsset Asset
         {

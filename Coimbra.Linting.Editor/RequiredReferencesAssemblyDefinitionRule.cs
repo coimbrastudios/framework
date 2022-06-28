@@ -20,7 +20,7 @@ namespace Coimbra.Linting.Editor
         private AssemblyDefinitionAsset[] _requiredReferences;
 
         /// <summary>
-        /// The list of <see cref="AssemblyDefinitionAsset"/> references to require.
+        /// Gets or sets the list of <see cref="AssemblyDefinitionAsset"/> references to require.
         /// </summary>
         public IReadOnlyList<AssemblyDefinitionAsset> RequiredReferences
         {

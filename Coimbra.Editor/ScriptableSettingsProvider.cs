@@ -35,7 +35,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// The current set search context.
+        /// Gets the current set search context.
         /// </summary>
         public static string? CurrentSearchContext { get; private set; }
 
@@ -173,7 +173,7 @@ namespace Coimbra.Editor
 
             setter!.Invoke(this, new object[]
             {
-                value
+                value,
             });
         }
 

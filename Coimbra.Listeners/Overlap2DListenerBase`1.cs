@@ -56,27 +56,27 @@ namespace Coimbra.Listeners
         }
 
         /// <summary>
-        /// The current amount of overlaps.
+        /// Gets the current amount of overlaps.
         /// </summary>
         public int OverlapCount => _currentList.Count;
 
         /// <summary>
-        /// The time when the last overlap check happened.
+        /// Gets the time when the last overlap check happened.
         /// </summary>
         public float LastOverlapTime { get; private set; }
 
         /// <summary>
-        /// The component this component depends on.
+        /// Gets the component this component depends on.
         /// </summary>
         public T Component => _component != null ? _component : _component = GetComponent<T>();
 
         /// <summary>
-        /// The player loop listener this component depends on.
+        /// Gets the player loop listener this component depends on.
         /// </summary>
         public PlayerLoopListenerBase PlayerLoopListener => _playerLoopListener != null ? _playerLoopListener : _playerLoopListener = GetComponent<PlayerLoopListenerBase>();
 
         /// <summary>
-        /// If true, it will do an initial check during <see cref="OnPostInitializeActor"/>.
+        /// Gets or sets a value indicating whether it should do an initial check during <see cref="OnPostInitializeActor"/>.
         /// </summary>
         public bool CheckOverlapsOnPostInitializeActor
         {
@@ -87,7 +87,7 @@ namespace Coimbra.Listeners
         }
 
         /// <summary>
-        /// Min interval to check for overlaps. This is a minimum value as it is also based on the player loop listener component update rate.
+        /// Gets or sets min interval to check for overlaps. This is a minimum value as it is also based on the player loop listener component update rate.
         /// </summary>
         public float MinInterval
         {
@@ -98,7 +98,7 @@ namespace Coimbra.Listeners
         }
 
         /// <summary>
-        /// The contact filter to use for overlaps.
+        /// Gets or sets the contact filter to use for overlaps.
         /// </summary>
         public ContactFilter2D ContactFilter
         {

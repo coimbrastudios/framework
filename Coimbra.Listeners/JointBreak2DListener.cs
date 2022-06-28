@@ -16,14 +16,14 @@ namespace Coimbra.Listeners
         public delegate void EventHandler(JointBreak2DListener sender, Joint2D brokenJoint);
 
         /// <summary>
-        /// Invoked inside <see cref="OnJointBreak"/>.
+        /// Invoked inside <see cref="OnJointBreak2D"/>.
         /// </summary>
         public event EventHandler OnTrigger;
 
         private Joint2D _joint;
 
         /// <summary>
-        /// The joint this component depends on.
+        /// Gets the joint this component depends on.
         /// </summary>
         public Joint2D Joint => _joint != null ? _joint : _joint = GetComponent<Joint2D>();
 

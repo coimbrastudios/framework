@@ -1,22 +1,23 @@
 {
     "name": "Coimbra.Editor.UPM",
     "rootNamespace": "",
-    "allowUnsafeCode": false,
-    "autoReferenced": false,
-    "noEngineReferences33": false,
-    "overrideReferences": false,
-    "defineConstraints": [
-        "UNITY_EDITOR"
-    ],
-    "excludePlatforms": [],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "precompiledReferences": [],
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+        "GUID:e10668b017190974fa18141cc6f7bb36",
+        "GUID:bcb5342cba3946faa9caf34ccc15f389"
     ],
-    "versionDefines": []
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

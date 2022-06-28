@@ -28,7 +28,7 @@ namespace Coimbra.Services.Timers.Editor
 
             timerHandle.Service.GetTimerData(in timerHandle, out Action callback, out _, out _, out _, out _);
 
-            return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing * 4 + CoimbraGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
+            return (EditorGUIUtility.singleLineHeight * 4) + (EditorGUIUtility.standardVerticalSpacing * 4) + CoimbraGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
         }
 
         /// <inheritdoc/>
@@ -110,9 +110,9 @@ namespace Coimbra.Services.Timers.Editor
                     temp.text = "/";
 
                     float separatorWidth = EditorStyles.label.CalcSize(temp).x;
-                    position.width = position.width * 0.5f - 2 - separatorWidth - EditorGUIUtility.standardVerticalSpacing * 2;
+                    position.width = (position.width * 0.5f) - 2 - separatorWidth - (EditorGUIUtility.standardVerticalSpacing * 2);
                     EditorGUI.IntField(position, completedLoops);
-                    position.x += position.width + separatorWidth + EditorGUIUtility.standardVerticalSpacing * 2;
+                    position.x += position.width + separatorWidth + (EditorGUIUtility.standardVerticalSpacing * 2);
 
                     if (targetLoops == 0)
                     {

@@ -22,6 +22,9 @@ namespace Coimbra.Services.Events
         /// </summary>
         public readonly Type Type;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AllowEventServiceUsageForAttribute"/> class.
+        /// </summary>
         /// <param name="type">The type allowed to call the protected methods.</param>
         /// <param name="specificTypeOnly">If true, only the specified type will be allowed. If false, any implementation of the type will be allowed.</param>
         public AllowEventServiceUsageForAttribute(Type type, bool specificTypeOnly = false)

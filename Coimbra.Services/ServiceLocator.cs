@@ -16,26 +16,26 @@ namespace Coimbra.Services
     [Preserve]
     public static class ServiceLocator
     {
-        /// <summary>
-        /// Delegate to use with <see cref="ServiceLocator.AddSetListener{T}"/> and <see cref="ServiceLocator.RemoveSetListener{T}"/>.
-        /// </summary>
-        public delegate void SetHandler(Type service);
-
         internal sealed class Service
         {
             internal readonly bool IsDynamic;
-
-            internal IService? Value;
-
-            internal IServiceFactory? Factory;
-
-            internal SetHandler? SetHandler;
 
             public Service(Type type)
             {
                 IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
             }
+
+            internal IService? Value { get; set; }
+
+            internal IServiceFactory? Factory { get; set; }
+
+            internal SetHandler? SetHandler { get; set; }
         }
+
+        /// <summary>
+        /// Delegate to use with <see cref="ServiceLocator.AddSetListener{T}"/> and <see cref="ServiceLocator.RemoveSetListener{T}"/>.
+        /// </summary>
+        public delegate void SetHandler(Type service);
 
         internal static readonly Dictionary<Type, Service> Services = new Dictionary<Type, Service>();
 
@@ -243,7 +243,9 @@ namespace Coimbra.Services
         {
             Initialize(typeof(T), out Service service);
 
-            if (service.Value.TryGetValid(out service.Value))
+            service.Value = service.Value.GetValid();
+
+            if (service.Value != null)
             {
                 if (!service.IsDynamic)
                 {
@@ -292,11 +294,8 @@ namespace Coimbra.Services
             {
                 service.Factory = null;
                 service.SetHandler = null;
-
-                if (service.Value.TryGetValid(out service.Value!))
-                {
-                    service.Value.Dispose();
-                }
+                service.Value = service.Value.GetValid();
+                service.Value?.Dispose();
 
                 service.Value = null;
             }

@@ -5,12 +5,12 @@
     /// </summary>
     public readonly partial struct FirstUpdateEvent : IPlayerLoopEvent
     {
-        /// <inheritdoc/>
-        public float DeltaTime { get; }
-
         public FirstUpdateEvent(float deltaTime)
         {
             DeltaTime = deltaTime;
         }
+
+        /// <inheritdoc/>
+        public float DeltaTime { get; }
     }
 }

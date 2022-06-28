@@ -4,23 +4,56 @@ namespace Coimbra.Tests
 {
     public class DummyAsset : ScriptableObject, IDummyInterface
     {
-        [SerializeField] private ManagedField<IDummyInterface> _managedField;
-        [SerializeField] private int _integer;
-        [SerializeField] private string _string;
-        [SerializeField] private Vector3Int _vector;
-        [SerializeField] private DummyStruct _struct;
-        [SerializeField] private DummyAsset _asset;
-        [SerializeField] private DummyBehaviour _behaviour;
-        [SerializeField] private DummyClass _class;
-        [SerializeField] private Texture _texture;
-        [SerializeField] private int[] _integerArray;
-        [SerializeField] private string[] _stringArray;
-        [SerializeField] private Vector3Int[] _vectorArray;
-        [SerializeField] private DummyStruct[] _structArray;
-        [SerializeField] private DummyAsset[] _assetArray;
-        [SerializeField] private DummyBehaviour[] _behaviourArray;
-        [SerializeField] private DummyClass[] _classArray;
-        [SerializeField] private Texture[] _textureArray;
+        [SerializeField]
+        private ManagedField<IDummyInterface> _managedField;
+
+        [SerializeField]
+        private int _integer;
+
+        [SerializeField]
+        private string _string;
+
+        [SerializeField]
+        private Vector3Int _vector;
+
+        [SerializeField]
+        private DummyStruct _struct;
+
+        [SerializeField]
+        private DummyAsset _asset;
+
+        [SerializeField]
+        private DummyBehaviour _behaviour;
+
+        [SerializeField]
+        private DummyClass _class;
+
+        [SerializeField]
+        private Texture _texture;
+
+        [SerializeField]
+        private int[] _integerArray;
+
+        [SerializeField]
+        private string[] _stringArray;
+
+        [SerializeField]
+        private Vector3Int[] _vectorArray;
+
+        [SerializeField]
+        private DummyStruct[] _structArray;
+
+        [SerializeField]
+        private DummyAsset[] _assetArray;
+
+        [SerializeField]
+        private DummyBehaviour[] _behaviourArray;
+
+        [SerializeField]
+        private DummyClass[] _classArray;
+
+        [SerializeField]
+        private Texture[] _textureArray;
 
         public ManagedField<IDummyInterface> ManagedField
         {

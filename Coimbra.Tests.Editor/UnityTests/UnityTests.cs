@@ -15,7 +15,7 @@ namespace Coimbra.Tests.Editor.UnityTests
     {
         [UnityTest]
         [Timeout(1000)]
-        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex", Justification = "Scene index is added during test execution.")]
         public IEnumerator GivenEmptyScene_WhenSceneLoaded_ThenSceneChangedTriggersAfterAwake_AndBeforeStart()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");
@@ -51,7 +51,7 @@ namespace Coimbra.Tests.Editor.UnityTests
 
         [UnityTest]
         [Timeout(1000)]
-        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex", Justification = "Scene index is added during test execution.")]
         public IEnumerator GivenEmptyScene_WhenSceneLoadedAsAdditive_ThenSceneChangedTriggersAfterAwake_AndBeforeStart()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");
@@ -87,7 +87,7 @@ namespace Coimbra.Tests.Editor.UnityTests
 
         [UnityTest]
         [Timeout(1000)]
-        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex", Justification = "Scene index is added during test execution.")]
         public IEnumerator GivenEmptyScene_WhenSceneLoadedAsync_ThenSceneChangedTriggersAfterAwake_AndBeforeStart()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");
@@ -122,7 +122,7 @@ namespace Coimbra.Tests.Editor.UnityTests
 
         [UnityTest]
         [Timeout(1000)]
-        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex")]
+        [SuppressMessage("ReSharper", "Unity.LoadSceneWrongIndex", Justification = "Scene index is added during test execution.")]
         public IEnumerator GivenEmptyScene_WhenSceneLoadedAsyncAsAdditive_ThenSceneChangedTriggersAfterAwake_AndBeforeStart()
         {
             string emptyScene = AssetDatabase.GUIDToAssetPath("85c5db32df4e15a44abbf3f73a58c060");

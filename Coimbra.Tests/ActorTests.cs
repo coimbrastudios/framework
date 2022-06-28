@@ -7,7 +7,7 @@ namespace Coimbra.Tests
 {
     [TestFixture]
     [TestOf(typeof(Actor))]
-    public class GameObjectBehaviourTests
+    public class ActorTests
     {
         [Test]
         public void GivenActiveInstance_WhenDisabled_ThenActiveStateChangedTriggers_AndStateIsFalse()

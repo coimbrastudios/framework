@@ -16,9 +16,9 @@ namespace Coimbra.Linting.Editor
     {
         private sealed class GuidComparer : IComparer<string>
         {
-            private const string GuidPrefix = "GUID:";
-
             internal static readonly GuidComparer Instance = new GuidComparer();
+
+            private const string GuidPrefix = "GUID:";
 
             private static readonly StringComparer StringComparer = StringComparer.InvariantCulture;
 

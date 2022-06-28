@@ -24,7 +24,7 @@ namespace Coimbra.Editor
 
         private static readonly string[] AssetsFolderOnly =
         {
-            "Assets"
+            "Assets",
         };
 
         [SuppressMessage("ReSharper", "CognitiveComplexity", Justification = "This method can't be simplified further without making it less legible.")]

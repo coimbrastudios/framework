@@ -24,6 +24,7 @@ namespace Coimbra.Services.PlayerLoopEvents
                     TryListenPlayerLoopService();
                 }
             }
+
             remove
             {
                 base.OnTrigger -= value;
@@ -43,7 +44,7 @@ namespace Coimbra.Services.PlayerLoopEvents
         private EventHandle _eventHandle;
 
         /// <summary>
-        /// The <see cref="IPlayerLoopEvent"/> type to use.
+        /// Gets or sets the <see cref="IPlayerLoopEvent"/> type to use.
         /// </summary>
         public SerializableType<IPlayerLoopEvent> PlayerLoopEventType
         {

@@ -25,7 +25,7 @@ namespace Coimbra.Services.Timers
         bool GetTimerData(in TimerHandle timerHandle, out Action? callback, out float delay, out float rate, out int targetLoops, out int completedLoops);
 
         /// <summary>
-        /// Is the timer still valid and running?
+        /// Checks if the timer still valid and running.
         /// </summary>
         /// <param name="timerHandle">The timer to check.</param>
         /// <returns>True if the timer is still valid and running.</returns>

@@ -23,6 +23,7 @@ namespace Coimbra
                 list.Add(value);
             }
         }
+
         /// <summary>
         /// Add the same value multiple times to the list.
         /// </summary>

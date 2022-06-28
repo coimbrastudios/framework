@@ -19,6 +19,7 @@ MonoBehaviour:
   - '*/Coimbra.asmdef'
   - '*/Coimbra.Linting.asmdef'
   - '*/Coimbra.Samples*'
+  - '*/Coimbra.ThirdParty.*'
   - '*/com.coimbrastudios.core/Assembly-CSharp*'
   _displayError: 0
   _requiredReferences:

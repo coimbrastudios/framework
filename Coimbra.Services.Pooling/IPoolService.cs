@@ -12,7 +12,7 @@ namespace Coimbra.Services.Pooling
     public interface IPoolService : IService
     {
         /// <summary>
-        /// The amount of <see cref="GameObjectPool"/> still loading.
+        /// Gets the amount of <see cref="GameObjectPool"/> still loading.
         /// </summary>
         int LoadingPoolCount { get; }
 
@@ -55,7 +55,7 @@ namespace Coimbra.Services.Pooling
         /// </summary>
         /// <param name="pool">The <see cref="GameObjectPool"/> to be unregistered.</param>
         /// <param name="unload">If true, it will also call <see cref="GameObjectPool.Unload"/>.</param>
-        /// <returns>True if the <see cref="GameObjectPool"/> was unregistered</returns>
+        /// <returns>True if the <see cref="GameObjectPool"/> was unregistered.</returns>
         bool RemovePool(GameObjectPool pool, bool unload);
 
         /// <inheritdoc cref="GameObjectPool.Spawn(Transform, bool)"/>

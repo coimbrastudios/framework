@@ -34,17 +34,17 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// True if the <see cref="Value"/> is not null.
+        /// Gets a value indicating whether the <see cref="Value"/> is not null.
         /// </summary>
         public bool HasValue => _systemObject != null || _unityObject != null;
 
         /// <summary>
-        /// Is the <see cref="Value"/> a non-<a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
+        /// Gets a value indicating whether the <see cref="Value"/> is a non-<a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>.
         /// </summary>
         public bool IsSystemObject => _systemObject != null;
 
         /// <summary>
-        /// Is the <see cref="Value"/> an <a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>?
+        /// Gets a value indicating whether the <see cref="Value"/> is an <a href="https://docs.unity3d.com/ScriptReference/Object.html">Unity Object</a>.
         /// </summary>
         public bool IsUnityObject => _unityObject != null;
 

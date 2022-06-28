@@ -212,10 +212,9 @@ namespace Coimbra
             return methodInfo;
         }
 
-        /// <summary>
+        /// 1<summary>
         /// True if the type is a value type or contains a parameterless constructor.
         /// </summary>
-        /// <returns></returns>
         public static bool CanCreateInstance(this Type type)
         {
             return type.IsValueType || type.GetConstructor(ConstructorBindingFlags, null, Type.EmptyTypes, null) != null;

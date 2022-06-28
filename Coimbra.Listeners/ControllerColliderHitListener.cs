@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private CharacterController _characterController;
 
         /// <summary>
-        /// The character controller this component depends on.
+        /// Gets the character controller this component depends on.
         /// </summary>
         public CharacterController CharacterController => _characterController != null ? _characterController : _characterController = GetComponent<CharacterController>();
 

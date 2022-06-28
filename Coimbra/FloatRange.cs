@@ -28,8 +28,9 @@ namespace Coimbra
         [SerializeField]
         private float _max;
 
-        /// <param name="a"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
-        /// <param name="b"> The <see cref="Min"/> or <see cref="Max"/> value. </param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FloatRange"/> struct.
+        /// </summary>
         public FloatRange(float a, float b = 0)
         {
             _min = a < b ? a : b;
@@ -37,22 +38,22 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// The diff between <see cref="Max"/> and <see cref="Min"/>.
+        /// Gets the diff between <see cref="Max"/> and <see cref="Min"/>.
         /// </summary>
         public float Lenght => Max - Min;
 
         /// <summary>
-        /// The biggest value on the range.
+        /// Gets the biggest value on the range.
         /// </summary>
         public float Max => _max;
 
         /// <summary>
-        /// The smallest value on the range.
+        /// Gets the smallest value on the range.
         /// </summary>
         public float Min => _min;
 
         /// <summary>
-        /// Returns a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
+        /// Gets a random float number between <see cref="Min"/> [inclusive] and <see cref="Max"/> [inclusive].
         /// </summary>
         public float RandomValue => Random.Range(Min, Max);
 

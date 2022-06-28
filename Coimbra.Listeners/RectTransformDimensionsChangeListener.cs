@@ -23,7 +23,7 @@ namespace Coimbra.Listeners
         private RectTransform _rectTransform;
 
         /// <summary>
-        /// The rect transform this component depends on.
+        /// Gets the rect transform this component depends on.
         /// </summary>
         public RectTransform RectTransform => _rectTransform != null ? _rectTransform : _rectTransform = GetComponent<RectTransform>();
 

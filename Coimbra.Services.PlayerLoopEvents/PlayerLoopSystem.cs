@@ -224,7 +224,6 @@ namespace Coimbra.Services.PlayerLoopEvents
                     new LastFixedUpdateEvent(Time.deltaTime).Invoke(this);
                 }
             }
-
             while (!DestroyCancellationToken.IsCancellationRequested && HasAnyFixedUpdateTiming());
         }
 

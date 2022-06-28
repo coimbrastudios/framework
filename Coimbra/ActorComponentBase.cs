@@ -13,7 +13,7 @@ namespace Coimbra
         private Actor _actor;
 
         /// <summary>
-        /// The actor this component belongs to.
+        /// Gets the actor this component belongs to.
         /// </summary>
         public Actor Actor
         {
@@ -31,16 +31,6 @@ namespace Coimbra
             }
         }
 
-        /// <summary>
-        /// Called before <see cref="Coimbra.Actor.OnInitialize"/>.
-        /// </summary>
-        protected abstract void OnPreInitializeActor();
-
-        /// <summary>
-        /// Called after <see cref="Coimbra.Actor.OnInitialize"/>.
-        /// </summary>
-        protected abstract void OnPostInitializeActor();
-
         internal void PreInitialize(Actor actor)
         {
             _hasActor = true;
@@ -52,5 +42,15 @@ namespace Coimbra
         {
             OnPostInitializeActor();
         }
+
+        /// <summary>
+        /// Called before <see cref="Coimbra.Actor.OnInitialize"/>.
+        /// </summary>
+        protected abstract void OnPreInitializeActor();
+
+        /// <summary>
+        /// Called after <see cref="Coimbra.Actor.OnInitialize"/>.
+        /// </summary>
+        protected abstract void OnPostInitializeActor();
     }
 }

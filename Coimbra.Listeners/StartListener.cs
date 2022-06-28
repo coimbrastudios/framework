@@ -30,6 +30,7 @@ namespace Coimbra.Listeners
                     _eventHandler += value;
                 }
             }
+
             remove
             {
                 if (!WasTriggered)
@@ -42,7 +43,7 @@ namespace Coimbra.Listeners
         private EventHandler _eventHandler;
 
         /// <summary>
-        /// True if <see cref="Start"/> was already called. This is set after invoking <see cref="OnTrigger"/> for the first time.
+        /// Gets a value indicating whether <see cref="Start"/> was already called. This is set after invoking <see cref="OnTrigger"/> for the first time.
         /// </summary>
         public bool WasTriggered { get; private set; }
 
