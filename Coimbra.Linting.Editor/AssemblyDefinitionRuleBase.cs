@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditorInternal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Linting.Editor
 {
@@ -70,7 +71,7 @@ namespace Coimbra.Linting.Editor
         /// Implement this method to modify the given <paramref name="assemblyDefinition"/>.
         /// </summary>
         /// <returns>True if the assembly definition was actually modified, false otherwise.</returns>
-        public abstract bool Apply(AssemblyDefinition assemblyDefinition);
+        public abstract bool Apply(AssemblyDefinition assemblyDefinition, Object context);
 
         internal bool CanApply(string assemblyDefinitionPath)
         {
@@ -86,7 +87,7 @@ namespace Coimbra.Linting.Editor
                 return !HasAnyMatch(_excludedRegexes, assemblyDefinitionPath);
             }
 
-            Debug.LogError("Rule should always have at least one mask (either included or excluded).");
+            Debug.LogError("Rule should always have at least one mask (either included or excluded).", this);
 
             return false;
         }

@@ -34,7 +34,7 @@ namespace Coimbra.Linting.Editor
         }
 
         /// <inheritdoc/>
-        public override bool Apply(AssemblyDefinition assemblyDefinition)
+        public override bool Apply(AssemblyDefinition assemblyDefinition, Object context)
         {
             InitializeCache();
 
@@ -48,7 +48,7 @@ namespace Coimbra.Linting.Editor
 
                     if (HasAnyMatch(_bannedReferencesRegexes, referenceName))
                     {
-                        Debug.LogWarning($"{assemblyDefinition.Name} had banned reference {referenceName}!");
+                        Debug.LogWarning($"{assemblyDefinition.Name} had banned reference {referenceName}!", context);
 
                         continue;
                     }

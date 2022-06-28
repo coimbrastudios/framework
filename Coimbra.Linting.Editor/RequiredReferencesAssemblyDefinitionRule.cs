@@ -29,7 +29,7 @@ namespace Coimbra.Linting.Editor
         }
 
         /// <inheritdoc/>
-        public override bool Apply(AssemblyDefinition assemblyDefinition)
+        public override bool Apply(AssemblyDefinition assemblyDefinition, Object context)
         {
             using (ListPool.Pop(out List<string> list))
             using (HashSetPool.Pop(out HashSet<string> set))
@@ -53,7 +53,7 @@ namespace Coimbra.Linting.Editor
                     }
 
                     list.Add(guid);
-                    Debug.LogWarning($"{assemblyDefinition.Name} was missing required reference {asset.name}!");
+                    Debug.LogWarning($"{assemblyDefinition.Name} was missing required reference {asset.name}!", context);
                 }
 
                 if (assemblyDefinition.References.Length == list.Count)

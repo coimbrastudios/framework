@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.8.4] - UNRELEASED
+
+- Added context parameter to `AssemblyDefinitionRuleBase.Apply` to make troubleshooting easier.
+- Changed [LICENSE](LICENSE.md) to MIT.
+
 ## [10.8.3] - 2022-06-27
 
 - Added assembly definition rules to reorder the references.

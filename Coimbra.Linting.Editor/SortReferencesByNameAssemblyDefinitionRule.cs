@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Linting.Editor
 {
@@ -16,7 +17,7 @@ namespace Coimbra.Linting.Editor
         private sealed class GuidComparer : IComparer<string>
         {
             private const string GuidPrefix = "GUID:";
-            
+
             internal static readonly GuidComparer Instance = new GuidComparer();
 
             private static readonly StringComparer StringComparer = StringComparer.InvariantCulture;
@@ -25,13 +26,13 @@ namespace Coimbra.Linting.Editor
             {
                 x = x!.StartsWith(GuidPrefix) ? x.Substring(GuidPrefix.Length) : x;
                 y = y!.StartsWith(GuidPrefix) ? y.Substring(GuidPrefix.Length) : y;
-                
+
                 return StringComparer.Compare(Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(x)), Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(y)));
             }
         }
 
         /// <inheritdoc/>
-        public override bool Apply(AssemblyDefinition assemblyDefinition)
+        public override bool Apply(AssemblyDefinition assemblyDefinition, Object context)
         {
             using (ListPool.Pop(out List<string> previous))
             {
@@ -40,10 +41,14 @@ namespace Coimbra.Linting.Editor
 
                 for (int i = 0; i < previous.Count; i++)
                 {
-                    if (previous[i] != assemblyDefinition.References[i])
+                    if (previous[i] == assemblyDefinition.References[i])
                     {
-                        return true;
+                        continue;
                     }
+
+                    Debug.LogWarning($"{assemblyDefinition.Name} needed to sort its references by name!", context);
+
+                    return true;
                 }
 
                 return false;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Linting.Editor
 {
@@ -12,7 +13,7 @@ namespace Coimbra.Linting.Editor
     public sealed class SortPrecompiledReferencesAssemblyDefinitionRule : AssemblyDefinitionRuleBase
     {
         /// <inheritdoc/>
-        public override bool Apply(AssemblyDefinition assemblyDefinition)
+        public override bool Apply(AssemblyDefinition assemblyDefinition, Object context)
         {
             using (ListPool.Pop(out List<string> previous))
             {
@@ -21,10 +22,14 @@ namespace Coimbra.Linting.Editor
 
                 for (int i = 0; i < previous.Count; i++)
                 {
-                    if (previous[i] != assemblyDefinition.PrecompiledReferences[i])
+                    if (previous[i] == assemblyDefinition.PrecompiledReferences[i])
                     {
-                        return true;
+                        continue;
                     }
+
+                    Debug.LogWarning($"{assemblyDefinition.Name} needed to sort its precompiled references!", context);
+
+                    return true;
                 }
 
                 return false;

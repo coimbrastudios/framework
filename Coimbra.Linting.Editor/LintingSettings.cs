@@ -58,7 +58,7 @@ namespace Coimbra.Linting.Editor
 
                     AssemblyDefinition assembly = JsonUtility.FromJson<AssemblyDefinition>(asset.text);
 
-                    if (!rule.Apply(assembly))
+                    if (!rule.Apply(assembly, asset))
                     {
                         continue;
                     }
