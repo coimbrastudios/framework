@@ -131,28 +131,28 @@ namespace Coimbra.Editor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool? TryPropertyField(SerializedProperty property)
         {
-            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property) : null;
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property) : null;
         }
 
         /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool? TryPropertyField(SerializedProperty property, bool includeChildren)
         {
-            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, includeChildren) : null;
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, includeChildren) : null;
         }
 
         /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool? TryPropertyField(SerializedProperty property, GUIContent label)
         {
-            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, label) : null;
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label) : null;
         }
 
         /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool? TryPropertyField(SerializedProperty property, GUIContent label, bool includeChildren)
         {
-            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, label, includeChildren) : null;
+            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label, includeChildren) : null;
         }
 
         /// <summary>
