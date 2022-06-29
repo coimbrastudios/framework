@@ -10,6 +10,8 @@ namespace Coimbra
     /// <see cref="Dictionary{TKey,TValue}"/> that can be viewed, modified and saved from the inspector.
     /// </summary>
     /// <seealso cref="DisableResizeAttribute"/>
+    /// <seealso cref="HideKeyLabelAttribute"/>
+    /// <seealso cref="HideValueLabelAttribute"/>
     [Serializable]
     [CopyBaseConstructors]
     public partial class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary

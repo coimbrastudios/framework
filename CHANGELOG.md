@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.8.5] - UNRELEASED
+
+- Added `HideKeyLabelAttribute` and `HideValueLabelAttribute` to use with `SerializableDictionary`.
+
 ## [10.8.4] - 2022-06-28
 
 - Added context parameter to `AssemblyDefinitionRuleBase.Apply` to make troubleshooting easier.
