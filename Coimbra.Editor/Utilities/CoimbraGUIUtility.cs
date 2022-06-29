@@ -35,6 +35,18 @@ namespace Coimbra.Editor
         private static ReorderableList _delegateListeners;
 
         /// <summary>
+        /// Gets a position based on the specified <see cref="InspectorArea"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rect AdjustPosition(Rect position, InspectorArea area)
+        {
+            Rect result = position;
+            AdjustPosition(ref result, area);
+
+            return result;
+        }
+
+        /// <summary>
         /// Adjust a position based on the specified <see cref="InspectorArea"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,14 +56,14 @@ namespace Coimbra.Editor
             {
                 case InspectorArea.Field:
                 {
-                    position.xMin += EditorGUIUtility.labelWidth;
+                    position.xMin += EditorGUIUtility.labelWidth + 2;
 
                     break;
                 }
 
                 case InspectorArea.Label:
                 {
-                    position.width = EditorGUIUtility.labelWidth;
+                    position.width = EditorGUIUtility.labelWidth - UnityEditorInternals.GetIndent();
 
                     break;
                 }
@@ -70,7 +82,7 @@ namespace Coimbra.Editor
             InitializeDelegateListeners();
             position = EditorGUI.IndentedRect(position);
 
-            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            using (new ResetIndentLevelScope())
             {
                 Rect headerPosition = position;
                 headerPosition.height = EditorGUIUtility.singleLineHeight;
@@ -116,7 +128,7 @@ namespace Coimbra.Editor
         /// <param name="position">Rectangle on the screen to draw the help box within.</param>
         /// <param name="message">The message text.</param>
         /// <param name="type">The type of message.</param>
-        /// <param name="area">To use with <see cref="AdjustPosition"/>.</param>
+        /// <param name="area">Where to drawn.</param>
         public static void DrawMessageBox(Rect position, string message, MessageBoxType type, InspectorArea area)
         {
             MessageType messageType;
@@ -389,7 +401,7 @@ namespace Coimbra.Editor
             EditorGUI.PropertyField(position, property, label, false);
 
             using (new EditorGUI.DisabledScope(true))
-            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            using (new ResetIndentLevelScope())
             {
                 position.xMin += position.width - ListCountFieldSize;
 

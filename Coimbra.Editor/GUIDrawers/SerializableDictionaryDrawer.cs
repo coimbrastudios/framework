@@ -44,19 +44,22 @@ namespace Coimbra.Editor
             }
 
             ReorderableList list = property.FindPropertyRelative(ListProperty).ToReorderableList(InitializeReorderableList);
-            bool displayFooter = GUI.enabled && list.serializedProperty.GetScopeInfo()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
-            list.displayAdd = displayFooter;
-            list.displayRemove = displayFooter;
-            list.footerHeight = displayFooter ? EditorGUIUtility.singleLineHeight : 0;
+            FieldInfo scopeFieldInfo = list.serializedProperty.GetScopeInfo()!.FieldInfo;
+            list.draggable = GUI.enabled && scopeFieldInfo.GetCustomAttribute<DisableAttribute>() == null;
+
+            bool canResize = list.draggable && scopeFieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
+            list.displayAdd = canResize;
+            list.displayRemove = canResize;
+            list.footerHeight = canResize ? EditorGUIUtility.singleLineHeight : 0;
             height += EditorGUIUtility.standardVerticalSpacing + list.GetHeight();
 
-            if (!displayFooter)
+            if (!canResize)
             {
                 return height;
             }
 
             SerializedProperty newProperty = property.FindPropertyRelative(NewProperty);
-            height += EditorGUI.GetPropertyHeight(newProperty, newProperty.isExpanded) - EditorGUIUtility.singleLineHeight;
+            height += EditorGUIUtility.standardVerticalSpacing + EditorGUI.GetPropertyHeight(newProperty, newProperty.isExpanded) - EditorGUIUtility.singleLineHeight;
 
             return height;
         }
@@ -72,15 +75,23 @@ namespace Coimbra.Editor
                 return;
             }
 
+            FieldInfo scopeFieldInfo = list.serializedProperty.GetScopeInfo()!.FieldInfo;
+            list.draggable = GUI.enabled && scopeFieldInfo.GetCustomAttribute<DisableAttribute>() == null;
+
+            if (!list.draggable)
+            {
+                position.xMin += ReorderableList.Defaults.dragHandleWidth;
+            }
+
             Rect listPosition = position;
-            bool canResize = GUI.enabled && list.serializedProperty.GetScopeInfo()!.FieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
+            bool canResize = list.draggable && scopeFieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
             list.displayAdd = canResize;
             list.displayRemove = canResize;
             list.footerHeight = canResize ? EditorGUIUtility.singleLineHeight : 0;
-            listPosition.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            listPosition.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             listPosition.height = list.GetHeight();
 
-            using (new LabelWidthScope(position.width * KeyWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+            using (new LabelWidthScope(listPosition.width * KeyWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
                 list.DoList(listPosition);
             }
@@ -90,7 +101,7 @@ namespace Coimbra.Editor
                 return;
             }
 
-            position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + listPosition.height - EditorGUIUtility.singleLineHeight;
+            position.y += EditorGUIUtility.standardVerticalSpacing + listPosition.height;
 
             if (property.serializedObject.isEditingMultipleObjects)
             {
@@ -101,16 +112,21 @@ namespace Coimbra.Editor
             }
 
             SerializedProperty newProperty = property.FindPropertyRelative(NewProperty);
-            position.x += EditorGUIUtility.standardVerticalSpacing;
-            position.width *= KeyWidthPercent;
-            position.width += EditorGUIUtility.standardVerticalSpacing;
-            position.xMin += ReorderableList.Defaults.dragHandleWidth;
-            position.x += +EditorStyles.foldout.CalcSize(GUIContent.none).x;
+            float foldoutWidth = EditorStyles.foldout.CalcSize(GUIContent.none).x;
+            CoimbraGUIUtility.AdjustPosition(ref position, InspectorArea.Label);
+
+            if (list.draggable)
+            {
+                position.x += ReorderableList.Defaults.dragHandleWidth;
+            }
+
+            position.xMin += foldoutWidth;
             position.height = EditorGUI.GetPropertyHeight(newProperty, true);
 
-            using (new LabelWidthScope((position.width * LabelWidthPercent) + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
+            using (new ResetIndentLevelScope())
+            using (new LabelWidthScope(position.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                DrawElement(position, newProperty, property.GetFieldInfo().IsDefined(typeof(HideKeyLabelAttribute)));
+                DrawElement(position, newProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
             }
         }
 
@@ -232,7 +248,6 @@ namespace Coimbra.Editor
 #if UNITY_2021_3_OR_NEWER
             list.multiSelect = true;
 #endif
-            list.draggable = GUI.enabled;
             list.headerHeight = 0;
             list.drawNoneElementCallback = drawNone;
             list.onAddCallback = add;
@@ -243,27 +258,31 @@ namespace Coimbra.Editor
             {
                 SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
                 float foldoutWidth = EditorStyles.foldout.CalcSize(GUIContent.none).x;
-                position.xMin += foldoutWidth;
                 position.yMin += EditorGUIUtility.standardVerticalSpacing;
 
                 SerializedProperty keyProperty = elementProperty.FindPropertyRelative(KeyProperty);
                 SerializedProperty valueProperty = elementProperty.FindPropertyRelative(ValueProperty);
                 Rect keyPosition = position.WithHeight(EditorGUI.GetPropertyHeight(keyProperty, GUIContent.none));
                 Rect valuePosition = position.WithHeight(EditorGUI.GetPropertyHeight(valueProperty, GUIContent.none));
-                keyPosition.width = EditorGUIUtility.labelWidth - foldoutWidth - EditorGUIUtility.standardVerticalSpacing;
-                valuePosition.xMin += EditorGUIUtility.labelWidth;
+                CoimbraGUIUtility.AdjustPosition(ref keyPosition, InspectorArea.Label);
+                CoimbraGUIUtility.AdjustPosition(ref valuePosition, InspectorArea.Field);
+                keyPosition.xMin += foldoutWidth;
+                valuePosition.xMin += foldoutWidth;
 
-                using (new LabelWidthScope(keyPosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                using (new ResetIndentLevelScope())
                 {
-                    using (new EditorGUI.DisabledScope(true))
+                    using (new LabelWidthScope(keyPosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                     {
-                        DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
+                        using (new EditorGUI.DisabledScope(true))
+                        {
+                            DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
+                        }
                     }
-                }
 
-                using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
-                {
-                    DrawElement(valuePosition, valueProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideValueLabelAttribute)));
+                    using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                    {
+                        DrawElement(valuePosition, valueProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideValueLabelAttribute)));
+                    }
                 }
             };
 

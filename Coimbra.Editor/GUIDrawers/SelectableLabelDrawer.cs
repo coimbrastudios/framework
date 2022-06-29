@@ -21,7 +21,7 @@ namespace Coimbra.Editor
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
             position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
-            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            using (new ResetIndentLevelScope())
             {
                 EditorGUI.SelectableLabel(position, property.stringValue);
             }

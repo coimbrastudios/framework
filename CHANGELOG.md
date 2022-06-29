@@ -3,6 +3,8 @@
 ## [10.8.5] - UNRELEASED
 
 - Added `HideKeyLabelAttribute` and `HideValueLabelAttribute` to use with `SerializableDictionary`.
+- Fixed some incorrect indentation for some fields.
+- Fixed nested `SerializeReference` not working with `PropertyPathInfo`.
 
 ## [10.8.4] - 2022-06-28
 

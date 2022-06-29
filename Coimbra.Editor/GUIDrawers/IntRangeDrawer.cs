@@ -17,15 +17,10 @@ namespace Coimbra.Editor
         {
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
+            position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
-            Rect labelPosition = position;
-            labelPosition.width = EditorGUIUtility.labelWidth;
-            EditorGUI.LabelField(labelPosition, propertyScope.content);
-
-            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            using (new ResetIndentLevelScope())
             {
-                position.x += labelPosition.width;
-                position.width -= labelPosition.width;
                 DrawGUI(position, minProperty, maxProperty, delayed);
             }
         }
@@ -33,30 +28,22 @@ namespace Coimbra.Editor
         /// <inheritdoc cref="DrawGUI(UnityEngine.Rect,UnityEditor.SerializedProperty,UnityEditor.SerializedProperty,UnityEditor.SerializedProperty,UnityEngine.GUIContent,bool)"/>
         public static void DrawGUI(Rect position, SerializedProperty minProperty, SerializedProperty maxProperty, bool delayed)
         {
-            position.height = EditorGUIUtility.singleLineHeight;
-
-            const float spacing = 2;
             const float labelWidth = 28;
-            float totalWidth = position.width;
-            float fieldWith = (totalWidth / 2) - (spacing / 2) - labelWidth;
+            position.height = EditorGUIUtility.singleLineHeight;
+            position.width *= 0.5f;
+            position.width -= EditorGUIUtility.standardVerticalSpacing;
 
+            using (new LabelWidthScope(labelWidth, LabelWidthScope.MagnitudeMode.Absolute))
             using (GUIContentPool.Pop(out GUIContent label))
             {
                 label.text = nameof(IntRange.Min);
 
                 using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, minProperty);
-
-                position.width = labelWidth;
-                EditorGUI.LabelField(position, propertyScope.content);
-
-                position.x += position.width;
-                position.width = fieldWith;
-
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
                 int value = delayed
-                                ? EditorGUI.DelayedIntField(position, minProperty.intValue)
-                                : EditorGUI.IntField(position, minProperty.intValue);
+                                ? EditorGUI.DelayedIntField(position, propertyScope.content, minProperty.intValue)
+                                : EditorGUI.IntField(position, propertyScope.content, minProperty.intValue);
 
                 if (changeCheckScope.changed)
                 {
@@ -65,24 +52,19 @@ namespace Coimbra.Editor
                 }
             }
 
+            position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+
+            using (new LabelWidthScope(labelWidth, LabelWidthScope.MagnitudeMode.Absolute))
             using (GUIContentPool.Pop(out GUIContent label))
             {
                 label.text = nameof(IntRange.Max);
 
                 using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, maxProperty);
-
-                position.x += position.width + spacing;
-                position.width = labelWidth;
-                EditorGUI.LabelField(position, propertyScope.content);
-
-                position.x += position.width;
-                position.width = fieldWith;
-
                 using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
 
                 int value = delayed
-                                ? EditorGUI.DelayedIntField(position, maxProperty.intValue)
-                                : EditorGUI.IntField(position, maxProperty.intValue);
+                                ? EditorGUI.DelayedIntField(position, propertyScope.content, maxProperty.intValue)
+                                : EditorGUI.IntField(position, propertyScope.content, maxProperty.intValue);
 
                 if (changeCheckScope.changed)
                 {

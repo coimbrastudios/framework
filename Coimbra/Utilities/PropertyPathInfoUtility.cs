@@ -105,7 +105,7 @@ namespace Coimbra
                         }
 
                         currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath, isDynamic);
-                        currentType = isDynamic ? currentPropertyPathInfo.GetValue(target)!.GetType() : fieldInfo.FieldType;
+                        currentType = currentPropertyPathInfo.GetType(target);
                         currentDepth++;
 
                         if (!TryGetIndex(splitPropertyPath, out int index))
@@ -122,7 +122,7 @@ namespace Coimbra
                         Type propertyType = GetCollectionType(fieldInfo.FieldType);
                         propertyPath = propertyPathBuilder.ToString();
                         currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath, isDynamic);
-                        currentType = isDynamic ? currentPropertyPathInfo.GetValue(target)!.GetType() : propertyType;
+                        currentType = currentPropertyPathInfo.GetType(target);
                         currentDepth++;
                     }
 
@@ -142,22 +142,17 @@ namespace Coimbra
             string propertyPath,
             bool isDynamic)
         {
+            if (isDynamic)
+            {
+                return new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, true);
+            }
+
             if (cache.TryGetValue(propertyPath, out PropertyPathInfo cachedPropertyPathInfo))
             {
-                if (isDynamic && cachedPropertyPathInfo == null)
-                {
-                    return new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, true);
-                }
-
-                return cachedPropertyPathInfo;
+                return cachedPropertyPathInfo ?? new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, true);
             }
 
-            cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, isDynamic);
-
-            if (!isDynamic)
-            {
-                cache.Add(propertyPath, cachedPropertyPathInfo);
-            }
+            cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, false);
 
             return cachedPropertyPathInfo;
         }

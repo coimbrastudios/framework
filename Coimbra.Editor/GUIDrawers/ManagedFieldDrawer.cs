@@ -29,6 +29,34 @@ namespace Coimbra.Editor
 
         private static readonly TypeDropdownDrawer TypeDropdownDrawer = new TypeDropdownDrawer();
 
+        /// <summary>
+        /// Draws a <see cref="ManagedField{T}"/>. Optionally also allow scene objects to be selected.
+        /// </summary>
+        public static void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
+        {
+            TooltipAttribute tooltipAttribute = property.GetFieldInfo().GetCustomAttribute<TooltipAttribute>();
+            bool enableObjectPicker = GUI.enabled && property.GetFieldInfo().GetCustomAttribute<DisablePickerAttribute>() == null;
+
+            if (tooltipAttribute != null)
+            {
+                label.tooltip = tooltipAttribute.tooltip;
+            }
+
+            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
+            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
+            Object[] targets = property.serializedObject.targetObjects;
+
+            if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(targets))
+            {
+                DrawMultiEditMessage(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker);
+            }
+            else
+            {
+                DrawManagedField(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker, allowSceneObjects);
+            }
+        }
+
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -56,34 +84,6 @@ namespace Coimbra.Editor
             DrawGUI(position, property, label, true);
         }
 
-        /// <summary>
-        /// Draws a <see cref="ManagedField{T}"/>. Optionally also allow scene objects to be selected.
-        /// </summary>
-        public void DrawGUI(Rect position, SerializedProperty property, GUIContent label, bool allowSceneObjects)
-        {
-            TooltipAttribute tooltipAttribute = property.GetFieldInfo().GetCustomAttribute<TooltipAttribute>();
-            bool enableObjectPicker = GUI.enabled && property.GetFieldInfo().GetCustomAttribute<DisablePickerAttribute>() == null;
-
-            if (tooltipAttribute != null)
-            {
-                label.tooltip = tooltipAttribute.tooltip;
-            }
-
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
-            SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
-            Object[] targets = property.serializedObject.targetObjects;
-
-            if (systemObject.GetPropertyPathInfo().HasMultipleDifferentValues(targets))
-            {
-                DrawMultiEditMessage(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker);
-            }
-            else
-            {
-                DrawManagedField(position, propertyScope.content, targets, systemObject, unityObject, enableObjectPicker, allowSceneObjects);
-            }
-        }
-
         private static void DrawInterfaceField(Rect position, GUIContent label, Object[] targets, SerializedProperty systemObject, SerializedProperty unityObject, bool enableObjectPicker, bool allowSceneObjects, Type type)
         {
             string typename = systemObject.managedReferenceFullTypename;
@@ -107,9 +107,8 @@ namespace Coimbra.Editor
             {
                 Rect valuePosition = position;
                 valuePosition.height = EditorGUI.GetPropertyHeight(systemObject, true);
-                position.x = EditorGUIUtility.labelWidth;
-                position.width = EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth;
                 position.height = EditorGUIUtility.singleLineHeight;
+                CoimbraGUIUtility.AdjustPosition(ref position, InspectorArea.Field);
 
                 using (GUIContentPool.Pop(out GUIContent typeLabel))
                 {
@@ -188,6 +187,7 @@ namespace Coimbra.Editor
             }
             else
             {
+                position.height = TypeDropdownDrawer.GetPropertyHeight(unityObject, label);
                 TypeDropdownDrawer.OnGUI(position, systemObject, label);
             }
         }

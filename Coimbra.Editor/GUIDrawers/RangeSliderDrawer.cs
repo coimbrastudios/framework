@@ -16,16 +16,10 @@ namespace Coimbra.Editor
         {
             using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
+            position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
-            Rect labelPosition = position;
-            labelPosition.width = EditorGUIUtility.labelWidth;
-            EditorGUI.LabelField(labelPosition, propertyScope.content);
-
-            using (new EditorGUI.IndentLevelScope(-EditorGUI.indentLevel))
+            using (new ResetIndentLevelScope())
             {
-                position.x += labelPosition.width;
-                position.width -= labelPosition.width;
-
                 if (roundToInt)
                 {
                     DrawGUI(position, minProperty, maxProperty, Mathf.CeilToInt(minLimit), Mathf.FloorToInt(maxLimit), delayed);
@@ -42,7 +36,6 @@ namespace Coimbra.Editor
         {
             position.height = EditorGUIUtility.singleLineHeight;
 
-            const float spacing = 4;
             const float fieldWidth = 50;
             float totalWidth = position.width;
 
@@ -66,8 +59,8 @@ namespace Coimbra.Editor
 
             using (new ShowMixedValueScope(minProperty.hasMultipleDifferentValues || maxProperty.hasMultipleDifferentValues))
             {
-                position.x += position.width + spacing;
-                position.width = totalWidth - (fieldWidth * 2) - (spacing * 2);
+                position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
+                position.width = totalWidth - (fieldWidth * 2) - (EditorGUIUtility.standardVerticalSpacing * 2);
 
                 using (EditorGUI.ChangeCheckScope sliderCheckScope = new EditorGUI.ChangeCheckScope())
                 {
@@ -86,7 +79,7 @@ namespace Coimbra.Editor
 
             using (new EditorGUI.PropertyScope(position, GUIContent.none, maxProperty))
             {
-                position.x += position.width + spacing;
+                position.x += position.width + EditorGUIUtility.standardVerticalSpacing;
                 position.width = fieldWidth;
 
                 using (EditorGUI.ChangeCheckScope maxCheckScope = new EditorGUI.ChangeCheckScope())

@@ -28,6 +28,8 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            position.height = EditorGUIUtility.singleLineHeight;
+
             PropertyPathInfo context = property.GetPropertyPathInfo();
             Object[] targets = property.serializedObject.targetObjects;
 

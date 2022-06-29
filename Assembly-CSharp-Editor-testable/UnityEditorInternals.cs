@@ -24,6 +24,16 @@ namespace CoimbraInternal.Editor
             EditorGUI.SortingLayerField(position, label, property, fieldStyle, labelStyle);
         }
 
+        internal static float GetIndent()
+        {
+            return EditorGUI.indent;
+        }
+
+        internal static float GetLineHeight()
+        {
+            return EditorGUI.lineHeight;
+        }
+
         internal static Type GetTargetType(this CustomPropertyDrawer drawer)
         {
             return drawer.m_Type;
