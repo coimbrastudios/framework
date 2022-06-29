@@ -110,12 +110,19 @@ namespace Coimbra.Editor
 
             using (new LabelWidthScope((position.width * LabelWidthPercent) + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                DrawElement(position, newProperty);
+                DrawElement(position, newProperty, property.GetFieldInfo().IsDefined(typeof(HideKeyLabelAttribute)));
             }
         }
 
-        private static void DrawElement(Rect position, SerializedProperty property)
+        private static void DrawElement(Rect position, SerializedProperty property, bool forceHideLabel)
         {
+            if (forceHideLabel)
+            {
+                EditorGUI.PropertyField(position, property, GUIContent.none, true);
+
+                return;
+            }
+
             switch (property.propertyType)
             {
                 case SerializedPropertyType.Boolean:
@@ -250,13 +257,13 @@ namespace Coimbra.Editor
                 {
                     using (new EditorGUI.DisabledScope(true))
                     {
-                        DrawElement(keyPosition, keyProperty);
+                        DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
                     }
                 }
 
                 using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                 {
-                    DrawElement(valuePosition, valueProperty);
+                    DrawElement(valuePosition, valueProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideValueLabelAttribute)));
                 }
             };
 

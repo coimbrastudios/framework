@@ -36,6 +36,8 @@ namespace Coimbra.Linting.Editor
             ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings, FindSingle);
             Debug.Assert(settings);
 
+            bool isDirty = false;
+
             foreach (string guid in AssetDatabase.FindAssets(Filter))
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
@@ -63,11 +65,15 @@ namespace Coimbra.Linting.Editor
                         continue;
                     }
 
+                    isDirty = true;
                     File.WriteAllText(assetPath, JsonUtility.ToJson(assembly, true));
                 }
             }
 
-            AssetDatabase.Refresh();
+            if (isDirty)
+            {
+                AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            }
         }
     }
 }

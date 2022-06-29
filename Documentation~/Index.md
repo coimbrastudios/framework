@@ -83,7 +83,11 @@
 - [Roslyn Analyzers](RoslynAnalyzers.md)
 - `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
   with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
-- `SerializableDictionary`: supports modifying and saving through the inspector. Can have its size locked with `DisableResizeAttribute` or made read-only with `DisableAttribute`.
+- `SerializableDictionary`: supports modifying and saving through the inspector. It is has some special behaviour based on some attributes:
+    - `DisableResizeAttribute`: will disable the size field and stop showing the buttons to add or remove elements.
+    - `DisableAttribute`: will stop showing the drag handle and stop showing the buttons to add or remove elements.
+    - `HideKeyLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
+    - `HideValueLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
 - `SerializableType<T>`: serializes a `System.Type` that can be edited and saved from the inspector.
 - `ServiceLocator`: enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locator`. It also comes with a few built-in functionalities:
     - Attributes:
