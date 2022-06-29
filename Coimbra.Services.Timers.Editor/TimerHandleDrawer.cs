@@ -64,9 +64,10 @@ namespace Coimbra.Services.Timers.Editor
                 return;
             }
 
-            Rect fieldPosition = position;
-            fieldPosition.xMin += EditorGUIUtility.labelWidth;
-            EditorGUI.LabelField(fieldPosition, timerHandle.ToString());
+            using (new ResetIndentLevelScope())
+            {
+                EditorGUI.LabelField(CoimbraGUIUtility.AdjustPosition(position, InspectorArea.Field), timerHandle.ToString());
+            }
 
             property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
 

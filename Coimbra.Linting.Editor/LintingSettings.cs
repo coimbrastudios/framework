@@ -38,35 +38,20 @@ namespace Coimbra.Linting.Editor
 
             bool isDirty = false;
 
-            foreach (string guid in AssetDatabase.FindAssets(Filter))
+            using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
+            using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
             {
-                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-
-                foreach (AssemblyDefinitionRuleBase rule in settings.AssemblyDefinitionRules)
+                foreach (string guid in AssetDatabase.FindAssets(Filter))
                 {
-                    if (!rule.CanApply(assetPath))
+                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+
+                    foreach (AssemblyDefinitionRuleBase rule in settings.AssemblyDefinitionRules)
                     {
-                        continue;
+                        if (TryApply(rule, assetPath, textAssetMap, assemblyDefinitionMap))
+                        {
+                            isDirty = true;
+                        }
                     }
-
-                    TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
-
-                    if (asset == null)
-                    {
-                        Debug.LogError($"File ends with '.asmdef' but is not a {nameof(TextAsset)}: {assetPath}.");
-
-                        continue;
-                    }
-
-                    AssemblyDefinition assembly = JsonUtility.FromJson<AssemblyDefinition>(asset.text);
-
-                    if (!rule.Apply(assembly, asset))
-                    {
-                        continue;
-                    }
-
-                    isDirty = true;
-                    File.WriteAllText(assetPath, JsonUtility.ToJson(assembly, true));
                 }
             }
 
@@ -74,6 +59,50 @@ namespace Coimbra.Linting.Editor
             {
                 AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             }
+        }
+
+        private static bool TryApply(AssemblyDefinitionRuleBase rule, in string assetPath, IDictionary<string, TextAsset> textAssetMap, IDictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap)
+        {
+            if (!rule.CanApply(assetPath) || !TryLoadAsset(assetPath, out TextAsset asset, textAssetMap))
+            {
+                return false;
+            }
+
+            if (!assemblyDefinitionMap.TryGetValue(asset, out AssemblyDefinition assembly))
+            {
+                assembly = JsonUtility.FromJson<AssemblyDefinition>(asset.text);
+                assemblyDefinitionMap[asset] = assembly;
+            }
+
+            if (!rule.Apply(assembly, asset))
+            {
+                return false;
+            }
+
+            File.WriteAllText(assetPath, JsonUtility.ToJson(assembly, true));
+
+            return true;
+        }
+
+        private static bool TryLoadAsset(in string assetPath, out TextAsset asset, IDictionary<string, TextAsset> cache)
+        {
+            if (cache.TryGetValue(assetPath, out asset))
+            {
+                return true;
+            }
+
+            asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+
+            if (asset != null)
+            {
+                cache.Add(assetPath, asset);
+
+                return true;
+            }
+
+            Debug.LogError($"File ends with '.asmdef' but is not a {nameof(TextAsset)}: {assetPath}.");
+
+            return false;
         }
     }
 }

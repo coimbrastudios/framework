@@ -24,8 +24,8 @@ namespace Coimbra.Editor
         protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
             Rect valuePosition = position;
-            position.xMin += EditorGUIUtility.labelWidth;
             position.height = EditorGUIUtility.singleLineHeight;
+            CoimbraGUIUtility.AdjustPosition(ref position, InspectorArea.Field);
 
             using (GUIContentPool.Pop(out GUIContent typeLabel))
             {

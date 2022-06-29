@@ -174,6 +174,44 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Get the current assigned type for the given <paramref name="target"/>. If not <see cref="IsDynamic"/>, will always return the <see cref="PropertyType"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Type GetType([NotNull] Object target)
+        {
+            return IsDynamic ? GetValue(target)?.GetType() ?? PropertyType : PropertyType;
+        }
+
+        /// <summary>
+        /// Get the current assigned type for each target. If not <see cref="IsDynamic"/>, will always return the <see cref="PropertyType"/>.
+        /// </summary>
+        public void GetTypes([NotNull] Object[] targets, [NotNull] List<Type> append)
+        {
+            if (IsDynamic)
+            {
+                InitializeChain();
+            }
+
+            append.EnsureCapacity(append.Count + targets.Length);
+
+            Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
+            {
+                append.Add(GetType(targets[i]));
+            });
+        }
+
+        /// <inheritdoc cref="GetTypes(UnityEngine.Object[],System.Collections.Generic.List{System.Type})"/>
+        public Type[] GetTypes([NotNull] Object[] targets)
+        {
+            using (ListPool.Pop(out List<Type> list))
+            {
+                GetTypes(targets, list);
+
+                return list.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Get the field value.
         /// </summary>
         [CanBeNull]

@@ -73,9 +73,10 @@ namespace Coimbra.Services.Events.Editor
             }
             else
             {
-                Rect fieldPosition = position;
-                fieldPosition.xMin += EditorGUIUtility.labelWidth;
-                EditorGUI.LabelField(fieldPosition, eventHandle.ToString());
+                using (new ResetIndentLevelScope())
+                {
+                    EditorGUI.LabelField(CoimbraGUIUtility.AdjustPosition(position, InspectorArea.Field), eventHandle.ToString());
+                }
 
                 property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
             }
