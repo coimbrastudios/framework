@@ -110,7 +110,47 @@ namespace Coimbra.Editor
 
             using (new LabelWidthScope((position.width * LabelWidthPercent) + EditorGUIUtility.standardVerticalSpacing, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                EditorGUI.PropertyField(position, newProperty, true);
+                DrawElement(position, newProperty);
+            }
+        }
+
+        private static void DrawElement(Rect position, SerializedProperty property)
+        {
+            switch (property.propertyType)
+            {
+                case SerializedPropertyType.Boolean:
+                case SerializedPropertyType.Float:
+                case SerializedPropertyType.String:
+                case SerializedPropertyType.Color:
+                case SerializedPropertyType.ObjectReference:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Enum:
+                case SerializedPropertyType.Vector2:
+                case SerializedPropertyType.Vector3:
+                case SerializedPropertyType.Rect:
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.Character:
+                case SerializedPropertyType.AnimationCurve:
+                case SerializedPropertyType.Bounds:
+                case SerializedPropertyType.Gradient:
+                case SerializedPropertyType.Quaternion:
+                case SerializedPropertyType.ExposedReference:
+                case SerializedPropertyType.Vector2Int:
+                case SerializedPropertyType.Vector3Int:
+                case SerializedPropertyType.RectInt:
+                case SerializedPropertyType.BoundsInt:
+                {
+                    EditorGUI.PropertyField(position, property, GUIContent.none, true);
+
+                    break;
+                }
+
+                default:
+                {
+                    EditorGUI.PropertyField(position, property, true);
+
+                    break;
+                }
             }
         }
 
@@ -210,13 +250,13 @@ namespace Coimbra.Editor
                 {
                     using (new EditorGUI.DisabledScope(true))
                     {
-                        EditorGUI.PropertyField(keyPosition, keyProperty, true);
+                        DrawElement(keyPosition, keyProperty);
                     }
                 }
 
                 using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
                 {
-                    EditorGUI.PropertyField(valuePosition, valueProperty, true);
+                    DrawElement(valuePosition, valueProperty);
                 }
             };
 
