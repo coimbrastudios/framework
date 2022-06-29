@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.9.0] - UNRELEASED
+
+- Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
+- Changed minimum Unity version to 2021.3.5f1;
+
 ## [10.8.4] - 2022-06-28
 
 - Added context parameter to `AssemblyDefinitionRuleBase.Apply` to make troubleshooting easier.
