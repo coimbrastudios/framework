@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -14,8 +13,9 @@ namespace Coimbra.Roslyn
         public void Execute(GeneratorExecutionContext context)
         {
             SourceBuilder sourceBuilder = new();
+            CopyBaseConstructorsSyntaxReceiver syntaxReceiver = (CopyBaseConstructorsSyntaxReceiver)context.SyntaxContextReceiver;
 
-            foreach ((ClassDeclarationSyntax ClassDeclaration, ITypeSymbol ClassType, bool IgnoreProtected) type in EnumerateTypes(context))
+            foreach (CopyBaseConstructorsTypeInfo type in syntaxReceiver!.Types)
             {
                 ImmutableArray<IMethodSymbol> constructors;
 
@@ -39,68 +39,12 @@ namespace Coimbra.Roslyn
 
                     using (new BracesScope(sourceBuilder))
                     {
-                        bool isFirst = true;
+                        AddConstructor(sourceBuilder, constructors[0], type.ClassDeclaration);
 
-                        foreach (IMethodSymbol constructor in constructors)
+                        for (int i = 1; i < constructors.Length; i++)
                         {
-                            if (isFirst)
-                            {
-                                isFirst = false;
-                            }
-                            else
-                            {
-                                sourceBuilder.SkipLine();
-                            }
-
-                            ImmutableArray<IParameterSymbol> parameters = constructor.Parameters;
-                            string comment = constructor.GetDocumentationCommentXml();
-
-                            if (!string.IsNullOrWhiteSpace(comment))
-                            {
-                                sourceBuilder.AddLine(comment);
-                            }
-
-                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(CopyBaseConstructorsGenerator)}\", \"1.0.0.0\")]");
-
-                            using (LineScope lineScope = sourceBuilder.BeginLine())
-                            {
-                                string access = constructor.DeclaredAccessibility is Accessibility.Public ? "public" : "protected";
-                                lineScope.AddContent($"{access} {type.ClassDeclaration.GetTypeName()}(");
-
-                                if (constructor.Parameters.Length == 0)
-                                {
-                                    lineScope.AddContent(") { }");
-                                }
-                                else
-                                {
-                                    lineScope.AddContent($"{parameters[0].Type} {parameters[0].Name}");
-
-                                    for (int i = 1; i < parameters.Length; i++)
-                                    {
-                                        lineScope.AddContent($", {parameters[i].Type} {parameters[i].Name}");
-                                    }
-
-                                    lineScope.AddContent(")");
-                                }
-                            }
-
-                            if (constructor.Parameters.Length <= 0)
-                            {
-                                continue;
-                            }
-
-                            using (LineScope lineScope = sourceBuilder.BeginLine())
-                            {
-                                lineScope.AddContent("    : base(");
-                                lineScope.AddContent($"{parameters[0].Name}");
-
-                                for (int i = 1; i < parameters.Length; i++)
-                                {
-                                    lineScope.AddContent($", {parameters[i].Name}");
-                                }
-
-                                lineScope.AddContent(") { }");
-                            }
+                            sourceBuilder.SkipLine();
+                            AddConstructor(sourceBuilder, constructors[i], type.ClassDeclaration);
                         }
                     }
                 }
@@ -114,25 +58,70 @@ namespace Coimbra.Roslyn
             context.RegisterForSyntaxNotifications(() => new CopyBaseConstructorsSyntaxReceiver());
         }
 
-        private static IEnumerable<(ClassDeclarationSyntax ClassDeclaration, ITypeSymbol ClassType, bool IgnoreProtected)> EnumerateTypes(GeneratorExecutionContext context)
+        private static void AddConstructor(SourceBuilder sourceBuilder, IMethodSymbol constructor, ClassDeclarationSyntax classDeclaration)
         {
-            CopyBaseConstructorsSyntaxReceiver syntaxReceiver = (CopyBaseConstructorsSyntaxReceiver)context.SyntaxReceiver;
+            ImmutableArray<IParameterSymbol> parameters = constructor.Parameters;
+            string comment = constructor.GetDocumentationCommentXml();
 
-            foreach (ClassDeclarationSyntax classDeclaration in syntaxReceiver!.Types)
+            if (!string.IsNullOrWhiteSpace(comment))
             {
-                SemanticModel semanticModel = context.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
+                sourceBuilder.AddLine(comment);
+            }
 
-                if (semanticModel.GetDeclaredSymbol(classDeclaration) is not ITypeSymbol { BaseType: not null } classType
-                 || classType.BaseType.InstanceConstructors.Length == 0
-                 || !classType.HasAttribute(CoimbraTypes.CopyBaseConstructorsAttribute, out AttributeData attribute, false))
+            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(CopyBaseConstructorsGenerator)}\", \"1.0.0.0\")]");
+
+            using (LineScope lineScope = sourceBuilder.BeginLine())
+            {
+                string access = constructor.DeclaredAccessibility is Accessibility.Public ? "public" : "protected";
+                lineScope.AddContent($"{access} {classDeclaration.GetTypeName()}(");
+
+                if (constructor.Parameters.Length == 0)
                 {
-                    continue;
+                    lineScope.AddContent(") { }");
+                }
+                else
+                {
+                    AddParameter(lineScope, parameters[0]);
+
+                    for (int i = 1; i < parameters.Length; i++)
+                    {
+                        lineScope.AddContent(", ");
+                        AddParameter(lineScope, parameters[i]);
+                    }
+
+                    lineScope.AddContent(")");
+                }
+            }
+
+            if (constructor.Parameters.Length <= 0)
+            {
+                return;
+            }
+
+            using (LineScope lineScope = sourceBuilder.BeginLine())
+            {
+                lineScope.AddContent("    : base(");
+                lineScope.AddContent($"{parameters[0].Name}");
+
+                for (int i = 1; i < parameters.Length; i++)
+                {
+                    lineScope.AddContent($", {parameters[i].Name}");
                 }
 
-                bool ignoreProtected = attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is bool and true;
-
-                yield return (classDeclaration, classType, ignoreProtected);
+                lineScope.AddContent(") { }");
             }
+        }
+
+        private static void AddParameter(LineScope lineScope, IParameterSymbol parameter)
+        {
+            if (parameter.IsParams)
+            {
+                lineScope.AddContent("params ");
+            }
+
+            lineScope.AddContent(parameter.Type.ToString());
+            lineScope.AddContent(" ");
+            lineScope.AddContent(parameter.Name);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Coimbra.Roslyn
 
         public static readonly DiagnosticDescriptor ConcreteServiceShouldNotImplementAbstractService = new("COIMBRA0007",
                                                                                                            "Concrete IService should not implement any IService with AbstractServiceAttribute.",
-                                                                                                           "Remove all abstract services implementations from {0}.",
+                                                                                                           "Remove all abstract services implementations from {0} or make {0} abstract.",
                                                                                                            ServicesCategory,
                                                                                                            DiagnosticSeverity.Warning,
                                                                                                            true);
@@ -87,7 +87,7 @@ namespace Coimbra.Roslyn
                                                                                   "Concrete IService should not be a Component unless it inherit from Actor.",
                                                                                   "Make {0} inherit from Actor to avoid undefined behaviours.",
                                                                                   ServicesCategory,
-                                                                                  DiagnosticSeverity.Warning,
+                                                                                  DiagnosticSeverity.Error,
                                                                                   true);
 
         public static readonly DiagnosticDescriptor ScriptableSettingsShouldNotImplementService = new("COIMBRA0012",
@@ -145,7 +145,7 @@ namespace Coimbra.Roslyn
                                                                                        "Object.Destroy should not be used with Objects that can be an Actor.",
                                                                                        "Use {0}.Destroy() or Object.DestroyImmediate({0}) instead of Object.Destroy({0}).",
                                                                                        DefaultCategory,
-                                                                                       DiagnosticSeverity.Warning,
+                                                                                       DiagnosticSeverity.Error,
                                                                                        true);
 
         public static readonly DiagnosticDescriptor CopyBaseConstructorsRequiresPartialKeyword = new("COIMBRA0020",
@@ -180,7 +180,7 @@ namespace Coimbra.Roslyn
                                                                                                              "MonoBehaviour callbacks should be replaced with their equivalent listener when possible.",
                                                                                                              "Use {0} instead of {1}.",
                                                                                                              DefaultCategory,
-                                                                                                             DiagnosticSeverity.Warning,
+                                                                                                             DiagnosticSeverity.Error,
                                                                                                              true);
 
         // TODO: codefix
@@ -188,7 +188,7 @@ namespace Coimbra.Roslyn
                                                                               "GameObject API should be replaced by Actor API.",
                                                                               "Use {0} instead of {1}.",
                                                                               DefaultCategory,
-                                                                              DiagnosticSeverity.Warning,
+                                                                              DiagnosticSeverity.Error,
                                                                               false);
 
         // TODO: codefix

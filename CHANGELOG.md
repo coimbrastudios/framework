@@ -4,6 +4,10 @@
 
 - Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
 - Changed minimum Unity version to 2021.3.5f1;
+- Changed Roslyn DLLs version to `3.9.0` to match Unity upgrade.
+- Changed `COIMBRA0011` to be an error.
+- Changed `COIMBRA0019` to be an error.
+- Removed dependency on `com.unity.roslyn`.
 
 ## [10.8.5] - 2022-06-30
 

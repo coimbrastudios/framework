@@ -5,36 +5,30 @@ using System.Collections.Generic;
 
 namespace Coimbra.Roslyn
 {
-    public sealed class CopyBaseConstructorsSyntaxReceiver : ISyntaxReceiver
+    public sealed class CopyBaseConstructorsSyntaxReceiver : ISyntaxContextReceiver
     {
-        public readonly List<ClassDeclarationSyntax> Types = new();
+        public readonly List<CopyBaseConstructorsTypeInfo> Types = new();
 
-        public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+        public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
-            if (syntaxNode is not ClassDeclarationSyntax { AttributeLists: { Count: > 0 } } classDeclaration
+            if (context.Node is not ClassDeclarationSyntax { AttributeLists: { Count: > 0 } } classDeclaration
              || !classDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword)
-             || classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))
+             || classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+             || context.SemanticModel.GetDeclaredSymbol(classDeclaration) is not ITypeSymbol { BaseType: not null } classType
+             || classType.BaseType.InstanceConstructors.Length == 0
+             || !classType.HasAttribute(CoimbraTypes.CopyBaseConstructorsAttribute, out AttributeData attribute, false))
             {
                 return;
             }
 
-            foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
+            CopyBaseConstructorsTypeInfo type = new()
             {
-                foreach (AttributeSyntax attribute in attributeList.Attributes)
-                {
-                    string attributeName = attribute.Name.ToString();
+                ClassDeclaration = classDeclaration,
+                ClassType = classType,
+                IgnoreProtected = attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is bool and true,
+            };
 
-                    if (attributeName != CoimbraTypes.CopyBaseConstructorsAttribute.Name
-                     && attributeName != "CopyBaseConstructors")
-                    {
-                        continue;
-                    }
-
-                    Types.Add(classDeclaration);
-
-                    return;
-                }
-            }
+            Types.Add(type);
         }
     }
 }

@@ -16,7 +16,7 @@ Some analyzers are provided to guide how to use this framework correctly.
 | COIMBRA0008 | Type with SharedManagedPoolAttribute should not be generic.                                           | Error    | No       |
 | COIMBRA0009 | IEventService generic APIs should not be used directly.                                               | Error    | No       |
 | COIMBRA0010 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
-| COIMBRA0011 | Concrete IService should not be a Component unless it inherit from Actor.                             | Warning  | No       |
+| COIMBRA0011 | Concrete IService should not be a Component unless it inherit from Actor.                             | Error    | No       |
 | COIMBRA0012 | A ScriptableSettings should not implement any IService.                                               | Error    | No       |
 | COIMBRA0013 | ProjectSettingsAttribute and PreferencesAttribute should not be used together.                        | Error    | No       |
 | COIMBRA0014 | ScriptableSettings has an invalided FileDirectory.                                                    | Error    | No       |
@@ -24,7 +24,7 @@ Some analyzers are provided to guide how to use this framework correctly.
 | COIMBRA0016 | ScriptableSettings attributes are not supported on generic types.                                     | Error    | No       |
 | COIMBRA0017 | Use CreateShared method for any SharedManagedPool.                                                    | Error    | No       |
 | COIMBRA0018 | Use constructor when not a SharedManagedPool.                                                         | Error    | No       |
-| COIMBRA0019 | Object.Destroy should not be used with Objects that can be an Actor.                                  | Warning  | No       |
+| COIMBRA0019 | Object.Destroy should not be used with Objects that can be an Actor.                                  | Error    | No       |
 | COIMBRA0020 | Type with CopyBaseConstructorsAttribute should be partial.                                            | Warning  | Yes      |
 | COIMBRA0021 | Type with CopyBaseConstructorsAttribute should not be nested.                                         | Error    | Yes      |
 | COIMBRA0022 | Type with SharedManagedPoolAttribute should be partial.                                               | Warning  | Yes      |

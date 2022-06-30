@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Coimbra.Services.Events.Roslyn
@@ -14,8 +13,9 @@ namespace Coimbra.Services.Events.Roslyn
         public void Execute(GeneratorExecutionContext context)
         {
             SourceBuilder sourceBuilder = new();
+            EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxContextReceiver;
 
-            foreach (TypeDeclarationSyntax typeDeclarationSyntax in EnumerateTypes(context))
+            foreach (TypeDeclarationSyntax typeDeclarationSyntax in syntaxReceiver!.Types)
             {
                 sourceBuilder.Initialize();
                 sourceBuilder.AddLine("#nullable enable");
@@ -184,20 +184,6 @@ namespace Coimbra.Services.Events.Roslyn
             sourceBuilder.AddLine("/// </summary>");
             sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
             sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-        }
-
-        private static IEnumerable<TypeDeclarationSyntax> EnumerateTypes(GeneratorExecutionContext context)
-        {
-            EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
-
-            foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
-            {
-                if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
-                 && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface))
-                {
-                    yield return syntaxNode;
-                }
-            }
         }
     }
 }
