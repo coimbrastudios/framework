@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.8.5] - UNRELEASED
+## [10.8.5] - 2022-06-30
 
 - Added `HideKeyLabelAttribute` and `HideValueLabelAttribute` to use with `SerializableDictionary`.
 - Fixed some incorrect indentation for some fields.
