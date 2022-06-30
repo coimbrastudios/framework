@@ -5,7 +5,7 @@
 - Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
 - Changed minimum Unity version to 2021.3.5f1;
 
-## [10.8.5] - UNRELEASED
+## [10.8.5] - 2022-06-30
 
 - Added `HideKeyLabelAttribute` and `HideValueLabelAttribute` to use with `SerializableDictionary`.
 - Fixed some incorrect indentation for some fields.
