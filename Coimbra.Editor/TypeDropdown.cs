@@ -83,7 +83,7 @@ namespace Coimbra.Editor
 
                 filterCallback(types);
 
-                TypeDropdown dropdown = new TypeDropdown(types, new AdvancedDropdownState());
+                TypeDropdown dropdown = new(types, new AdvancedDropdownState());
                 dropdown.OnItemSelected += handleItemSelected;
                 dropdown.Show(position);
             }
@@ -117,9 +117,9 @@ namespace Coimbra.Editor
         protected override AdvancedDropdownItem BuildRoot()
         {
             int itemCount = 0;
-            AdvancedDropdownItem root = new AdvancedDropdownItem("Select Type");
+            AdvancedDropdownItem root = new("Select Type");
 
-            TypeDropdownItem defaultItem = new TypeDropdownItem(null, _defaultValue)
+            TypeDropdownItem defaultItem = new(null, _defaultValue)
             {
                 id = itemCount++,
             };
@@ -128,7 +128,7 @@ namespace Coimbra.Editor
 
             foreach (Type type in _types)
             {
-                TypeDropdownItem item = new TypeDropdownItem(type, TypeString.Get(type))
+                TypeDropdownItem item = new(type, TypeString.Get(type))
                 {
                     id = itemCount++,
                 };

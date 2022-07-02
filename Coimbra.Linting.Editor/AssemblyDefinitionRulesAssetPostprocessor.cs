@@ -1,14 +1,14 @@
 ﻿using UnityEditor;
 using UnityEditor.Callbacks;
 
-namespace Coimbra.Editor.UPM
+namespace Coimbra.Linting.Editor
 {
-    internal sealed class UPMAuthenticatorAssetPostprocessor : AssetPostprocessor
+    internal sealed class AssemblyDefinitionRulesAssetPostprocessor : AssetPostprocessor
     {
-        [RunAfterClass(typeof(UPMAuthenticator))]
+        [RunAfterClass(typeof(LintingSettings))]
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            UPMAuthenticator.Update();
+            LintingSettings.InitializeAssemblyDefinitionRules();
         }
     }
 }

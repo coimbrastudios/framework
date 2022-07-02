@@ -15,7 +15,7 @@ namespace Coimbra.Editor
         /// </summary>
         public static void DrawGUI(Rect position, SerializedProperty parentProperty, SerializedProperty minProperty, SerializedProperty maxProperty, GUIContent label, bool delayed)
         {
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, parentProperty);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, parentProperty);
             position.height = EditorGUIUtility.singleLineHeight;
             position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
@@ -38,8 +38,8 @@ namespace Coimbra.Editor
             {
                 label.text = nameof(FloatRange.Min);
 
-                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, minProperty);
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.PropertyScope propertyScope = new(position, label, minProperty);
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                 float value = delayed
                                   ? EditorGUI.DelayedFloatField(position, propertyScope.content, minProperty.floatValue)
@@ -59,8 +59,8 @@ namespace Coimbra.Editor
             {
                 label.text = nameof(FloatRange.Max);
 
-                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, maxProperty);
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.PropertyScope propertyScope = new(position, label, maxProperty);
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                 float value = delayed
                                   ? EditorGUI.DelayedFloatField(position, propertyScope.content, maxProperty.floatValue)

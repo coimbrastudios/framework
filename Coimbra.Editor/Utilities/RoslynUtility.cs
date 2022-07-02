@@ -37,7 +37,7 @@ namespace Coimbra.Editor
                 foreach (string destinationPath in destinationPaths)
                 {
                     string sourcePath = Path.Combine(PackageDirectory, "Roslyn~", Path.GetFileNameWithoutExtension(destinationPath), "bin", type, "netstandard2.0", Path.GetFileName(destinationPath));
-                    FileInfo source = new FileInfo(sourcePath);
+                    FileInfo source = new(sourcePath);
 
                     if (!source.Exists)
                     {

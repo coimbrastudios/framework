@@ -70,8 +70,8 @@ namespace Coimbra.Editor
 
             context.SetValues(targets, true, setValue);
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
             {
                 int value = EditorGUI.LayerField(position, propertyScope.content, property.intValue);
 
@@ -108,8 +108,8 @@ namespace Coimbra.Editor
 
             context.SetValues(targets, true, setValue);
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
             {
                 int value = EditorGUI.LayerField(position, propertyScope.content, LayerMask.NameToLayer(property.stringValue));
 

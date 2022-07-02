@@ -23,11 +23,11 @@ namespace Coimbra.Editor
 
         private const string UnityObjectProperty = "_unityObject";
 
-        private static readonly GUIContent ClearLabel = new GUIContent("Clear");
+        private static readonly GUIContent ClearLabel = new("Clear");
 
-        private static readonly GUIContent NewLabel = new GUIContent("New");
+        private static readonly GUIContent NewLabel = new("New");
 
-        private static readonly TypeDropdownDrawer TypeDropdownDrawer = new TypeDropdownDrawer();
+        private static readonly TypeDropdownDrawer TypeDropdownDrawer = new();
 
         /// <summary>
         /// Draws a <see cref="ManagedField{T}"/>. Optionally also allow scene objects to be selected.
@@ -42,7 +42,7 @@ namespace Coimbra.Editor
                 label.tooltip = tooltipAttribute.tooltip;
             }
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
             SerializedProperty systemObject = property.FindPropertyRelative(SystemObjectProperty);
             SerializedProperty unityObject = property.FindPropertyRelative(UnityObjectProperty);
             Object[] targets = property.serializedObject.targetObjects;
@@ -223,7 +223,7 @@ namespace Coimbra.Editor
 
         private static void DrawObjectField(Rect position, Type type, SerializedProperty property, GUIContent label, bool allowSceneObjects, bool isUnityObjectType)
         {
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
             Object value = EditorGUI.ObjectField(position, label, property.objectReferenceValue, isUnityObjectType ? type : typeof(Object), allowSceneObjects);
 

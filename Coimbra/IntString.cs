@@ -7,7 +7,7 @@ namespace Coimbra
     /// </summary>
     public static class IntString
     {
-        private static readonly Dictionary<int, string> Cache = new Dictionary<int, string>();
+        private static readonly Dictionary<int, string> Cache = new();
 
         /// <summary>
         /// Gets the <see cref="string"/> for the specified <see cref="int"/>..

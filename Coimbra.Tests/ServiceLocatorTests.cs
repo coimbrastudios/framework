@@ -16,7 +16,7 @@ namespace Coimbra.Tests
 
         private sealed class DummyServiceFactory : IServiceFactory
         {
-            public static readonly DummyServiceFactory Instance = new DummyServiceFactory();
+            public static readonly DummyServiceFactory Instance = new();
 
             private DummyServiceFactory() { }
 

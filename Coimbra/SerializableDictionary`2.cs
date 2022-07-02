@@ -45,7 +45,7 @@ namespace Coimbra
 
         [SerializeField]
         [FormerlySerializedAs("_items")]
-        private List<SerializableItem> _list = new List<SerializableItem>();
+        private List<SerializableItem> _list = new();
 
         [SerializeField]
         [UsedImplicitly]
@@ -66,7 +66,7 @@ namespace Coimbra
 
         void ISerializableDictionary.Add()
         {
-            SerializableItem item = new SerializableItem(_new, default);
+            SerializableItem item = new(_new, default);
             _list.Add(item);
             Add(item.Key, item.Value);
 

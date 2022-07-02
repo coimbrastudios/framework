@@ -9,7 +9,7 @@ namespace Coimbra.Services.Timers
     [AddComponentMenu("")]
     internal sealed class TimerComponent : MonoBehaviour
     {
-        private static readonly ProfilerCounterValue<int> ActiveTimers = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Active Timers", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> ActiveTimers = new(ProfilerCategory.Scripts, "Active Timers", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
         [field: SerializeField]
         [field: Disable]

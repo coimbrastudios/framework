@@ -1,21 +1,25 @@
-﻿using UnityEditor;
+﻿#if !UNITY_2021_3_OR_NEWER
+using UnityEditor;
+#endif
 
 namespace Coimbra.Editor
 {
     /// <summary>
     /// General <see cref="ScriptableSettingsType.EditorUserPreferences"/> settings.
     /// </summary>
+#if !UNITY_2021_3_OR_NEWER
     [InitializeOnLoad]
     [Preferences(CoimbraUtility.UserPreferencesPath, "Editor Settings", true)]
+#endif
     public sealed class CoimbraEditorUserSettings : ScriptableSettings
     {
+#if !UNITY_2021_3_OR_NEWER
         static CoimbraEditorUserSettings()
         {
-#if !UNITY_2021_3_OR_NEWER
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
-#endif
         }
+#endif
 
 #if UNITY_2021_3_OR_NEWER
         [System.Obsolete("Unity has now a built-in functionality for it in its Console window. This property will have no effect.")]

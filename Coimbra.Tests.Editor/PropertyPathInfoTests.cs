@@ -37,7 +37,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(propertyPath[0]);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -69,7 +69,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testObject);
+                using SerializedObject serializedObject = new(testObject);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(propertyPath[0]);
                 SerializedProperty target = serializedProperty;
 
@@ -96,7 +96,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviour.Integer));
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -119,7 +119,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviourBase.StringArray));
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -140,7 +140,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty($"{PropertyPathInfoTestBehaviourBase.FieldName}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.Integer)}");
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -166,7 +166,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -192,7 +192,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -215,7 +215,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviour.Integer));
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -241,7 +241,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(nameof(PropertyPathInfoTestBehaviourBase.StringArray));
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -271,7 +271,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty($"{PropertyPathInfoTestBehaviourBase.FieldName}.{nameof(PropertyPathInfoTestBehaviourBase.NestedClass.Integer)}");
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -302,7 +302,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -333,7 +333,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -360,7 +360,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                using SerializedObject serializedObject = new(new Object[]
                 {
                     testBehaviour1,
                     testBehaviour2,
@@ -403,7 +403,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                using SerializedObject serializedObject = new(new Object[]
                 {
                     testBehaviour1,
                     testBehaviour2,
@@ -435,7 +435,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(testBehaviour);
+                using SerializedObject serializedObject = new(testBehaviour);
                 using SerializedProperty serializedProperty = serializedObject.FindProperty(testPath);
                 Assert.That(serializedProperty, Is.Not.Null);
 
@@ -464,7 +464,7 @@ namespace Coimbra.Tests.Editor
 
             try
             {
-                using SerializedObject serializedObject = new SerializedObject(new Object[]
+                using SerializedObject serializedObject = new(new Object[]
                 {
                     testBehaviour1,
                     testBehaviour2,

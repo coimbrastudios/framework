@@ -24,11 +24,11 @@ namespace Coimbra.Editor
             "Cannot multi-edit different controllers.",
         };
 
-        private static readonly List<object> Targets = new List<object>();
+        private static readonly List<object> Targets = new();
 
-        private static readonly List<GUIContent> Contents = new List<GUIContent>();
+        private static readonly List<GUIContent> Contents = new();
 
-        private static readonly Dictionary<AnimatorControllerParameterType, string[]> NoParameterFoundErrorDictionary = new Dictionary<AnimatorControllerParameterType, string[]>
+        private static readonly Dictionary<AnimatorControllerParameterType, string[]> NoParameterFoundErrorDictionary = new()
         {
             [AnimatorControllerParameterType.Float] = new[]
             {
@@ -111,8 +111,8 @@ namespace Coimbra.Editor
 
             context.SetValues(targets, true, setValue);
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
             int value = EditorGUI.Popup(position, propertyScope.content, selectedIndex, Contents.ToArray());
 
             if (changeCheckScope.changed)

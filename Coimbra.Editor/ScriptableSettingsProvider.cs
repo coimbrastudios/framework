@@ -64,7 +64,7 @@ namespace Coimbra.Editor
         {
             if (settingsEditor != null && settingsEditor.target != null && settingsEditor.target is ScriptableSettings settings)
             {
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
                 CurrentSearchContext = searchContext;
 
                 if (!keywords.Any() || TryMatchKeywords(searchContext))
@@ -79,12 +79,13 @@ namespace Coimbra.Editor
                     settings.Save();
                 }
             }
-            else
+            else if (ScriptableSettings.TryGetOrFind(_type, out settings))
             {
-                if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
-                {
-                    CreateScriptableSettings();
-                }
+                SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
+            }
+            else if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
+            {
+                CreateScriptableSettings();
             }
         }
 

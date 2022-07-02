@@ -28,7 +28,7 @@ namespace Coimbra.Editor
             ' ',
         };
 
-        private static readonly Dictionary<int, ReorderableList> ReorderableLists = new Dictionary<int, ReorderableList>();
+        private static readonly Dictionary<int, ReorderableList> ReorderableLists = new();
 
         private static Dictionary<Type, PropertyDrawer> _propertyDrawers;
 
@@ -339,7 +339,7 @@ namespace Coimbra.Editor
                     }
                 }
 
-                Rect rect = new Rect(0, 0, contentWidth, 0);
+                Rect rect = new(0, 0, contentWidth, 0);
                 AdjustPosition(ref rect, area);
 
                 float height = EditorStyles.helpBox.CalcHeight(content, rect.width);

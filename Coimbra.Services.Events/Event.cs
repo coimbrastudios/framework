@@ -48,7 +48,7 @@ namespace Coimbra.Services.Events
         private readonly Type _type;
 
         [NotNull]
-        private readonly HashSet<EventHandle> _removeSet = new HashSet<EventHandle>();
+        private readonly HashSet<EventHandle> _removeSet = new();
 
         [CanBeNull]
         [SerializeField]
@@ -56,7 +56,7 @@ namespace Coimbra.Services.Events
 
         [NotNull]
         [SerializeField]
-        private List<EventHandle> _listeners = new List<EventHandle>();
+        private List<EventHandle> _listeners = new();
 
         [NotNull]
         private Func<EventHandle, bool> _removeCallbackHandler;

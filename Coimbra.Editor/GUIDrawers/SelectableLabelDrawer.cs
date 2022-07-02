@@ -18,7 +18,7 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
             position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
             using (new ResetIndentLevelScope())

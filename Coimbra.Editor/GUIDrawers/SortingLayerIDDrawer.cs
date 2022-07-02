@@ -26,7 +26,7 @@ namespace Coimbra.Editor
                 return;
             }
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
             UnityEditorInternals.DrawSortingLayerField(position, propertyScope.content, property);
         }
     }

@@ -25,8 +25,8 @@ namespace Coimbra.Editor
                 return;
             }
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
             Object value = EditorGUI.ObjectField(position, propertyScope.content, property.objectReferenceValue, fieldInfo.FieldType, false);
 
             if (changeCheckScope.changed)

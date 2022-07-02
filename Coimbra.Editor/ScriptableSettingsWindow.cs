@@ -27,7 +27,7 @@ namespace Coimbra.Editor
 
         private static readonly string[] FilterOptions;
 
-        private readonly Dictionary<Type, EditorState> _editorStates = new Dictionary<Type, EditorState>();
+        private readonly Dictionary<Type, EditorState> _editorStates = new();
 
         [SerializeField]
         private int _filter;
@@ -74,7 +74,7 @@ namespace Coimbra.Editor
                 _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup);
             }
 
-            using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
+            using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
             foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
@@ -89,7 +89,7 @@ namespace Coimbra.Editor
                     continue;
                 }
 
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                 DrawEditor(pair.Key, pair.Value, ref editorState);
 

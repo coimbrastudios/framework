@@ -9,7 +9,7 @@ namespace Coimbra
     /// </summary>
     public static class TypeString
     {
-        private static readonly Dictionary<Type, string> Cache = new Dictionary<Type, string>();
+        private static readonly Dictionary<Type, string> Cache = new();
 
         /// <summary>
         /// Gets the <see cref="string"/> for the specified <see cref="Type"/>..

@@ -23,29 +23,11 @@ namespace Coimbra
         public delegate ScriptableSettings FindHandler(Type type);
 
         /// <summary>
-        /// Finds with <see cref="Resources.FindObjectsOfTypeAll"/>, returning null if none.
-        /// </summary>
-        public static readonly FindHandler FindFirst = delegate(Type type)
-        {
-            Object[] rawValues = Resources.FindObjectsOfTypeAll(type);
-
-            if (rawValues.Length == 0)
-            {
-                return null;
-            }
-
-            ScriptableSettings result = (ScriptableSettings)rawValues[0];
-            Map[type] = result;
-
-            return result;
-        };
-
-        /// <summary>
         /// Finds with <see cref="Resources.FindObjectsOfTypeAll"/>, returning null if none. Also logs a warning if more than 1 is found.
         /// </summary>
         public static readonly FindHandler FindSingle = delegate(Type type)
         {
-            Object[] rawValues = Resources.FindObjectsOfTypeAll(type);
+            Object[] rawValues = ObjectUtility.FindAll(type);
 
             if (rawValues.Length == 0)
             {
@@ -55,6 +37,12 @@ namespace Coimbra
             if (rawValues.Length > 1)
             {
                 Debug.LogWarning($"It was expected a single loaded object of type {type}, but it was found {rawValues.Length}!");
+#if UNITY_EDITOR
+                foreach (Object rawValue in rawValues)
+                {
+                    Debug.Log(UnityEditor.AssetDatabase.GetAssetPath(rawValue), rawValue);
+                }
+#endif
             }
 
             ScriptableSettings result = (ScriptableSettings)rawValues[0];
@@ -63,7 +51,7 @@ namespace Coimbra
             return result;
         };
 
-        internal static readonly Dictionary<Type, ScriptableSettings> Map = new Dictionary<Type, ScriptableSettings>();
+        internal static readonly Dictionary<Type, ScriptableSettings> Map = new();
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
@@ -172,25 +160,6 @@ namespace Coimbra
             where T : ScriptableSettings
         {
             return GetType(typeof(T));
-        }
-
-        /// <summary>
-        /// Checks if the value for the specified type has been set and is still valid.
-        /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <returns>True if the settings is set and still valid.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Has(Type type)
-        {
-            return Map.TryGetValue(type, out ScriptableSettings value) && value.IsValid();
-        }
-
-        /// <inheritdoc cref="Has"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Has<T>()
-            where T : ScriptableSettings
-        {
-            return Has(typeof(T));
         }
 
         /// <summary>
@@ -346,6 +315,12 @@ namespace Coimbra
         protected virtual void OnEnable()
         {
             Type type = GetType();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = type.Name;
+            }
+
             Set(type, this);
         }
 

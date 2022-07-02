@@ -35,7 +35,7 @@ namespace Coimbra.Editor
 
             using (new ShowMixedValueScope(context.HasMultipleDifferentValues(targets)))
             {
-                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+                using EditorGUI.PropertyScope propertyScope = new(position, label, property);
                 position = EditorGUI.PrefixLabel(position, propertyScope.content);
 
                 using (GUIContentPool.Pop(out GUIContent dropdownLabel))
@@ -102,7 +102,7 @@ namespace Coimbra.Editor
                     _current.serializedObject.Update();
                 }
 
-                TypeDropdown dropdown = new TypeDropdown(types, new AdvancedDropdownState(), TypeString.Get(baseType));
+                TypeDropdown dropdown = new(types, new AdvancedDropdownState(), TypeString.Get(baseType));
                 dropdown.OnItemSelected += handleItemSelected;
                 dropdown.Show(position);
             }

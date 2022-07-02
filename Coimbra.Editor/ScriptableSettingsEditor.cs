@@ -15,7 +15,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Default excluded fields.
         /// </summary>
-        protected static readonly HashSet<string> DefaultExcludedFields = new HashSet<string>
+        protected static readonly HashSet<string> DefaultExcludedFields = new()
         {
             "m_Script",
             "_type",
@@ -24,7 +24,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Excluded fields when <see cref="Type"/> is editor-only.
         /// </summary>
-        protected static readonly HashSet<string> ExcludedFieldsForEditorOnly = new HashSet<string>
+        protected static readonly HashSet<string> ExcludedFieldsForEditorOnly = new()
         {
             "m_Script",
             "_preload",
@@ -39,7 +39,7 @@ namespace Coimbra.Editor
         {
             serializedObject.UpdateIfRequiredOrScript();
 
-            using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
             HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;

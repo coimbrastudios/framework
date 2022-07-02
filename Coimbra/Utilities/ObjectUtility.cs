@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -57,6 +59,38 @@ namespace Coimbra
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Finds all objects of given type. in the project. If inside editor it will use AssetDatabase class, otherwise it will use <see cref="Resources.FindObjectsOfTypeAll"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Object[] FindAll(Type type)
+        {
+#if UNITY_EDITOR
+            if (ScriptableSettings.GetType(type).IsEditorOnly())
+            {
+                string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}");
+
+                using (ListPool.Pop(out List<Object> list))
+                {
+                    list.EnsureCapacity(assets.Length);
+
+                    foreach (string asset in assets)
+                    {
+                        Object o = UnityEditor.AssetDatabase.LoadMainAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
+
+                        if (type.IsInstanceOfType(o))
+                        {
+                            list.Add(o);
+                        }
+                    }
+
+                    return list.ToArray();
+                }
+            }
+#endif
+            return Resources.FindObjectsOfTypeAll(type);
         }
 
         /// <summary>

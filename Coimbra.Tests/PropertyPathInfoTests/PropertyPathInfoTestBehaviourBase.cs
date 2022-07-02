@@ -25,7 +25,7 @@ namespace Coimbra.Tests
 
         public string[] StringArray = new string[5];
 
-        public List<NestedClass.NestedStruct> StructList = new List<NestedClass.NestedStruct>
+        public List<NestedClass.NestedStruct> StructList = new()
         {
             default,
         };
@@ -33,7 +33,7 @@ namespace Coimbra.Tests
         internal const string FieldName = nameof(_field);
 
         [SerializeReference]
-        internal NestedClass Reference = new NestedClass();
+        internal NestedClass Reference = new();
 
         [SerializeField]
         private NestedClass _field;

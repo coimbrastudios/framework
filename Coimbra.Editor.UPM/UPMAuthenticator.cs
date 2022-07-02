@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Coimbra.Editor.UPM
 {
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
     internal sealed class UPMAuthenticator : ScriptableSettings
     {
         [Serializable]
@@ -29,32 +29,19 @@ namespace Coimbra.Editor.UPM
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Entries")]
-        private List<Entry> _entries = new List<Entry>();
+        private List<Entry> _entries = new();
 
         private IReadOnlyList<Entry> Entries => _entries;
-
-        private bool IsInitialized { get; set; }
 
         [InitializeOnLoadMethod]
         internal static void Update()
         {
             try
             {
-                UPMAuthenticator authenticator = GetOrFind<UPMAuthenticator>();
-
-                if (authenticator == null)
-                {
-                    EditorApplication.delayCall += Update;
-
-                    return;
-                }
-
-                if (authenticator.IsInitialized)
+                if (!TryGetOrFind(out UPMAuthenticator authenticator))
                 {
                     return;
                 }
-
-                authenticator.IsInitialized = true;
 
                 string folder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
@@ -72,28 +59,10 @@ namespace Coimbra.Editor.UPM
                     File.Create(file).Close();
                 }
 
-                TomlTable table;
-
-                using (StreamReader reader = File.OpenText(file))
-                {
-                    try
-                    {
-                        table = TOML.Parse(reader);
-                    }
-                    catch (TomlParseException ex)
-                    {
-                        table = ex.ParsedTable;
-
-                        foreach (TomlSyntaxException syntaxEx in ex.SyntaxErrors)
-                        {
-                            Console.WriteLine($"Error on {syntaxEx.Column}:{syntaxEx.Line}: {syntaxEx.Message}");
-                        }
-                    }
-                }
-
+                TomlTable table = GetTable(file);
                 string previous = table.ToString();
 
-                for (int i = 0; i < authenticator.Entries.Count; i++)
+                for (int i = 0; i < authenticator!.Entries.Count; i++)
                 {
                     Entry entry = authenticator.Entries[i];
                     string address = $"npmAuth.\"{entry.Address}\"";
@@ -127,11 +96,30 @@ namespace Coimbra.Editor.UPM
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnValidate()
         {
+            Preload = false;
             base.OnValidate();
+        }
 
-            IsInitialized = false;
+        private static TomlTable GetTable(in string file)
+        {
+            using StreamReader reader = File.OpenText(file);
+
+            try
+            {
+                return TOML.Parse(reader);
+            }
+            catch (TomlParseException ex)
+            {
+                foreach (TomlSyntaxException syntaxEx in ex.SyntaxErrors)
+                {
+                    Debug.LogWarning($"Error on {syntaxEx.Column}:{syntaxEx.Line}: {syntaxEx.Message}");
+                }
+
+                return ex.ParsedTable;
+            }
         }
     }
 }

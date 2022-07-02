@@ -50,7 +50,7 @@ namespace Coimbra.Editor
 
         [SerializeField]
         [Disable]
-        private List<ManagedPool> _managedPools = new List<ManagedPool>();
+        private List<ManagedPool> _managedPools = new();
 
         private SerializedObject _serializedObject;
 
@@ -79,7 +79,7 @@ namespace Coimbra.Editor
 
         private void OnGUI()
         {
-            using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
+            using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
             _managedPools.Clear();
 

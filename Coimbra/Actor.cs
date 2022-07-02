@@ -133,15 +133,15 @@ namespace Coimbra
         /// </summary>
         public event DestroyHandler OnDestroying;
 
-        private static readonly List<Actor> UninitializedActors = new List<Actor>();
+        private static readonly List<Actor> UninitializedActors = new();
 
-        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new Dictionary<GameObjectID, Actor>();
+        private static readonly Dictionary<GameObjectID, Actor> CachedActors = new();
 
-        private static readonly ProfilerCounterValue<int> NewActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
+        private static readonly ProfilerCounterValue<int> NewActorCount = new(ProfilerCategory.Scripts, "New Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.ResetToZeroOnFlush);
 
-        private static readonly ProfilerCounterValue<int> InitializedActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> InitializedActorCount = new(ProfilerCategory.Scripts, "Initialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
-        private static readonly ProfilerCounterValue<int> UninitializedActorCount = new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
+        private static readonly ProfilerCounterValue<int> UninitializedActorCount = new(ProfilerCategory.Scripts, "Uninitialized Actors", ProfilerMarkerDataUnit.Count, ProfilerCounterOptions.FlushOnEndOfFrame);
 
         [SerializeField]
         [DisableOnPlayMode]

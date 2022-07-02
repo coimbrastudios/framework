@@ -28,7 +28,7 @@ namespace Coimbra.Samples.ConcatStrings
 
         private IEnumerator Start()
         {
-            ConcatStringsJob task = new ConcatStringsJob()
+            ConcatStringsJob task = new()
             {
                 Left = _left,
                 Right = _right,

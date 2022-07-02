@@ -12,7 +12,7 @@ namespace Coimbra.Services.Timers
     [AddComponentMenu("")]
     public sealed class TimerSystem : Actor, ITimerService
     {
-        private readonly Dictionary<TimerHandle, TimerComponent> _instances = new Dictionary<TimerHandle, TimerComponent>();
+        private readonly Dictionary<TimerHandle, TimerComponent> _instances = new();
 
         [SerializeField]
         [Disable]

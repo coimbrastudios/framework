@@ -31,7 +31,7 @@ namespace Coimbra.Editor
 
                 MethodInfo methodInfo = scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback) ?? scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback, propertyPathInfo.PropertyType);
 
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                 if (methodInfo == null)
                 {

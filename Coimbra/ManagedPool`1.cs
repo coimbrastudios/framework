@@ -76,11 +76,11 @@ namespace Coimbra
         /// </summary>
         public event ActionHandler OnPush;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
-        private readonly HashSet<T> _availableSet = new HashSet<T>();
+        private readonly HashSet<T> _availableSet = new();
 
-        private readonly Stack<T> _availableStack = new Stack<T>();
+        private readonly Stack<T> _availableStack = new();
 
         private readonly ActionHandler _disposeCallback;
 
@@ -153,7 +153,7 @@ namespace Coimbra
         /// <param name="disposeCallback">Called after deleting an item from the pool. This can be used to dispose any native resources.</param>
         public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback = null)
         {
-            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, disposeCallback);
+            ManagedPool<T> managedPool = new(createCallback, disposeCallback);
             SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
 
             return managedPool;
@@ -167,7 +167,7 @@ namespace Coimbra
         /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
         public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, int preloadCount, int maxCapacity)
         {
-            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, preloadCount, maxCapacity);
+            ManagedPool<T> managedPool = new(createCallback, preloadCount, maxCapacity);
             SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
 
             return managedPool;
@@ -182,7 +182,7 @@ namespace Coimbra
         /// <param name="maxCapacity">Max amount of instances in the pool. If 0 it is treated as infinity capacity.</param>
         public static ManagedPool<T> CreateShared([NotNull] CreateHandler createCallback, [CanBeNull] ActionHandler disposeCallback, int preloadCount, int maxCapacity)
         {
-            ManagedPool<T> managedPool = new ManagedPool<T>(createCallback, disposeCallback, preloadCount, maxCapacity);
+            ManagedPool<T> managedPool = new(createCallback, disposeCallback, preloadCount, maxCapacity);
             SharedManagedPoolUtility.All.Add(new WeakReference<IManagedPool>(managedPool));
 
             return managedPool;

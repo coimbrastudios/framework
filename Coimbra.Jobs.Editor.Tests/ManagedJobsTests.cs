@@ -27,7 +27,7 @@ namespace Coimbra.Jobs.Editor.Tests
             const string left = "left";
             const string right = "right";
 
-            TestManagedJob task = new TestManagedJob()
+            TestManagedJob task = new()
             {
                 Left = left,
                 Right = right,
@@ -44,7 +44,7 @@ namespace Coimbra.Jobs.Editor.Tests
             const string left = "left";
             const string right = "right";
 
-            TestManagedJob task = new TestManagedJob()
+            TestManagedJob task = new()
             {
                 Left = left,
                 Right = right,
@@ -61,7 +61,7 @@ namespace Coimbra.Jobs.Editor.Tests
             const string left = "left";
             const string right = "right";
 
-            TestManagedJob task = new TestManagedJob()
+            TestManagedJob task = new()
             {
                 Left = left,
                 Right = right,
@@ -80,7 +80,7 @@ namespace Coimbra.Jobs.Editor.Tests
             const string left = "left";
             const string right = "right";
 
-            TestManagedJob task = new TestManagedJob()
+            TestManagedJob task = new()
             {
                 Left = left,
                 Right = right,
@@ -100,7 +100,7 @@ namespace Coimbra.Jobs.Editor.Tests
             const string left = "left";
             const string right = "right";
 
-            TestManagedJob task = new TestManagedJob()
+            TestManagedJob task = new()
             {
                 Left = left,
                 Right = right,

@@ -8,7 +8,7 @@ namespace Coimbra.Services
     public sealed class DefaultServiceFactory<T> : IServiceFactory
         where T : class, IService, new()
     {
-        public static readonly DefaultServiceFactory<T> Instance = new DefaultServiceFactory<T>();
+        public static readonly DefaultServiceFactory<T> Instance = new();
 
         private DefaultServiceFactory() { }
 

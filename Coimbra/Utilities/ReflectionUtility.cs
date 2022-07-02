@@ -20,13 +20,13 @@ namespace Coimbra
 
         private const BindingFlags PrivateBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
-        private static readonly Dictionary<Type, Dictionary<int, FieldInfo?>> FieldsByNameFromType = new Dictionary<Type, Dictionary<int, FieldInfo?>>();
+        private static readonly Dictionary<Type, Dictionary<int, FieldInfo?>> FieldsByNameFromType = new();
 
-        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
+        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsByNameFromType = new();
 
-        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsBySignatureFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
+        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> MethodsBySignatureFromType = new();
 
-        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> SetterByNameFromType = new Dictionary<Type, Dictionary<int, MethodInfo?>>();
+        private static readonly Dictionary<Type, Dictionary<int, MethodInfo?>> SetterByNameFromType = new();
 
         /// <summary>
         /// Create an instance of the given type by using either the <see cref="Activator"/> class or by any parameterless constructor on it.

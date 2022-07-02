@@ -14,7 +14,7 @@ namespace Coimbra.Services.Events
     [Serializable]
     public sealed class EventSystem : IEventService, ISerializationCallbackReceiver
     {
-        private readonly Dictionary<Type, Event> _events = new Dictionary<Type, Event>();
+        private readonly Dictionary<Type, Event> _events = new();
 
         [SerializeField]
         private List<Event>? _list;
@@ -129,7 +129,7 @@ namespace Coimbra.Services.Events
         public bool Invoke<T>(object eventSender, in T eventData)
             where T : IEvent
         {
-            EventContext eventContext = new EventContext(this, eventSender, typeof(T));
+            EventContext eventContext = new(this, eventSender, typeof(T));
 
             return Invoke(ref eventContext, in eventData);
         }

@@ -49,7 +49,7 @@ namespace Coimbra.Editor
                 }
             }
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(valuePosition, label, property);
+            using EditorGUI.PropertyScope propertyScope = new(valuePosition, label, property);
             EditorGUI.PropertyField(valuePosition, property, propertyScope.content, true);
         }
     }

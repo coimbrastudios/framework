@@ -10,7 +10,7 @@ namespace Coimbra.Linting.Editor
     /// <summary>
     /// Settings for linting the project.
     /// </summary>
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
     public sealed class LintingSettings : ScriptableSettings
     {
         private const string Filter = "t:asmdef";
@@ -28,13 +28,15 @@ namespace Coimbra.Linting.Editor
         [NotNull]
         [field: SerializeField]
         [field: Tooltip("Collection of assembly definition rules to use project-wide.")]
-        public List<AssemblyDefinitionRuleBase> AssemblyDefinitionRules { get; set; } = new List<AssemblyDefinitionRuleBase>();
+        public List<AssemblyDefinitionRuleBase> AssemblyDefinitionRules { get; set; } = new();
 
         [InitializeOnLoadMethod]
         internal static void InitializeAssemblyDefinitionRules()
         {
-            ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings, FindSingle);
-            Debug.Assert(settings);
+            if (!TryGetOrFind(out LintingSettings settings))
+            {
+                return;
+            }
 
             bool isDirty = false;
 
@@ -45,7 +47,7 @@ namespace Coimbra.Linting.Editor
                 {
                     string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 
-                    foreach (AssemblyDefinitionRuleBase rule in settings.AssemblyDefinitionRules)
+                    foreach (AssemblyDefinitionRuleBase rule in settings!.AssemblyDefinitionRules)
                     {
                         if (TryApply(rule, assetPath, textAssetMap, assemblyDefinitionMap))
                         {

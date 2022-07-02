@@ -33,8 +33,8 @@ namespace Coimbra.Editor
 
                     context.SetValues(targets, true, setValue);
 
-                    using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                    using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+                    using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                     int value = notGreaterThanAttribute.Delayed
                                     ? EditorGUI.DelayedIntField(position, propertyScope.content, property.intValue)
@@ -57,8 +57,8 @@ namespace Coimbra.Editor
 
                     context.SetValues(targets, true, setValue);
 
-                    using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-                    using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                    using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+                    using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
                     float value = notGreaterThanAttribute.Delayed
                                       ? EditorGUI.DelayedFloatField(position, propertyScope.content, property.floatValue)

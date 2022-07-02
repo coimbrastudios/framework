@@ -10,7 +10,7 @@ namespace Coimbra.Services.Events
     internal static class EventCallbacks<TEvent>
         where TEvent : IEvent
     {
-        internal static readonly Dictionary<EventHandle, EventContextHandler<TEvent>> Value = new Dictionary<EventHandle, EventContextHandler<TEvent>>(1);
+        internal static readonly Dictionary<EventHandle, EventContextHandler<TEvent>> Value = new(1);
 
         internal static readonly Func<EventHandle, bool> RemoveHandler = Value.Remove;
 

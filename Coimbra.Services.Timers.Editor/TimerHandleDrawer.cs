@@ -36,7 +36,7 @@ namespace Coimbra.Services.Timers.Editor
         {
             position.height = EditorGUIUtility.singleLineHeight;
 
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
+            using EditorGUI.PropertyScope propertyScope = new(position, label, property);
             PropertyPathInfo info = property.GetPropertyPathInfo();
 
             if (info.HasMultipleDifferentValues(property.serializedObject.targetObjects))

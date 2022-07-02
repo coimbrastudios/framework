@@ -37,7 +37,7 @@ namespace Coimbra.Services
         /// </summary>
         public delegate void SetHandler(Type service);
 
-        internal static readonly Dictionary<Type, Service> Services = new Dictionary<Type, Service>();
+        internal static readonly Dictionary<Type, Service> Services = new();
 
         /// <summary>
         /// Adds a listener for when a service instance changes.

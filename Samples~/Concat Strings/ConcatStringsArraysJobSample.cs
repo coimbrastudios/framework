@@ -43,7 +43,7 @@ namespace Coimbra.Samples.ConcatStrings
         {
             int length = Mathf.Min(_left.Length, _right.Length);
 
-            ConcatStringsArraysJob task = new ConcatStringsArraysJob()
+            ConcatStringsArraysJob task = new()
             {
                 Left = _left,
                 Right = _right,

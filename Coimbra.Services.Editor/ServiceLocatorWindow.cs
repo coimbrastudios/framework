@@ -31,13 +31,13 @@ namespace Coimbra.Services.Editor
         private WindowMode _windowMode;
 
         [SerializeField]
-        private List<Service> _services = new List<Service>();
+        private List<Service> _services = new();
 
         [SerializeField]
-        private List<ServiceClass> _servicesClasses = new List<ServiceClass>();
+        private List<ServiceClass> _servicesClasses = new();
 
         [SerializeField]
-        private List<ServiceInterface> _servicesInterfaces = new List<ServiceInterface>();
+        private List<ServiceInterface> _servicesInterfaces = new();
 
         private SerializedObject _serializedObject;
 
@@ -99,7 +99,7 @@ namespace Coimbra.Services.Editor
         {
             DrawToolbar();
 
-            using EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition);
+            using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
             using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * 0.4f, LabelWidthScope.MagnitudeMode.Absolute))

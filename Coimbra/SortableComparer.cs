@@ -12,7 +12,7 @@ namespace Coimbra
         /// <summary>
         /// Default instance that can be safely reused.
         /// </summary>
-        public static readonly SortableComparer Default = new SortableComparer();
+        public static readonly SortableComparer Default = new();
 
         /// <inheritdoc/>
         public int Compare(ISortable? x, ISortable? y)

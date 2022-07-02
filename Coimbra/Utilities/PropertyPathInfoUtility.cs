@@ -13,7 +13,7 @@ namespace Coimbra
     /// </summary>
     public static class PropertyPathInfoUtility
     {
-        private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromRootType = new Dictionary<Type, Dictionary<string, PropertyPathInfo>>();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyPathInfo>> PropertyPathInfoMapFromRootType = new();
 
         /// <summary>
         /// Creates or gets a cached <see cref="PropertyPathInfo"/>.

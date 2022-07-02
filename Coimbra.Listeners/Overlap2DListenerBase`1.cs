@@ -42,9 +42,9 @@ namespace Coimbra.Listeners
         [SerializeField]
         [Disable]
         [Tooltip("The current list of overlaps.")]
-        private List<Collider2D> _currentList = new List<Collider2D>();
+        private List<Collider2D> _currentList = new();
 
-        private HashSet<Collider2D> _currentSet = new HashSet<Collider2D>();
+        private HashSet<Collider2D> _currentSet = new();
 
         private T _component;
 

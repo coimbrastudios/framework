@@ -13,7 +13,7 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
     public sealed class EnumFlagsDrawer : ValidateDrawer
     {
-        private static readonly Dictionary<Type, int> Offset = new Dictionary<Type, int>();
+        private static readonly Dictionary<Type, int> Offset = new();
 
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -50,8 +50,8 @@ namespace Coimbra.Editor
                     break;
                 }
 
-                using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-                using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
+                using EditorGUI.PropertyScope propertyScope = new(position, label, property);
+                using EditorGUI.ChangeCheckScope changeCheckScope = new();
                 value = EditorGUI.EnumFlagsField(position, propertyScope.content, value);
 
                 if (!changeCheckScope.changed)

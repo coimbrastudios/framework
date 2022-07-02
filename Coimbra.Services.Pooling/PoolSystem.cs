@@ -15,19 +15,19 @@ namespace Coimbra.Services.Pooling
     [PreloadService]
     public sealed class PoolSystem : Actor, IPoolService, ISerializationCallbackReceiver
     {
-        private readonly HashSet<object> _prefabsSet = new HashSet<object>();
+        private readonly HashSet<object> _prefabsSet = new();
 
-        private readonly HashSet<GameObjectPool> _poolsSet = new HashSet<GameObjectPool>();
+        private readonly HashSet<GameObjectPool> _poolsSet = new();
 
-        private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new Dictionary<GameObjectID, GameObjectPool>();
-
-        [SerializeField]
-        [Disable]
-        private List<GameObjectPool> _loadedPools = new List<GameObjectPool>();
+        private readonly Dictionary<GameObjectID, GameObjectPool> _poolFromPrefab = new();
 
         [SerializeField]
         [Disable]
-        private List<GameObjectPool> _loadingPools = new List<GameObjectPool>();
+        private List<GameObjectPool> _loadedPools = new();
+
+        [SerializeField]
+        [Disable]
+        private List<GameObjectPool> _loadingPools = new();
 
         private PoolSystem() { }
 
