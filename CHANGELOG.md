@@ -3,10 +3,14 @@
 ## [10.9.0] - UNRELEASED
 
 - Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
-- Changed minimum Unity version to 2021.3.5f1;
-- Changed Roslyn DLLs version to `3.9.0` to match Unity upgrade.
+- Added `Delayed<T>` wrapper struct.
+- Added `ISceneProcessorComponent` and `IScenePostProcessorComponent` interfaces to enable scene-level processing logic in runtime scripts.
 - Changed `COIMBRA0011` to be an error.
 - Changed `COIMBRA0019` to be an error.
+- Changed minimum Unity version to 2021.3.5f1.
+- Changed scripts to use the new C# language features.
+- Changed Roslyn DLLs version to `3.9.0` to match Unity upgrade.
+- Changed `LintingSettings` and `UPMAuthenticator` to use the `Assets` instead.
 - Removed dependency on `com.unity.roslyn`.
 
 ## [10.8.5] - 2022-06-30
