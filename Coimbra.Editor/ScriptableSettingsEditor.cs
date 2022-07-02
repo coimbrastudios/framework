@@ -15,7 +15,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Default excluded fields.
         /// </summary>
-        protected static readonly HashSet<string> DefaultExcludedFields = new()
+        protected static readonly HashSet<string> DefaultIgnoredProperties = new()
         {
             "m_Script",
             "_type",
@@ -24,12 +24,14 @@ namespace Coimbra.Editor
         /// <summary>
         /// Excluded fields when <see cref="Type"/> is editor-only.
         /// </summary>
-        protected static readonly HashSet<string> ExcludedFieldsForEditorOnly = new()
+        protected static readonly HashSet<string> DefaultIgnoredPropertiesForEditorOnly = new()
         {
             "m_Script",
             "_preload",
             "_type",
         };
+
+        private const float WindowLabelWidthPercent = 0.3f;
 
         /// <inheritdoc cref="ScriptableSettings.Type"/>
         protected ScriptableSettingsType Type { get; set; }
@@ -37,46 +39,9 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
-            serializedObject.UpdateIfRequiredOrScript();
-
-            using EditorGUI.ChangeCheckScope changeCheckScope = new();
-            HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
-            SerializedProperty iterator = serializedObject.GetIterator();
-            bool enterChildren = true;
-
-            while (iterator.NextVisible(enterChildren))
+            using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * WindowLabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                enterChildren = false;
-
-                if (propertiesToExclude.Contains(iterator.name))
-                {
-                    continue;
-                }
-
-                if (Type == ScriptableSettingsType.Custom)
-                {
-                    EditorGUILayout.PropertyField(iterator, true);
-                }
-                else
-                {
-                    TryPropertyField(iterator, true);
-                }
-            }
-
-            if (!changeCheckScope.changed)
-            {
-                return;
-            }
-
-            serializedObject.ApplyModifiedProperties();
-
-            foreach (Object o in targets)
-            {
-                if (o is ScriptableSettings settings)
-                {
-                    EditorUtility.ClearDirty(o);
-                    settings.Save();
-                }
+                DrawDefaultInspectorWithSearchSupport(Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
             }
         }
 
@@ -85,28 +50,7 @@ namespace Coimbra.Editor
         /// </summary>
         public virtual bool HasSearchInterest(string searchContext)
         {
-            serializedObject.UpdateIfRequiredOrScript();
-
-            HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
-            SerializedProperty iterator = serializedObject.GetIterator();
-            bool enterChildren = true;
-
-            while (iterator.NextVisible(enterChildren))
-            {
-                enterChildren = false;
-
-                if (propertiesToExclude.Contains(iterator.name))
-                {
-                    continue;
-                }
-
-                if (CoimbraGUIUtility.TryMatchSearch(searchContext, iterator.displayName))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return HasSearchInterestInAnyProperty(searchContext, Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
         }
 
         /// <summary>
@@ -161,6 +105,79 @@ namespace Coimbra.Editor
         protected virtual void OnEnable()
         {
             Type = ScriptableSettings.GetType(target.GetType());
+        }
+
+        /// <summary>
+        /// Draws the default inspector with basic search functionality for either the Preferences window or the Project Settings window.
+        /// </summary>
+        protected void DrawDefaultInspectorWithSearchSupport(HashSet<string> ignoredProperties)
+        {
+            serializedObject.UpdateIfRequiredOrScript();
+
+            using EditorGUI.ChangeCheckScope changeCheckScope = new();
+            SerializedProperty iterator = serializedObject.GetIterator();
+            bool enterChildren = true;
+
+            while (iterator.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+
+                if (ignoredProperties.Contains(iterator.name))
+                {
+                    continue;
+                }
+
+                if (Type == ScriptableSettingsType.Custom)
+                {
+                    EditorGUILayout.PropertyField(iterator, true);
+                }
+                else
+                {
+                    TryPropertyField(iterator, true);
+                }
+            }
+
+            if (!changeCheckScope.changed)
+            {
+                return;
+            }
+
+            serializedObject.ApplyModifiedProperties();
+
+            foreach (Object o in targets)
+            {
+                if (o is ScriptableSettings settings)
+                {
+                    EditorUtility.ClearDirty(o);
+                    settings.Save();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks each property for a match with <paramref name="searchContext"/>.
+        /// </summary>
+        protected bool HasSearchInterestInAnyProperty(in string searchContext, HashSet<string> ignoredProperties)
+        {
+            SerializedProperty iterator = serializedObject.GetIterator();
+            bool enterChildren = true;
+
+            while (iterator.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+
+                if (ignoredProperties.Contains(iterator.name))
+                {
+                    continue;
+                }
+
+                if (CoimbraGUIUtility.TryMatchSearch(searchContext, iterator.displayName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
