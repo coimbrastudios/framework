@@ -81,8 +81,8 @@
 - `PropertyPathInfo`: reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - `Reference<T>`: create a `Reference` for any value or even another reference.
 - [Roslyn Analyzers](RoslynAnalyzers.md)
-- `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
-  with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
+- `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
+- Scene Processing: Use `ISceneProcessorComponent` and `IScenePostProcessorComponent` with any `MonoBehaviour` to add logic that will be executed while the `Scene` of the `GameObject` is processing.
 - `SerializableDictionary`: supports modifying and saving through the inspector. It is has some special behaviour based on some attributes:
     - `DisableResizeAttribute`: will disable the size field and stop showing the buttons to add or remove elements.
     - `DisableAttribute`: will stop showing the drag handle and stop showing the buttons to add or remove elements.
