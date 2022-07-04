@@ -254,7 +254,7 @@ namespace Coimbra.Editor
             list.onCanAddCallback = canAdd;
             list.onRemoveCallback = remove;
 
-            list.drawElementCallback = delegate(Rect position, int index, bool active, bool focused)
+            list.drawElementCallback = delegate(Rect position, int index, bool _, bool _)
             {
                 SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
                 float foldoutWidth = EditorStyles.foldout.CalcSize(GUIContent.none).x;
