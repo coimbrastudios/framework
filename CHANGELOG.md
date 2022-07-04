@@ -15,6 +15,7 @@
 - Changed `LintingSettings` and `UPMAuthenticator` to use the `Assets` instead.
 - Changed `Actor.Initialize` to cancel initialization as soon that its `Destroy` method is called (i.e. inside `ActorComponent.PreInitialize` or `ActorComponent.PostInitialize`).
 - Removed dependency on `com.unity.roslyn`.
+- Removed `Actor.DeactivateOnInitializePrefab` as there was no support for undoing that operation when exiting play mode.
 
 ## [10.8.5] - 2022-06-30
 

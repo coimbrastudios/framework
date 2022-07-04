@@ -160,12 +160,6 @@ namespace Coimbra
         [Tooltip("If true, it will deactivate the object when despawning it.")]
         private bool _deactivateOnDespawn;
 
-        [SerializeField]
-        [DisableOnPlayMode]
-        [FormerlySerializedAsBackingFieldOf("DeactivatePrefabOnInitialize")]
-        [Tooltip("If true, it will deactivate the prefab when initializing it.")]
-        private bool _deactivateOnInitializePrefab;
-
         private GameObjectID? _gameObjectID;
 
         private AsyncOperationHandle<GameObject> _operationHandle;
@@ -216,17 +210,6 @@ namespace Coimbra
             get => _deactivateOnDespawn;
             [DebuggerStepThrough]
             set => _deactivateOnDespawn = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether it will deactivate the prefab when initializing it.
-        /// </summary>
-        public bool DeactivateOnInitializePrefab
-        {
-            [DebuggerStepThrough]
-            get => _deactivateOnInitializePrefab;
-            [DebuggerStepThrough]
-            set => _deactivateOnInitializePrefab = value;
         }
 
         /// <summary>
@@ -524,13 +507,7 @@ namespace Coimbra
         /// <summary>
         /// Use this for one-time initializations on prefabs.
         /// </summary>
-        protected virtual void OnInitializePrefab()
-        {
-            if (_deactivateOnInitializePrefab)
-            {
-                GameObject.SetActive(false);
-            }
-        }
+        protected virtual void OnInitializePrefab() { }
 
         /// <summary>
         /// Called each time this object is spawned. By default, it activates the object.
