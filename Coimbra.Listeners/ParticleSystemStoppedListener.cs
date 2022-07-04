@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ParticleSystem))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Particle System Stopped Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.ParticleSystemMenuPath + "Particle System Stopped Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnParticleSystemStopped.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class ParticleSystemStoppedListener : MonoBehaviour

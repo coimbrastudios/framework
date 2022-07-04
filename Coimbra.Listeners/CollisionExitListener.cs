@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Collider"/>'s <see cref="OnCollisionExit"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Collision Exit Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Collision Exit Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionExit.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class CollisionExitListener : CollisionListenerBase

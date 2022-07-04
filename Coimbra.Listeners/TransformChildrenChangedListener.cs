@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="OnTransformChildrenChanged"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Transform Children Changed Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.TransformOrHierarchyMenuPath + "Transform Children Changed Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTransformChildrenChanged.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class TransformChildrenChangedListener : MonoBehaviour

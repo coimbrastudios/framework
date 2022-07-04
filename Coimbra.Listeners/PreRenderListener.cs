@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Pre Render Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Pre Render Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPreRender.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class PreRenderListener : MonoBehaviour

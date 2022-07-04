@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Collider"/>'s <see cref="OnTriggerStay"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Trigger Stay Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Trigger Stay Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerStay.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class TriggerStayListener : TriggerListenerBase

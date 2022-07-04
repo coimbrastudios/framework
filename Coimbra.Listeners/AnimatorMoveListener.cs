@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Animator))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Animator Move Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Animator Move Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnAnimatorMove.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class AnimatorMoveListener : MonoBehaviour

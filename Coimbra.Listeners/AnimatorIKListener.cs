@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Animator))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Animator IK Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Animator IK Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnAnimatorIK.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class AnimatorIKListener : MonoBehaviour

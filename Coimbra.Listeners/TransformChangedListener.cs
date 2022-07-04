@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerLoopListenerBase))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Transform Changed Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.TransformOrHierarchyMenuPath + "Transform Changed Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class TransformChangedListener : ActorComponentBase

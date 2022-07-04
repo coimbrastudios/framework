@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ParticleSystem))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Particle Collision Listener (Particle System)")]
+    [AddComponentMenu(CoimbraListenersUtility.ParticleSystemMenuPath + "Particle Collision Listener (Particle System)")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnParticleCollision.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class ParticleSystemParticleCollisionListener : ParticleCollisionListenerBase<ParticleSystem> { }

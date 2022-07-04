@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="OnRenderObject"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Render Object Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Render Object Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderObject.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class RenderObjectListener : MonoBehaviour

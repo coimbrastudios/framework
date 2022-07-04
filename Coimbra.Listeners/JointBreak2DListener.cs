@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Joint2D))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Joint Break 2D Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.Physics2DMenuPath + "Joint Break 2D Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnJointBreak2D.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class JointBreak2DListener : MonoBehaviour

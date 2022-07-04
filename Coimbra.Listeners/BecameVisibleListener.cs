@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Renderer))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Became Visible Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Became Visible Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnBecameVisible.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class BecameVisibleListener : MonoBehaviour

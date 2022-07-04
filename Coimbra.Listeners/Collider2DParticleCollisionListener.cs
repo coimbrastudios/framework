@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Particle Collision Listener (Collider 2D)")]
+    [AddComponentMenu(CoimbraListenersUtility.Physics2DMenuPath + "Particle Collision Listener (Collider 2D)")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnParticleCollision.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class Collider2DParticleCollisionListener : ParticleCollisionListenerBase<Collider2D> { }

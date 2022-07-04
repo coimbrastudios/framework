@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Renderer))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Became Invisible Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Became Invisible Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnBecameInvisible.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class BecameInvisibleListener : MonoBehaviour
