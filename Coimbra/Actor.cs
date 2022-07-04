@@ -440,22 +440,7 @@ namespace Coimbra
                 States |= StateFlags.IsPooled;
             }
 
-            using (ListPool.Pop(out List<ActorComponentBase> components))
-            {
-                GetComponents(components);
-
-                foreach (ActorComponentBase component in components)
-                {
-                    component.PreInitialize(this);
-                }
-
-                OnInitialize();
-
-                foreach (ActorComponentBase component in components)
-                {
-                    component.PostInitialize();
-                }
-            }
+            InitializeComponentsAndSelf();
 
             if (!IsPooled)
             {
@@ -727,6 +712,36 @@ namespace Coimbra
             _transform = null;
             InitializedActorCount.Value--;
             CachedActors.Remove(GameObjectID);
+        }
+
+        private void InitializeComponentsAndSelf()
+        {
+            using (ListPool.Pop(out List<ActorComponentBase> components))
+            {
+                GetComponents(components);
+
+                foreach (ActorComponentBase component in components)
+                {
+                    component.PreInitialize(this);
+
+                    if (IsDestroyed)
+                    {
+                        return;
+                    }
+                }
+
+                OnInitialize();
+
+                foreach (ActorComponentBase component in components)
+                {
+                    if (IsDestroyed)
+                    {
+                        return;
+                    }
+
+                    component.PostInitialize();
+                }
+            }
         }
     }
 }
