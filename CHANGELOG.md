@@ -2,7 +2,6 @@
 
 ## [10.9.0] - UNRELEASED
 
-- Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
 - Added `Delayed<T>` wrapper struct.
 - Added `ISceneProcessorComponent` and `IScenePostProcessorComponent` interfaces to enable scene-level processing logic in runtime scripts.
 - Added `DebugOnly` component to allow creation of actors that should only exist in the editor or in development builds.
