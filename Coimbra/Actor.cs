@@ -548,7 +548,7 @@ namespace Coimbra
         /// </summary>
         protected virtual void OnValidate()
         {
-            if (Application.isPlaying)
+            if (CoimbraUtility.IsPlayMode && !CoimbraUtility.IsFirstFrame)
             {
                 Initialize();
             }

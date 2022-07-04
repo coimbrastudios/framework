@@ -8,6 +8,11 @@ namespace Coimbra
     public static class CoimbraUtility
     {
         /// <summary>
+        /// Default menu item path for the game object menu.
+        /// </summary>
+        public const string GameObjectMenuName = "GameObject/" + GeneralMenuPath;
+
+        /// <summary>
         /// Default menu item name.
         /// </summary>
         public const string GeneralMenuName = "Coimbra Framework";
@@ -66,6 +71,11 @@ namespace Coimbra
 #endif
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the application is currently in its first frame. Always false if <see cref="IsPlayMode"/> is false.
+        /// </summary>
+        public static bool IsFirstFrame => IsPlayMode && Time.frameCount == 0;
 
         /// <summary>
         /// Gets a value indicating whether the application is currently in Play Mode. Always return true in a build.

@@ -5,6 +5,8 @@
 - Added `StyleCop.Analyzers` and `Microsoft.Unity.Analyzers`.
 - Added `Delayed<T>` wrapper struct.
 - Added `ISceneProcessorComponent` and `IScenePostProcessorComponent` interfaces to enable scene-level processing logic in runtime scripts.
+- Added `DebugOnly` component to allow creation of actors that should only exist in the editor or in development builds.
+- Added `HierarchyFolder`, a special kind of actor that re-parent all its children and destroys itself at runtime.
 - Changed `COIMBRA0011` to be an error.
 - Changed `COIMBRA0019` to be an error.
 - Changed minimum Unity version to 2021.3.5f1.
