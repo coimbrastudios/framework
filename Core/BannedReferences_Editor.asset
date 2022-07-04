@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30b8ca603d1b4b4792f7f7b138880a70, type: 3}
   m_Name: BannedReferences_Editor
   m_EditorClassIdentifier: 
-  _includedMask:
+  _includedPatterns:
   - Assets/_Project/*
   - '*/com.coimbrastudios.core/*'
-  _excludedMask:
+  _excludedPatterns:
   - '*.Editor.*'
   _displayError: 0
   _bannedReferences:
-  - '*.Editor'
   - '*.Editor.*'

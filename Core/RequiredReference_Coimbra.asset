@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50981933378f4303a097b16704daf6e7, type: 3}
   m_Name: RequiredReference_Coimbra
   m_EditorClassIdentifier: 
-  _includedMask:
+  _includedPatterns:
   - Assets/_Project/*
   - '*/com.coimbrastudios.core/*'
-  _excludedMask:
+  _excludedPatterns:
   - '*/Coimbra.asmdef'
-  - '*/Coimbra.Linting.asmdef'
   - '*/Coimbra.Samples*'
   - '*/Coimbra.ThirdParty.*'
   - '*/com.coimbrastudios.core/Assembly-CSharp*'

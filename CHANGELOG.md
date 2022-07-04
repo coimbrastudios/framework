@@ -1,8 +1,9 @@
 # Changelog
 
-## [10.9.1] - UNRELEASED
+## [10.9.1] - 2022-07-04
 
 - Added missing info in [Index](Documentation~/Index.md) for `HierarchyFolder` and `DebugOnly`.
+- Changed `BannedReferencesAssemblyDefinitionRule` to use paths instead of names.
 
 ## [10.9.0] - 2022-07-04
 
