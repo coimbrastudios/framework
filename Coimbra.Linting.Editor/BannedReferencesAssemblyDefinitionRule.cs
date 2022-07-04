@@ -1,9 +1,7 @@
 ﻿using Coimbra.Editor;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
 
 namespace Coimbra.Linting.Editor
@@ -14,10 +12,8 @@ namespace Coimbra.Linting.Editor
     [CreateAssetMenu(menuName = CoimbraUtility.GeneralMenuPath + DefaultAssetMenuPath + "Banned References")]
     public sealed class BannedReferencesAssemblyDefinitionRule : AssemblyDefinitionRuleBase
     {
-        private const string GuidPrefix = "GUID:";
-
         [SerializeField]
-        [Tooltip("The list os assembly definition names to ban. Any '*' will be used as wildcards.")]
+        [Tooltip("The list of assembly definition path patterns to ban. Any '*' will be used as wildcards.")]
         private string[] _bannedReferences;
 
         private bool _hasCache;
@@ -25,7 +21,7 @@ namespace Coimbra.Linting.Editor
         private Regex[] _bannedReferencesRegexes;
 
         /// <summary>
-        /// Gets or sets the list of <see cref="AssemblyDefinition"/> names to ban. Any '*' will be used as wildcards.
+        /// Gets or sets the list of <see cref="AssemblyDefinition"/> path to ban. Any '*' will be used as wildcards.
         /// </summary>
         public IReadOnlyList<string> BannedReferences
         {
@@ -44,16 +40,24 @@ namespace Coimbra.Linting.Editor
 
                 foreach (string reference in assemblyDefinition.References)
                 {
-                    string referenceName = reference.StartsWith(GuidPrefix) ? Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(reference.Substring(GuidPrefix.Length))) : reference;
-
-                    if (HasAnyMatch(_bannedReferencesRegexes, referenceName))
+                    try
                     {
-                        Debug.LogWarning($"{assemblyDefinition.Name} had banned reference {referenceName}!", context);
+                        string referencePath = GetReferencePath(reference);
 
-                        continue;
+                        if (HasAnyMatch(_bannedReferencesRegexes, referencePath))
+                        {
+                            Debug.LogWarning($"{assemblyDefinition.Name} had banned reference {referencePath}!", context);
+                        }
+                        else
+                        {
+                            list.Add(reference);
+                        }
                     }
-
-                    list.Add(reference);
+                    catch
+                    {
+                        // if the reference can't be found, assume it is not banned
+                        list.Add(reference);
+                    }
                 }
 
                 if (assemblyDefinition.References.Length == list.Count)
@@ -73,6 +77,7 @@ namespace Coimbra.Linting.Editor
             base.OnValidate();
 
             _hasCache = false;
+            ValidatePathPatterns(_bannedReferences);
         }
 
         private void InitializeCache()
@@ -82,14 +87,8 @@ namespace Coimbra.Linting.Editor
                 return;
             }
 
-            _bannedReferencesRegexes = new Regex[_bannedReferences.Length];
-
-            for (int i = 0; i < _bannedReferences.Length; i++)
-            {
-                _bannedReferencesRegexes[i] = PathUtility.GetRegexFromPattern(_bannedReferences[i], true);
-            }
-
             _hasCache = true;
+            _bannedReferencesRegexes = BuildRegexesCache(_bannedReferences, true);
         }
     }
 }

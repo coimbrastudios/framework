@@ -2,10 +2,13 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 namespace Coimbra.Linting.Editor
@@ -21,12 +24,14 @@ namespace Coimbra.Linting.Editor
         protected const string DefaultAssetMenuPath = "Assembly Definition Rule/";
 
         [SerializeField]
+        [FormerlySerializedAs("_includedMask")]
         [Tooltip("The list of targets to apply this rule. It accepts any path relative to the project folder. If empty it will include everything by default.")]
-        private string[] _includedMask = Array.Empty<string>();
+        private string[] _includedPatterns = Array.Empty<string>();
 
         [SerializeField]
-        [Tooltip("The list of exceptions in the Included Mask to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.")]
-        private string[] _excludedMask = Array.Empty<string>();
+        [FormerlySerializedAs("_excludedMask")]
+        [Tooltip("The list of exceptions in the Included Patterns to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.")]
+        private string[] _excludedPatterns = Array.Empty<string>();
 
         [SerializeField]
         [UsedImplicitly]
@@ -40,29 +45,29 @@ namespace Coimbra.Linting.Editor
         private Regex[] _includedRegexes;
 
         /// <summary>
-        /// Gets or sets the list of targets to apply this rule. It accepts any path relative to the project folder. If empty it will include everything by default.
+        /// Gets or sets the list of exceptions in the <see cref="IncludedPatterns"/> to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.
         /// </summary>
         [NotNull]
-        public IReadOnlyList<string> ExcludedMask
+        public IReadOnlyList<string> ExcludedPatterns
         {
-            get => _excludedMask;
+            get => _excludedPatterns;
             set
             {
-                _excludedMask = value.ToArray();
+                _excludedPatterns = value.ToArray();
                 OnValidate();
             }
         }
 
         /// <summary>
-        /// Gets or sets the list of exceptions in the Included Mask to not apply this rule. It accepts any path relative to the project folder. If empty it will not exclude anything by default.
+        /// Gets or sets the list of targets to apply this rule. It accepts any path relative to the project folder. If empty it will include everything by default.
         /// </summary>
         [NotNull]
-        public IReadOnlyList<string> IncludedMask
+        public IReadOnlyList<string> IncludedPatterns
         {
-            get => _includedMask;
+            get => _includedPatterns;
             set
             {
-                _includedMask = value.ToArray();
+                _includedPatterns = value.ToArray();
                 OnValidate();
             }
         }
@@ -72,21 +77,6 @@ namespace Coimbra.Linting.Editor
         /// </summary>
         /// <returns>True if the assembly definition was actually modified, false otherwise.</returns>
         public abstract bool Apply(AssemblyDefinition assemblyDefinition, Object context);
-
-        internal static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
-        {
-            int count = regexes.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                if (regexes[i].IsMatch(assemblyDefinitionPath))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         internal bool CanApply(string assemblyDefinitionPath)
         {
@@ -107,6 +97,92 @@ namespace Coimbra.Linting.Editor
             return false;
         }
 
+        /// <summary>
+        /// Helper method to build an array of regexes based on a list of masks.
+        /// </summary>
+        /// <seealso cref="PathUtility.GetRegexFromPattern"/>
+        protected static Regex[] BuildRegexesCache(IReadOnlyList<string> patterns, bool ignoreCase)
+        {
+            Regex[] cache = new Regex[patterns.Count];
+
+            for (int i = 0; i < cache.Length; i++)
+            {
+                cache[i] = PathUtility.GetRegexFromPattern(patterns[i], ignoreCase);
+            }
+
+            return cache;
+        }
+
+        /// <summary>
+        /// Helper method to get the path for an assembly definition asset reference using either its guid or its name.
+        /// </summary>
+        /// <param name="reference">The GUID or name of the reference. If a GUID, it should start with "GUID:".</param>
+        /// <returns>The asset path.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If the asset path can't be found.</exception>
+        protected static string GetReferencePath(in string reference)
+        {
+            const string guidPrefix = "GUID:";
+
+            if (reference.StartsWith(guidPrefix))
+            {
+                return AssetDatabase.GUIDToAssetPath(reference[guidPrefix.Length..]);
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets($"t:asmdef {reference}"))
+            {
+                string candidate = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (Path.GetFileNameWithoutExtension(candidate) == candidate)
+                {
+                    return candidate;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(reference), $"Couldn't find the asset path for \"{reference}\". It will not be validated, try referencing it by GUID instead.");
+        }
+
+        /// <summary>
+        /// Helper method to check if any item in a list of <see cref="Regex"/> matches the given <paramref name="assemblyDefinitionPath"/>.
+        /// </summary>
+        protected static bool HasAnyMatch(IReadOnlyList<Regex> regexes, in string assemblyDefinitionPath)
+        {
+            int count = regexes.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (regexes[i].IsMatch(assemblyDefinitionPath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Helper method to validate a list of path patterns, ensuring that they end either with "*" or the given <paramref name="extension"/>.
+        /// </summary>
+        protected static void ValidatePathPatterns(IList<string> patterns, string extension = ".asmdef")
+        {
+            int count = patterns.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (!patterns[i].Contains('/') && !patterns[i].StartsWith("*"))
+                {
+                    patterns[i] = "*/" + patterns[i];
+                }
+
+                if (!patterns[i].EndsWith("*") && !patterns[i].EndsWith(extension))
+                {
+                    patterns[i] += extension;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
         protected virtual void Reset()
         {
             _displayError = true;
@@ -118,25 +194,9 @@ namespace Coimbra.Linting.Editor
         protected virtual void OnValidate()
         {
             _hasCaches = false;
-            _displayError = _includedMask.Length == 0 && _excludedMask.Length == 0;
-
-            const string asmdef = "asmdef";
-
-            for (int i = 0; i < _includedMask.Length; i++)
-            {
-                if (!_includedMask[i].EndsWith("*") && !_includedMask[i].EndsWith($".{asmdef}"))
-                {
-                    _includedMask[i] += $".{asmdef}";
-                }
-            }
-
-            for (int i = 0; i < _excludedMask.Length; i++)
-            {
-                if (!_excludedMask[i].EndsWith("*") && !_excludedMask[i].EndsWith($".{asmdef}"))
-                {
-                    _excludedMask[i] += $".{asmdef}";
-                }
-            }
+            _displayError = _includedPatterns.Length == 0 && _excludedPatterns.Length == 0;
+            ValidatePathPatterns(_includedPatterns);
+            ValidatePathPatterns(_excludedPatterns);
         }
 
         private void InitializeCaches()
@@ -146,21 +206,9 @@ namespace Coimbra.Linting.Editor
                 return;
             }
 
-            _excludedRegexes = new Regex[_excludedMask.Length];
-
-            for (int i = 0; i < _excludedMask.Length; i++)
-            {
-                _excludedRegexes[i] = PathUtility.GetRegexFromPattern(_excludedMask[i], true);
-            }
-
-            _includedRegexes = new Regex[_includedMask.Length];
-
-            for (int i = 0; i < _includedMask.Length; i++)
-            {
-                _includedRegexes[i] = PathUtility.GetRegexFromPattern(_includedMask[i], true);
-            }
-
             _hasCaches = true;
+            _excludedRegexes = BuildRegexesCache(_excludedPatterns, true);
+            _includedRegexes = BuildRegexesCache(_includedPatterns, true);
         }
     }
 }
