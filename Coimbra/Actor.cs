@@ -555,6 +555,19 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected virtual void Reset()
+        {
+#if UNITY_EDITOR
+            while (UnityEditorInternal.ComponentUtility.MoveComponentUp(this))
+            {
+                // just moving the component to the top
+            }
+#endif
+        }
+
+        /// <summary>
         /// Non-virtual by design, use <see cref="OnInitialize"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]

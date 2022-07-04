@@ -519,6 +519,15 @@ namespace Coimbra
             }
         }
 
+        /// <inheritdoc/>
+        protected override void Reset()
+        {
+            base.Reset();
+
+            _loadOnInitialize = true;
+            _containerTransform = transform;
+        }
+
         private async UniTask PreloadAsync(int count, CancellationToken cancellationToken = default)
         {
             Debug.Assert(_loadFrame.HasValue);
@@ -560,12 +569,6 @@ namespace Coimbra
                 actorInstance.Initialize(this, operationHandle);
                 ProcessInstance(actorInstance, false);
             }
-        }
-
-        private void Reset()
-        {
-            _loadOnInitialize = true;
-            _containerTransform = transform;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

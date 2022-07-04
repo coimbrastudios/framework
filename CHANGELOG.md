@@ -11,6 +11,7 @@
 - Changed scripts to use the new C# language features.
 - Changed Roslyn DLLs version to `3.9.0` to match Unity upgrade.
 - Changed `LintingSettings` and `UPMAuthenticator` to use the `Assets` instead.
+- Changed `Actor.Initialize` to cancel initialization as soon that its `Destroy` method is called (i.e. inside `ActorComponent.PreInitialize` or `ActorComponent.PostInitialize`).
 - Removed dependency on `com.unity.roslyn`.
 
 ## [10.8.5] - 2022-06-30
