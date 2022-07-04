@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.9.1] - UNRELEASED
+
+- Added missing info in [Index](Documentation~/Index.md) for `HierarchyFolder` and `DebugOnly`.
+
 ## [10.9.0] - 2022-07-04
 
 - Added `Delayed<T>` wrapper struct.
