@@ -2,7 +2,8 @@
 
 ## List of Contents
 
-- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`.
+- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`. An example is provided:
+    - `DebugOnly`: makes an `Actor` always be destroyed in release builds.
 - `Addressables` Helpers: some extra types to make working with it even easier.
     - `AssetReferenceComponentRestriction`: filters any `AssetReference` to only show `GameObject` with the specified components.
     - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.
@@ -16,6 +17,7 @@
 - Editor Tools: general utilities under `Tools/Coimbra Framework` menu.
 - `FormerlySerializedAsBackingFieldOfAttribute`: `FormerlySerializedAs` subclass that correctly formats the input to `<{propertyName}>k__BackingField`.
 - `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
+- `HierarchyFolder`: organize your object into folders that doesn't affect the hierarchy at runtime.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
 - Listeners: components to be used to listen for common events:
