@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.9.0] - UNRELEASED
+## [10.9.0] - 2022-07-04
 
 - Added `Delayed<T>` wrapper struct.
 - Added `ISceneProcessorComponent` and `IScenePostProcessorComponent` interfaces to enable scene-level processing logic in runtime scripts.
