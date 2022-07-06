@@ -18,9 +18,10 @@ namespace Coimbra.Linting.Editor
         /// <summary>
         /// Gets or sets a value indicating whether the local Unity analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
         /// </summary>
+        [PublicAPI]
         [field: SerializeField]
         [field: Tooltip("If true, local analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.")]
-        public bool DisableLocalUnityAnalyzers { get; set; } = false;
+        public bool DisableLocalUnityAnalyzers { get; set; }
 
         /// <summary>
         /// Gets or sets collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.

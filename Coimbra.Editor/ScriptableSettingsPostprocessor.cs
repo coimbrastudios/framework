@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    internal class ScriptableSettingsPostprocessor : AssetPostprocessor
+    internal sealed class ScriptableSettingsPostprocessor : AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {

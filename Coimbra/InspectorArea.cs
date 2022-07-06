@@ -10,16 +10,16 @@ namespace Coimbra
         /// <summary>
         /// Will fill both the label and the field area of the inspector.
         /// </summary>
-        Fill,
+        Fill = 0,
 
         /// <summary>
         /// Will fill the label area of the inspector.
         /// </summary>
-        Label,
+        Label = 1,
 
         /// <summary>
         /// Will fill the field area of the inspector.
         /// </summary>
-        Field,
+        Field = 2,
     }
 }

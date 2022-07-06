@@ -23,10 +23,10 @@ namespace Coimbra.Tests.Editor.UnityTests
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
-            EditorBuildSettings.scenes = new[]
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(emptyScene, true),
-                new EditorBuildSettingsScene(logBehaviourScene, true),
+                new(emptyScene, true),
+                new(logBehaviourScene, true),
             };
 
             yield return new EnterPlayMode();
@@ -59,10 +59,10 @@ namespace Coimbra.Tests.Editor.UnityTests
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
-            EditorBuildSettings.scenes = new[]
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(emptyScene, true),
-                new EditorBuildSettingsScene(logBehaviourScene, true),
+                new(emptyScene, true),
+                new(logBehaviourScene, true),
             };
 
             yield return new EnterPlayMode();
@@ -95,10 +95,10 @@ namespace Coimbra.Tests.Editor.UnityTests
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
-            EditorBuildSettings.scenes = new[]
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(emptyScene, true),
-                new EditorBuildSettingsScene(logBehaviourScene, true),
+                new(emptyScene, true),
+                new(logBehaviourScene, true),
             };
 
             yield return new EnterPlayMode();
@@ -130,10 +130,10 @@ namespace Coimbra.Tests.Editor.UnityTests
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
-            EditorBuildSettings.scenes = new[]
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(emptyScene, true),
-                new EditorBuildSettingsScene(logBehaviourScene, true),
+                new(emptyScene, true),
+                new(logBehaviourScene, true),
             };
 
             yield return new EnterPlayMode();

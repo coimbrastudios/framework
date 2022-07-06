@@ -393,12 +393,12 @@ namespace Coimbra.Tests.Editor
 
             testBehaviour1.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
             {
-                String = $"1",
+                String = "1",
             };
 
             testBehaviour2.StructList[testIndex] = new PropertyPathInfoTestBehaviourBase.NestedClass.NestedStruct
             {
-                String = $"2",
+                String = "2",
             };
 
             try

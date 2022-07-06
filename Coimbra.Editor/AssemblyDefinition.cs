@@ -99,7 +99,7 @@ namespace Coimbra.Editor
 
             if (isEditorOnly)
             {
-                IncludePlatforms = new[]
+                IncludePlatforms = new string[]
                 {
                     EditorPlatform,
                 };
@@ -123,12 +123,12 @@ namespace Coimbra.Editor
             References[referencesCount - 2] = UnityEditorTestRunnerAssembly;
             References[referencesCount - 1] = UnityEngineTestRunnerAssembly;
 
-            DefineConstraints = new[]
+            DefineConstraints = new string[]
             {
                 TestsDefineConstraint,
             };
 
-            PrecompiledReferences = new[]
+            PrecompiledReferences = new string[]
             {
                 TestsPrecompiledReference,
             };

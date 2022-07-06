@@ -146,7 +146,7 @@ namespace Coimbra.Editor
 
             string? extension = Path.GetExtension(path);
 
-            if (string.Compare(extension, ".asset", StringComparison.InvariantCultureIgnoreCase) != 0)
+            if (StringComparer.InvariantCultureIgnoreCase.Compare(extension, ".asset") != 0)
             {
                 path += ".asset";
             }

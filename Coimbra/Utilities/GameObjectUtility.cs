@@ -126,7 +126,9 @@ namespace Coimbra
         /// </summary>
         public static bool HasComponent<T>(this GameObject gameObject)
         {
+#pragma warning disable UNT0014
             return gameObject.TryGetComponent<T>(out _);
+#pragma warning restore UNT0014
         }
 
         /// <summary>

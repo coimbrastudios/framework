@@ -8,26 +8,26 @@
         /// <summary>
         /// Neither <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/> is defined.
         /// </summary>
-        Custom,
+        Custom = 0,
 
         /// <summary>
         /// <see cref="ProjectSettingsAttribute"/> is defined and <see cref="ProjectSettingsAttribute.IsEditorOnly"/> is true.
         /// </summary>
-        EditorProjectSettings,
+        EditorProjectSettings = 1,
 
         /// <summary>
         /// <see cref="ProjectSettingsAttribute"/> is defined and <see cref="ProjectSettingsAttribute.IsEditorOnly"/> is false.
         /// </summary>
-        RuntimeProjectSettings,
+        RuntimeProjectSettings = 2,
 
         /// <summary>
         /// <see cref="PreferencesAttribute"/> is defined and <see cref="PreferencesAttribute.UseEditorPrefs"/> is true.
         /// </summary>
-        EditorUserPreferences,
+        EditorUserPreferences = 3,
 
         /// <summary>
         /// <see cref="PreferencesAttribute"/> is defined and <see cref="PreferencesAttribute.UseEditorPrefs"/> is false.
         /// </summary>
-        ProjectUserPreferences,
+        ProjectUserPreferences = 4,
     }
 }

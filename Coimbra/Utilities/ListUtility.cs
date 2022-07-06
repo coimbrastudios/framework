@@ -137,6 +137,7 @@ namespace Coimbra
                 }
 
                 RemoveAtSwapBack(list, i);
+                count++;
                 --i;
             }
 

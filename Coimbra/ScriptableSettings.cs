@@ -121,7 +121,9 @@ namespace Coimbra
                 return value;
             }
 
-            return findCallback?.Invoke(type) ?? FindSingle.Invoke(type);
+            findCallback ??= FindSingle;
+
+            return findCallback.Invoke(type);
         }
 
         /// <inheritdoc cref="GetOrFind"/>

@@ -30,19 +30,19 @@ namespace Coimbra.Editor
 
         private static readonly Dictionary<AnimatorControllerParameterType, string[]> NoParameterFoundErrorDictionary = new()
         {
-            [AnimatorControllerParameterType.Float] = new[]
+            [AnimatorControllerParameterType.Float] = new string[]
             {
                 string.Format(NoParameterFoundError, "float"),
             },
-            [AnimatorControllerParameterType.Int] = new[]
+            [AnimatorControllerParameterType.Int] = new string[]
             {
                 string.Format(NoParameterFoundError, "int"),
             },
-            [AnimatorControllerParameterType.Bool] = new[]
+            [AnimatorControllerParameterType.Bool] = new string[]
             {
                 string.Format(NoParameterFoundError, "bool"),
             },
-            [AnimatorControllerParameterType.Trigger] = new[]
+            [AnimatorControllerParameterType.Trigger] = new string[]
             {
                 string.Format(NoParameterFoundError, "trigger"),
             },

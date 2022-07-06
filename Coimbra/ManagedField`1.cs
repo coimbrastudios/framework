@@ -109,14 +109,14 @@ namespace Coimbra
         }
 
         [Pure]
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            if (other is T t)
+            if (obj is T t)
             {
                 return Value == t;
             }
 
-            if (other is ManagedField<T> field)
+            if (obj is ManagedField<T> field)
             {
                 return Value == field.Value;
             }

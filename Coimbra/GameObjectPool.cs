@@ -29,17 +29,17 @@ namespace Coimbra
             /// <summary>
             /// Pool is completely unloaded without any instances on it.
             /// </summary>
-            Unloaded,
+            Unloaded = 0,
 
             /// <summary>
             /// Pool is preloading its instances.
             /// </summary>
-            Loading,
+            Loading = 1,
 
             /// <summary>
             /// Pool is completely loaded and ready to be used.
             /// </summary>
-            Loaded,
+            Loaded = 2,
         }
 
         /// <summary>
@@ -455,7 +455,9 @@ namespace Coimbra
                      i < count;
                      i++)
                 {
+#pragma warning disable UNT0008
                     _availableInstances.Pop().GetValid()?.Destroy();
+#pragma warning restore UNT0008
                 }
 
                 _availableInstances = null;

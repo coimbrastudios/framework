@@ -14,12 +14,12 @@ namespace Coimbra.Editor
             /// <summary>
             /// Will use "+=" and "-=" operators to modify the <see cref="EditorGUIUtility.labelWidth"/>. <see cref="LabelWidthScope.SavedMagnitude"/> will be the value to be used with these operators.
             /// </summary>
-            Increment,
+            Increment = 0,
 
             /// <summary>
             /// Will use "=" operator to modify the <see cref="EditorGUIUtility.labelWidth"/>. <see cref="LabelWidthScope.SavedMagnitude"/> will be the <see cref="EditorGUIUtility.labelWidth"/> before the scope.
             /// </summary>
-            Absolute,
+            Absolute = 1,
         }
 
         public readonly float SavedMagnitude;

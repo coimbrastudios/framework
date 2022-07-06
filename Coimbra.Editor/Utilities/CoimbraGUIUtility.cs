@@ -184,7 +184,9 @@ namespace Coimbra.Editor
 
             if (_propertyDrawers.TryGetValue(type, out PropertyDrawer propertyDrawer))
             {
+#pragma warning disable UNT0027
                 propertyDrawer.OnGUI(position, property, label);
+#pragma warning restore UNT0027
             }
             else
             {
@@ -368,7 +370,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Basic way to check if if a <paramref name="searchContext"/> matches the desired the <paramref name="targetContent"/>.
+        /// Basic way to check if a <paramref name="searchContext"/> matches the desired the <paramref name="targetContent"/>.
         /// </summary>
         public static bool TryMatchSearch(in string searchContext, in string targetContent)
         {
@@ -503,7 +505,7 @@ namespace Coimbra.Editor
                 }
             };
 
-            _delegateListeners.drawElementCallback = delegate(Rect rect, int index, bool active, bool focused)
+            _delegateListeners.drawElementCallback = delegate(Rect rect, int index, bool _, bool _)
             {
                 if (_delegateListeners.serializedProperty != null)
                 {

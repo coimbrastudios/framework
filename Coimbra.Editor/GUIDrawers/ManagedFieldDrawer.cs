@@ -232,7 +232,7 @@ namespace Coimbra.Editor
                 return;
             }
 
-            if (value != null && type.IsInstanceOfType(value) == false)
+            if (value != null && !type.IsInstanceOfType(value))
             {
                 value = value is GameObject gameObject ? gameObject.GetComponent(type) : null;
 

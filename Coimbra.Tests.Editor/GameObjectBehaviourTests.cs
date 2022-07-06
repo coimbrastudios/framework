@@ -41,9 +41,9 @@ namespace Coimbra.Tests.Editor
             SceneAsset savedStartScene = EditorSceneManager.playModeStartScene;
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(emptyScene);
             EditorBuildSettingsScene[] savedBuildScenes = EditorBuildSettings.scenes;
-            EditorBuildSettings.scenes = new[]
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(emptyScene, true),
+                new(emptyScene, true),
             };
 
             yield return new EnterPlayMode();

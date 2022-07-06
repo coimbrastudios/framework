@@ -33,17 +33,17 @@ namespace Coimbra
             /// <summary>
             /// Instigated by an user code explicitly.
             /// </summary>
-            ExplicitCall,
+            ExplicitCall = 0,
 
             /// <summary>
             /// Instigated by a scene change when the object was not flagged to don't destroy on load.
             /// </summary>
-            SceneChange,
+            SceneChange = 1,
 
             /// <summary>
             /// Being called due the application being shutdown.
             /// </summary>
-            ApplicationQuit,
+            ApplicationQuit = 2,
         }
 
         /// <summary>

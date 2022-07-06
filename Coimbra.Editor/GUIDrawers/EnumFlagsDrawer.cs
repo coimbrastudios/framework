@@ -24,7 +24,7 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, bool isDelayed)
         {
-            if (property.propertyType != SerializedPropertyType.Enum || context.PropertyType.IsDefined(typeof(FlagsAttribute), false) == false)
+            if (property.propertyType != SerializedPropertyType.Enum || !context.PropertyType.IsDefined(typeof(FlagsAttribute), false))
             {
                 EditorGUI.LabelField(position, label.text, "Use EnumFlags with flags Enum.");
 
@@ -63,7 +63,7 @@ namespace Coimbra.Editor
 
                 if (valueIndex < -1)
                 {
-                    if (Offset.TryGetValue(context.PropertyType, out int offset) == false)
+                    if (!Offset.TryGetValue(context.PropertyType, out int offset))
                     {
                         offset = Enum.GetValues(context.PropertyType).Cast<int>().Max() * 2;
                         Offset.Add(context.PropertyType, offset);

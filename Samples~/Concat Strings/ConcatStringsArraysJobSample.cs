@@ -14,9 +14,9 @@ namespace Coimbra.Samples.ConcatStrings
 
             public string[] Result { get; set; }
 
-            public void Execute(int i)
+            public void Execute(int index)
             {
-                Result[i] = $"{Left[i]}{Right[i]}";
+                Result[index] = $"{Left[index]}{Right[index]}";
             }
         }
 

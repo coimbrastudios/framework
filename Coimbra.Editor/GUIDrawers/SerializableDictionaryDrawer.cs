@@ -272,11 +272,9 @@ namespace Coimbra.Editor
                 using (new ResetIndentLevelScope())
                 {
                     using (new LabelWidthScope(keyPosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                    using (new EditorGUI.DisabledScope(true))
                     {
-                        using (new EditorGUI.DisabledScope(true))
-                        {
-                            DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
-                        }
+                        DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
                     }
 
                     using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
