@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.3]
+
 ## [10.9.2] - 2022-07-11
 
 - Fixed analyzers running on unwanted assemblies.
