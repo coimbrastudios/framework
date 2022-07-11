@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEditor.Callbacks;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     internal sealed class AssemblyDefinitionRulesAssetPostprocessor : AssetPostprocessor
     {

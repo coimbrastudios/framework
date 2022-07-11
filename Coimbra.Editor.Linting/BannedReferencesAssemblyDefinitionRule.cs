@@ -1,10 +1,9 @@
-﻿using Coimbra.Editor;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Define references that will be excluded automatically.

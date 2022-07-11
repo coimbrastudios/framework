@@ -1,11 +1,10 @@
-﻿using Coimbra.Editor;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Settings for linting the project.
@@ -13,7 +12,7 @@ namespace Coimbra.Linting.Editor
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
     public sealed class LintingSettings : ScriptableSettings
     {
-        private const string Filter = "t:asmdef";
+        private const string AssemblyDefinitionFilter = "t:asmdef";
 
         /// <summary>
         /// Gets or sets a value indicating whether the local Unity analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
@@ -44,7 +43,7 @@ namespace Coimbra.Linting.Editor
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
             {
-                foreach (string guid in AssetDatabase.FindAssets(Filter))
+                foreach (string guid in AssetDatabase.FindAssets(AssemblyDefinitionFilter))
                 {
                     string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 

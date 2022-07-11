@@ -1,6 +1,11 @@
 # Changelog
 
-## [10.9.3]
+## [10.9.3] - 2022-07-11
+
+- Added `ForceReferencyByNameAssemblyDefinitionRule`.
+- Changed `Coimbra.Linting.Editor` to `Coimbra.Editor.Linting` as it is an editor-only feature.
+- Fixed `RequiredReferencesAssemblyDefinitionRule` not checking the assembly name.
+- Fixed `SortReferencesByNameAssemblyDefinitionrule` not sorting correctly when not using GUIDs.
 
 ## [10.9.2] - 2022-07-11
 

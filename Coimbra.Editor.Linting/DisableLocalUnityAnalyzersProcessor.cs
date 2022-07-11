@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using UnityEditor;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <a href="https://github.com/microsoft/Microsoft.Unity.Analyzers#handling-duplicate-diagnostics">Copyright (c) Microsoft Corporation.</a>
     internal sealed class DisableLocalUnityAnalyzersProcessor : AssetPostprocessor

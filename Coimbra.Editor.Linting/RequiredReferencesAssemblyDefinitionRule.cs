@@ -1,11 +1,10 @@
-﻿using Coimbra.Editor;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Define references that will be referenced automatically.
@@ -39,7 +38,14 @@ namespace Coimbra.Linting.Editor
 
                 foreach (AssemblyDefinitionAsset asset in _requiredReferences)
                 {
-                    if (asset == null || !set.Add(asset.name))
+                    if (asset == null)
+                    {
+                        continue;
+                    }
+
+                    AssemblyDefinition assembly = JsonUtility.FromJson<AssemblyDefinition>(asset.text);
+
+                    if (!set.Add(assembly.Name))
                     {
                         continue;
                     }

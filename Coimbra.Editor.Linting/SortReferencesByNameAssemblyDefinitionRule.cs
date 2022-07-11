@@ -1,12 +1,11 @@
-﻿using Coimbra.Editor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Sort all assembly definition references by their name.
@@ -22,12 +21,23 @@ namespace Coimbra.Linting.Editor
 
             private static readonly StringComparer StringComparer = StringComparer.InvariantCulture;
 
+            private static void Normalize(ref string value)
+            {
+                if (!value.StartsWith(GuidPrefix))
+                {
+                    return;
+                }
+
+                value = value[GuidPrefix.Length..];
+                value = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(value));
+            }
+
             int IComparer<string>.Compare(string x, string y)
             {
-                x = x!.StartsWith(GuidPrefix) ? x.Substring(GuidPrefix.Length) : x;
-                y = y!.StartsWith(GuidPrefix) ? y.Substring(GuidPrefix.Length) : y;
+                Normalize(ref x);
+                Normalize(ref y);
 
-                return StringComparer.Compare(Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(x)), Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(y)));
+                return StringComparer.Compare(x, y);
             }
         }
 

@@ -1,8 +1,7 @@
-﻿using Coimbra.Editor;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     [CustomEditor(typeof(LintingSettings))]
     internal sealed class LintingSettingsEditor : ScriptableSettingsEditor

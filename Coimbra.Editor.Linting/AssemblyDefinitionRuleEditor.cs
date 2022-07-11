@@ -1,9 +1,8 @@
-﻿using Coimbra.Editor;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Base editor for any <see cref="AssemblyDefinitionRuleBase"/>.

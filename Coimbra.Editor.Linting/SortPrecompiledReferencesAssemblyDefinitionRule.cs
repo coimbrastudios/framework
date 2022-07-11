@@ -1,10 +1,9 @@
-﻿using Coimbra.Editor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Coimbra.Linting.Editor
+namespace Coimbra.Editor.Linting
 {
     /// <summary>
     /// Sort all precompiled references alphabetically.
