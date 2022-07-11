@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ed591b4040743858fb352fd8522feba, type: 3}
-  m_Name: SortReferencesByName
+  m_Script: {fileID: 11500000, guid: 30b8ca603d1b4b4792f7f7b138880a70, type: 3}
+  m_Name: ADR_BannedReferences_Coimbra
   m_EditorClassIdentifier: 
-  _includedMask:
-  - Assets/_Project/*
-  - '*/com.coimbrastudios.core/*'
-  _excludedMask: []
+  _includedPatterns:
+  - '*/Assembly-CSharp*'
+  _excludedPatterns: []
   _displayError: 0
+  _bannedReferences:
+  - '*/Coimbra.*'
