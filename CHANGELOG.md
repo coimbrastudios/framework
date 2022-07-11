@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.4] - UNRELEASED
+
 ## [10.9.3] - 2022-07-11
 
 - Added `ForceReferencyByNameAssemblyDefinitionRule`.
