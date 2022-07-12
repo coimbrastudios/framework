@@ -23,14 +23,6 @@ namespace Coimbra.Editor.Linting
         public bool DisableLocalUnityAnalyzers { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the Assets folder assembly should be updated each time a script is added to the project.
-        /// </summary>
-        [PublicAPI]
-        [field: SerializeField]
-        [field: Tooltip("If true, the tool to create the Assets folder assembly will be run each time a script is added to the project.")]
-        public bool ForceUpdateAssetsAssembly { get; set; }
-
-        /// <summary>
         /// Gets or sets collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.
         /// </summary>
         [NotNull]
