@@ -7,6 +7,12 @@
 - `Addressables` Helpers: some extra types to make working with it even easier.
     - `AssetReferenceComponentRestriction`: filters any `AssetReference` to only show `GameObject` with the specified components.
     - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.
+- Assembly Definition Rules: linting tools for assembly definition assets. It comes with a few implementations:
+    - `BannedReferences`: disallow referencing some assemblies inside specific assemblies.
+    - `ForceReferenceByName`: disallow referencing assemblies by their GUID.
+    - `RequiredReferences`: always reference some assemblies inside specific assemblies
+    - `SortPrecompiledReferences`: always sort precompiled references by their name.
+    - `SortReferencesByName`: always sort the references assemblies by their name.
 - Assets Assembly Creator: use `Tools/Coimbra Framework/Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder.
 - `CopyBaseConstructorsAttribute`: quick create types with the same constructors as their parent.
 - Decorator Attributes: decorator attributes fully compatible with Unity's standard workflow:

@@ -1,6 +1,9 @@
 # Changelog
 
-## [10.9.4] - UNRELEASED
+## [10.9.4] - 2022-07-11
+
+- Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules`.
+- Added option to `ForceUpdateAssetsAssembly` when importing any C# script.
 
 ## [10.9.3] - 2022-07-11
 
