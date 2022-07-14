@@ -2,6 +2,8 @@
 
 ## [10.9.5] - UNRELEASED
 
+- Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules` added in the last version.
+
 ## [10.9.4] - 2022-07-14
 
 - Added `FixEditorOnlyAssemblyDefinitionRule`.

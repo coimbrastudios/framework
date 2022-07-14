@@ -9,6 +9,8 @@
     - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.
 - Assembly Definition Rules: linting tools for assembly definition assets. It comes with a few implementations:
     - `BannedReferences`: disallow referencing some assemblies inside specific assemblies.
+    - `FixEditorOnly`: fix editor assemblies to have the correct platform and define constraints.
+    - `FixTestsOnly`: fix tests assemblies to have the correct precompiled reference and define constraints.
     - `ForceReferenceByName`: disallow referencing assemblies by their GUID.
     - `RequiredReferences`: always reference some assemblies inside specific assemblies
     - `SortPrecompiledReferences`: always sort precompiled references by their name.
