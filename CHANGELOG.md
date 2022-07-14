@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.5] - UNRELEASED
+
 ## [10.9.4] - 2022-07-14
 
 - Added `FixEditorOnlyAssemblyDefinitionRule`.
