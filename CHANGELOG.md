@@ -1,7 +1,9 @@
 # Changelog
 
-## [10.9.4] - UNRELEASED
+## [10.9.4] - 2022-07-14
 
+- Added `FixEditorOnlyAssemblyDefinitionRule`.
+- Added `FixTestsOnlyAssemblyDefinitionRule`.
 - Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules`.
 
 ## [10.9.3] - 2022-07-11

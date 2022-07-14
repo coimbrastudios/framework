@@ -179,7 +179,7 @@ namespace Coimbra.Editor
         public string[] ExcludePlatforms
         {
             get => excludePlatforms;
-            set => excludePlatforms = value;
+            set => excludePlatforms = value ?? Array.Empty<string>();
         }
 
         public string[] IncludePlatforms
