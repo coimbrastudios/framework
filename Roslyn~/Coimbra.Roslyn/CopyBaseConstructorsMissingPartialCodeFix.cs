@@ -7,6 +7,6 @@ namespace Coimbra.Roslyn
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     public sealed class CopyBaseConstructorsMissingPartialCodeFix : AddPartialKeywordCodeFix
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.CopyBaseConstructorsRequiresPartialKeyword.Id);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(CoimbraDiagnostics.CopyBaseConstructorsRequiresPartialKeyword.Id);
     }
 }

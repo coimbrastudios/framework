@@ -13,7 +13,7 @@ namespace Coimbra.Services
         private DefaultServiceFactory() { }
 
         /// <inheritdoc/>
-        public IService Create()
+        public IService GetService()
         {
             return new T();
         }

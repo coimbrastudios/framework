@@ -5,6 +5,7 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// <summary>
     /// Responsible for the application lifetime cycle, meant to be used to fire Unity's callbacks events.
     /// </summary>
+    [RequiredService]
     [RequireImplementors]
     public interface IApplicationStateService : IService
     {

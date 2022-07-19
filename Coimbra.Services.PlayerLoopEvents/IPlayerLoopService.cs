@@ -5,6 +5,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Responsible for any <see cref="IPlayerLoopEvent"/>.
     /// </summary>
+    [RequiredService]
     public interface IPlayerLoopService : IService
     {
         /// <summary>

@@ -20,9 +20,12 @@ namespace Coimbra.Services
         {
             internal readonly bool IsDynamic;
 
+            internal readonly bool IsRequired;
+
             public Service(Type type)
             {
                 IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
+                IsRequired = type.GetCustomAttribute<RequiredServiceAttribute>() != null;
             }
 
             internal IService? Value { get; set; }
@@ -44,6 +47,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be invoked.</param>
         /// <typeparam name="T">The service type.</typeparam>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddSetListener<T>(SetHandler callback)
             where T : class, IService
         {
@@ -62,33 +66,7 @@ namespace Coimbra.Services
         {
             Initialize(typeof(T), out Service service);
 
-            if (service.Value != null)
-            {
-                return service.Value as T;
-            }
-
-            if (service.Factory == null || !service.Factory.Create().TryGetValid(out IService? value))
-            {
-                return null;
-            }
-
-            switch (value)
-            {
-                case T result:
-                {
-                    Set(result);
-
-                    return result;
-                }
-
-                default:
-                {
-                    Debug.LogWarning($"Create callback for {typeof(T)} returned a service of type {value!.GetType()}! Disposing it...");
-                    value.Dispose();
-
-                    return null;
-                }
-            }
+            return Get<T>(service);
         }
 
         /// <summary>
@@ -96,11 +74,13 @@ namespace Coimbra.Services
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The service instance.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetChecked<T>()
             where T : class, IService
         {
-            T? value = Get<T>();
+            Initialize(typeof(T), out Service service);
+            Debug.Assert(service.IsRequired, $"Called {nameof(GetChecked)} for a service without {nameof(RequiredServiceAttribute)}! Use {nameof(Get)} or {nameof(TryGet)} instead.");
+
+            T? value = Get<T>(service);
             Debug.Assert(value.IsValid(), $"Called {nameof(GetChecked)} for a service that is null!");
 
             return value!;
@@ -224,6 +204,7 @@ namespace Coimbra.Services
         /// </summary>
         /// <param name="callback">The callback to be removed.</param>
         /// <typeparam name="T">The service type.</typeparam>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveSetListener<T>(SetHandler callback)
             where T : class, IService
         {
@@ -265,6 +246,7 @@ namespace Coimbra.Services
         /// Sets the factory for when a service needs to be created.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetFactory<T>(IServiceFactory? factory)
             where T : class, IService
         {
@@ -301,6 +283,39 @@ namespace Coimbra.Services
             }
 
             Services.Clear();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static T? Get<T>(Service service)
+            where T : class, IService
+        {
+            if (service.Value != null)
+            {
+                return service.Value as T;
+            }
+
+            if (service.Factory == null || !service.Factory.GetService().TryGetValid(out IService? value))
+            {
+                return null;
+            }
+
+            switch (value)
+            {
+                case T result:
+                {
+                    Set(result);
+
+                    return result;
+                }
+
+                default:
+                {
+                    Debug.LogWarning($"Create callback for {typeof(T)} returned a service of type {value!.GetType()}! Disposing it...");
+                    value.Dispose();
+
+                    return null;
+                }
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -9,6 +9,7 @@ namespace Coimbra.Services.Coroutines
     /// <summary>
     /// Provides easy access to Unity's <see cref="Coroutine"/> system without requiring the object to be an <see cref="MonoBehaviour"/>.
     /// </summary>
+    [RequiredService]
     [RequireImplementors]
     public interface ICoroutineService : IService
     {

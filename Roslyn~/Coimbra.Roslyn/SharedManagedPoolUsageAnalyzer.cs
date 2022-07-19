@@ -9,11 +9,11 @@ namespace Coimbra.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class SharedManagedPoolUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.SharedManagedPoolRequiresPartialKeyword,
-                                                                                                           Diagnostics.SharedManagedPoolDoesntSupportNestedTypes,
-                                                                                                           Diagnostics.SharedManagedPoolDoesntSupportGenericTypes,
-                                                                                                           Diagnostics.SharedManagedPoolRequiresToUseCreateShared,
-                                                                                                           Diagnostics.DoNotUseCreateSharedOutsideFromSharedManagedPool);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraDiagnostics.SharedManagedPoolRequiresPartialKeyword,
+                                                                                                           CoimbraDiagnostics.SharedManagedPoolDoesntSupportNestedTypes,
+                                                                                                           CoimbraDiagnostics.SharedManagedPoolDoesntSupportGenericTypes,
+                                                                                                           CoimbraDiagnostics.SharedManagedPoolRequiresToUseCreateShared,
+                                                                                                           CoimbraDiagnostics.DoNotUseCreateSharedOutsideFromSharedManagedPool);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -49,7 +49,7 @@ namespace Coimbra.Roslyn
                 }
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Diagnostics.DoNotUseCreateSharedOutsideFromSharedManagedPool, invocation.GetLocation(), methodSymbol.ContainingType));
+            context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.DoNotUseCreateSharedOutsideFromSharedManagedPool, invocation.GetLocation(), methodSymbol.ContainingType));
         }
 
         private void AnalyzeManagedPoolCreation(SyntaxNodeAnalysisContext context)
@@ -73,7 +73,7 @@ namespace Coimbra.Roslyn
                     continue;
                 }
 
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.SharedManagedPoolRequiresToUseCreateShared, objectCreation.GetLocation(), objectCreation.Type));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.SharedManagedPoolRequiresToUseCreateShared, objectCreation.GetLocation(), objectCreation.Type));
 
                 return;
             }
@@ -90,17 +90,17 @@ namespace Coimbra.Roslyn
 
             if (typeDeclaration.Parent is TypeDeclarationSyntax outerDeclaration)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.SharedManagedPoolDoesntSupportNestedTypes, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName(), outerDeclaration.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.SharedManagedPoolDoesntSupportNestedTypes, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName(), outerDeclaration.GetTypeName()));
             }
 
             if (!typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.SharedManagedPoolRequiresPartialKeyword, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.SharedManagedPoolRequiresPartialKeyword, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName()));
             }
 
             if (typeDeclaration.TypeParameterList != null)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.SharedManagedPoolDoesntSupportGenericTypes, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.SharedManagedPoolDoesntSupportGenericTypes, typeDeclaration.Identifier.GetLocation(), typeDeclaration.GetTypeName()));
             }
         }
     }

@@ -15,9 +15,9 @@ namespace Coimbra.Services
         private DefaultServiceActorFactory() { }
 
         /// <inheritdoc/>
-        public IService Create()
+        public IService GetService()
         {
-            return new GameObject(typeof(T).Name).AsActor<T>()!;
+            return Object.FindObjectOfType<T>().TryGetValid(out T value) ? value : new GameObject(typeof(T).Name).AsActor<T>()!;
         }
     }
 }

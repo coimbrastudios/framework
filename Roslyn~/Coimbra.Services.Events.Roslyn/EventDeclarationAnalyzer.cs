@@ -10,9 +10,9 @@ namespace Coimbra.Services.Events.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EventDeclarationAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial,
-                                                                                                           Diagnostics.ConcreteEventShouldNotBeNested,
-                                                                                                           Diagnostics.ClassEventShouldBeEitherAbstractOrSealed);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraServicesEventsDiagnostics.ConcreteEventShouldBePartial,
+                                                                                                           CoimbraServicesEventsDiagnostics.ConcreteEventShouldNotBeNested,
+                                                                                                           CoimbraServicesEventsDiagnostics.ClassEventShouldBeEitherAbstractOrSealed);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -33,17 +33,17 @@ namespace Coimbra.Services.Events.Roslyn
 
             if (typeDeclarationSyntax.Parent is TypeDeclarationSyntax parentTypeNode)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldNotBeNested, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName(), parentTypeNode.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesEventsDiagnostics.ConcreteEventShouldNotBeNested, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName(), parentTypeNode.GetTypeName()));
             }
 
             if (!typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ConcreteEventShouldBePartial, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesEventsDiagnostics.ConcreteEventShouldBePartial, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }
 
             if (typeDeclarationSyntax is ClassDeclarationSyntax && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.SealedKeyword) && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ClassEventShouldBeEitherAbstractOrSealed, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesEventsDiagnostics.ClassEventShouldBeEitherAbstractOrSealed, typeDeclarationSyntax.Identifier.GetLocation(), typeDeclarationSyntax.GetTypeName()));
             }
         }
     }

@@ -80,7 +80,14 @@ namespace Coimbra.Services.Roslyn
 
                             using (new BracesScope(sourceBuilder))
                             {
-                                sourceBuilder.AddLine($"ServiceLocator.Get<{typeData.InterfaceSymbol.Name}>();");
+                                if (typeData.InterfaceSymbol.HasAttribute(CoimbraServicesTypes.RequiredServiceAttribute, out _, false))
+                                {
+                                    sourceBuilder.AddLine($"ServiceLocator.GetChecked<{typeData.InterfaceSymbol.Name}>();");
+                                }
+                                else
+                                {
+                                    sourceBuilder.AddLine($"ServiceLocator.Get<{typeData.InterfaceSymbol.Name}>();");
+                                }
                             }
                         }
                     }

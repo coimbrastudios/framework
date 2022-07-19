@@ -11,7 +11,7 @@ namespace Coimbra.Services.Events.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EventServiceUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraServicesEventsDiagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -51,7 +51,7 @@ namespace Coimbra.Services.Events.Roslyn
              || context.SemanticModel.GetDeclaredSymbol(callerTypeDeclaration) is not { } callerType
              || !IsEventServiceUsageAllowedRecursive(callerType, methodTypeParameter))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, invocation.GetLocation(), methodTypeParameter.Name, methodName.Identifier.Text));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesEventsDiagnostics.EventServiceGenericMethodsShouldNotBeUsedDirectly, invocation.GetLocation(), methodTypeParameter.Name, methodName.Identifier.Text));
             }
         }
 
@@ -59,17 +59,12 @@ namespace Coimbra.Services.Events.Roslyn
         {
             if (methodTypeParameter is ITypeParameterSymbol genericType)
             {
-                foreach (ITypeSymbol constraintType in genericType.ConstraintTypes)
-                {
-                    if (IsEventServiceUsageAllowedRecursive(callerType, constraintType))
-                    {
-                        return true;
-                    }
-                }
+                return IsGenericMethodAllowed(callerType, genericType);
             }
-            else if (methodTypeParameter.HasAttribute(CoimbraServicesEventsTypes.AllowEventServiceUsageForAttribute, out AttributeData attributeData, true)
-                  && attributeData.ConstructorArguments.Length > 0
-                  && attributeData.ConstructorArguments[0].Value is INamedTypeSymbol allowedType)
+
+            if (methodTypeParameter.HasAttribute(CoimbraServicesEventsTypes.AllowEventServiceUsageForAttribute, out AttributeData attributeData, true)
+             && attributeData.ConstructorArguments.Length > 0
+             && attributeData.ConstructorArguments[0].Value is INamedTypeSymbol allowedType)
             {
                 if (attributeData.ConstructorArguments.Length == 1
                  || attributeData.ConstructorArguments[1].Value is bool and false)
@@ -80,6 +75,19 @@ namespace Coimbra.Services.Events.Roslyn
                     }
                 }
                 else if (callerType.Is(TypeString.From(allowedType)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsGenericMethodAllowed(ITypeSymbol callerType, ITypeParameterSymbol genericType)
+        {
+            foreach (ITypeSymbol constraintType in genericType.ConstraintTypes)
+            {
+                if (IsEventServiceUsageAllowedRecursive(callerType, constraintType))
                 {
                     return true;
                 }
