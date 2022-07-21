@@ -78,11 +78,13 @@ namespace Coimbra
         /// <value>
         /// If null, the file name will be in the format "{type}.asset".
         /// </value>
-        public string? FileNameOverride { get; set; } = null;
+        [PublicAPI]
+        public string? FileNameOverride { get; set; }
 
         /// <summary>
         /// Gets or sets the keywords to be used in the search functionality.
         /// </summary>
-        public string[]? Keywords { get; set; } = null;
+        [PublicAPI]
+        public string[]? Keywords { get; set; }
     }
 }

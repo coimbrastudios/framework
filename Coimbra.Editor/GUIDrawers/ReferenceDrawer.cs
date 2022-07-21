@@ -9,22 +9,18 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(Reference<>))]
     public sealed class ReferenceDrawer : PropertyDrawer
     {
-        private const string ValueProperty = "_value";
+        private static readonly ValueWrapperDrawer Drawer = new ValueWrapperDrawer("_value");
 
         /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative(ValueProperty), label, true);
+            return Drawer.GetPropertyHeight(property, label);
         }
 
         /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            property = property.FindPropertyRelative(ValueProperty);
-
-            using EditorGUI.PropertyScope propertyScope = new EditorGUI.PropertyScope(position, label, property);
-
-            EditorGUI.PropertyField(position, property, propertyScope.content, true);
+            Drawer.OnGUI(position, property, label);
         }
     }
 }

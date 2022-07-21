@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Render Image Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Render Image Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnRenderImage.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class RenderImageListener : MonoBehaviour

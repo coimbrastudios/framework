@@ -8,6 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public abstract class ParticleCollisionListenerBase<T> : MonoBehaviour
+        where T : Component
     {
         public delegate void EventHandler(ParticleCollisionListenerBase<T> sender, GameObject other);
 
@@ -23,7 +24,10 @@ namespace Coimbra.Listeners
         /// </summary>
         public T Component => _component != null ? _component : _component = GetComponent<T>();
 
-        private void OnParticleCollision(GameObject other)
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected void OnParticleCollision(GameObject other)
         {
             OnTrigger?.Invoke(this, other);
         }

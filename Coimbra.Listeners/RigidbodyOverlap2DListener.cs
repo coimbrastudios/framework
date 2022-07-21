@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Rigidbody2D"/>'s overlaps.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Overlap 2D Listener (Rigidbody 2D)")]
+    [AddComponentMenu(CoimbraListenersUtility.Physics2DMenuPath + "Overlap 2D Listener (Rigidbody 2D)")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/Rigidbody2D.OverlapCollider.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class RigidbodyOverlap2DListener : Overlap2DListenerBase<Rigidbody2D>

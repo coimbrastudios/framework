@@ -20,7 +20,7 @@ namespace Coimbra.Tests
 
             private DummyServiceFactory() { }
 
-            public IService Create()
+            public IService GetService()
             {
                 return new DummyService();
             }

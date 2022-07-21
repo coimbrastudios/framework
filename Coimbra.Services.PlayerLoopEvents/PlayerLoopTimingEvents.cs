@@ -39,51 +39,51 @@ namespace Coimbra.Services.PlayerLoopEvents
                 | LastPostLateUpdate,
 
         /// <inheritdoc cref="FirstInitializationEvent"/>
-        FirstInitialization = 1,
+        FirstInitialization = 1 << 0,
 
         /// <inheritdoc cref="LastInitializationEvent"/>
-        LastInitialization = 2,
+        LastInitialization = 1 << 1,
 
         /// <inheritdoc cref="FirstEarlyUpdateEvent"/>
-        FirstEarlyUpdate = 4,
+        FirstEarlyUpdate = 1 << 2,
 
         /// <inheritdoc cref="LastEarlyUpdateEvent"/>
-        LastEarlyUpdate = 8,
+        LastEarlyUpdate = 1 << 3,
 
         /// <inheritdoc cref="FirstFixedUpdateEvent"/>
-        FirstFixedUpdate = 16,
+        FirstFixedUpdate = 1 << 4,
 
         /// <inheritdoc cref="LastFixedUpdateEvent"/>
-        LastFixedUpdate = 32,
+        LastFixedUpdate = 1 << 5,
 
         /// <inheritdoc cref="FirstPreUpdateEvent"/>
-        FirstPreUpdate = 64,
+        FirstPreUpdate = 1 << 6,
 
         /// <inheritdoc cref="LastPreUpdateEvent"/>
-        LastPreUpdate = 128,
+        LastPreUpdate = 1 << 7,
 
         /// <inheritdoc cref="FirstUpdateEvent"/>
-        FirstUpdate = 256,
+        FirstUpdate = 1 << 8,
 
         /// <inheritdoc cref="LastUpdateEvent"/>
-        LastUpdate = 512,
+        LastUpdate = 1 << 9,
 
         /// <inheritdoc cref="PreLateUpdateEvent"/>
-        PreLateUpdate = 1024,
+        PreLateUpdate = 1 << 10,
 
         /// <inheritdoc cref="FirstPostLateUpdateEvent"/>
-        FirstPostLateUpdate = 2048,
+        FirstPostLateUpdate = 1 << 11,
 
         /// <inheritdoc cref="PostLateUpdateEvent"/>
-        PostLateUpdate = 4096,
+        PostLateUpdate = 1 << 12,
 
         /// <inheritdoc cref="LastPostLateUpdateEvent"/>
-        LastPostLateUpdate = 8192,
+        LastPostLateUpdate = 1 << 13,
 
         /// <inheritdoc cref="PreTimeUpdateEvent"/>
-        PreTimeUpdate = 16384,
+        PreTimeUpdate = 1 << 14,
 
         /// <inheritdoc cref="PostTimeUpdateEvent"/>
-        PostTimeUpdate = 32768,
+        PostTimeUpdate = 1 << 15,
     }
 }

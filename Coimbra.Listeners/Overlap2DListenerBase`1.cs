@@ -12,6 +12,7 @@ namespace Coimbra.Listeners
     [RequireComponent(typeof(PlayerLoopListenerBase))]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public abstract class Overlap2DListenerBase<T> : ActorComponentBase
+        where T : Component
     {
         public delegate void OverlapEventHandler(Overlap2DListenerBase<T> sender, Collider2D other);
 
@@ -188,7 +189,10 @@ namespace Coimbra.Listeners
             }
         }
 
-        private void OnDestroy()
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected void OnDestroy()
         {
             PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
         }

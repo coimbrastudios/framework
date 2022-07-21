@@ -1,5 +1,30 @@
 # Changelog
 
+## [10.8.6] - 2022-07-21
+
+- Added `RequiredServiceAttribute` to enable code to assume tha that a service is never null without requiring to be dynamic.
+- Added assertion for required services inside ServiceLocator.GetChecked.
+- Added `[RequiredService]` for all default services.
+- Added `EventHandleListUtility.RemoveListenersAndClear` to make easier to clear a list of `EventHandle`.
+- Added `FixEditorOnlyAssemblyDefinitionRule`.
+- Added `FixTestsOnlyAssemblyDefinitionRule`.
+- Added `ForceReferencyByNameAssemblyDefinitionRule`.
+- Added `Delayed<T>` wrapper struct.
+- Added `ISceneProcessorComponent` and `IScenePostProcessorComponent` interfaces to enable scene-level processing logic in runtime scripts.
+- Added `DebugOnly` component to allow creation of actors that should only exist in the editor or in development builds.
+- Added `HierarchyFolder`, a special kind of actor that re-parent all its children and destroys itself at runtime.
+- Changed `IServiceFactory.Create` to `IServiceFactory.GetService` as not always it will be actually creating a new service.
+- Changed `DefaultServiceActorFactory` to try to use `Object.FindObjectOfType` before creating a new instance.
+- Changed [RoslynAnalyzers](Documentation~/RoslynAnalyzers.md) documentation to be more readable and include planned analyzers.
+- Changed diagnostics to be split into different classes to match their new ID assignment.
+- Changed `Coimbra.Linting.Editor` to `Coimbra.Editor.Linting` as it is an editor-only feature.
+- Changed `BannedReferencesAssemblyDefinitionRule` to use paths instead of names.
+- Changed `LintingSettings` and `UPMAuthenticator` to use the `Assets` instead.
+- Changed `Actor.Initialize` to cancel initialization as soon that its `Destroy` method is called (i.e. inside `ActorComponent.PreInitialize` or `ActorComponent.PostInitialize`).
+- Fixed `RequiredReferencesAssemblyDefinitionRule` not checking the assembly name.
+- Fixed `SortReferencesByNameAssemblyDefinitionrule` not sorting correctly when not using GUIDs.
+- Removed `Actor.DeactivateOnInitializePrefab` as there was no support for undoing that operation when exiting play mode.
+
 ## [10.8.5] - 2022-06-30
 
 - Added `HideKeyLabelAttribute` and `HideValueLabelAttribute` to use with `SerializableDictionary`.

@@ -14,7 +14,11 @@ namespace Coimbra.Services.Roslyn
 
         public static readonly TypeString DisableDefaultFactoryAttribute = new("DisableDefaultFactoryAttribute", Namespace);
 
+        public static readonly TypeString DynamicServiceAttribute = new("DynamicServiceAttribute", Namespace);
+
         public static readonly TypeString PreloadServiceAttribute = new("PreloadServiceAttribute", Namespace);
+
+        public static readonly TypeString RequiredServiceAttribute = new("RequiredServiceAttribute", Namespace);
 
         public static readonly TypeString ServiceInterface = new("IService", Namespace);
 

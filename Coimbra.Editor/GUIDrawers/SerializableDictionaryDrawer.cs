@@ -254,7 +254,7 @@ namespace Coimbra.Editor
             list.onCanAddCallback = canAdd;
             list.onRemoveCallback = remove;
 
-            list.drawElementCallback = delegate(Rect position, int index, bool active, bool focused)
+            list.drawElementCallback = delegate(Rect position, int index, bool isActive, bool isFocused)
             {
                 SerializedProperty elementProperty = list.serializedProperty.GetArrayElementAtIndex(index);
                 float foldoutWidth = EditorStyles.foldout.CalcSize(GUIContent.none).x;
@@ -272,11 +272,9 @@ namespace Coimbra.Editor
                 using (new ResetIndentLevelScope())
                 {
                     using (new LabelWidthScope(keyPosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+                    using (new EditorGUI.DisabledScope(true))
                     {
-                        using (new EditorGUI.DisabledScope(true))
-                        {
-                            DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
-                        }
+                        DrawElement(keyPosition, keyProperty, list.serializedProperty.GetScopeInfo()!.FieldInfo.IsDefined(typeof(HideKeyLabelAttribute)));
                     }
 
                     using (new LabelWidthScope(valuePosition.width * LabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))

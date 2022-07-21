@@ -65,6 +65,12 @@ namespace Coimbra
             return type.Value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator SerializableType<T>(Type type)
+        {
+            return new SerializableType<T>(type);
+        }
+
         public override string ToString()
         {
             return TypeString.Get(Value);

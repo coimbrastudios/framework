@@ -9,7 +9,7 @@ namespace Coimbra.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class UnityUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ObjectDestroyShouldNotBeUsed);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraDiagnostics.ObjectDestroyShouldNotBeUsed);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -33,7 +33,7 @@ namespace Coimbra.Roslyn
 
             if (typeInfo.Type.Is(UnityEngineTypes.ObjectClass) || typeInfo.Type.Is(UnityEngineTypes.GameObjectClass) || typeInfo.Type.IsAssignableTo(CoimbraTypes.ActorClass))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ObjectDestroyShouldNotBeUsed, invocationExpressionSyntax.GetLocation(), invocationExpressionSyntax.ArgumentList.Arguments[0]));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ObjectDestroyShouldNotBeUsed, invocationExpressionSyntax.GetLocation(), invocationExpressionSyntax.ArgumentList.Arguments[0]));
             }
         }
     }

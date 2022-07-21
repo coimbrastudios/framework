@@ -11,8 +11,8 @@ namespace Coimbra.Services.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ServiceLocatorUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ServiceLocatorRequiresInterface,
-                                                                                                           Diagnostics.ServiceLocatorRequiresNonAbstractInterface);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresInterface,
+                                                                                                           CoimbraServicesDiagnostics.ServiceLocatorRequiresNonAbstractInterface);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -48,12 +48,12 @@ namespace Coimbra.Services.Roslyn
             {
                 if (typeSymbol.TypeKind is not TypeKind.TypeParameter)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
                 }
             }
             else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _, false))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
             }
         }
     }

@@ -15,7 +15,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Default excluded fields.
         /// </summary>
-        protected static readonly HashSet<string> DefaultExcludedFields = new HashSet<string>
+        protected static readonly HashSet<string> DefaultIgnoredProperties = new HashSet<string>()
         {
             "m_Script",
             "_type",
@@ -24,12 +24,14 @@ namespace Coimbra.Editor
         /// <summary>
         /// Excluded fields when <see cref="Type"/> is editor-only.
         /// </summary>
-        protected static readonly HashSet<string> ExcludedFieldsForEditorOnly = new HashSet<string>
+        protected static readonly HashSet<string> DefaultIgnoredPropertiesForEditorOnly = new HashSet<string>()
         {
             "m_Script",
             "_preload",
             "_type",
         };
+
+        private const float WindowLabelWidthPercent = 0.3f;
 
         /// <inheritdoc cref="ScriptableSettings.Type"/>
         protected ScriptableSettingsType Type { get; set; }
@@ -37,10 +39,82 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
+            using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * WindowLabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
+            {
+                DrawDefaultInspectorWithSearchSupport(Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
+            }
+        }
+
+        /// <summary>
+        /// Override this to define a custom searching logic.
+        /// </summary>
+        public virtual bool HasSearchInterest(string searchContext)
+        {
+            return HasSearchInterestInAnyProperty(searchContext, Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
+        }
+
+        /// <summary>
+        /// Helper method that uses <see cref="CoimbraGUIUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TryMatchSearch(string targetContent)
+        {
+            return CoimbraGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
+        }
+
+        /// <inheritdoc cref="TryMatchSearch(string)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TryMatchSearch(SerializedProperty property)
+        {
+            return ScriptableSettingsProvider.CurrentSearchContext == null || TryMatchSearch(property.displayName);
+        }
+
+        /// <summary>
+        /// Helper method that uses <see cref="TryMatchSearch(string)"/> before drawing a property field.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property)
+        {
+            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property) : (bool?)null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, bool includeChildren)
+        {
+            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, includeChildren) : (bool?)null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label)
+        {
+            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, label) : (bool?)null;
+        }
+
+        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label, bool includeChildren)
+        {
+            return TryMatchSearch(property) ? EditorGUILayout.PropertyField(property, label, includeChildren) : (bool?)null;
+        }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected virtual void OnEnable()
+        {
+            Type = ScriptableSettings.GetType(target.GetType());
+        }
+
+        /// <summary>
+        /// Draws the default inspector with basic search functionality for either the Preferences window or the Project Settings window.
+        /// </summary>
+        protected void DrawDefaultInspectorWithSearchSupport(HashSet<string> ignoredProperties)
+        {
             serializedObject.UpdateIfRequiredOrScript();
 
             using EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope();
-            HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;
 
@@ -48,7 +122,7 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (propertiesToExclude.Contains(iterator.name))
+                if (ignoredProperties.Contains(iterator.name))
                 {
                     continue;
                 }
@@ -81,13 +155,10 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Override this to define a custom searching logic.
+        /// Checks each property for a match with <paramref name="searchContext"/>.
         /// </summary>
-        public virtual bool HasSearchInterest(string searchContext)
+        protected bool HasSearchInterestInAnyProperty(in string searchContext, HashSet<string> ignoredProperties)
         {
-            serializedObject.UpdateIfRequiredOrScript();
-
-            HashSet<string> propertiesToExclude = Type.IsEditorOnly() ? ExcludedFieldsForEditorOnly : DefaultExcludedFields;
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;
 
@@ -95,7 +166,7 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (propertiesToExclude.Contains(iterator.name))
+                if (ignoredProperties.Contains(iterator.name))
                 {
                     continue;
                 }
@@ -107,60 +178,6 @@ namespace Coimbra.Editor
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Helper method that uses <see cref="CoimbraGUIUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool TryMatchSearch(string targetContent)
-        {
-            return CoimbraGUIUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
-        }
-
-        /// <inheritdoc cref="TryMatchSearch(string)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool TryMatchSearch(SerializedProperty property)
-        {
-            return ScriptableSettingsProvider.CurrentSearchContext == null || TryMatchSearch(property.displayName);
-        }
-
-        /// <summary>
-        /// Helper method that uses <see cref="TryMatchSearch(string)"/> before drawing a property field.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool? TryPropertyField(SerializedProperty property)
-        {
-            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property) : null;
-        }
-
-        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool? TryPropertyField(SerializedProperty property, bool includeChildren)
-        {
-            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, includeChildren) : null;
-        }
-
-        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label)
-        {
-            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label) : null;
-        }
-
-        /// <inheritdoc cref="TryPropertyField(SerializedProperty)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool? TryPropertyField(SerializedProperty property, GUIContent label, bool includeChildren)
-        {
-            return TryMatchSearch(property) ? (bool?)EditorGUILayout.PropertyField(property, label, includeChildren) : null;
-        }
-
-        /// <summary>
-        /// Unity callback.
-        /// </summary>
-        protected virtual void OnEnable()
-        {
-            Type = ScriptableSettings.GetType(target.GetType());
         }
     }
 }

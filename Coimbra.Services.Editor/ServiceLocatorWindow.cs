@@ -15,11 +15,11 @@ namespace Coimbra.Services.Editor
     {
         private enum WindowMode
         {
-            CurrentServices,
+            CurrentServices = 0,
 
-            ServicesClasses,
+            ServicesClasses = 1,
 
-            ServicesInterfaces,
+            ServicesInterfaces = 2,
         }
 
         private const string WindowsTitle = "Service Locator";

@@ -68,7 +68,7 @@ namespace Coimbra
         /// <summary>
         /// Gets or sets the directory to save the file if <see cref="IsEditorOnly"/> is true.
         /// </summary>
-        public string FileDirectory { get; set; } = DefaultFileDirectory;
+        public string? FileDirectory { get; set; } = DefaultFileDirectory;
 
         /// <summary>
         /// Gets or sets a value that overrides the default file name.
@@ -76,11 +76,13 @@ namespace Coimbra
         /// <value>
         /// If null, the file name will be in the format "{type}.asset".
         /// </value>
-        public string? FileNameOverride { get; set; } = null;
+        [PublicAPI]
+        public string? FileNameOverride { get; set; }
 
         /// <summary>
         /// Gets or sets the keywords to be used in the search functionality.
         /// </summary>
-        public string[]? Keywords { get; set; } = null;
+        [PublicAPI]
+        public string[]? Keywords { get; set; }
     }
 }

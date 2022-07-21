@@ -51,7 +51,7 @@ namespace Coimbra
 
                 if (!string.IsNullOrWhiteSpace(type.Namespace))
                 {
-                    stringBuilder.Append($" ({type.Namespace})");
+                    stringBuilder.Append(" (").Append(type.Namespace).Append(")");
                 }
 
                 value = stringBuilder.ToString();

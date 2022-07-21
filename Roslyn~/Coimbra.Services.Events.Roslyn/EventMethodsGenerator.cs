@@ -190,12 +190,12 @@ namespace Coimbra.Services.Events.Roslyn
         {
             EventSyntaxReceiver syntaxReceiver = (EventSyntaxReceiver)context.SyntaxReceiver;
 
-            foreach (TypeDeclarationSyntax syntaxNode in syntaxReceiver!.Types)
+            foreach (TypeDeclarationSyntax typeDeclarationSyntax in syntaxReceiver!.Types)
             {
-                if (context.Compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetDeclaredSymbol(syntaxNode) is { } typeSymbol
+                if (context.Compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree).GetDeclaredSymbol(typeDeclarationSyntax) is ITypeSymbol typeSymbol
                  && typeSymbol.ImplementsInterface(CoimbraServicesEventsTypes.EventInterface))
                 {
-                    yield return syntaxNode;
+                    yield return typeDeclarationSyntax;
                 }
             }
         }

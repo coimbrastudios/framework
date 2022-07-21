@@ -8,6 +8,6 @@ namespace Coimbra.Services.Events.Roslyn
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     public sealed class EventDeclarationNestedTypeCodeFix : MoveToOuterScopeCodeFix
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.ConcreteEventShouldNotBeNested.Id);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(CoimbraServicesEventsDiagnostics.ConcreteEventShouldNotBeNested.Id);
     }
 }

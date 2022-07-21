@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="OnBeforeTransformParentChanged"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Before Transform Parent Changed Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.TransformOrHierarchyMenuPath + "Before Transform Parent Changed Listener")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html#UnityEngine_EventSystems_UIBehaviour_OnBeforeTransformParentChanged")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class BeforeTransformParentChangedListener : MonoBehaviour

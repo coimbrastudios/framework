@@ -33,17 +33,17 @@ namespace Coimbra
             /// <summary>
             /// Instigated by an user code explicitly.
             /// </summary>
-            ExplicitCall,
+            ExplicitCall = 0,
 
             /// <summary>
             /// Instigated by a scene change when the object was not flagged to don't destroy on load.
             /// </summary>
-            SceneChange,
+            SceneChange = 1,
 
             /// <summary>
             /// Being called due the application being shutdown.
             /// </summary>
-            ApplicationQuit,
+            ApplicationQuit = 2,
         }
 
         /// <summary>
@@ -160,12 +160,6 @@ namespace Coimbra
         [Tooltip("If true, it will deactivate the object when despawning it.")]
         private bool _deactivateOnDespawn;
 
-        [SerializeField]
-        [DisableOnPlayMode]
-        [FormerlySerializedAsBackingFieldOf("DeactivatePrefabOnInitialize")]
-        [Tooltip("If true, it will deactivate the prefab when initializing it.")]
-        private bool _deactivateOnInitializePrefab;
-
         private GameObjectID? _gameObjectID;
 
         private AsyncOperationHandle<GameObject> _operationHandle;
@@ -216,17 +210,6 @@ namespace Coimbra
             get => _deactivateOnDespawn;
             [DebuggerStepThrough]
             set => _deactivateOnDespawn = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether it will deactivate the prefab when initializing it.
-        /// </summary>
-        public bool DeactivateOnInitializePrefab
-        {
-            [DebuggerStepThrough]
-            get => _deactivateOnInitializePrefab;
-            [DebuggerStepThrough]
-            set => _deactivateOnInitializePrefab = value;
         }
 
         /// <summary>
@@ -440,22 +423,7 @@ namespace Coimbra
                 States |= StateFlags.IsPooled;
             }
 
-            using (ListPool.Pop(out List<ActorComponentBase> components))
-            {
-                GetComponents(components);
-
-                foreach (ActorComponentBase component in components)
-                {
-                    component.PreInitialize(this);
-                }
-
-                OnInitialize();
-
-                foreach (ActorComponentBase component in components)
-                {
-                    component.PostInitialize();
-                }
-            }
+            InitializeComponentsAndSelf();
 
             if (!IsPooled)
             {
@@ -539,13 +507,7 @@ namespace Coimbra
         /// <summary>
         /// Use this for one-time initializations on prefabs.
         /// </summary>
-        protected virtual void OnInitializePrefab()
-        {
-            if (_deactivateOnInitializePrefab)
-            {
-                GameObject.SetActive(false);
-            }
-        }
+        protected virtual void OnInitializePrefab() { }
 
         /// <summary>
         /// Called each time this object is spawned. By default, it activates the object.
@@ -563,10 +525,23 @@ namespace Coimbra
         /// </summary>
         protected virtual void OnValidate()
         {
-            if (Application.isPlaying)
+            if (CoimbraUtility.IsPlayMode && !CoimbraUtility.IsFirstFrame)
             {
                 Initialize();
             }
+        }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
+        protected virtual void Reset()
+        {
+#if UNITY_EDITOR
+            while (UnityEditorInternal.ComponentUtility.MoveComponentUp(this))
+            {
+                // just moving the component to the top
+            }
+#endif
         }
 
         /// <summary>
@@ -710,9 +685,9 @@ namespace Coimbra
             {
                 if (CoimbraUtility.IsPlayMode)
                 {
-#pragma warning disable COIMBRA0019
+#pragma warning disable COIMBRA0008
                     Object.Destroy(gameObject);
-#pragma warning restore COIMBRA0019
+#pragma warning restore COIMBRA0008
                 }
                 else
                 {
@@ -727,6 +702,36 @@ namespace Coimbra
             _transform = null;
             InitializedActorCount.Value--;
             CachedActors.Remove(GameObjectID);
+        }
+
+        private void InitializeComponentsAndSelf()
+        {
+            using (ListPool.Pop(out List<ActorComponentBase> components))
+            {
+                GetComponents(components);
+
+                foreach (ActorComponentBase component in components)
+                {
+                    component.PreInitialize(this);
+
+                    if (IsDestroyed)
+                    {
+                        return;
+                    }
+                }
+
+                OnInitialize();
+
+                foreach (ActorComponentBase component in components)
+                {
+                    if (IsDestroyed)
+                    {
+                        return;
+                    }
+
+                    component.PostInitialize();
+                }
+            }
         }
     }
 }

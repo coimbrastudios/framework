@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterController))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Controller Collider Hit Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Controller Collider Hit Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnControllerColliderHit.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class ControllerColliderHitListener : MonoBehaviour

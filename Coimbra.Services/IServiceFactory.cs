@@ -8,8 +8,8 @@ namespace Coimbra.Services
     public interface IServiceFactory
     {
         /// <summary>
-        /// Implements this to determine how the service should be create.
+        /// Implements this to determine which service instance should be returned.
         /// </summary>
-        IService? Create();
+        IService? GetService();
     }
 }

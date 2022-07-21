@@ -10,8 +10,8 @@ namespace Coimbra.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class CopyBaseConstructorsUsageAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.CopyBaseConstructorsRequiresPartialKeyword,
-                                                                                                           Diagnostics.CopyBaseConstructorsDoesntSupportNestedTypes);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraDiagnostics.CopyBaseConstructorsRequiresPartialKeyword,
+                                                                                                           CoimbraDiagnostics.CopyBaseConstructorsDoesntSupportNestedTypes);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -32,12 +32,12 @@ namespace Coimbra.Roslyn
 
             if (classDeclarationSyntax.Parent is TypeDeclarationSyntax parentTypeNode)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.CopyBaseConstructorsDoesntSupportNestedTypes, classDeclarationSyntax.Identifier.GetLocation(), classDeclarationSyntax.GetTypeName(), parentTypeNode.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.CopyBaseConstructorsDoesntSupportNestedTypes, classDeclarationSyntax.Identifier.GetLocation(), classDeclarationSyntax.GetTypeName(), parentTypeNode.GetTypeName()));
             }
 
             if (!classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.CopyBaseConstructorsRequiresPartialKeyword, classDeclarationSyntax.Identifier.GetLocation(), classDeclarationSyntax.GetTypeName()));
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.CopyBaseConstructorsRequiresPartialKeyword, classDeclarationSyntax.Identifier.GetLocation(), classDeclarationSyntax.GetTypeName()));
             }
         }
     }

@@ -47,9 +47,9 @@ namespace Coimbra
             }
             else if (CoimbraUtility.IsPlayMode)
             {
-#pragma warning disable COIMBRA0019
+#pragma warning disable COIMBRA0008
                 Object.Destroy(gameObject);
-#pragma warning restore COIMBRA0019
+#pragma warning restore COIMBRA0008
             }
             else
             {
@@ -126,7 +126,9 @@ namespace Coimbra
         /// </summary>
         public static bool HasComponent<T>(this GameObject gameObject)
         {
+#pragma warning disable UNT0014
             return gameObject.TryGetComponent<T>(out _);
+#pragma warning restore UNT0014
         }
 
         /// <summary>

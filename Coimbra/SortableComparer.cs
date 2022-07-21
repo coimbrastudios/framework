@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Coimbra
@@ -7,7 +8,7 @@ namespace Coimbra
     /// <summary>
     /// Default comparer for any <see cref="ISortable"/>.
     /// </summary>
-    public sealed class SortableComparer : IComparer<ISortable>
+    public sealed class SortableComparer : IComparer<ISortable>, IComparer
     {
         /// <summary>
         /// Default instance that can be safely reused.
@@ -33,6 +34,12 @@ namespace Coimbra
             }
 
             return x.Order.CompareTo(y.Order);
+        }
+
+        /// <inheritdoc/>
+        public int Compare(object x, object y)
+        {
+            return Compare(x as ISortable, y as ISortable);
         }
     }
 }

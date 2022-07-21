@@ -79,12 +79,13 @@ namespace Coimbra.Editor
                     settings.Save();
                 }
             }
-            else
+            else if (ScriptableSettings.TryGetOrFind(_type, out settings))
             {
-                if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
-                {
-                    CreateScriptableSettings();
-                }
+                SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
+            }
+            else if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
+            {
+                CreateScriptableSettings();
             }
         }
 
@@ -145,7 +146,7 @@ namespace Coimbra.Editor
 
             string? extension = Path.GetExtension(path);
 
-            if (string.Compare(extension, ".asset", StringComparison.InvariantCultureIgnoreCase) != 0)
+            if (StringComparer.InvariantCultureIgnoreCase.Compare(extension, ".asset") != 0)
             {
                 path += ".asset";
             }

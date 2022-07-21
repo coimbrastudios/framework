@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Coimbra.Editor
 {
-    internal class ScriptableSettingsPostprocessor : AssetPostprocessor
+    internal sealed class ScriptableSettingsPostprocessor : AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
@@ -34,16 +34,13 @@ namespace Coimbra.Editor
                     {
                         PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
                     }
-                }
 
-                foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(ScriptableSettings)}"))
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    ScriptableSettings settings = AssetDatabase.LoadAssetAtPath<ScriptableSettings>(path);
-
-                    if (settings != null && settings.Type.IsEditorOnly())
+                    foreach (Object o in pooledList)
                     {
-                        Debug.LogError($"{settings} is editor-only but exists in the Assets folder. This is not supported!", settings);
+                        if (o is ScriptableSettings settings && settings.Type.IsEditorOnly())
+                        {
+                            Debug.LogError($"{settings} is editor-only but is set to preload. This is not supported!", settings);
+                        }
                     }
                 }
             }

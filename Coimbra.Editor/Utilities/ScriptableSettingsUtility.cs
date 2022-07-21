@@ -43,7 +43,6 @@ namespace Coimbra.Editor
                 if (!TryLoad(type, filePath, scriptableSettings.Type, out ScriptableSettings? target))
                 {
                     target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                    scriptableSettings.name = type.Name;
                 }
 
                 JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(target), scriptableSettings);
@@ -52,8 +51,6 @@ namespace Coimbra.Editor
             else if (settingsScope == SettingsScope.User)
             {
                 ScriptableSettings target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                target.name = type.Name;
-
                 string defaultValue = EditorJsonUtility.ToJson(target, false);
                 string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
                 EditorJsonUtility.FromJsonOverwrite(newValue, scriptableSettings);
@@ -65,6 +62,13 @@ namespace Coimbra.Editor
 
                 Object.DestroyImmediate(target, false);
             }
+        }
+
+        /// <inheritdoc cref="LoadOrCreate"/>
+        public static T? LoadOrCreate<T>(ScriptableSettings.FindHandler? findCallback = null)
+            where T : ScriptableSettings
+        {
+            return (T?)LoadOrCreate(typeof(T), findCallback);
         }
 
         /// <summary>
@@ -98,12 +102,10 @@ namespace Coimbra.Editor
                 }
 
                 value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                value.name = type.Name;
             }
             else if (settingsScope == SettingsScope.User)
             {
                 value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                value.name = type.Name;
 
                 string defaultValue = EditorJsonUtility.ToJson(value, false);
                 string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
@@ -114,7 +116,6 @@ namespace Coimbra.Editor
                     Object.DestroyImmediate(value, false);
 
                     value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                    value.name = type.Name;
                 }
             }
 
@@ -180,7 +181,7 @@ namespace Coimbra.Editor
             {
                 settingsScope = SettingsScope.Project;
                 windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? CoimbraGUIUtility.GetDisplayName(type.Name)}";
-                filePath = projectSettingsAttribute.IsEditorOnly ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
+                filePath = projectSettingsAttribute.IsEditorOnly && projectSettingsAttribute.FileDirectory != null ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
                 keywords = projectSettingsAttribute.Keywords;
             }
 

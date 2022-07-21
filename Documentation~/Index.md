@@ -2,10 +2,19 @@
 
 ## List of Contents
 
-- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`.
+- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`. An example is provided:
+    - `DebugOnly`: makes an `Actor` always be destroyed in release builds.
 - `Addressables` Helpers: some extra types to make working with it even easier.
     - `AssetReferenceComponentRestriction`: filters any `AssetReference` to only show `GameObject` with the specified components.
     - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.
+- Assembly Definition Rules: linting tools for assembly definition assets. It comes with a few implementations:
+    - `BannedReferences`: disallow referencing some assemblies inside specific assemblies.
+    - `FixEditorOnly`: fix editor assemblies to have the correct platform and define constraints.
+    - `FixTestsOnly`: fix tests assemblies to have the correct precompiled reference and define constraints.
+    - `ForceReferenceByName`: disallow referencing assemblies by their GUID.
+    - `RequiredReferences`: always reference some assemblies inside specific assemblies
+    - `SortPrecompiledReferences`: always sort precompiled references by their name.
+    - `SortReferencesByName`: always sort the references assemblies by their name.
 - Assets Assembly Creator: use `Tools/Coimbra Framework/Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder.
 - `CopyBaseConstructorsAttribute`: quick create types with the same constructors as their parent.
 - Decorator Attributes: decorator attributes fully compatible with Unity's standard workflow:
@@ -16,6 +25,7 @@
 - Editor Tools: general utilities under `Tools/Coimbra Framework` menu.
 - `FormerlySerializedAsBackingFieldOfAttribute`: `FormerlySerializedAs` subclass that correctly formats the input to `<{propertyName}>k__BackingField`.
 - `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
+- `HierarchyFolder`: organize your object into folders that doesn't affect the hierarchy at runtime.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
 - Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
 - Listeners: components to be used to listen for common events:
@@ -81,8 +91,8 @@
 - `PropertyPathInfo`: reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - `Reference<T>`: create a `Reference` for any value or even another reference.
 - [Roslyn Analyzers](RoslynAnalyzers.md)
-- `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences
-  with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
+- `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
+- Scene Processing: Use `ISceneProcessorComponent` and `IScenePostProcessorComponent` with any `MonoBehaviour` to add logic that will be executed while the `Scene` of the `GameObject` is processing.
 - `SerializableDictionary`: supports modifying and saving through the inspector. It is has some special behaviour based on some attributes:
     - `DisableResizeAttribute`: will disable the size field and stop showing the buttons to add or remove elements.
     - `DisableAttribute`: will stop showing the drag handle and stop showing the buttons to add or remove elements.

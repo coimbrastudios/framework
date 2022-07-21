@@ -8,6 +8,6 @@ namespace Coimbra.Services.Events.Roslyn
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     public sealed class EventDeclarationMissingPartialCodeFix : AddPartialKeywordCodeFix
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Diagnostics.ConcreteEventShouldBePartial.Id);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(CoimbraServicesEventsDiagnostics.ConcreteEventShouldBePartial.Id);
     }
 }

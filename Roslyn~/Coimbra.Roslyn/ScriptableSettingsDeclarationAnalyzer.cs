@@ -9,10 +9,10 @@ namespace Coimbra.Roslyn
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ScriptableSettingsDeclarationAnalyzer : DiagnosticAnalyzer
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Diagnostics.ScriptableSettingsHasConflictingAttributes,
-                                                                                                           Diagnostics.ScriptableSettingsFileDirectoryIsInvalid,
-                                                                                                           Diagnostics.ScriptableSettingsShouldNotBeAbstract,
-                                                                                                           Diagnostics.ScriptableSettingsShouldNotBeGeneric);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraDiagnostics.ScriptableSettingsHasConflictingAttributes,
+                                                                                                           CoimbraDiagnostics.ScriptableSettingsFileDirectoryIsInvalid,
+                                                                                                           CoimbraDiagnostics.ScriptableSettingsShouldNotBeAbstract,
+                                                                                                           CoimbraDiagnostics.ScriptableSettingsShouldNotBeGeneric);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -42,7 +42,7 @@ namespace Coimbra.Roslyn
             {
                 if (hasPreferencesAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeAbstract,
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsShouldNotBeAbstract,
                                                                classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
                                                                classDeclaration.GetTypeName()));
@@ -50,7 +50,7 @@ namespace Coimbra.Roslyn
 
                 if (hasProjectSettingsAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeAbstract,
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsShouldNotBeAbstract,
                                                                classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.ProjectSettingsAttribute.Name,
                                                                classDeclaration.GetTypeName()));
@@ -63,7 +63,7 @@ namespace Coimbra.Roslyn
             {
                 if (hasPreferencesAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeGeneric,
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsShouldNotBeGeneric,
                                                                classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
                                                                classDeclaration.GetTypeName()));
@@ -71,7 +71,7 @@ namespace Coimbra.Roslyn
 
                 if (hasProjectSettingsAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsShouldNotBeGeneric,
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsShouldNotBeGeneric,
                                                                classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.ProjectSettingsAttribute.Name,
                                                                classDeclaration.GetTypeName()));
@@ -84,11 +84,11 @@ namespace Coimbra.Roslyn
             {
                 if (hasProjectSettingsAttribute)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsHasConflictingAttributes, classDeclaration.BaseList!.GetLocation(), classDeclaration.GetTypeName()));
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsHasConflictingAttributes, classDeclaration.BaseList!.GetLocation(), classDeclaration.GetTypeName()));
                 }
                 else if (HasInvalidFileDirectory(preferencesAttribute, out string shouldNotMessage))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsFileDirectoryIsInvalid,
+                    context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsFileDirectoryIsInvalid,
                                                                classDeclaration.BaseList!.GetLocation(),
                                                                CoimbraTypes.PreferencesAttribute.Name,
                                                                classDeclaration.GetTypeName(),
@@ -97,7 +97,7 @@ namespace Coimbra.Roslyn
             }
             else if (HasInvalidFileDirectory(projectSettingsAttribute, out string shouldNotMessage))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Diagnostics.ScriptableSettingsFileDirectoryIsInvalid,
+                context.ReportDiagnostic(Diagnostic.Create(CoimbraDiagnostics.ScriptableSettingsFileDirectoryIsInvalid,
                                                            classDeclaration.BaseList!.GetLocation(),
                                                            CoimbraTypes.ProjectSettingsAttribute.Name,
                                                            classDeclaration.GetTypeName(),

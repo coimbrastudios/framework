@@ -27,11 +27,6 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="Value"/> is not null.
-        /// </summary>
-        public bool HasValue => _value.IsValid();
-
-        /// <summary>
         /// Gets or sets the current value.
         /// </summary>
         [CanBeNull]
@@ -45,7 +40,7 @@ namespace Coimbra
         [CanBeNull]
         public static implicit operator T([CanBeNull] Reference<T> target)
         {
-            return target != default ? target.Value : default;
+            return target != null ? target.Value : default;
         }
 
         [Pure]
@@ -53,11 +48,6 @@ namespace Coimbra
         public override string ToString()
         {
             return $"ref({_value})";
-        }
-
-        public bool TryGetValue([CanBeNull] out T value)
-        {
-            return _value.TryGetValid(out value);
         }
     }
 }

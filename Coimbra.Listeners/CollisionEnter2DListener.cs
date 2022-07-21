@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Collider2D"/>'s <see cref="OnCollisionEnter2D"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Collision Enter 2D Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.Physics2DMenuPath + "Collision Enter 2D Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnCollisionEnter2D.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class CollisionEnter2DListener : Collision2DListenerBase

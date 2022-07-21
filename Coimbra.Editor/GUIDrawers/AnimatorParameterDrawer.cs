@@ -28,21 +28,21 @@ namespace Coimbra.Editor
 
         private static readonly List<GUIContent> Contents = new List<GUIContent>();
 
-        private static readonly Dictionary<AnimatorControllerParameterType, string[]> NoParameterFoundErrorDictionary = new Dictionary<AnimatorControllerParameterType, string[]>
+        private static readonly Dictionary<AnimatorControllerParameterType, string[]> NoParameterFoundErrorDictionary = new Dictionary<AnimatorControllerParameterType, string[]>()
         {
-            [AnimatorControllerParameterType.Float] = new[]
+            [AnimatorControllerParameterType.Float] = new string[]
             {
                 string.Format(NoParameterFoundError, "float"),
             },
-            [AnimatorControllerParameterType.Int] = new[]
+            [AnimatorControllerParameterType.Int] = new string[]
             {
                 string.Format(NoParameterFoundError, "int"),
             },
-            [AnimatorControllerParameterType.Bool] = new[]
+            [AnimatorControllerParameterType.Bool] = new string[]
             {
                 string.Format(NoParameterFoundError, "bool"),
             },
-            [AnimatorControllerParameterType.Trigger] = new[]
+            [AnimatorControllerParameterType.Trigger] = new string[]
             {
                 string.Format(NoParameterFoundError, "trigger"),
             },

@@ -7,7 +7,7 @@ namespace Coimbra.Roslyn
 {
     public sealed class CopyBaseConstructorsSyntaxReceiver : ISyntaxReceiver
     {
-        public readonly List<ClassDeclarationSyntax> Types = new();
+        public readonly List<CopyBaseConstructorsTypeInfo> Types = new();
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
@@ -18,23 +18,12 @@ namespace Coimbra.Roslyn
                 return;
             }
 
-            foreach (AttributeListSyntax attributeList in classDeclaration.AttributeLists)
+            CopyBaseConstructorsTypeInfo type = new()
             {
-                foreach (AttributeSyntax attribute in attributeList.Attributes)
-                {
-                    string attributeName = attribute.Name.ToString();
+                ClassDeclaration = classDeclaration,
+            };
 
-                    if (attributeName != CoimbraTypes.CopyBaseConstructorsAttribute.Name
-                     && attributeName != "CopyBaseConstructors")
-                    {
-                        continue;
-                    }
-
-                    Types.Add(classDeclaration);
-
-                    return;
-                }
-            }
+            Types.Add(type);
         }
     }
 }

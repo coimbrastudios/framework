@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Renderer))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Will Render Object Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Will Render Object Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnWillRenderObject.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class WillRenderObjectListener : MonoBehaviour

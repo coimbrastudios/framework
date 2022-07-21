@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Collider"/>'s <see cref="OnTriggerExit"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Trigger Exit Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Trigger Exit Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerExit.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class TriggerExitListener : TriggerListenerBase

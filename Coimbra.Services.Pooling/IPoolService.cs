@@ -8,6 +8,7 @@ namespace Coimbra.Services.Pooling
     /// <summary>
     /// Pooling service for <see cref="GameObject"/>.
     /// </summary>
+    [RequiredService]
     [RequireImplementors]
     public interface IPoolService : IService
     {

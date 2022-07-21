@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Pre Cull Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.RenderingMenuPath + "Pre Cull Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnPreCull.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class PreCullListener : MonoBehaviour

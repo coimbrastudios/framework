@@ -7,7 +7,7 @@ namespace Coimbra.Listeners
     /// Listen to <see cref="Collider"/>'s <see cref="OnTriggerEnter"/> callback.
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Trigger Enter Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Trigger Enter Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnTriggerEnter.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class TriggerEnterListener : TriggerListenerBase

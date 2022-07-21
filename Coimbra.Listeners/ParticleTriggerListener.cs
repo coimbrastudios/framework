@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ParticleSystem))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Particle Trigger Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.ParticleSystemMenuPath + "Particle Trigger Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnParticleTrigger.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class ParticleTriggerListener : MonoBehaviour

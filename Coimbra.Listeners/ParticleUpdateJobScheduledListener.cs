@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ParticleSystem))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Particle Update Job Scheduled Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.ParticleSystemMenuPath + "Particle Update Job Scheduled Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnParticleUpdateJobScheduled.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class ParticleUpdateJobScheduledListener : MonoBehaviour

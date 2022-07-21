@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Rect Transform Dimensions Change Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.TransformOrHierarchyMenuPath + "Rect Transform Dimensions Change Listener")]
     [HelpURL("https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html#UnityEngine_EventSystems_UIBehaviour_OnRectTransformDimensionsChange")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class RectTransformDimensionsChangeListener : MonoBehaviour

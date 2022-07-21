@@ -1,22 +1,24 @@
 {
     "name": "Coimbra.Services.Events.Editor",
     "rootNamespace": "",
-    "allowUnsafeCode": false,
-    "autoReferenced": true,
-    "noEngineReferences33": false,
-    "overrideReferences": false,
-    "defineConstraints": [],
-    "excludePlatforms": [],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "precompiledReferences": [],
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
-        "GUID:e10668b017190974fa18141cc6f7bb36",
         "GUID:d2bbca7254de5e746857b04cfb560876",
-        "GUID:b763ff73a93a62c4ea128e32ed2cd0d6"
+        "GUID:b763ff73a93a62c4ea128e32ed2cd0d6",
+        "GUID:e10668b017190974fa18141cc6f7bb36"
     ],
-    "versionDefines": []
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

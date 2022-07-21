@@ -9,6 +9,7 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// Event service that also has encapsulation for some of its methods.
     /// </summary>
+    [RequiredService]
     [RequireImplementors]
     public interface IEventService : IService
     {

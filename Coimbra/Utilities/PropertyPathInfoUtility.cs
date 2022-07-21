@@ -74,60 +74,58 @@ namespace Coimbra
             bool isDynamic = target != null;
 
             using (StringBuilderPool.Pop(out StringBuilder propertyPathBuilder))
+            using (ListPool.Pop(out List<string> splitPropertyPath))
             {
-                using (ListPool.Pop(out List<string> splitPropertyPath))
+                splitPropertyPath.AddRange(splitPropertyPathArray);
+
+                const char separator = '.';
+                PropertyPathInfo currentPropertyPathInfo = null;
+                Type currentType = rootType;
+                int currentDepth = 0;
+
+                while (splitPropertyPath.Count > 0)
                 {
-                    splitPropertyPath.AddRange(splitPropertyPathArray);
-
-                    const char separator = '.';
-                    PropertyPathInfo currentPropertyPathInfo = null;
-                    Type currentType = rootType;
-                    int currentDepth = 0;
-
-                    while (splitPropertyPath.Count > 0)
+                    if (propertyPathBuilder.Length > 0)
                     {
-                        if (propertyPathBuilder.Length > 0)
-                        {
-                            propertyPathBuilder.Append(".");
-                        }
-
-                        FieldInfo fieldInfo = GetField(currentType, splitPropertyPath[0]);
-                        propertyPathBuilder.Append(splitPropertyPath[0]);
-                        splitPropertyPath.RemoveAt(0);
-
-                        string propertyPath = propertyPathBuilder.ToString();
-
-                        if (fieldInfo == null)
-                        {
-                            currentPropertyPathInfo = null;
-
-                            break;
-                        }
-
-                        currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath, isDynamic);
-                        currentType = currentPropertyPathInfo.GetType(target);
-                        currentDepth++;
-
-                        if (!TryGetIndex(splitPropertyPath, out int index))
-                        {
-                            continue;
-                        }
-
-                        propertyPathBuilder.Append(separator);
-                        propertyPathBuilder.Append(splitPropertyPath[0]);
-                        propertyPathBuilder.Append(separator);
-                        propertyPathBuilder.Append(splitPropertyPath[1]);
-                        splitPropertyPath.RemoveRange(0, 2);
-
-                        Type propertyType = GetCollectionType(fieldInfo.FieldType);
-                        propertyPath = propertyPathBuilder.ToString();
-                        currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath, isDynamic);
-                        currentType = currentPropertyPathInfo.GetType(target);
-                        currentDepth++;
+                        propertyPathBuilder.Append(".");
                     }
 
-                    return currentPropertyPathInfo;
+                    FieldInfo fieldInfo = GetField(currentType, splitPropertyPath[0]);
+                    propertyPathBuilder.Append(splitPropertyPath[0]);
+                    splitPropertyPath.RemoveAt(0);
+
+                    string propertyPath = propertyPathBuilder.ToString();
+
+                    if (fieldInfo == null)
+                    {
+                        currentPropertyPathInfo = null;
+
+                        break;
+                    }
+
+                    currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, fieldInfo.FieldType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, null, propertyPath, isDynamic);
+                    currentType = currentPropertyPathInfo.GetType(target);
+                    currentDepth++;
+
+                    if (!TryGetIndex(splitPropertyPath, out int index))
+                    {
+                        continue;
+                    }
+
+                    propertyPathBuilder.Append(separator);
+                    propertyPathBuilder.Append(splitPropertyPath[0]);
+                    propertyPathBuilder.Append(separator);
+                    propertyPathBuilder.Append(splitPropertyPath[1]);
+                    splitPropertyPath.RemoveRange(0, 2);
+
+                    Type propertyType = GetCollectionType(fieldInfo.FieldType);
+                    propertyPath = propertyPathBuilder.ToString();
+                    currentPropertyPathInfo = GetPropertyPathInfoFromCacheOrCreate(cache, propertyType, rootType, fieldInfo, currentPropertyPathInfo, currentDepth, index, propertyPath, isDynamic);
+                    currentType = currentPropertyPathInfo.GetType(target);
+                    currentDepth++;
                 }
+
+                return currentPropertyPathInfo;
             }
         }
 
@@ -153,6 +151,7 @@ namespace Coimbra
             }
 
             cachedPropertyPathInfo = new PropertyPathInfo(propertyType, rootType, fieldInfo, scopeInfo, depth, index, propertyPath, false);
+            cache[propertyPath] = cachedPropertyPathInfo;
 
             return cachedPropertyPathInfo;
         }

@@ -8,21 +8,21 @@ namespace Coimbra
         /// <summary>
         /// Neutral message.
         /// </summary>
-        None,
+        None = 0,
 
         /// <summary>
         /// Info message.
         /// </summary>
-        Info,
+        Info = 1,
 
         /// <summary>
         /// Warning message.
         /// </summary>
-        Warning,
+        Warning = 2,
 
         /// <summary>
         /// Error message.
         /// </summary>
-        Error,
+        Error = 3,
     }
 }

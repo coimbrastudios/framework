@@ -8,7 +8,7 @@ namespace Coimbra.Listeners
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Joint))]
-    [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Joint Break Listener")]
+    [AddComponentMenu(CoimbraListenersUtility.PhysicsMenuPath + "Joint Break Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnJointBreak.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public sealed class JointBreakListener : MonoBehaviour

@@ -1,21 +1,21 @@
 {
     "name": "Assembly-CSharp-Editor-testable",
     "rootNamespace": "",
-    "allowUnsafeCode": false,
-    "autoReferenced": false,
-    "noEngineReferences33": false,
-    "overrideReferences": false,
-    "defineConstraints": [
-        "UNITY_EDITOR"
-    ],
-    "excludePlatforms": [],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "precompiledReferences": [],
     "references": [
         "GUID:18f8b8821672d2648bad8aa084a75bea",
         "GUID:e10668b017190974fa18141cc6f7bb36"
     ],
-    "versionDefines": []
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

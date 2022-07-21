@@ -25,7 +25,7 @@ namespace Coimbra.Tests
 
         public string[] StringArray = new string[5];
 
-        public List<NestedClass.NestedStruct> StructList = new List<NestedClass.NestedStruct>
+        public List<NestedClass.NestedStruct> StructList = new List<NestedClass.NestedStruct>()
         {
             default,
         };
