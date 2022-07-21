@@ -3,6 +3,14 @@
 ## [10.9.5] - UNRELEASED
 
 - Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules` added in the last version.
+- Added `RequiredServiceAttribute` to enable code to assume tha that a service is never null without requiring to be dynamic.
+- Added assertion for required services inside ServiceLocator.GetChecked.
+- Added `[RequiredService]` for all default services.
+- Added `EventHandleListUtility.RemoveListenersAndClear` to make easier to clear a list of `EventHandle`.
+- Changed `IServiceFactory.Create` to `IServiceFactory.GetService` as not always it will be actually creating a new service.
+- Changed `DefaultServiceActorFactory` to try to use `Object.FindObjectOfType` before creating a new instance.
+- Changed [RoslynAnalyzers](Documentation~/RoslynAnalyzers.md) documentation to be more readable and include planned analyzers.
+- Changed diagnostics to be split into different classes to match their new ID assignment.
 
 ## [10.9.4] - 2022-07-14
 
