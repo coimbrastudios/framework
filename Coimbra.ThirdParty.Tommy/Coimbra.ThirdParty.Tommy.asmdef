@@ -1,6 +1,6 @@
 {
     "name": "Coimbra.ThirdParty.Tommy",
-    "rootNamespace": "",
+    "rootNamespace": "Tommy",
     "references": [],
     "includePlatforms": [
         "Editor"

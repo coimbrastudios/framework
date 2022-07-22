@@ -11,6 +11,7 @@
     - `BannedReferences`: disallow referencing some assemblies inside specific assemblies.
     - `FixEditorOnly`: fix editor assemblies to have the correct platform and define constraints.
     - `FixTestsOnly`: fix tests assemblies to have the correct precompiled reference and define constraints.
+    - `ForceRootNamespaceMatchName`: fix root namespace not matching the assembly name.
     - `ForceReferenceByName`: disallow referencing assemblies by their GUID.
     - `RequiredReferences`: always reference some assemblies inside specific assemblies
     - `SortPrecompiledReferences`: always sort precompiled references by their name.
@@ -101,11 +102,12 @@
 - `SerializableType<T>`: serializes a `System.Type` that can be edited and saved from the inspector.
 - `ServiceLocator`: enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locator`. It also comes with a few built-in functionalities:
     - Attributes:
-        - `AbstractServiceAttribute`: by default, any interface implementing `IService` is considered a valid service type. Use this attribute to create interfaces that should not be considered a valid service type besides implementing `IService`.
-        - `DisableDefaultFactoryAttribute`: by default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
-        - `DynamicServiceAttribute`: by default, once a `IService` is set it can't be overriden. You can disable that by using that attribute, allowing to have temporary services (like per-scene).
-        - `HideInServiceLocatorWindowAttribute`: by default, all services will appear in the `Service Locator` window, even test ones. Use this attribute to hide unwanted services.
-        - `PreloadServiceAttribute`: add this in your `IService` implementation to call the `ServiceLocator.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
+        - `AbstractService`: by default, any interface implementing `IService` is considered a valid service type. Use this attribute to create interfaces that should not be considered a valid service type besides implementing `IService`.
+        - `DisableDefaultFactory`: by default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
+        - `DynamicService`: by default, once a `IService` is set it can't be overriden. You can disable that by using that attribute, allowing to have temporary services (like per-scene).
+        - `HideInServiceLocatorWindow`: by default, all services will appear in the `Service Locator` window, even test ones. Use this attribute to hide unwanted services.
+        - `PreloadService`: add this in your `IService` implementation to call the `ServiceLocator.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
+        - `RequiredService`: allow `ServiceLocator.GetChecked` to be used with the given service type. Useful for services that are known to always exist.
     - Services:
         - `IApplicationStateService`: responsible for some built-in events:
             - `ApplicationFocusEvent`
