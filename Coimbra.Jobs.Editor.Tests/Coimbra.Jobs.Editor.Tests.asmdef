@@ -1,6 +1,6 @@
 {
     "name": "Coimbra.Jobs.Editor.Tests",
-    "rootNamespace": "",
+    "rootNamespace": "Coimbra.Jobs.Editor.Tests",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:e1958682c4a85ec4da78add2f612c79f",

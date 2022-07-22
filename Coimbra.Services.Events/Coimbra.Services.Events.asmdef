@@ -1,6 +1,6 @@
 {
     "name": "Coimbra.Services.Events",
-    "rootNamespace": "",
+    "rootNamespace": "Coimbra.Services.Events",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:d2bbca7254de5e746857b04cfb560876",

@@ -1,6 +1,6 @@
 {
     "name": "Coimbra.Listeners.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "Coimbra.Listeners.Editor",
     "references": [
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",

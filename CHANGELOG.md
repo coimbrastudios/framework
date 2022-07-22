@@ -2,6 +2,10 @@
 
 ## [10.9.6] - UNRELEASED
 
+- Added `ForceRootNamespaceMatchNameAssemblyDefinitionRule`.
+- Added missing info in [Index](Documentation~/Index.md) for `RequiredServiceAttribute`.
+- Removed dependency on `com.unity.ide.vscode` as it is now [officially unsupported](https://forum.unity.com/threads/update-on-the-visual-studio-code-package.1302621/);
+
 ## [10.9.5] - 2022-07-21
 
 - Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules` added in the last version.
