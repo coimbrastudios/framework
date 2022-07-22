@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.6] - UNRELEASED
+
 ## [10.9.5] - 2022-07-21
 
 - Added missing info in [Index](Documentation~/Index.md) for `Assembly Definition Rules` added in the last version.
