@@ -289,12 +289,12 @@ namespace Coimbra.Services
         private static T? Get<T>(Service service)
             where T : class, IService
         {
-            if (service.Value != null)
+            if (service.Value.TryGetValid(out IService? value))
             {
-                return service.Value as T;
+                return (T)value!;
             }
 
-            if (service.Factory == null || !service.Factory.GetService().TryGetValid(out IService? value))
+            if (service.Factory == null || !service.Factory.GetService().TryGetValid(out value))
             {
                 return null;
             }
