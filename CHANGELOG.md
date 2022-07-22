@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.7] - UNRELEASED
+
 ## [10.9.6] - 2022-07-22
 
 - Added `ForceRootNamespaceMatchNameAssemblyDefinitionRule`.
