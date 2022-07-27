@@ -1,6 +1,8 @@
 # Changelog
 
-## [10.9.7] - UNRELEASED
+## [10.9.7] - 2022-07-27
+
+- Added `NotNullWhen` on some `ServiceLocator`, `ScriptableSettings` and `ObjectUtility` APIs.
 
 ## [10.9.6] - 2022-07-22
 
