@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -125,7 +126,7 @@ namespace Coimbra
         /// Safe way to check if an object is valid even if the object is an Unity <see cref="Object"/> and got destroyed already, getting a valid object to be used with ?. and ?? operators too.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetValid<T>(this T o, out T valid)
+        public static bool TryGetValid<T>(this T o, [NotNullWhen(true)] out T valid)
         {
             valid = GetValid(o);
 

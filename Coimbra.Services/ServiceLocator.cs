@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine.Scripting;
@@ -163,12 +164,12 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public static bool IsSet<T>(out T? value)
+        public static bool IsSet<T>([NotNullWhen(true)] out T? value)
             where T : class, IService
         {
             if (IsSet(typeof(T), out IService? service))
             {
-                value = service as T;
+                value = (T)service;
 
                 return true;
             }
@@ -185,13 +186,11 @@ namespace Coimbra.Services
         /// <param name="value">The service value, if created.</param>
         /// <returns>False if the service wasn't created.</returns>
         [Pure]
-        public static bool IsSet(Type type, out IService? value)
+        public static bool IsSet(Type type, [NotNullWhen(true)] out IService? value)
         {
-            if (Services.TryGetValue(type, out Service service) && service.Value != null)
+            if (Services.TryGetValue(type, out Service service))
             {
-                value = service.Value;
-
-                return true;
+                return service.Value.TryGetValid(out value);
             }
 
             value = null;
@@ -262,7 +261,7 @@ namespace Coimbra.Services
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>False if the service does not exists.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<T>(out T? value)
+        public static bool TryGet<T>([NotNullWhen(true)] out T? value)
             where T : class, IService
         {
             value = Get<T>();

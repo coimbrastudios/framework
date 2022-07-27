@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -211,16 +212,21 @@ namespace Coimbra
         /// <param name="result">The settings if set and still valid.</param>
         /// <returns>True if the settings is set and still valid.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(Type type, out ScriptableSettings result)
+        public static bool TryGet(Type type, [NotNullWhen(true)] out ScriptableSettings result)
         {
-            result = Map.TryGetValue(type, out ScriptableSettings value) ? value.GetValid() : null;
+            if (Map.TryGetValue(type, out ScriptableSettings value))
+            {
+                return value.TryGetValid(out result);
+            }
 
-            return result != null;
+            result = null;
+
+            return false;
         }
 
         /// <inheritdoc cref="TryGet"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<T>(out T result)
+        public static bool TryGet<T>([NotNullWhen(true)] out T result)
             where T : ScriptableSettings
         {
             if (TryGet(typeof(T), out ScriptableSettings rawResult))
@@ -243,21 +249,21 @@ namespace Coimbra
         /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
         /// <returns>True if the settings is set and still valid or if a new one could be found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetOrFind(Type type, out ScriptableSettings result, FindHandler findCallback = null)
+        public static bool TryGetOrFind(Type type, [NotNullWhen(true)] out ScriptableSettings result, FindHandler findCallback = null)
         {
             result = GetOrFind(type, findCallback);
 
-            return result != null;
+            return result.IsValid();
         }
 
         /// <inheritdoc cref="TryGetOrFind"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetOrFind<T>(out T result, FindHandler findCallback = null)
+        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T result, FindHandler findCallback = null)
             where T : ScriptableSettings
         {
             result = GetOrFind(typeof(T), findCallback) as T;
 
-            return result != null;
+            return result.IsValid();
         }
 
         protected virtual void Reset()
