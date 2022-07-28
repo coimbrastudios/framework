@@ -12,16 +12,19 @@ namespace Coimbra.Services.Roslyn
     public sealed class ServiceLocatorUsageAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresInterface,
-                                                                                                           CoimbraServicesDiagnostics.ServiceLocatorRequiresNonAbstractInterface);
+                                                                                                           CoimbraServicesDiagnostics.ServiceLocatorRequiresNonAbstractInterface,
+                                                                                                           CoimbraServicesDiagnostics.MissingRequiredServiceAttribute,
+                                                                                                           CoimbraServicesDiagnostics.SetBeingUsedInNonDynamicService,
+                                                                                                           CoimbraServicesDiagnostics.UseGetCheckedWithRequiredService);
 
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.RegisterSyntaxNodeAction(AnalyzeServiceLocatorClassUsage, SyntaxKind.InvocationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeServiceLocatorUsage, SyntaxKind.InvocationExpression);
         }
 
-        private static void AnalyzeServiceLocatorClassUsage(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeServiceLocatorUsage(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not InvocationExpressionSyntax invocationExpressionSyntax)
             {
@@ -49,11 +52,54 @@ namespace Coimbra.Services.Roslyn
                 if (typeSymbol.TypeKind is not TypeKind.TypeParameter)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
+
+                    return;
                 }
             }
             else if (typeSymbol.HasAttribute(CoimbraServicesTypes.AbstractServiceAttribute, out _, false))
             {
                 context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.ServiceLocatorRequiresNonAbstractInterface, methodNameSyntax.GetLocation(), methodNameSyntax.Identifier.Text, typeSymbol.Name));
+
+                return;
+            }
+
+            AnalyzeTypeArgument(context, typeSymbol, methodNameSyntax);
+        }
+
+        private static void AnalyzeTypeArgument(SyntaxNodeAnalysisContext context, ITypeSymbol typeSymbol, SimpleNameSyntax methodNameSyntax)
+        {
+            switch (methodNameSyntax.Identifier.Text)
+            {
+                case "Get":
+                case "TryGet":
+                {
+                    if (typeSymbol.HasAttribute(CoimbraServicesTypes.RequiredServiceAttribute, out _, false))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.UseGetCheckedWithRequiredService, methodNameSyntax.GetLocation(), typeSymbol.Name));
+                    }
+
+                    break;
+                }
+
+                case "GetChecked":
+                {
+                    if (!typeSymbol.HasAttribute(CoimbraServicesTypes.RequiredServiceAttribute, out _, false))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.MissingRequiredServiceAttribute, methodNameSyntax.GetLocation(), typeSymbol.Name));
+                    }
+
+                    break;
+                }
+
+                case "Set":
+                {
+                    if (!typeSymbol.HasAttribute(CoimbraServicesTypes.DynamicServiceAttribute, out _, false))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(CoimbraServicesDiagnostics.SetBeingUsedInNonDynamicService, methodNameSyntax.GetLocation(), typeSymbol.Name));
+                    }
+
+                    break;
+                }
             }
         }
     }

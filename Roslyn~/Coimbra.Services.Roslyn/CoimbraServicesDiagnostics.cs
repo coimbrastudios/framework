@@ -63,21 +63,21 @@ namespace Coimbra.Services.Roslyn
                                                                                           "Use ServiceLocator.Get/TryGet instead or add RequiredServiceAttribute to {0}.",
                                                                                           Category,
                                                                                           DiagnosticSeverity.Error,
-                                                                                          false);
+                                                                                          true);
 
         public static readonly DiagnosticDescriptor UseGetCheckedWithRequiredService = new("COIMBRA" + "0109",
                                                                                            "ServiceLocator.GetChecked is preferred on services with RequiredServiceAttribute.",
                                                                                            "{0} is assumed to never be null, use ServiceLocator.GetChecked instead.",
                                                                                            Category,
                                                                                            DiagnosticSeverity.Warning,
-                                                                                           false);
+                                                                                           true);
 
         public static readonly DiagnosticDescriptor SetBeingUsedInNonDynamicService = new("COIMBRA" + "0110",
                                                                                           "ServiceLocator.Set should not be used on a service without DynamicServiceAttribute.",
-                                                                                          "Add DynamicServiceAttribute to {0} or use a IServiceFactory.",
+                                                                                          "Add DynamicServiceAttribute to {0} or use a IServiceFactory instead.",
                                                                                           Category,
                                                                                           DiagnosticSeverity.Error,
-                                                                                          false);
+                                                                                          true);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly DiagnosticDescriptor _ = new("COIMBRA" + "0100",
