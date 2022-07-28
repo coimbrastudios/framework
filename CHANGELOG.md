@@ -1,6 +1,12 @@
 # Changelog
 
+## [10.9.10] - UNRELEASED
+
 ## [10.9.9] - 2022-07-28
+
+- Fixed default assembly definition rule assets causing unnecessary warning.
+
+## [10.8.9] - 2022-07-28
 
 - Fixed default assembly definition rule assets causing unnecessary warning.
 
