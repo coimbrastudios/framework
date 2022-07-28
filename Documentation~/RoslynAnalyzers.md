@@ -33,6 +33,9 @@ Some analyzers are provided to guide how to use this framework correctly. The an
 | 0105 | Type can't implement any IService because parent class already implements one.                        | Error    | No       |
 | 0106 | Concrete IService should not be a Component unless it inherit from Actor.                             | Error    | No       |
 | 0107 | A ScriptableSettings should not implement any IService.                                               | Error    | No       |
+| 0108 | ServiceLocator.GetChecked should only be used on services with RequiredServiceAttribute.              | Error    | No       |
+| 0109 | ServiceLocator.GetChecked is preferred on services with RequiredServiceAttribute.                     | Warning  | No       |
+| 0110 | ServiceLocator.Set should not be used on a service without DynamicServiceAttribute.                   | Error    | No       |
 | 0201 | Concrete IEvent should be partial.                                                                    | Warning  | Yes      |
 | 0202 | Concrete IEvent should not be a nested type.                                                          | Error    | Yes      |
 | 0203 | Class events should be either abstract or sealed.                                                     | Error    | No       |
@@ -40,14 +43,11 @@ Some analyzers are provided to guide how to use this framework correctly. The an
 
 ## Planned Analyzers
 
-| ID   | Title                                                                                    | Severity | Code Fix |
-|------|:-----------------------------------------------------------------------------------------|----------|----------|
-| 0013 | MonoBehaviour callbacks should be replaced with their equivalent listener.               | Error    | No       |
-| 0014 | GameObject API should be replaced by Actor API.                                          | Error    | Planned  |
-| 0015 | Component methods should not be used with Actor types.                                   | Error    | Planned  |
-| 0016 | Object.Instantiate should not be used with Objects that can be an Actor.                 | Error    | No       |
-| 0017 | Attribute being used with incompatible field type.                                       | Error    | No       |
-| 0018 | ManagedField being used with incompatible type parameter.                                | Error    | No       |
-| 0108 | ServiceLocator.GetChecked should only be used on services with RequiredServiceAttribute. | Error    | No       |
-| 0109 | ServiceLocator.GetChecked is preferred on services with RequiredServiceAttribute.        | Warning  | No       |
-| 0110 | ServiceLocator.Set should not be used on a service without DynamicServiceAttribute.      | Error    | No       |
+| ID   | Title                                                                      | Severity | Code Fix |
+|------|:---------------------------------------------------------------------------|----------|----------|
+| 0013 | MonoBehaviour callbacks should be replaced with their equivalent listener. | Error    | No       |
+| 0014 | GameObject API should be replaced by Actor API.                            | Error    | Planned  |
+| 0015 | Component methods should not be used with Actor types.                     | Error    | Planned  |
+| 0016 | Object.Instantiate should not be used with Objects that can be an Actor.   | Error    | No       |
+| 0017 | Attribute being used with incompatible field type.                         | Error    | No       |
+| 0018 | ManagedField being used with incompatible type parameter.                  | Error    | No       |

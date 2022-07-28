@@ -302,7 +302,9 @@ namespace Coimbra.Services
             {
                 case T result:
                 {
+#pragma warning disable COIMBRA0110
                     Set(result);
+#pragma warning restore COIMBRA0110
 
                     return result;
                 }
