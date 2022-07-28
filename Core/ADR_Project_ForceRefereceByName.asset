@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d980179580f4a77a1e56d4452fd3cc9, type: 3}
-  m_Name: ADR_FixEditorOnly
+  m_Script: {fileID: 11500000, guid: 42aefdb6cbfbd904787c949de5eab5c0, type: 3}
+  m_Name: ADR_Project_ForceRefereceByName
   m_EditorClassIdentifier: 
   _includedPatterns:
-  - Assets/_Project/*.Editor.*
-  - '*/com.coimbrastudios.*.Editor.*'
+  - Assets/_Project/*
   _excludedPatterns: []
   _displayError: 0

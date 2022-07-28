@@ -2,6 +2,7 @@
     "name": "Coimbra.Samples.ConcatStrings",
     "rootNamespace": "Coimbra.Samples.ConcatStrings",
     "references": [
+        "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:e1958682c4a85ec4da78add2f612c79f",
         "GUID:e10668b017190974fa18141cc6f7bb36"
     ],

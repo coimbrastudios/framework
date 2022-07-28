@@ -2,6 +2,8 @@
 
 ## [10.9.9] - UNRELEASED
 
+- Fixed default assembly definition rule assets causing unnecessary warning.
+
 ## [10.9.8] - 2022-07-27
 
 - Added analyzer `COIMBRA0108`.

@@ -9,11 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 579859afa9d74b7db30c2f1522fc86e9, type: 3}
-  m_Name: ADR_SortPrecompiledReferences
+  m_Script: {fileID: 11500000, guid: 30b8ca603d1b4b4792f7f7b138880a70, type: 3}
+  m_Name: ADR_Project_BannedReferences_Tests
   m_EditorClassIdentifier: 
   _includedPatterns:
   - Assets/_Project/*
-  - '*/com.coimbrastudios.*'
-  _excludedPatterns: []
+  _excludedPatterns:
+  - '*.Tests.*'
+  - '*.EditorTests.*'
   _displayError: 0
+  _bannedReferences:
+  - '*.Tests.*'
+  - '*.TestRunner.asmdef'
