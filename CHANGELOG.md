@@ -1,5 +1,7 @@
 # Changelog
 
+## [10.9.9] - UNRELEASED
+
 ## [10.9.8] - 2022-07-27
 
 - Added analyzer `COIMBRA0108`.
