@@ -10,16 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50981933378f4303a097b16704daf6e7, type: 3}
-  m_Name: ADR_RequiredReference_Coimbra
+  m_Name: ADR_Project_RequiredReference_Coimbra
   m_EditorClassIdentifier: 
   _includedPatterns:
   - Assets/_Project/*
-  - '*/com.coimbrastudios.core/*'
-  _excludedPatterns:
-  - '*/Coimbra.asmdef'
-  - '*/Coimbra.Samples*'
-  - '*/Coimbra.ThirdParty.*'
-  - '*/com.coimbrastudios.core/Assembly-CSharp*'
+  _excludedPatterns: []
   _displayError: 0
   _requiredReferences:
   - {fileID: 5897886265953266890, guid: 6aabbee860c32c64d9bbd52d0704ed2c, type: 3}

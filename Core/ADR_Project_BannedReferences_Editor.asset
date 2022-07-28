@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5d2d71da54546ca9adb14475a6b4933, type: 3}
-  m_Name: ADR_FixTestsOnly
+  m_Script: {fileID: 11500000, guid: 30b8ca603d1b4b4792f7f7b138880a70, type: 3}
+  m_Name: ADR_Project_BannedReferences_Editor
   m_EditorClassIdentifier: 
   _includedPatterns:
-  - Assets/_Project/*.EditorTests.*
-  - Assets/_Project/*.Tests.*
-  - '*/com.coimbrastudios.*.EditorTests.*'
-  - '*/com.coimbrastudios.*.Tests.*'
-  _excludedPatterns: []
+  - Assets/_Project/*
+  _excludedPatterns:
+  - '*.Editor.*'
   _displayError: 0
+  _bannedReferences:
+  - '*.Editor.*'

@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63b86af3e50a4a18b7369d2c27c25e2f, type: 3}
-  m_Name: ADR_ForceRootNamespaceMatchName
+  m_Script: {fileID: 11500000, guid: a5d2d71da54546ca9adb14475a6b4933, type: 3}
+  m_Name: ADR_Project_FixTestsOnly
   m_EditorClassIdentifier: 
   _includedPatterns:
-  - Assets/_Project/*
-  - '*/com.coimbrastudios.*'
-  _excludedPatterns:
-  - '*/com.coimbrastudios.core/Assembly-*'
-  - '*/com.coimbrastudios.core/Coimbra.ThirdParty.*'
+  - Assets/_Project/*.EditorTests.*
+  - Assets/_Project/*.Tests.*
+  _excludedPatterns: []
   _displayError: 0
