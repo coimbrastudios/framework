@@ -71,8 +71,12 @@ namespace Coimbra.Editor.Linting
             using (ListPool.Pop(out List<AssemblyDefinitionRuleBase> rulesToRemove))
             using (new EditorGUILayout.HorizontalScope())
             {
-                ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings, ScriptableSettings.FindSingle);
-                Debug.Assert(settings);
+                if (!ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings))
+                {
+                    Debug.LogError($"{nameof(LintingSettings)} wasn't created yet!");
+
+                    return;
+                }
 
                 foreach (Object o in targets)
                 {
@@ -81,7 +85,7 @@ namespace Coimbra.Editor.Linting
                         continue;
                     }
 
-                    if (settings.AssemblyDefinitionRules.Contains(rule))
+                    if (settings!.AssemblyDefinitionRules.Contains(rule))
                     {
                         rulesToRemove.Add(rule);
                     }
