@@ -2,6 +2,10 @@
 
 ## [10.9.8] - UNRELEASED
 
+- Added analyzer `COIMBRA0108`.
+- Added analyzer `COIMBRA0109`.
+- Added analyzer `COIMBRA0110`.
+
 ## [10.9.7] - 2022-07-27
 
 - Added `NotNullWhen` on some `ServiceLocator`, `ScriptableSettings` and `ObjectUtility` APIs.

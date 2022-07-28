@@ -290,7 +290,7 @@ namespace Coimbra.Services
         {
             if (service.Value.TryGetValid(out IService? value))
             {
-                return (T)value!;
+                return (T)value;
             }
 
             if (service.Factory == null || !service.Factory.GetService().TryGetValid(out value))
@@ -311,7 +311,7 @@ namespace Coimbra.Services
 
                 default:
                 {
-                    Debug.LogWarning($"Create callback for {typeof(T)} returned a service of type {value!.GetType()}! Disposing it...");
+                    Debug.LogWarning($"Create callback for {typeof(T)} returned a service of type {value.GetType()}! Disposing it...");
                     value.Dispose();
 
                     return null;
