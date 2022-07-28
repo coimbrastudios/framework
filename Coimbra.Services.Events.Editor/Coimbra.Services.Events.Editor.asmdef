@@ -2,11 +2,11 @@
     "name": "Coimbra.Services.Events.Editor",
     "rootNamespace": "Coimbra.Services.Events.Editor",
     "references": [
+        "GUID:e10668b017190974fa18141cc6f7bb36",
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
         "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
         "GUID:d2bbca7254de5e746857b04cfb560876",
-        "GUID:b763ff73a93a62c4ea128e32ed2cd0d6",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+        "GUID:b763ff73a93a62c4ea128e32ed2cd0d6"
     ],
     "includePlatforms": [
         "Editor"

@@ -2,9 +2,9 @@
     "name": "Coimbra.Editor.Linting",
     "rootNamespace": "Coimbra.Editor.Linting",
     "references": [
+        "GUID:e10668b017190974fa18141cc6f7bb36",
         "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
-        "GUID:d4e721e55a5b2fe4985de166d9fbfb0c",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+        "GUID:d4e721e55a5b2fe4985de166d9fbfb0c"
     ],
     "includePlatforms": [
         "Editor"

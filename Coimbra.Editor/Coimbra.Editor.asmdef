@@ -2,9 +2,9 @@
     "name": "Coimbra.Editor",
     "rootNamespace": "Coimbra.Editor",
     "references": [
+        "GUID:e10668b017190974fa18141cc6f7bb36",
         "GUID:8fbddce16f6b4024b81aeb91648b6380",
-        "GUID:6aabbee860c32c64d9bbd52d0704ed2c",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+        "GUID:6aabbee860c32c64d9bbd52d0704ed2c"
     ],
     "includePlatforms": [
         "Editor"

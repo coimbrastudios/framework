@@ -2,8 +2,8 @@
     "name": "Assembly-CSharp-Editor-testable",
     "rootNamespace": "CoimbraInternal.Editor",
     "references": [
-        "GUID:18f8b8821672d2648bad8aa084a75bea",
-        "GUID:e10668b017190974fa18141cc6f7bb36"
+        "GUID:e10668b017190974fa18141cc6f7bb36",
+        "GUID:18f8b8821672d2648bad8aa084a75bea"
     ],
     "includePlatforms": [
         "Editor"
