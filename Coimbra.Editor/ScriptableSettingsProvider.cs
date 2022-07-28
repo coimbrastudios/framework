@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -114,7 +115,7 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static bool TryCreate(Type type, out ScriptableSettingsProvider? provider)
+        internal static bool TryCreate(Type type, [NotNullWhen(true)] out ScriptableSettingsProvider? provider)
         {
             ScriptableSettingsUtility.TryGetAttributeData(type, out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords);
             Debug.Assert(settingsScope.HasValue);

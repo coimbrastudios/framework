@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
@@ -153,7 +154,7 @@ namespace Coimbra
             return Value == other.Value;
         }
 
-        public bool TryGetValue(out T value)
+        public bool TryGetValue([NotNullWhen(true)] out T value)
         {
             value = _systemObject ?? (_unityObject as T).GetValid();
 

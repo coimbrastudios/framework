@@ -20,7 +20,7 @@ namespace Coimbra.Editor
                     {
                         if (ScriptableSettingsProvider.TryCreate(type, out ScriptableSettingsProvider? provider))
                         {
-                            dictionary.Add(type, provider!);
+                            dictionary.Add(type, provider);
                         }
                         else
                         {

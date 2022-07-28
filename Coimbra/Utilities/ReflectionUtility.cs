@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
@@ -224,20 +225,18 @@ namespace Coimbra
         /// Tries to create an instance of the given type by using either the <see cref="Activator"/> class or by any parameterless constructor on it.
         /// </summary>
         /// <seealso cref="CreateInstance"/>
-        public static bool TryCreateInstance<T>(this Type type, out T instance)
+        public static bool TryCreateInstance<T>(this Type type, [NotNullWhen(true)] out T instance)
         {
             try
             {
                 instance = (T)type.CreateInstance();
-
-                return true;
             }
             catch
             {
                 instance = default!;
-
-                return false;
             }
+
+            return typeof(T).IsValueType || instance != null;
         }
 
         private static string GetSignature(string name, IReadOnlyList<Type>? parameters)

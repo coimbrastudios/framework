@@ -223,9 +223,7 @@ namespace Coimbra.Services
         {
             Initialize(typeof(T), out Service service);
 
-            service.Value = service.Value.GetValid();
-
-            if (service.Value != null)
+            if (service.Value.TryGetValid(out IService? oldValue))
             {
                 if (!service.IsDynamic)
                 {
@@ -234,7 +232,7 @@ namespace Coimbra.Services
                     return;
                 }
 
-                service.Value!.Dispose();
+                oldValue.Dispose();
             }
 
             service.Value = value.GetValid();

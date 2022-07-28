@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -33,7 +34,7 @@ namespace Coimbra.Editor.Linting
         /// <summary>
         /// Gets or sets collection of <see cref="AssemblyDefinitionRuleBase"/> to use project-wide.
         /// </summary>
-        [NotNull]
+        [DisallowNull]
         [field: SerializeField]
         [field: Tooltip("Collection of assembly definition rules to use project-wide.")]
         public List<AssemblyDefinitionRuleBase> AssemblyDefinitionRules { get; set; } = new();
@@ -55,7 +56,7 @@ namespace Coimbra.Editor.Linting
                 {
                     string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 
-                    foreach (AssemblyDefinitionRuleBase rule in settings!.AssemblyDefinitionRules)
+                    foreach (AssemblyDefinitionRuleBase rule in settings.AssemblyDefinitionRules)
                     {
                         if (TryApply(rule, assetPath, textAssetMap, assemblyDefinitionMap))
                         {
@@ -105,7 +106,7 @@ namespace Coimbra.Editor.Linting
             return true;
         }
 
-        private static bool TryLoadAsset(in string assetPath, out TextAsset asset, IDictionary<string, TextAsset> cache)
+        private static bool TryLoadAsset(in string assetPath, [NotNullWhen(true)] out TextAsset asset, IDictionary<string, TextAsset> cache)
         {
             if (cache.TryGetValue(assetPath, out asset))
             {

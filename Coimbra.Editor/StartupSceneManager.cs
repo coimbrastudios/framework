@@ -34,8 +34,7 @@ namespace Coimbra.Editor
         private static void ConfigureStartupScene(PlayModeStateChange state)
         {
             StartupSceneInternalSettings internalSettings = GetInternalSettings(state);
-            ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneManager settings, FindSingle);
-            Debug.Assert(settings);
+            Debug.Assert(ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneManager settings));
 
             if (settings.StartupScene == null)
             {
@@ -82,8 +81,7 @@ namespace Coimbra.Editor
 
         private static StartupSceneInternalSettings GetInternalSettings(PlayModeStateChange state)
         {
-            ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneInternalSettings internalSettings, FindSingle);
-            Debug.Assert(internalSettings);
+            Debug.Assert(ScriptableSettingsUtility.TryLoadOrCreate(out StartupSceneInternalSettings internalSettings));
 
             switch (state)
             {

@@ -1,7 +1,8 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -55,14 +56,14 @@ namespace Coimbra
         /// <summary>
         /// The <see cref="PropertyPathInfo"/> that contains this property. Will always be null if <see cref="Depth"/> is 0, but never null otherwise.
         /// </summary>
-        [CanBeNull]
+        [MaybeNull]
         public readonly PropertyPathInfo ScopeInfo;
 
         private readonly string _propertyPath;
 
         private PropertyPathInfo[] _chainBackingField;
 
-        internal PropertyPathInfo([NotNull] Type propertyType, [NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [CanBeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath, bool isDynamic)
+        internal PropertyPathInfo([NotNull] Type propertyType, [NotNull] Type rootType, [NotNull] FieldInfo fieldInfo, [MaybeNull] PropertyPathInfo scopeInfo, int depth, int? index, string propertyPath, bool isDynamic)
         {
             _propertyPath = propertyPath;
             Depth = depth;
@@ -95,8 +96,8 @@ namespace Coimbra
         /// <summary>
         /// Get the scope value.
         /// </summary>
-        [NotNull]
         [Pure]
+        [return: NotNull]
         public object GetScope([NotNull] Object target)
         {
             if (ScopeInfo == null)
@@ -113,9 +114,9 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScope"/>
-        [NotNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNull]
         public T GetScope<T>([NotNull] Object target)
         {
             return (T)GetScope(target);
@@ -124,8 +125,8 @@ namespace Coimbra
         /// <summary>
         /// Get the scope value for each target.
         /// </summary>
-        [NotNull]
         [Pure]
+        [return: NotNull]
         public object[] GetScopes([NotNull] Object[] targets)
         {
             using (ListPool.Pop(out List<object> list))
@@ -137,8 +138,8 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
-        [NotNull]
         [Pure]
+        [return: NotNull]
         public T[] GetScopes<T>([NotNull] Object[] targets)
         {
             using (ListPool.Pop(out List<T> list))
@@ -214,8 +215,8 @@ namespace Coimbra
         /// <summary>
         /// Get the field value.
         /// </summary>
-        [CanBeNull]
         [Pure]
+        [return: MaybeNull]
         public object GetValue([NotNull] Object target)
         {
             object current = target;
@@ -229,9 +230,9 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValue"/>
-        [CanBeNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MaybeNull]
         public T GetValue<T>([NotNull] Object target)
         {
             TryGetValue(target, out T value);
@@ -242,8 +243,8 @@ namespace Coimbra
         /// <summary>
         /// Get the field value for each target.
         /// </summary>
-        [NotNull]
         [Pure]
+        [return: NotNull]
         public object[] GetValues([NotNull] Object[] targets)
         {
             using (ListPool.Pop(out List<object> list))
@@ -255,8 +256,8 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValues(Object[])"/>
-        [NotNull]
         [Pure]
+        [return: NotNull]
         public T[] GetValues<T>([NotNull] Object[] targets)
         {
             using (ListPool.Pop(out List<T> list))
@@ -325,7 +326,7 @@ namespace Coimbra
         /// <summary>
         /// Set the field value.
         /// </summary>
-        public void SetValue([NotNull] Object target, [CanBeNull] object value)
+        public void SetValue([NotNull] Object target, [MaybeNull] object value)
         {
             PropertyPathInfo propertyPathInfo = this;
             object currentValue = value;
@@ -353,7 +354,7 @@ namespace Coimbra
         /// <summary>
         /// Set the field value for each target.
         /// </summary>
-        public void SetValues([NotNull] Object[] targets, [CanBeNull] object value)
+        public void SetValues([NotNull] Object[] targets, [MaybeNull] object value)
         {
             InitializeChain();
 
@@ -406,7 +407,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc cref="GetValue"/>
-        public bool TryGetValue<T>([NotNull] Object target, [CanBeNull] out T value)
+        public bool TryGetValue<T>([NotNull] Object target, [MaybeNull] out T value)
         {
             try
             {

@@ -206,7 +206,7 @@ namespace Coimbra.Editor
             set => versionDefines = value ?? Array.Empty<VersionDefine>();
         }
 
-        public static bool TryGet(string path, out AssemblyDefinition result)
+        public static bool TryGet(string path, [NotNullWhen(true)] out AssemblyDefinition result)
         {
             TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
 

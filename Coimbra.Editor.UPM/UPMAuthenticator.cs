@@ -62,7 +62,7 @@ namespace Coimbra.Editor.UPM
                 TomlTable table = GetTable(file);
                 string previous = table.ToString();
 
-                for (int i = 0; i < authenticator!.Entries.Count; i++)
+                for (int i = 0; i < authenticator.Entries.Count; i++)
                 {
                     Entry entry = authenticator.Entries[i];
                     string address = $"npmAuth.\"{entry.Address}\"";

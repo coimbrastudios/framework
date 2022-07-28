@@ -26,7 +26,7 @@ namespace Coimbra.Editor
             set => reference = value ?? string.Empty;
         }
 
-        public static bool TryGet(string path, out AssemblyDefinitionReference result)
+        public static bool TryGet(string path, [NotNullWhen(true)] out AssemblyDefinitionReference result)
         {
             TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
 

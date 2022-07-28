@@ -3,6 +3,7 @@
 using CoimbraInternal.Editor;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -168,7 +169,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Gets the file path for a given <see cref="ScriptableSettings"/> type.
         /// </summary>
-        public static bool TryGetAttributeData(Type type, out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords)
+        public static bool TryGetAttributeData(Type type, [NotNullWhen(true)] out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords)
         {
             settingsScope = null;
             windowPath = null;
@@ -201,7 +202,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Tries to create or load a <see cref="ScriptableSettings"/>.
         /// </summary>
-        public static bool TryLoadOrCreate<T>(out T? scriptableSettings, ScriptableSettings.FindHandler? findCallback = null)
+        public static bool TryLoadOrCreate<T>([NotNullWhen(true)] out T? scriptableSettings, ScriptableSettings.FindHandler? findCallback = null)
             where T : ScriptableSettings
         {
             scriptableSettings = LoadOrCreate(typeof(T), findCallback) as T;
@@ -225,7 +226,7 @@ namespace Coimbra.Editor
             }
         }
 
-        private static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, out ScriptableSettings? scriptableSettings)
+        private static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, [NotNullWhen(true)] out ScriptableSettings? scriptableSettings)
         {
             Object[] objects = InternalEditorUtility.LoadSerializedFileAndForget(filePath);
 

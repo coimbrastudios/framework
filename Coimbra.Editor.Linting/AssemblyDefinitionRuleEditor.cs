@@ -85,7 +85,7 @@ namespace Coimbra.Editor.Linting
                         continue;
                     }
 
-                    if (settings!.AssemblyDefinitionRules.Contains(rule))
+                    if (settings.AssemblyDefinitionRules.Contains(rule))
                     {
                         rulesToRemove.Add(rule);
                     }

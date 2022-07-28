@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -180,7 +181,7 @@ namespace Coimbra.Editor
             }
         }
 
-        private static bool TryGetParameters(Rect position, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, out AnimatorControllerParameter[] parameters)
+        private static bool TryGetParameters(Rect position, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, [NotNullWhen(true)] out AnimatorControllerParameter[] parameters)
         {
             parameters = null;
             Targets.Clear();
