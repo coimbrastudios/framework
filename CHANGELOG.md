@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.8.8] - 2022-07-27
+
+- Added analyzer `COIMBRA0108`.
+- Added analyzer `COIMBRA0109`.
+- Added analyzer `COIMBRA0110`.
+- Added `FixDuplicateReferencesAssemblyDefinitionRule`.
+
 ## [10.8.7] - 2022-07-22
 
 - Added `ForceRootNamespaceMatchNameAssemblyDefinitionRule`.
