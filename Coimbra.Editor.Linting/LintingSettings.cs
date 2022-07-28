@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace Coimbra.Editor.Linting
@@ -9,10 +10,17 @@ namespace Coimbra.Editor.Linting
     /// <summary>
     /// Settings for linting the project.
     /// </summary>
+    [InitializeOnLoad]
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
     public sealed class LintingSettings : ScriptableSettings
     {
         private const string AssemblyDefinitionFilter = "t:asmdef";
+
+        static LintingSettings()
+        {
+            CompilationPipeline.assemblyCompilationFinished -= HandleAssemblyCompilationFinished;
+            CompilationPipeline.assemblyCompilationFinished += HandleAssemblyCompilationFinished;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the local Unity analyzers will be disabled for the generated CS project. This is required for when using 'Microsoft.Unity.Analyzers' directly.
@@ -60,6 +68,17 @@ namespace Coimbra.Editor.Linting
             if (isDirty)
             {
                 AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            }
+        }
+
+        private static void HandleAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] compilerMessages)
+        {
+            foreach (CompilerMessage compilerMessage in compilerMessages)
+            {
+                if (compilerMessage.type == CompilerMessageType.Error)
+                {
+                    InitializeAssemblyDefinitionRules();
+                }
             }
         }
 
