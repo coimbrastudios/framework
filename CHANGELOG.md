@@ -2,6 +2,10 @@
 
 ## [10.9.10] - UNRELEASED
 
+- Fixed error caused by `LayerMask.NameToLayer` being used outside main thread at `LayerSelectorDrawer`.
+- Fixed `NullReferenceException` when unloading additives scenes with non-pooled `Actor`.
+- Fixed `OnValidade` warning when using `Object.Instantiate` inside `Actor.OnInitialize`.
+
 ## [10.9.9] - 2022-07-28
 
 - Fixed default assembly definition rule assets causing unnecessary warning.
