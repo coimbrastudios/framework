@@ -372,6 +372,7 @@ namespace Coimbra
         /// Initializes this actor. It will also spawn it if not <see cref="IsPooled"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [ContextMenu(nameof(Initialize))]
         public void Initialize()
         {
             Initialize(null, default);
@@ -433,6 +434,18 @@ namespace Coimbra
 
         internal void OnUnloadScene(Scene scene)
         {
+            if (IsDestroyed)
+            {
+                return;
+            }
+
+            States |= StateFlags.IsUnloadingScene;
+
+            if (!IsPooled)
+            {
+                return;
+            }
+
             if (GameObject.scene != scene)
             {
                 if (Pool.GameObject.scene != scene)
@@ -446,13 +459,6 @@ namespace Coimbra
                 return;
             }
 
-            States |= StateFlags.IsUnloadingScene;
-
-            if (!IsPooled)
-            {
-                return;
-            }
-
             Despawn();
 
             if (GameObject.scene != scene)
@@ -462,7 +468,7 @@ namespace Coimbra
                 return;
             }
 
-            if (IsDestroyed || !Pool.KeepParentOnDespawn || Pool.GameObject.scene == scene)
+            if (!Pool.KeepParentOnDespawn || Pool.GameObject.scene == scene)
             {
                 return;
             }
@@ -523,13 +529,7 @@ namespace Coimbra
         /// <summary>
         /// Unity callback.
         /// </summary>
-        protected virtual void OnValidate()
-        {
-            if (CoimbraUtility.IsPlayMode && !CoimbraUtility.IsFirstFrame)
-            {
-                Initialize();
-            }
-        }
+        protected virtual void OnValidate() { }
 
         /// <summary>
         /// Unity callback.
@@ -621,6 +621,12 @@ namespace Coimbra
 
             OnSceneInitializedOnce.Invoke(scene, loadSceneMode);
             OnSceneInitializedOnce = null;
+        }
+
+        [ContextMenu(nameof(Initialize), true)]
+        private bool CanInitialize()
+        {
+            return CoimbraUtility.IsPlayMode && !CoimbraUtility.IsFirstFrame;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

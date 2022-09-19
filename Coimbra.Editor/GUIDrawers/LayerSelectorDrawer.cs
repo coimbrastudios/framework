@@ -68,7 +68,7 @@ namespace Coimbra.Editor
                 return LayerMask.NameToLayer(layers[0]);
             }
 
-            context.SetValues(targets, true, setValue);
+            context.SetValues(targets, false, setValue);
 
             using EditorGUI.PropertyScope propertyScope = new(position, label, property);
             using EditorGUI.ChangeCheckScope changeCheckScope = new();
