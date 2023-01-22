@@ -2,6 +2,7 @@
 
 ## [10.9.10] - UNRELEASED
 
+- Added `FilterTypesByMatchingTypeAttribute`.
 - Changed `TypeDropdown` default value display text to make it clear which is the default value.
 - Fixed error caused by `LayerMask.NameToLayer` being used outside main thread at `LayerSelectorDrawer`.
 - Fixed `NullReferenceException` when unloading additives scenes with non-pooled `Actor`.

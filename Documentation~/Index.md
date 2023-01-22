@@ -29,7 +29,7 @@
 - `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
 - `HierarchyFolder`: organize your object into folders that doesn't affect the hierarchy at runtime.
 - Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
-- Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `TypeFilterAttribute` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
+- Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `FilterTypesAttributeBase` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
 - Listeners: components to be used to listen for common events:
     - `AnimatorIKListener`: depends on `Animator`.
     - `AnimatorMoveListener`: depends on `Animator`.
@@ -88,7 +88,7 @@
     - `SelectableLabel`: turns a string field into a selectable label.
     - `SortingLayerID`: turns an int field into a sorting layer popup field.
     - `TagSelector`: turns a string field into a tag popup field.
-    - `TypeDropdownAttribute`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `TypeFilterAttribute`.
+    - `TypeDropdownAttribute`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `FilterTypesAttributeBase`.
     - `Validate`: calls a method `void()` or `void(T previous)` when the property is changed. It is also the base for all others attributes.
 - `PropertyPathInfo`: reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 - `Reference<T>`: create a `Reference` for any value or even another reference.
