@@ -102,7 +102,7 @@ namespace Coimbra.Editor
                     _current.serializedObject.Update();
                 }
 
-                TypeDropdown dropdown = new(types, new AdvancedDropdownState(), TypeString.Get(baseType));
+                TypeDropdown dropdown = new(types, new AdvancedDropdownState(), $"<default> {TypeString.Get(baseType)}");
                 dropdown.OnItemSelected += handleItemSelected;
                 dropdown.Show(position);
             }
