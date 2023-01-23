@@ -38,7 +38,7 @@ namespace Coimbra.Editor.UPM
         {
             try
             {
-                if (!TryGetOrFind(out UPMAuthenticator authenticator))
+                if (!TryGetOrFind(out UPMAuthenticator authenticator) || authenticator.Entries.Count == 0)
                 {
                     return;
                 }

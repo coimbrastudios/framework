@@ -4,6 +4,7 @@
 
 - Added `FilterTypesByMatchingTypeAttribute`.
 - Changed `TypeDropdown` default value display text to make it clear which is the default value.
+- Fixed unnecessary post-processing of all assets when there is any `AssemblyDefinitionRule` set.
 - Fixed error caused by `LayerMask.NameToLayer` being used outside main thread at `LayerSelectorDrawer`.
 - Fixed `NullReferenceException` when unloading additives scenes with non-pooled `Actor`.
 - Fixed `OnValidade` warning when using `Object.Instantiate` inside `Actor.OnInitialize`.

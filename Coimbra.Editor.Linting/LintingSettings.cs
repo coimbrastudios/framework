@@ -48,6 +48,7 @@ namespace Coimbra.Editor.Linting
             }
 
             bool isDirty = false;
+            Debug.Log("Applying assembly definition rules...");
 
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
