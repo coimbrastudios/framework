@@ -1,6 +1,6 @@
 # Changelog
 
-## [10.10.0] - UNRELEASED
+## [10.10.0] - 2023-01-23
 
 - Added `FilterTypesByAccessibilityAttribute`.
 - Added `FilterTypesBySpecificTypeAttribute`.
