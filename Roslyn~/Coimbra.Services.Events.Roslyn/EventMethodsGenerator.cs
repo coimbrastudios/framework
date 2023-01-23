@@ -1,4 +1,5 @@
 using Coimbra.Roslyn;
+using Coimbra.Services.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,6 +11,8 @@ namespace Coimbra.Services.Events.Roslyn
     [Generator]
     public sealed class EventMethodsGenerator : ISourceGenerator
     {
+        private static readonly SymbolDisplayFormat QualifiedNameOnlyFormat = new(SymbolDisplayGlobalNamespaceStyle.Omitted, SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces, SymbolDisplayGenericsOptions.IncludeTypeParameters);
+
         public void Execute(GeneratorExecutionContext context)
         {
             SourceBuilder sourceBuilder = new();
@@ -21,17 +24,12 @@ namespace Coimbra.Services.Events.Roslyn
                 sourceBuilder.AddLine("#nullable enable");
                 sourceBuilder.SkipLine();
 
-                sourceBuilder.AddUsing("Coimbra");
-                sourceBuilder.AddUsing("Coimbra.Services");
-                sourceBuilder.AddUsing("Coimbra.Services.Events");
-                sourceBuilder.AddUsing("System.CodeDom.Compiler");
-                sourceBuilder.AddUsing("System.Collections.Generic");
-                sourceBuilder.AddUsing("System.Runtime.CompilerServices");
-                sourceBuilder.SkipLine();
-
                 using (new NamespaceScope(sourceBuilder, typeDeclarationSyntax.GetNamespace()))
                 {
-                    string typeName = typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName();
+                    SemanticModel semanticModel = context.Compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree);
+                    TypeInfo typeInfo = semanticModel.GetTypeInfo(typeDeclarationSyntax);
+                    ITypeSymbol typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
+                    string typeName = typeSymbol?.ToDisplayString(QualifiedNameOnlyFormat) ?? (typeDeclarationSyntax.TypeParameterList != null ? $"{typeDeclarationSyntax.GetTypeName()}{typeDeclarationSyntax.TypeParameterList}" : typeDeclarationSyntax.GetTypeName());
                     bool isStruct = false;
 
                     using (LineScope lineScope = sourceBuilder.BeginLine())
@@ -78,20 +76,20 @@ namespace Coimbra.Services.Events.Roslyn
                     using (new BracesScope(sourceBuilder))
                     {
                         AddMethodBoilerplate(sourceBuilder, "AddListener");
-                        sourceBuilder.AddLine($"public static EventHandle AddListener(in EventContextHandler<{typeName}> eventHandler)");
+                        sourceBuilder.AddLine($"public static {CoimbraServicesEventsTypes.EventHandleStruct.FullName} AddListener(in {CoimbraServicesEventsTypes.EventContextHandlerStruct.FullName}<{typeName}> eventHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().AddListener<{typeName}>(in eventHandler);");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().AddListener<{typeName}>(in eventHandler);");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "AddRelevancyListener");
-                        sourceBuilder.AddLine("public static void AddRelevancyListener(in EventRelevancyChangedHandler relevancyChangedHandler)");
+                        sourceBuilder.AddLine($"public static void AddRelevancyListener(in {CoimbraServicesEventsTypes.EventRelevancyChangedHandlerDelegate.FullName} relevancyChangedHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"ServiceLocator.GetChecked<IEventService>().AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                            sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().AddRelevancyListener<{typeName}>(in relevancyChangedHandler);");
                         }
 
                         sourceBuilder.SkipLine();
@@ -100,25 +98,25 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetListenerCount<{typeName}>();");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().GetListenerCount<{typeName}>();");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "GetListeners");
-                        sourceBuilder.AddLine("public static int GetListeners(List<DelegateListener> listeners)");
+                        sourceBuilder.AddLine($"public static int GetListeners({SystemTypes.ListClass.FullName}<{CoimbraTypes.DelegateListenerStruct.FullName}> listeners)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetListeners<{typeName}>(listeners);");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().GetListeners<{typeName}>(listeners);");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "GetRelevancyListeners");
-                        sourceBuilder.AddLine("public static int GetRelevancyListeners(List<DelegateListener> listeners)");
+                        sourceBuilder.AddLine($"public static int GetRelevancyListeners({SystemTypes.ListClass.FullName}<{CoimbraTypes.DelegateListenerStruct.FullName}> listeners)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().GetRelevancyListeners<{typeName}>(listeners);");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().GetRelevancyListeners<{typeName}>(listeners);");
                         }
 
                         sourceBuilder.SkipLine();
@@ -127,16 +125,16 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().IsInvoking<{typeName}>();");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().IsInvoking<{typeName}>();");
                         }
 
                         sourceBuilder.SkipLine();
                         AddMethodBoilerplate(sourceBuilder, "RemoveRelevancyListener");
-                        sourceBuilder.AddLine("public static void RemoveRelevancyListener(in EventRelevancyChangedHandler relevancyChangedHandler)");
+                        sourceBuilder.AddLine($"public static void RemoveRelevancyListener(in {CoimbraServicesEventsTypes.EventRelevancyChangedHandlerDelegate.FullName} relevancyChangedHandler)");
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"ServiceLocator.GetChecked<IEventService>().RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
+                            sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().RemoveRelevancyListener<{typeName}>(in relevancyChangedHandler);");
                         }
 
                         sourceBuilder.SkipLine();
@@ -145,7 +143,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().RemoveAllListeners<{typeName}>();");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().RemoveAllListeners<{typeName}>();");
                         }
                     }
 
@@ -153,7 +151,7 @@ namespace Coimbra.Services.Events.Roslyn
                     sourceBuilder.AddLine("/// <summary>");
                     sourceBuilder.AddLine($"/// Generated utility methods for <see cref=\"{typeName}\"/>");
                     sourceBuilder.AddLine("/// </summary>");
-                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
+                    sourceBuilder.AddLine($"[{SystemTypes.GeneratedCodeAttribute.FullName}(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
                     sourceBuilder.AddLine($"internal static class Generated{typeName}Utility");
 
                     using (new BracesScope(sourceBuilder))
@@ -163,7 +161,7 @@ namespace Coimbra.Services.Events.Roslyn
 
                         using (new BracesScope(sourceBuilder))
                         {
-                            sourceBuilder.AddLine($"return ServiceLocator.GetChecked<IEventService>().Invoke<{typeName}>(sender, in e);");
+                            sourceBuilder.AddLine($"return {CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{CoimbraServicesEventsTypes.EventServiceInterface.FullName}>().Invoke<{typeName}>(sender, in e);");
                         }
                     }
                 }
@@ -180,10 +178,10 @@ namespace Coimbra.Services.Events.Roslyn
         private static void AddMethodBoilerplate(SourceBuilder sourceBuilder, string originalMethod)
         {
             sourceBuilder.AddLine("/// <summary>");
-            sourceBuilder.AddLine($"/// <inheritdoc cref=\"IEventService.{originalMethod}{{T}}\"/>");
+            sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraServicesEventsTypes.EventServiceInterface.FullName}.{originalMethod}{{T}}\"/>");
             sourceBuilder.AddLine("/// </summary>");
-            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
-            sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+            sourceBuilder.AddLine($"[{SystemTypes.GeneratedCodeAttribute.FullName}(\"{CoimbraServicesEventsTypes.Namespace}.Roslyn.{nameof(EventMethodsGenerator)}\", \"1.0.0.0\")]");
+            sourceBuilder.AddLine($"[{SystemTypes.MethodImplAttribute.FullName}({SystemTypes.MethodImplOptionsEnum.FullName}.AggressiveInlining)]");
         }
     }
 }

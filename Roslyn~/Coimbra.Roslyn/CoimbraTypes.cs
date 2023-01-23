@@ -8,6 +8,8 @@
 
         public static readonly TypeString CopyBaseConstructorsAttribute = new("CopyBaseConstructorsAttribute", Namespace);
 
+        public static readonly TypeString DelegateListenerStruct = new("DelegateListener", Namespace);
+
         public static readonly TypeString ManagedPoolClass = new("ManagedPool", Namespace);
 
         public static readonly TypeString PreferencesAttribute = new("PreferencesAttribute", Namespace);

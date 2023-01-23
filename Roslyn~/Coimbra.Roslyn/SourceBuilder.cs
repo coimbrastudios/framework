@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace Coimbra.Roslyn
 {
@@ -9,28 +8,17 @@ namespace Coimbra.Roslyn
 
         private readonly StringBuilder _stringBuilder = new();
 
-        private readonly HashSet<string> _usingSet = new();
-
         public void Initialize()
         {
             Indent.Amount = 0;
             _stringBuilder.Clear();
             _stringBuilder.AppendLine("// This file is auto-generated!");
             _stringBuilder.AppendLine();
-            _usingSet.Clear();
         }
 
         public void AddLine(string lineContent, bool skipIndent = false)
         {
             _stringBuilder.AppendLine(skipIndent ? $"{lineContent}" : $"{Indent}{lineContent}");
-        }
-
-        public void AddUsing(string value)
-        {
-            if (_usingSet.Add(value))
-            {
-                AddLine($"using {value};");
-            }
         }
 
         public LineScope BeginLine(bool skipIndent = false)
@@ -41,11 +29,6 @@ namespace Coimbra.Roslyn
             }
 
             return new LineScope(_stringBuilder);
-        }
-
-        public UsingScope BeginUsing()
-        {
-            return new UsingScope(_stringBuilder, _usingSet);
         }
 
         public void SkipLine()

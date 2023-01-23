@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Coimbra.Roslyn\Coimbra.Roslyn.csproj" />
+        <ProjectReference Include="..\Coimbra.Services.Roslyn\Coimbra.Services.Roslyn.csproj" />
     </ItemGroup>
 
 </Project>

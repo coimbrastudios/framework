@@ -10,6 +10,14 @@ namespace Coimbra.Roslyn
     [Generator]
     public sealed class SharedManagedPoolGenerator : ISourceGenerator
     {
+        private static readonly string AggressiveInlineAttribute = $"[{SystemTypes.MethodImplAttribute.FullName}({SystemTypes.MethodImplOptionsEnum.FullName}.AggressiveInlining)]";
+
+        private static readonly string GeneratedCodeAttribute = $"[{SystemTypes.GeneratedCodeAttribute.FullName}(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]";
+
+        private static readonly string NotNullAttribute = $"[{JetBrainsTypes.NotNullAttribute.FullName}]";
+
+        private static readonly SymbolDisplayFormat QualifiedNameOnlyFormat = new(SymbolDisplayGlobalNamespaceStyle.Omitted, SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces, SymbolDisplayGenericsOptions.IncludeTypeParameters);
+
         public void Execute(GeneratorExecutionContext context)
         {
             SourceBuilder sourceBuilder = new();
@@ -53,19 +61,8 @@ namespace Coimbra.Roslyn
 
                 TypeInfo valueTypeInfo = semanticModel.GetTypeInfo(valueTypeSyntax.TypeArgumentList.Arguments[0]);
                 ITypeSymbol valueTypeSymbol = valueTypeInfo.Type ?? valueTypeInfo.ConvertedType;
-                string valueType = valueTypeSyntax.TypeArgumentList.Arguments.ToString();
+                string valueType = valueTypeSymbol?.ToDisplayString(QualifiedNameOnlyFormat) ?? valueTypeSyntax.TypeArgumentList.Arguments.ToString();
                 sourceBuilder.Initialize();
-
-                using (UsingScope usingScope = sourceBuilder.BeginUsing())
-                {
-                    usingScope.AddContent("Coimbra");
-                    usingScope.AddContent("JetBrains.Annotations");
-                    usingScope.AddContent("System.CodeDom.Compiler");
-                    usingScope.AddContent("System.Runtime.CompilerServices");
-                    usingScope.AddContent(valueTypeSymbol!.ContainingNamespace.ToString());
-                }
-
-                sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, typeDeclaration.GetNamespace()))
                 {
@@ -74,9 +71,9 @@ namespace Coimbra.Roslyn
 
                     using (new BracesScope(sourceBuilder))
                     {
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.AvailableCount\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.AvailableCount\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
                         sourceBuilder.AddLine($"public static int GetAvailableCount{instanceArguments}()");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
@@ -90,9 +87,9 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.MaxCapacity\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.MaxCapacity\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
                         sourceBuilder.AddLine($"public static int GetMaxCapacity{instanceArguments}()");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
@@ -106,9 +103,9 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.PreloadCount\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.PreloadCount\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
                         sourceBuilder.AddLine($"public static int GetPreloadCount{instanceArguments}()");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
@@ -122,9 +119,9 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.Initialize\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.Initialize\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
                         sourceBuilder.AddLine($"public static void Initialize{instanceArguments}(int? preloadCount = null, int? maxCapacity = null)");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
@@ -138,10 +135,10 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.Pop()\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                        sourceBuilder.AddLine("[NotNull]");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.Pop()\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
+                        sourceBuilder.AddLine(NotNullAttribute);
                         sourceBuilder.AddLine($"public static {valueType} Pop{instanceArguments}()");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
@@ -155,10 +152,10 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.Pop()\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                        sourceBuilder.AddLine($"public static ManagedPool<{valueType}>.Instance Pop{instanceArguments}([NotNull] out {valueType} instance)");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.Pop()\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
+                        sourceBuilder.AddLine($"public static {CoimbraTypes.ManagedPoolClass.FullName}<{valueType}>.Instance Pop{instanceArguments}({NotNullAttribute} out {valueType} instance)");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
                         {
@@ -171,10 +168,10 @@ namespace Coimbra.Roslyn
                         }
 
                         sourceBuilder.SkipLine();
-                        sourceBuilder.AddLine("/// <inheritdoc cref=\"ManagedPool{T}.Push\"/>");
-                        sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(SharedManagedPoolGenerator)}\", \"1.0.0.0\")]");
-                        sourceBuilder.AddLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                        sourceBuilder.AddLine($"public static void Push{instanceArguments}([NotNull] in {valueType} instance)");
+                        sourceBuilder.AddLine($"/// <inheritdoc cref=\"{CoimbraTypes.ManagedPoolClass.FullName}{{T}}.Push\"/>");
+                        sourceBuilder.AddLine(GeneratedCodeAttribute);
+                        sourceBuilder.AddLine(AggressiveInlineAttribute);
+                        sourceBuilder.AddLine($"public static void Push{instanceArguments}({NotNullAttribute} in {valueType} instance)");
 
                         if (!string.IsNullOrWhiteSpace(instanceConstraints))
                         {

@@ -46,13 +46,6 @@ namespace Coimbra.Editor
                         continue;
                     }
 
-                    if (source.LastWriteTimeUtc.Ticks <= new FileInfo(destinationPath).LastWriteTimeUtc.Ticks)
-                    {
-                        Debug.Log($"Skipping \"{destinationPath}\"");
-
-                        continue;
-                    }
-
                     isDirty = true;
                     File.Copy(sourcePath, destinationPath, true);
                     Debug.Log($"Updated \"{destinationPath}\"");

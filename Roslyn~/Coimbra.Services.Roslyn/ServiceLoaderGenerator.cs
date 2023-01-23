@@ -23,46 +23,41 @@ namespace Coimbra.Services.Roslyn
             public bool PreloadService;
         }
 
+        private static readonly string GeneratedCodeAttribute = $"[{SystemTypes.GeneratedCodeAttribute.FullName}(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]";
+
+        private static readonly SymbolDisplayFormat QualifiedNameOnlyFormat = new(SymbolDisplayGlobalNamespaceStyle.Omitted, SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces, SymbolDisplayGenericsOptions.IncludeTypeParameters);
+
         public void Execute(GeneratorExecutionContext context)
         {
             SourceBuilder sourceBuilder = new();
 
             foreach (TypeData typeData in EnumerateTypes(context))
             {
-                TypeString source = new($"{typeData.ClassSymbol.Name}Loader", typeData.ClassSymbol.ContainingNamespace.ToString());
+                string qualifiedInterfaceName = typeData.InterfaceSymbol.ToDisplayString(QualifiedNameOnlyFormat);
+                TypeString source = new($"{typeData.ClassSymbol.Name}Loader", typeData.ClassSymbol.ContainingNamespace?.ToString() ?? string.Empty);
                 sourceBuilder.Initialize();
-
-                using (UsingScope usingScope = sourceBuilder.BeginUsing())
-                {
-                    usingScope.AddContent("Coimbra.Services");
-                    usingScope.AddContent("System.CodeDom.Compiler");
-                    usingScope.AddContent("UnityEngine");
-                    usingScope.AddContent(typeData.InterfaceSymbol.ContainingNamespace.ToString());
-                }
-
-                sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, source.Namespace))
                 {
-                    sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
+                    sourceBuilder.AddLine(GeneratedCodeAttribute);
                     sourceBuilder.AddLine($"internal static class {source.Name}");
 
                     using (new BracesScope(sourceBuilder))
                     {
                         if (!typeData.DisableDefaultFactory)
                         {
-                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
-                            sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]");
+                            sourceBuilder.AddLine(GeneratedCodeAttribute);
+                            sourceBuilder.AddLine($"[{UnityEngineTypes.RuntimeInitializeOnLoadMethodAttribute.FullName}({UnityEngineTypes.RuntimeInitializeLoadTypeEnum.FullName}.SubsystemRegistration)]");
                             sourceBuilder.AddLine("private static void HandleSubsystemRegistration()");
 
                             using (new BracesScope(sourceBuilder))
                             {
-                                sourceBuilder.AddLine($"if (!ServiceLocator.HasFactory<{typeData.InterfaceSymbol.Name}>())");
+                                sourceBuilder.AddLine($"if (!{CoimbraServicesTypes.ServiceLocatorClass.FullName}.HasFactory<{qualifiedInterfaceName}>())");
 
                                 using (new BracesScope(sourceBuilder))
                                 {
                                     TypeString factory = typeData.IsActor ? CoimbraServicesTypes.DefaultServiceActorFactoryClass : CoimbraServicesTypes.DefaultServiceFactoryClass;
-                                    sourceBuilder.AddLine($"ServiceLocator.SetFactory<{typeData.InterfaceSymbol.Name}>({factory.Name}<{typeData.ClassSymbol.Name}>.Instance);");
+                                    sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.SetFactory<{qualifiedInterfaceName}>({factory.Name}<{typeData.ClassSymbol.ToDisplayString(QualifiedNameOnlyFormat)}>.Instance);");
                                 }
                             }
 
@@ -74,19 +69,19 @@ namespace Coimbra.Services.Roslyn
 
                         if (typeData.PreloadService)
                         {
-                            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraServicesTypes.Namespace}.Roslyn.{nameof(ServiceLoaderGenerator)}\", \"1.0.0.0\")]");
-                            sourceBuilder.AddLine("[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
+                            sourceBuilder.AddLine(GeneratedCodeAttribute);
+                            sourceBuilder.AddLine($"[{UnityEngineTypes.RuntimeInitializeOnLoadMethodAttribute.FullName}({UnityEngineTypes.RuntimeInitializeLoadTypeEnum.FullName}.BeforeSceneLoad)]");
                             sourceBuilder.AddLine("private static void HandleBeforeSceneLoad()");
 
                             using (new BracesScope(sourceBuilder))
                             {
                                 if (typeData.InterfaceSymbol.HasAttribute(CoimbraServicesTypes.RequiredServiceAttribute, out _, false))
                                 {
-                                    sourceBuilder.AddLine($"ServiceLocator.GetChecked<{typeData.InterfaceSymbol.Name}>();");
+                                    sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.GetChecked<{qualifiedInterfaceName}>();");
                                 }
                                 else
                                 {
-                                    sourceBuilder.AddLine($"ServiceLocator.Get<{typeData.InterfaceSymbol.Name}>();");
+                                    sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.Get<{qualifiedInterfaceName}>();");
                                 }
                             }
                         }

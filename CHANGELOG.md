@@ -7,6 +7,8 @@
 - Fixed error caused by `LayerMask.NameToLayer` being used outside main thread at `LayerSelectorDrawer`.
 - Fixed `NullReferenceException` when unloading additives scenes with non-pooled `Actor`.
 - Fixed `OnValidade` warning when using `Object.Instantiate` inside `Actor.OnInitialize`.
+- Fixed not being able to use source generators with types without namespace.
+- Fixed source generators not using qualified names for types, which could cause conflict with existing project types.
 
 ## [10.9.9] - 2022-07-28
 

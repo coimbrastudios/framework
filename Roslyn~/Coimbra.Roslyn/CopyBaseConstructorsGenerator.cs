@@ -29,8 +29,6 @@ namespace Coimbra.Roslyn
                 }
 
                 sourceBuilder.Initialize();
-                sourceBuilder.AddUsing("System.CodeDom.Compiler");
-                sourceBuilder.SkipLine();
 
                 using (new NamespaceScope(sourceBuilder, type.ClassDeclaration.GetNamespace()))
                 {
@@ -68,7 +66,7 @@ namespace Coimbra.Roslyn
                 sourceBuilder.AddLine(comment);
             }
 
-            sourceBuilder.AddLine($"[GeneratedCode(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(CopyBaseConstructorsGenerator)}\", \"1.0.0.0\")]");
+            sourceBuilder.AddLine($"[{SystemTypes.GeneratedCodeAttribute.FullName}(\"{CoimbraTypes.Namespace}.Roslyn.{nameof(CopyBaseConstructorsGenerator)}\", \"1.0.0.0\")]");
 
             using (LineScope lineScope = sourceBuilder.BeginLine())
             {
