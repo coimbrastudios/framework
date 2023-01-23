@@ -52,7 +52,7 @@ namespace Coimbra.Roslyn
 
         public override string ToString()
         {
-            return Name;
+            return FullName;
         }
     }
 }
