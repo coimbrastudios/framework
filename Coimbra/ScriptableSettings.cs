@@ -266,22 +266,7 @@ namespace Coimbra
             return result.IsValid();
         }
 
-        protected virtual void Reset()
-        {
-#if UNITY_EDITOR
-            if (Type.IsEditorOnly())
-            {
-                Preload = false;
-            }
-
-            if (Preload)
-            {
-                EnsurePreload(false);
-            }
-#endif
-        }
-
-        protected virtual void OnValidate()
+        internal void ValidatePreload()
         {
 #if UNITY_EDITOR
             GUI.changed = true;
@@ -318,6 +303,26 @@ namespace Coimbra
                 }
             }
 #endif
+        }
+
+        protected virtual void Reset()
+        {
+#if UNITY_EDITOR
+            if (Type.IsEditorOnly())
+            {
+                Preload = false;
+            }
+
+            if (Preload)
+            {
+                EnsurePreload(false);
+            }
+#endif
+        }
+
+        protected virtual void OnValidate()
+        {
+            ValidatePreload();
         }
 
         protected virtual void OnEnable()

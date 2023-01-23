@@ -1,9 +1,13 @@
 # Changelog
 
-## [10.9.10] - UNRELEASED
+## [10.10.0] - UNRELEASED
 
-- Added `FilterTypesByMatchingTypeAttribute`.
+- Added `FilterTypesByAccessibilityAttribute`.
+- Added `FilterTypesBySpecificTypeAttribute`.
+- Added `EventHandleTrackerComponent`.
 - Changed `TypeDropdown` default value display text to make it clear which is the default value.
+- Fixed `ScriptableSettings` with preload set to true sometimes not being included in preloaded assets when building.
+- Fixed `EventSysten` not drawing its events properly in some cases.
 - Fixed unnecessary post-processing of all assets when there is any `AssemblyDefinitionRule` set.
 - Fixed error caused by `LayerMask.NameToLayer` being used outside main thread at `LayerSelectorDrawer`.
 - Fixed `NullReferenceException` when unloading additives scenes with non-pooled `Actor`.

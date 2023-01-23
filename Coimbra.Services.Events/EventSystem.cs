@@ -16,8 +16,10 @@ namespace Coimbra.Services.Events
     {
         private readonly Dictionary<Type, Event> _events = new();
 
+#pragma warning disable CS0169
         [SerializeField]
         private List<Event>? _list;
+#pragma warning restore CS0169
 
         internal IReadOnlyDictionary<Type, Event> Events => _events;
 
@@ -230,6 +232,7 @@ namespace Coimbra.Services.Events
             }
 
             _list.AddRange(_events.Values);
+            _list.Add(Event.Create<NullEvent>(null!));
 #endif
         }
     }

@@ -4,18 +4,18 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Filter out the types that matches the given types.
+    /// Filter the types using specific types.
     /// </summary>
     /// <seealso cref="FilterTypesAttributeBase"/>
     [AttributeUsage(AttributeTargets.Field)]
-    public sealed class FilterTypesByMatchingTypeAttribute : FilterTypesAttributeBase
+    public sealed class FilterTypesBySpecificTypeAttribute : FilterTypesAttributeBase
     {
         /// <summary>
         /// The types to be excluded.
         /// </summary>
         public readonly Type[] ExcludedTypes;
 
-        public FilterTypesByMatchingTypeAttribute(params Type[] excludedTypes)
+        public FilterTypesBySpecificTypeAttribute(params Type[] excludedTypes)
         {
             ExcludedTypes = excludedTypes;
         }

@@ -13,13 +13,13 @@ namespace Coimbra.Services.Events
         /// <returns>True if removed any valid listener.</returns>
         public static bool RemoveListenersAndClear(this IList<EventHandle> list)
         {
-            IEventService eventService = ServiceLocator.GetChecked<IEventService>();
             bool hasRemovedAny = false;
             int count = list.Count;
 
             for (int i = 0; i < count; i++)
             {
-                hasRemovedAny |= eventService.RemoveListener(list[i]);
+                EventHandle eventHandle = list[i];
+                hasRemovedAny |= eventHandle.Service.GetValid()?.RemoveListener(in eventHandle) ?? false;
             }
 
             list.Clear();

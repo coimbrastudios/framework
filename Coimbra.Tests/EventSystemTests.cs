@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 namespace Coimbra.Tests
 {
 #pragma warning disable SA1402
-    public readonly partial struct TestEvent : IEvent { }
+    internal readonly partial struct TestEvent : IEvent { }
 #pragma warning restore SA1402
 
     [TestFixture]

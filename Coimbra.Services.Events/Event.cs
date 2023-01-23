@@ -42,17 +42,19 @@ namespace Coimbra.Services.Events
         internal readonly Func<EventHandle, List<DelegateListener>, int> GetListenersHandler;
 
         [NotNull]
-        private readonly IEventService _service;
+        internal readonly Type Type;
 
         [NotNull]
-        private readonly Type _type;
+        private readonly IEventService _service;
 
         [NotNull]
         private readonly HashSet<EventHandle> _removeSet = new();
 
+#pragma warning disable CS0649
         [CanBeNull]
         [SerializeField]
         private string _label;
+#pragma warning restore CS0649
 
         [NotNull]
         [SerializeField]
@@ -63,12 +65,12 @@ namespace Coimbra.Services.Events
 
         private Event([NotNull] IEventService service, [NotNull] Type type, [NotNull] Func<EventHandle, bool> removeCallbackHandler, [NotNull] Func<EventHandle, List<DelegateListener>, int> getListenersHandler)
         {
-            _type = type;
+            Type = type;
             _service = service;
             _removeCallbackHandler = removeCallbackHandler;
             GetListenersHandler = getListenersHandler;
 #if UNITY_EDITOR
-            _label = TypeString.Get(_type);
+            _label = TypeString.Get(Type);
 #endif
         }
 
@@ -95,7 +97,7 @@ namespace Coimbra.Services.Events
 
             if (_listeners.Count == 1)
             {
-                OnRelevancyChanged?.Invoke(_service, _type, true);
+                OnRelevancyChanged?.Invoke(_service, Type, true);
             }
         }
 
@@ -152,7 +154,7 @@ namespace Coimbra.Services.Events
 
                 if (result)
                 {
-                    OnRelevancyChanged?.Invoke(_service, _type, false);
+                    OnRelevancyChanged?.Invoke(_service, Type, false);
                 }
             }
 
@@ -174,7 +176,7 @@ namespace Coimbra.Services.Events
 
             if (_listeners.Remove(handle) && _listeners.Count == 0)
             {
-                OnRelevancyChanged?.Invoke(_service, _type, false);
+                OnRelevancyChanged?.Invoke(_service, Type, false);
             }
 
             return true;

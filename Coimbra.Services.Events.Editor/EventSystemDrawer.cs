@@ -37,8 +37,14 @@ namespace Coimbra.Services.Events.Editor
             for (int i = 0; i < listSize; i++)
             {
                 SerializedProperty elementProperty = listProperty.GetArrayElementAtIndex(i);
+                Event e = elementProperty.GetValue<Event>();
 
-                if (!hasFilter || TryMatchSearch(elementProperty.GetValue<Event>()))
+                if (e == null || e.Type == typeof(NullEvent))
+                {
+                    continue;
+                }
+
+                if (!hasFilter || TryMatchSearch(e))
                 {
                     height += EditorGUI.GetPropertyHeight(elementProperty) + EditorGUIUtility.standardVerticalSpacing + (EditorGUIUtility.singleLineHeight * 0.4f);
                 }
@@ -72,8 +78,14 @@ namespace Coimbra.Services.Events.Editor
                 for (int i = 0; i < listSize; i++)
                 {
                     SerializedProperty elementProperty = listProperty.GetArrayElementAtIndex(i);
+                    Event e = elementProperty.GetValue<Event>();
 
-                    if (hasFilter && !TryMatchSearch(elementProperty.GetValue<Event>()))
+                    if (e == null || e.Type == typeof(NullEvent))
+                    {
+                        continue;
+                    }
+
+                    if (hasFilter && !TryMatchSearch(e))
                     {
                         continue;
                     }
