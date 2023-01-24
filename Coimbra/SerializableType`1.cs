@@ -10,7 +10,7 @@ namespace Coimbra
     /// </summary>
     /// <typeparam name="T">Will require the type to be assignable to that.</typeparam>
     [Serializable]
-    public struct SerializableType<T> : ISerializationCallbackReceiver
+    public struct SerializableType<T> : IEquatable<SerializableType<T>>, IEquatable<Type>, ISerializationCallbackReceiver
     {
         [SerializeField]
         private string _className;
@@ -69,6 +69,18 @@ namespace Coimbra
         public static implicit operator SerializableType<T>(Type type)
         {
             return new SerializableType<T>(type);
+        }
+
+        /// <inheritdoc/>
+        public bool Equals(SerializableType<T> other)
+        {
+            return Value == other.Value;
+        }
+
+        /// <inheritdoc/>
+        public bool Equals(Type other)
+        {
+            return Value == other;
         }
 
         public override string ToString()
