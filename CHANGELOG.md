@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.10.1] - 2023-01-28
+
+- Fixed serialization issue between `SerializableDictionary` and `ManagedField`.
+
 ## [10.10.0] - 2023-01-23
 
 - Added `FilterTypesByAccessibilityAttribute`.

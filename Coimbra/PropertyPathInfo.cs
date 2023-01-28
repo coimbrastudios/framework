@@ -338,7 +338,6 @@ namespace Coimbra
                 if (propertyPathInfo.Index.HasValue)
                 {
                     ((IList)currentScope)[propertyPathInfo.Index.Value] = currentValue;
-                    propertyPathInfo = propertyPathInfo.ScopeInfo!;
                 }
                 else
                 {
