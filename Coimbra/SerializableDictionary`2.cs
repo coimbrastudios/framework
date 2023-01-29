@@ -12,6 +12,7 @@ namespace Coimbra
     /// <seealso cref="DisableResizeAttribute"/>
     /// <seealso cref="HideKeyLabelAttribute"/>
     /// <seealso cref="HideValueLabelAttribute"/>
+    /// <seealso cref="SerializableTypeDictionary{TKeyType,TValue,TFilterTypeAttribute}"/>
     [Serializable]
     [CopyBaseConstructors]
     public partial class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializableDictionary

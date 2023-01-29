@@ -1,8 +1,14 @@
 # Changelog
 
-## [10.10.1] - 2023-01-28
+## [10.10.1] - 2023-01-29
 
+- Added `SerializableTypeDictionary`.
+- Added `FilterTypesByMethodAttribute`.
+- Changed `SerializableType` to implement `IEquatable` and `GetHashCode`.
+- Changed `AnimatorParameter` to support empty input.
 - Fixed serialization issue between `SerializableDictionary` and `ManagedField`.
+- Fixed `PropertyPathInfo` not being compatible with some types that implements `ISerializationCallbackReceiver`.
+- Fixed `ValidateAttribute` not working with lists and arrays.
 
 ## [10.10.0] - 2023-01-23
 

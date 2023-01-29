@@ -74,11 +74,18 @@ namespace Coimbra.Editor
 
             PopulateContents(animatorParameterAttribute, parameters, property.stringValue, out int selectedIndex);
             DrawPopup(position, property, label, context, targets, animatorParameterAttribute, selectedIndex);
+
+            foreach (GUIContent content in Contents)
+            {
+                GUIContentPool.Push(content);
+            }
+
+            Contents.Clear();
         }
 
         private static void DrawPopup(Rect position, SerializedProperty property, GUIContent label, PropertyPathInfo context, Object[] targets, AnimatorParameterAttribute attribute, int selectedIndex)
         {
-            if (Contents.Count == 0)
+            if (Contents.Count == 1)
             {
                 ShowInvalidParameterTypePopup(position, label.text, attribute);
 
@@ -96,7 +103,7 @@ namespace Coimbra.Editor
 
                 if (string.IsNullOrEmpty(value))
                 {
-                    return Contents[0].text;
+                    return string.Empty;
                 }
 
                 for (int i = 0; i < Contents.Count; i++)
@@ -107,7 +114,7 @@ namespace Coimbra.Editor
                     }
                 }
 
-                return Contents[0].text;
+                return string.Empty;
             }
 
             context.SetValues(targets, true, setValue);
@@ -144,8 +151,11 @@ namespace Coimbra.Editor
 
         private static void PopulateContents(AnimatorParameterAttribute attribute, IReadOnlyList<AnimatorControllerParameter> parameters, string selectedValue, out int selectedIndex)
         {
+            GUIContent content = GUIContentPool.Pop();
+            content.text = "<none>";
+            Contents.Add(content);
+
             selectedIndex = -1;
-            Contents.Clear();
 
             for (int i = 0; i < parameters.Count; i++)
             {
@@ -161,7 +171,9 @@ namespace Coimbra.Editor
                     selectedIndex = Contents.Count;
                 }
 
-                Contents.Add(new GUIContent(parameter.name));
+                content = GUIContentPool.Pop();
+                content.text = parameter.name;
+                Contents.Add(content);
             }
         }
 
@@ -185,7 +197,7 @@ namespace Coimbra.Editor
         {
             parameters = null;
             Targets.Clear();
-            context.GetScopes(targets, Targets);
+            context.GetScopes(targets, Targets, true);
 
             FieldInfo animatorFieldInfo = Targets[0].GetType().FindFieldByName(attribute.AnimatorField);
 

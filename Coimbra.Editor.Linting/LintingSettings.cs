@@ -48,7 +48,6 @@ namespace Coimbra.Editor.Linting
             }
 
             bool isDirty = false;
-            Debug.Log("Applying assembly definition rules...");
 
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
@@ -67,10 +66,13 @@ namespace Coimbra.Editor.Linting
                 }
             }
 
-            if (isDirty)
+            if (!isDirty)
             {
-                AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                return;
             }
+
+            Debug.Log("Applying assembly definition rules...");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
         private static void HandleAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] compilerMessages)

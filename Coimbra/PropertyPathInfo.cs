@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Coimbra
@@ -98,16 +99,16 @@ namespace Coimbra
         /// </summary>
         [Pure]
         [return: NotNull]
-        public object GetScope([NotNull] Object target)
+        public object GetScope([NotNull] Object target, bool skipListOrArray)
         {
             if (ScopeInfo == null)
             {
                 return target;
             }
 
-            if (ScopeInfo.Index.HasValue)
+            if (skipListOrArray && Index.HasValue)
             {
-                return ScopeInfo.GetScope(target);
+                return ScopeInfo.GetScope(target, true);
             }
 
             return ScopeInfo.GetValue(target) ?? target;
@@ -117,9 +118,9 @@ namespace Coimbra
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public T GetScope<T>([NotNull] Object target)
+        public T GetScope<T>([NotNull] Object target, bool skipListOrArray)
         {
-            return (T)GetScope(target);
+            return (T)GetScope(target, skipListOrArray);
         }
 
         /// <summary>
@@ -127,50 +128,50 @@ namespace Coimbra
         /// </summary>
         [Pure]
         [return: NotNull]
-        public object[] GetScopes([NotNull] Object[] targets)
+        public object[] GetScopes([NotNull] Object[] targets, bool skipListOrArray)
         {
             using (ListPool.Pop(out List<object> list))
             {
-                GetScopes(targets, list);
+                GetScopes(targets, list, skipListOrArray);
 
                 return list.ToArray();
             }
         }
 
-        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[], bool)"/>
         [Pure]
         [return: NotNull]
-        public T[] GetScopes<T>([NotNull] Object[] targets)
+        public T[] GetScopes<T>([NotNull] Object[] targets, bool skipListOrArray)
         {
             using (ListPool.Pop(out List<T> list))
             {
-                GetScopes(targets, list);
+                GetScopes(targets, list, skipListOrArray);
 
                 return list.ToArray();
             }
         }
 
-        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
-        public void GetScopes([NotNull] Object[] targets, [NotNull] List<object> append)
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[], bool)"/>
+        public void GetScopes([NotNull] Object[] targets, [NotNull] List<object> append, bool skipListOrArray)
         {
             InitializeChain();
             append.EnsureCapacity(append.Count + targets.Length);
 
             Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                append.Add(GetScope(targets[i]));
+                append.Add(GetScope(targets[i], skipListOrArray));
             });
         }
 
-        /// <inheritdoc cref="GetScopes(UnityEngine.Object[])"/>
-        public void GetScopes<T>([NotNull] Object[] targets, [NotNull] List<T> append)
+        /// <inheritdoc cref="GetScopes(UnityEngine.Object[], bool)"/>
+        public void GetScopes<T>([NotNull] Object[] targets, [NotNull] List<T> append, bool skipListOrArray)
         {
             InitializeChain();
             append.EnsureCapacity(append.Count + targets.Length);
 
             Parallel.For(append.Count, append.Count + targets.Length, delegate(int i)
             {
-                append.Add(GetScope<T>(targets[i]));
+                append.Add(GetScope<T>(targets[i], skipListOrArray));
             });
         }
 
@@ -341,6 +342,11 @@ namespace Coimbra
                 }
                 else
                 {
+                    if (currentScope is ISerializationCallbackReceiver serializationCallbackReceiver)
+                    {
+                        serializationCallbackReceiver.OnAfterDeserialize();
+                    }
+
                     propertyPathInfo.FieldInfo.SetValue(currentScope, currentValue);
                 }
 

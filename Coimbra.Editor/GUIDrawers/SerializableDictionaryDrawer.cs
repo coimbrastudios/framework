@@ -11,6 +11,7 @@ namespace Coimbra.Editor
     /// </summary>
     [InitializeOnLoad]
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
+    [CustomPropertyDrawer(typeof(SerializableTypeDictionary<,,>), true)]
     public sealed class SerializableDictionaryDrawer : PropertyDrawer
     {
         private const float KeyWidthPercent = 0.4f;

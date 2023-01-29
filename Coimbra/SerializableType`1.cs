@@ -83,6 +83,13 @@ namespace Coimbra
             return Value == other;
         }
 
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        /// <inheritdoc/>
         public override string ToString()
         {
             return TypeString.Get(Value);

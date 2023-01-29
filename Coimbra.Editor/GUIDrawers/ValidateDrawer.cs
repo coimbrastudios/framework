@@ -11,6 +11,8 @@ namespace Coimbra.Editor
     [CustomPropertyDrawer(typeof(ValidateAttribute), false)]
     public class ValidateDrawer : PropertyDrawer
     {
+        private static readonly object[] InvokeParameters = new object[1];
+
         /// <inheritdoc/>
         public sealed override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -26,53 +28,39 @@ namespace Coimbra.Editor
             }
 
             using (ListPool.Pop(out List<object> scopes))
+            using (ListPool.Pop(out List<object> values))
             {
-                propertyPathInfo.GetScopes(targets, scopes);
-
-                MethodInfo methodInfo = scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback) ?? scopes[0].GetType().FindMethodBySignature(validateAttribute.Callback, propertyPathInfo.PropertyType);
+                propertyPathInfo.GetScopes(targets, scopes, true);
+                propertyPathInfo.GetValues(targets, values);
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
-                if (methodInfo == null)
-                {
-                    DrawGUI(position, property, label, propertyPathInfo, targets, validateAttribute.Delayed);
+                DrawGUI(position, property, label, propertyPathInfo, targets, validateAttribute.Delayed);
 
+                if (!changeCheckScope.changed)
+                {
                     return;
                 }
 
-                if (methodInfo.GetParameters().Length == 0)
+                for (int i = 0; i < targets.Length; i++)
                 {
-                    DrawGUI(position, property, label, propertyPathInfo, targets, validateAttribute.Delayed);
+                    MethodInfo methodInfo = scopes[i].GetType().FindMethodBySignature(validateAttribute.Callback);
 
-                    if (!changeCheckScope.changed)
+                    if (methodInfo != null)
                     {
-                        return;
+                        methodInfo.Invoke(scopes[i], null);
                     }
-
-                    foreach (object scope in scopes)
+                    else
                     {
-                        methodInfo.Invoke(scope, null);
-                    }
-                }
-                else
-                {
-                    using (ListPool.Pop(out List<object> values))
-                    {
-                        propertyPathInfo.GetValues(targets, values);
-                        DrawGUI(position, property, label, propertyPathInfo, targets, validateAttribute.Delayed);
+                        methodInfo = scopes[i].GetType().FindMethodBySignature(validateAttribute.Callback, propertyPathInfo.PropertyType);
 
-                        if (!changeCheckScope.changed)
+                        if (methodInfo == null)
                         {
-                            return;
+                            continue;
                         }
 
-                        object[] parameters = new object[1];
-
-                        for (int i = 0; i < targets.Length; i++)
-                        {
-                            parameters[0] = values[i];
-                            methodInfo.Invoke(scopes[i], parameters);
-                        }
+                        InvokeParameters[0] = values[i];
+                        methodInfo.Invoke(scopes[i], InvokeParameters);
                     }
                 }
             }

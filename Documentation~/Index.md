@@ -100,7 +100,8 @@
     - `DisableAttribute`: will stop showing the drag handle and stop showing the buttons to add or remove elements.
     - `HideKeyLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
     - `HideValueLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
-- `SerializableType<T>`: serializes a `System.Type` that can be edited and saved from the inspector.
+- `SerializableType`: serializes a `System.Type` that can be edited and saved from the inspector.
+- `SerializableTypeDictionary`: works in the same way as `SerializableDictionary` but using `SerializableType` as key. By default it only supports `ManagedField`, `List<ManagedField>` or `ManagedField[]` as value.
 - `ServiceLocator`: enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locator`. It also comes with a few built-in functionalities:
     - Attributes:
         - `AbstractService`: by default, any interface implementing `IService` is considered a valid service type. Use this attribute to create interfaces that should not be considered a valid service type besides implementing `IService`.

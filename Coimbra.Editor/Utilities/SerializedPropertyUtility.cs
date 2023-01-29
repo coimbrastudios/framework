@@ -57,50 +57,50 @@ namespace Coimbra.Editor
         [NotNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object GetScope(this SerializedProperty property)
+        public static object GetScope(this SerializedProperty property, bool skipListOrArray)
         {
-            return property.GetPropertyPathInfo().GetScope(property.serializedObject.targetObject);
+            return property.GetPropertyPathInfo().GetScope(property.serializedObject.targetObject, skipListOrArray);
         }
 
         /// <inheritdoc cref="PropertyPathInfo.GetScope"/>
         [NotNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetScope<T>(this SerializedProperty property)
+        public static T GetScope<T>(this SerializedProperty property, bool skipListOrArray)
         {
-            return property.GetPropertyPathInfo().GetScope<T>(property.serializedObject.targetObject);
+            return property.GetPropertyPathInfo().GetScope<T>(property.serializedObject.targetObject, skipListOrArray);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[], bool)"/>
         [NotNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object[] GetScopes(this SerializedProperty property)
+        public static object[] GetScopes(this SerializedProperty property, bool skipListOrArray)
         {
-            return property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects);
+            return property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, skipListOrArray);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[], bool)"/>
         [NotNull]
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] GetScopes<T>(this SerializedProperty property)
+        public static T[] GetScopes<T>(this SerializedProperty property, bool skipListOrArray)
         {
-            return property.GetPropertyPathInfo().GetScopes<T>(property.serializedObject.targetObjects);
+            return property.GetPropertyPathInfo().GetScopes<T>(property.serializedObject.targetObjects, skipListOrArray);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[], bool)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetScopes(this SerializedProperty property, [NotNull] List<object> append)
+        public static void GetScopes(this SerializedProperty property, [NotNull] List<object> append, bool skipListOrArray)
         {
-            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append);
+            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append, skipListOrArray);
         }
 
-        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[])"/>
+        /// <inheritdoc cref="PropertyPathInfo.GetScopes(UnityEngine.Object[], bool)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetScopes<T>(this SerializedProperty property, [NotNull] List<T> append)
+        public static void GetScopes<T>(this SerializedProperty property, [NotNull] List<T> append, bool skipListOrArray)
         {
-            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append);
+            property.GetPropertyPathInfo().GetScopes(property.serializedObject.targetObjects, append, skipListOrArray);
         }
 
         /// <inheritdoc cref="PropertyPathInfo.ScopeInfo"/>
