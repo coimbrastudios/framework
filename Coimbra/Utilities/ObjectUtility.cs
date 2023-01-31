@@ -12,6 +12,12 @@ namespace Coimbra
     /// </summary>
     public static class ObjectUtility
     {
+        private static readonly string[] FindAssetsFolders = new string[]
+        {
+            "Assets",
+            "Packages",
+        };
+
         /// <summary>
         /// Adds an item to a <see cref="ICollection{T}"/>.
         /// </summary>
@@ -71,7 +77,7 @@ namespace Coimbra
 #if UNITY_EDITOR
             if (ScriptableSettings.GetType(type).IsEditorOnly())
             {
-                string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}");
+                string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}", FindAssetsFolders);
 
                 using (ListPool.Pop(out List<Object> list))
                 {

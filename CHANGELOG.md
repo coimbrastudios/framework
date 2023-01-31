@@ -1,5 +1,10 @@
 # Changelog
 
+## [10.10.3] - UNRELEASED
+
+- Changed `UPMAuthenticator`, `LintingSettings` and `SceneProcessingSettings` to live within `ProjectSettings` folder.
+- Fixed `ScriptableSettings` in packages not being loaded properly.
+
 ## [10.10.2] - 2023-01-31
 
 - Added `COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS` optional scripting define symbol that stop event invocations from handling exceptions to improve their performance.

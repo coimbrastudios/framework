@@ -10,7 +10,7 @@ namespace Coimbra.Editor.Linting
 
         private static string OnGeneratedCSProject(string path, string content)
         {
-            if (ScriptableSettings.TryGetOrFind(out LintingSettings settings) && settings.DisableLocalUnityAnalyzers)
+            if (ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings) && settings.DisableLocalUnityAnalyzers)
             {
                 return Regex.Replace(content, "$1 Condition=\"false\" $2");
             }

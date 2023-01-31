@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Coimbra.Editor.UPM
 {
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
     internal sealed class UPMAuthenticator : ScriptableSettings
     {
         [Serializable]
@@ -38,7 +38,7 @@ namespace Coimbra.Editor.UPM
         {
             try
             {
-                if (!TryGetOrFind(out UPMAuthenticator authenticator) || authenticator.Entries.Count == 0)
+                if (!ScriptableSettingsUtility.TryLoadOrCreate(out UPMAuthenticator authenticator) || authenticator.Entries.Count == 0)
                 {
                     return;
                 }

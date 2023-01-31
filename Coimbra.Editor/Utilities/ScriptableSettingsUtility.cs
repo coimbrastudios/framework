@@ -34,7 +34,8 @@ namespace Coimbra.Editor
         {
             Type type = scriptableSettings.GetType();
 
-            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
+            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _)
+             || !string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(scriptableSettings)))
             {
                 return;
             }
@@ -79,8 +80,30 @@ namespace Coimbra.Editor
         {
             ScriptableSettingsType filter = ScriptableSettings.GetType(type);
 
+            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
+            {
+                return null;
+            }
+
             if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value, findCallback))
             {
+                if (filePath != null)
+                {
+                    string assetPath = AssetDatabase.GetAssetPath(value);
+
+                    if (!string.IsNullOrWhiteSpace(assetPath))
+                    {
+                        ScriptableSettings copy = Object.Instantiate(value);
+                        Debug.LogWarning($"Moving {value} from {assetPath} to {filePath}!", copy);
+                        ScriptableSettings.SetOrOverwrite(type, copy);
+                        Object.DestroyImmediate(value, true);
+                        AssetDatabase.DeleteAsset(assetPath);
+                        copy.Save();
+
+                        return copy;
+                    }
+                }
+
                 if (value.Type == filter)
                 {
                     return value;
@@ -88,11 +111,6 @@ namespace Coimbra.Editor
 
                 Debug.LogWarning($"Destroying {value} because its type changed from {value.Type} to {filter}!", value);
                 Object.DestroyImmediate(value, true);
-            }
-
-            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
-            {
-                return null;
             }
 
             if (!string.IsNullOrEmpty(filePath))
@@ -149,6 +167,14 @@ namespace Coimbra.Editor
 
                 string value = EditorJsonUtility.ToJson(scriptableSettings, true);
                 EditorPrefs.SetString(GetPrefsKey(type), value);
+
+                return;
+            }
+
+            if (settingsScope == SettingsScope.Project && !string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(scriptableSettings)))
+            {
+                EditorUtility.SetDirty(scriptableSettings);
+                AssetDatabase.SaveAssetIfDirty(scriptableSettings);
 
                 return;
             }

@@ -12,7 +12,7 @@ namespace Coimbra.Editor.Linting
     /// Settings for linting the project.
     /// </summary>
     [InitializeOnLoad]
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = null)]
+    [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
     public sealed class LintingSettings : ScriptableSettings
     {
         private const string AssemblyDefinitionFilter = "t:asmdef";
@@ -42,7 +42,7 @@ namespace Coimbra.Editor.Linting
         [InitializeOnLoadMethod]
         internal static void InitializeAssemblyDefinitionRules()
         {
-            if (!TryGetOrFind(out LintingSettings settings))
+            if (!ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings))
             {
                 return;
             }
