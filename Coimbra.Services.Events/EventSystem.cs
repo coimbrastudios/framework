@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Coimbra.Services.Events
 {
@@ -194,24 +193,41 @@ namespace Coimbra.Services.Events
 
             using (new Event.InvokeScope(e))
             {
+#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
                 try
+#endif
                 {
                     for (int i = 0; i < count; i++)
                     {
                         eventContext.CurrentHandle = e[i];
 
-                        if (!e.IsRemoving(eventContext.CurrentHandle))
+                        if (e.IsRemoving(eventContext.CurrentHandle))
                         {
-                            EventCallbacks<T>.Value[eventContext.CurrentHandle].Invoke(ref eventContext, in eventData);
+                            continue;
+                        }
+
+                        EventContextHandler<T> listener = EventCallbacks<T>.Value[eventContext.CurrentHandle];
+
+#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
+                        if (listener.Target == null)
+                        {
+                            e.RemoveListener(eventContext.CurrentHandle);
+                        }
+                        else
+#endif
+                        {
+                            listener.Invoke(ref eventContext, in eventData);
                         }
                     }
                 }
+#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
                 catch (Exception exception)
                 {
                     Delegate handler = EventCallbacks<T>.Value[eventContext.CurrentHandle];
-                    Debug.LogError($"An exception occurred while invoking {typeof(T)} for {handler.Target}.{handler.Method.Name}!", eventContext.Sender as Object);
+                    Debug.LogError($"An exception occurred while invoking {typeof(T)} for {handler.Target}.{handler.Method.Name}!", eventContext.Sender as UnityEngine.Object);
                     Debug.LogException(exception);
                 }
+#endif
             }
 
             return true;

@@ -1,5 +1,12 @@
 ﻿# Coimbra Framework
 
+## Scripting Define Symbols
+
+| Value                                | Description                                                                                                                                                     |
+|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS | Use it to improve performance of the `EventSystem` implementation, but you will need to take extra care with possible exceptions when invoking events.          |
+| COIMBRA_ROSLYN_SOURCE                | Use it when expanding the Roslyn Analyzers with a custom package version, it will add some menu items under `Tools/Coimbra Framework` to make your life easier. |
+
 ## List of Contents
 
 - `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`. An example is provided:

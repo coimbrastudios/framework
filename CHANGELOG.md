@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.10.2] - 2023-01-31
+
+- Added `COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS` optional scripting define symbol that stop event invocations from handling exceptions to improve their performance.
+- Added description for each optional scripting define symbol available for the package.
+- Changed `EventSystem` to be more safe by default by changing it to check if the listener is not null before attempting to invoke it.
+
 ## [10.10.1] - 2023-01-29
 
 - Added `SerializableTypeDictionary`.
