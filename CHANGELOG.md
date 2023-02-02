@@ -1,9 +1,10 @@
 # Changelog
 
-## [10.10.3] - UNRELEASED
+## [10.10.3] - 2023-02-01
 
 - Changed `UPMAuthenticator`, `LintingSettings` and `SceneProcessingSettings` to live within `ProjectSettings` folder.
 - Fixed `ScriptableSettings` in packages not being loaded properly.
+- Fixed issue with default generated service factories not having fully qualified name.
 
 ## [10.10.2] - 2023-01-31
 

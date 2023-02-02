@@ -57,7 +57,7 @@ namespace Coimbra.Services.Roslyn
                                 using (new BracesScope(sourceBuilder))
                                 {
                                     TypeString factory = typeData.IsActor ? CoimbraServicesTypes.DefaultServiceActorFactoryClass : CoimbraServicesTypes.DefaultServiceFactoryClass;
-                                    sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.SetFactory<{qualifiedInterfaceName}>({factory.Name}<{typeData.ClassSymbol.ToDisplayString(QualifiedNameOnlyFormat)}>.Instance);");
+                                    sourceBuilder.AddLine($"{CoimbraServicesTypes.ServiceLocatorClass.FullName}.SetFactory<{qualifiedInterfaceName}>({factory.FullName}<{typeData.ClassSymbol.ToDisplayString(QualifiedNameOnlyFormat)}>.Instance);");
                                 }
                             }
 
