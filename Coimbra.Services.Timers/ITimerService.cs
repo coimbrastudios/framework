@@ -13,6 +13,8 @@ namespace Coimbra.Services.Timers
     [RequireImplementors]
     public interface ITimerService : IService
     {
+        internal const float MinRate = 0.00002f;
+
         /// <summary>
         /// Get the timer data for the given timer handle.
         /// </summary>
@@ -44,7 +46,7 @@ namespace Coimbra.Services.Timers
         /// </summary>
         /// <param name="callback">What should happen each time the timer triggers.</param>
         /// <param name="delay">The delay to trigger the first time. Is set to 0 if negative.</param>
-        /// <param name="rate">The interval between each trigger. Each frame if 0 or negative..</param>
+        /// <param name="rate">The interval between each trigger clamped with <see cref="MinRate"/>.</param>
         /// <param name="loops">The amount of times it should trigger. Infinite if 0 or negative.</param>
         TimerHandle StartTimer(in Action callback, float delay, float rate, int loops = 0);
 

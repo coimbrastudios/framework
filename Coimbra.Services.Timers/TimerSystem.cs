@@ -72,7 +72,7 @@ namespace Coimbra.Services.Timers
             TimerComponent component = _timerComponentPool.Pop();
             TimerHandle handle = TimerHandle.Create(this);
             component.Delay = Mathf.Max(delay, 0);
-            component.Rate = Mathf.Max(rate, 0);
+            component.Rate = Mathf.Max(rate, ITimerService.MinRate);
             component.TargetLoops = Mathf.Max(loops, 0);
             component.CompletedLoops = 0;
             component.Callback = callback;

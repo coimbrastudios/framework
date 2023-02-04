@@ -1,5 +1,9 @@
 # Changelog
 
+## [10.10.4] - UNRELEASED
+
+- Fixed runtime issues with `ITimerService`.
+
 ## [10.10.3] - 2023-02-01
 
 - Changed `UPMAuthenticator`, `LintingSettings` and `SceneProcessingSettings` to live within `ProjectSettings` folder.

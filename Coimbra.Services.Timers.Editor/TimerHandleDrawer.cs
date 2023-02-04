@@ -88,7 +88,7 @@ namespace Coimbra.Services.Timers.Editor
 
                     position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
 
-                    if (rate < 0)
+                    if (rate < ITimerService.MinRate)
                     {
                         EditorGUI.LabelField(position, "Rate", "Once");
                     }

@@ -27,7 +27,7 @@ namespace Coimbra.Services.Timers
 
         internal void Run()
         {
-            Callback.Invoke();
+            Callback?.Invoke();
 
             CompletedLoops++;
 
