@@ -3,7 +3,7 @@
 ## List of Content
 
 - [Actor](Actor.md): Pretend you are inheriting from `GameObject` to make easier to design per-object behaviours. You probably have been doing that already, but without proper built-in support.
-- [Assembly Definition Rules](AssemblyDefinitionRules.md): linting tools for assembly definition assets. It comes with a few useful implementations and support to create custom ones easily.
+- [Assembly Definition Rules](AssemblyDefinitionRules.md): Linting tools for assembly definition assets. It comes with a few useful implementations and offers support to create custom ones easily.
 - [Event Service](EventService.md): Strongly-typed event system that takes full advantage of `Source Generators` and `Roslyn Analyzers`. Made to be as performance and easy to use as possible.
 - [Pooling](Pooling.md): Offers a thread-safe solution for pooling managed object and an `Addressables`-compatible solution for pooling `GameObject`.
 - [Property Attributes](PropertyAttributes.md): A few custom `PropertyAttribute` to change the display of your properties without requiring custom editors. Also contains helpers to make easier build a custom `PropertyDrawer`.

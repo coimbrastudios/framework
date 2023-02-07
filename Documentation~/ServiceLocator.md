@@ -11,7 +11,7 @@ Why avoid singletons?
 
 With [ServiceLocator] the creation is controlled by the [IServiceFactory] (with some default ones offered) and the implementation details is hidden behind the public interface defined as an [IService]. As it doesn't relies in specific inheritance chain it also makes easier to integrate with third-party code, which can be consumed privately in a given service implementation.
 
-However, I haven't solved the dependency chain issue as `Unity` itself doesn't support an easy way to explicit forward dependencies without hurting encapsulation. So unless you are going to avoid `GameObject`, `MonoBehaviour`, and `ScriptableObject` in your project you are stuck with that issue anyway. If you are committed to do that, I recommend to take a look into some `Dependency Injection` framework instead or consider moving to `Entity Component System` framework.
+However, I haven't solved the dependency chain issue as `Unity` itself doesn't support an easy way to explicit forward dependencies without hurting encapsulation. So unless you are going to avoid `GameObject`, `MonoBehaviour`, and `ScriptableObject` in your project you are stuck with that issue anyway. If you are committed to avoid those types, then I recommend you to take a look into some `Dependency Injection` framework instead or consider moving to `Entity Component System` framework.
 
 In the end, there is no silver bullet. It is a design choice that should be made according to the project needs, which is why it is a separated module of the framework.
 
