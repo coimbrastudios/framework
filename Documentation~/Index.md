@@ -35,4 +35,4 @@
     - [AssetReferenceComponentRestriction](../Coimbra/AssetReferenceComponentRestriction.cs)
     - [CopyBaseConstructorsAttribute](../Coimbra/CopyBaseConstructorsAttribute.cs)
     - [FormerlySerializedAsBackingFieldOfAttribute](../Coimbra/FormerlySerializedAsBackingFieldOfAttribute.cs)
-- And many utility classes and extension methods.
+- And many utility classes with some extension methods.
