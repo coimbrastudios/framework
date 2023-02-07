@@ -6,7 +6,7 @@
 - [Assembly Definition Rules](AssemblyDefinitionRules.md): Linting tools for assembly definition assets. It comes with a few useful implementations and offers support to create custom ones easily.
 - [Event Service](EventService.md): Strongly-typed event system that takes full advantage of `Source Generators` and `Roslyn Analyzers`. Made to be as performance and easy to use as possible.
 - [Pooling](Pooling.md): Offers a thread-safe solution for pooling managed object and an `Addressables`-compatible solution for pooling `GameObject`.
-- [Property Attributes](PropertyAttributes.md): A few custom `PropertyAttribute` to change the display of your properties without requiring custom editors. Also contains helpers to make easier build a custom `PropertyDrawer`.
+- [Property Attributes](PropertyAttributes.md): A few custom `PropertyAttribute` to change the display of your properties without requiring custom editors. Also contains helpers to make easier to build a custom `PropertyDrawer`.
 - [Roslyn Analyzers](RoslynAnalyzers.md): Some analyzers are provided to guide how to use this framework correctly. Check the documentation for the complete list of available analyzers.
 - [Service Locator](ServiceLocator.md): Alternative way to design your code without needing the singleton pattern. Comes with support for `Enter Play Mode Options` and a nice debug window.
 - [Scriptable Settings](ScriptableSettings.md): Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. They can also be easily exposed to `Project Settings` and `Preferences`.
@@ -32,7 +32,7 @@
     - [Reference](../Coimbra/Reference`1.cs)
     - [SerializableType](../Coimbra/SerializableType`1.cs)
     - [SerializableTypeDictionary](../Coimbra/SerializableTypeDictionary`3.cs)
-- Useful Attributes.
+- Useful Attributes:
     - [AssetReferenceComponentRestriction](../Coimbra/AssetReferenceComponentRestriction.cs)
     - [CopyBaseConstructorsAttribute](../Coimbra/CopyBaseConstructorsAttribute.cs)
     - [FormerlySerializedAsBackingFieldOfAttribute](../Coimbra/FormerlySerializedAsBackingFieldOfAttribute.cs)
