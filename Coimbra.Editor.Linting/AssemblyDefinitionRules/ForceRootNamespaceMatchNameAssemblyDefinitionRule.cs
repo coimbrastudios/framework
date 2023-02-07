@@ -20,7 +20,7 @@ namespace Coimbra.Editor.Linting
             }
 
             assemblyDefinition.RootNamespace = assemblyDefinition.Name;
-            Debug.LogWarning($"{assemblyDefinition.Name} had a root namespace not matching its names!", context);
+            Debug.LogWarning($"{assemblyDefinition.Name} had a root namespace not matching its name!", context);
 
             return true;
         }

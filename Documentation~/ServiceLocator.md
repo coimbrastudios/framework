@@ -31,7 +31,7 @@ To implement a new service you need the following steps:
 This package comes with some default services implementations. They are all production-ready and provide good example of how to create your own services efficiently.
 
 - [EventService](EventService.md): implemented as plain C# class. Check the linked documentation for further details.
-- [PoolService](Pooling.md#pool-service): implemented as [Actor] as it would require a persistent `Transform` anyway to hold the persitent pools. Check the linked documentation for further details.
+- [PoolService](Pooling.md#poolservice): implemented as [Actor] as it would require a persistent `Transform` anyway to hold the persitent pools. Check the linked documentation for further details.
 - [CoroutineService](../Coimbra.Services.Coroutines/ICoroutineService.cs): implemented as [Actor] as only `MonoBehaviour` have access to `Coroutine` APIs.
 - [TimerService](../Coimbra.Services.Timers/ITimerService.cs): implemented as [Actor] as only `MonoBehaviour` have access to `Invoke` APIs.
 - [ApplicationStateService](../Coimbra.Services.ApplicationStateEvents/IApplicationStateService.cs): implemented as [Actor] as only `MonoBehaviour` have access to `OnApplicationXXX` APIs.

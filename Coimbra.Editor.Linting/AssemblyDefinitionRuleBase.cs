@@ -74,6 +74,8 @@ namespace Coimbra.Editor.Linting
         /// <summary>
         /// Implement this method to modify the given <paramref name="assemblyDefinition"/>.
         /// </summary>
+        /// <param name="assemblyDefinition">Strongly-typed state of the assembly definition asset. This can be modified to apply necessary fixes.</param>
+        /// <param name="context">The assembly definition asset reference. Mostly useful for logging.</param>
         /// <returns>True if the assembly definition was actually modified, false otherwise.</returns>
         public abstract bool Apply(AssemblyDefinition assemblyDefinition, Object context);
 
