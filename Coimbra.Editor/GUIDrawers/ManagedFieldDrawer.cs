@@ -112,8 +112,8 @@ namespace Coimbra.Editor
 
                 using (GUIContentPool.Pop(out GUIContent typeLabel))
                 {
-                    Type selectedType = TypeUtility.GetType(in typename);
-                    typeLabel.text = TypeString.Get(selectedType);
+                    Type selectedType = TypeUtility.GetTypeFromString(in typename);
+                    typeLabel.text = selectedType.GetDisplayString();
                     typeLabel.tooltip = typeLabel.text;
                     EditorGUI.LabelField(position, typeLabel);
                 }
@@ -238,7 +238,7 @@ namespace Coimbra.Editor
 
                 if (value == null)
                 {
-                    Debug.LogError($"Neither the object or one of its components implement {TypeString.Get(type)}!", value);
+                    Debug.LogError($"Neither the object or one of its components implement {type.GetDisplayString()}!", value);
                 }
             }
 

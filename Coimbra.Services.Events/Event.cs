@@ -70,7 +70,7 @@ namespace Coimbra.Services.Events
             _removeCallbackHandler = removeCallbackHandler;
             GetListenersHandler = getListenersHandler;
 #if UNITY_EDITOR
-            _label = TypeString.Get(Type);
+            _label = Type.GetDisplayString();
 #endif
         }
 

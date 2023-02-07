@@ -15,6 +15,9 @@ namespace Coimbra
     /// <summary>
     /// Class that allows easy access to a <see cref="ScriptableObject"/> and also enables automatic preloading for it.
     /// </summary>
+    /// <seealso cref="PreferencesAttribute"/>
+    /// <seealso cref="ProjectSettingsAttribute"/>
+    /// <seealso cref="ScriptableSettingsType"/>
     [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {

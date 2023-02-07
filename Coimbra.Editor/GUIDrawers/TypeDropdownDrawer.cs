@@ -30,7 +30,7 @@ namespace Coimbra.Editor
             using (GUIContentPool.Pop(out GUIContent typeLabel))
             {
                 string typeName = property.managedReferenceFullTypename;
-                typeLabel.text = string.IsNullOrWhiteSpace(typeName) ? "<null>" : TypeString.Get(TypeUtility.GetType(typeName));
+                typeLabel.text = string.IsNullOrWhiteSpace(typeName) ? "<null>" : TypeUtility.GetTypeFromString(typeName).GetDisplayString();
                 typeLabel.tooltip = typeLabel.text;
 
                 if (context.Depth > 0 && context.ScopeInfo!.PropertyType.IsGenericType && context.ScopeInfo.PropertyType.GetGenericTypeDefinition() == typeof(ManagedField<>))

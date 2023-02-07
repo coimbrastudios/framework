@@ -11,13 +11,19 @@
 - [Roslyn Analyzers](RoslynAnalyzers.md): Some analyzers are provided to guide how to use this framework correctly. Check the documentation for the complete list of available analyzers.
 - [Service Locator](ServiceLocator.md): Alternative way to design your code without needing the singleton pattern. Comes with support for `Enter Play Mode Options` and a nice debug window.
 - [Scriptable Settings](ScriptableSettings.md): Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. They can also be easily exposed to `Project Settings` and `Preferences`.
+- GUI Scopes:
+    - [BackgroundColorScope](../Coimbra.Editor/GUIScopes/BackgroundColorScope.cs)
+    - [HierarchyModeScope](../Coimbra.Editor/GUIScopes/HierarchyModeScope.cs)
+    - [LabelWidthScope](../Coimbra.Editor/GUIScopes/LabelWidthScope.cs)
+    - [ResetIndentLevelScope](../Coimbra.Editor/GUIScopes/ResetIndentLevelScope.cs)
+    - [ShowMixedValueScope](../Coimbra.Editor/GUIScopes/ShowMixedValueScope.cs)
 - Managed Jobs:
     - [IManagedJob](../Coimbra.Jobs/IManagedJob.cs)
     - [IManagedJobParallelFor](../Coimbra.Jobs/IManagedJobParallelFor.cs)
 - Scene Processing:
     - [ISceneProcessorComponent](../Coimbra/ISceneProcessorComponent.cs)
     - [IScenePostProcessorComponent](../Coimbra/IScenePostProcessorComponent.cs)
-- Serialization-Friendly Types:
+- Serializable Types:
     - [AssetReferenceScene](../Coimbra/AssetReferenceScene.cs)
     - [FloatRange](../Coimbra/FloatRange.cs)
     - [IntRange](../Coimbra/IntRange.cs)
@@ -29,4 +35,4 @@
     - [AssetReferenceComponentRestriction](../Coimbra/AssetReferenceComponentRestriction.cs)
     - [CopyBaseConstructorsAttribute](../Coimbra/CopyBaseConstructorsAttribute.cs)
     - [FormerlySerializedAsBackingFieldOfAttribute](../Coimbra/FormerlySerializedAsBackingFieldOfAttribute.cs)
-- And many utility classes with extension methods.
+- And many utility classes and extension methods.

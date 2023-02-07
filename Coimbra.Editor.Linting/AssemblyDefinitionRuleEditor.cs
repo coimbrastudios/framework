@@ -30,7 +30,7 @@ namespace Coimbra.Editor.Linting
         {
             using (new EditorGUI.DisabledScope(rulesToAdd.Count == 0))
             {
-                string label = rulesToAdd.Count > 1 ? $"Add {IntString.Get(rulesToAdd.Count)} Rules" : "Add 1 Rule";
+                string label = rulesToAdd.Count > 1 ? $"Add {rulesToAdd.Count.ToString()} Rules" : "Add 1 Rule";
 
                 if (GUILayout.Button(label))
                 {
@@ -48,7 +48,7 @@ namespace Coimbra.Editor.Linting
 
             using (new EditorGUI.DisabledScope(rulesToRemove.Count == 0))
             {
-                string label = rulesToRemove.Count > 1 ? $"Remove {IntString.Get(rulesToRemove.Count)} Rules" : "Remove 1 Rule";
+                string label = rulesToRemove.Count > 1 ? $"Remove {rulesToRemove.Count.ToString()} Rules" : "Remove 1 Rule";
 
                 if (GUILayout.Button(label))
                 {

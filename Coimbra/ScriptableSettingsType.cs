@@ -3,6 +3,9 @@
     /// <summary>
     /// The type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
     /// </summary>
+    /// <seealso cref="PreferencesAttribute"/>
+    /// <seealso cref="ProjectSettingsAttribute"/>
+    /// <seealso cref="ScriptableSettings"/>
     public enum ScriptableSettingsType
     {
         /// <summary>

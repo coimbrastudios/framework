@@ -28,9 +28,9 @@ namespace Coimbra.Services.Editor
         internal Service(Type type, ServiceLocator.Service service)
         {
             IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
-            Type = TypeString.Get(type);
+            Type = type.GetDisplayString();
             Value = new ManagedField<IService>(service.Value);
-            Factory = service.Factory != null ? TypeString.Get(service.Factory.GetType()) : "<null>";
+            Factory = service.Factory != null ? service.Factory.GetType().GetDisplayString() : "<null>";
         }
     }
 }

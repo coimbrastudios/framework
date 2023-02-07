@@ -100,7 +100,7 @@ namespace Coimbra
         /// <inheritdoc/>
         public override string ToString()
         {
-            return TypeString.Get(Value);
+            return Value.GetDisplayString();
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }

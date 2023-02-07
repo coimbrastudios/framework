@@ -8,6 +8,9 @@ namespace Coimbra
     /// <summary>
     /// Apply this attribute to a <see cref="ScriptableSettings"/> that should show up in the project settings window.
     /// </summary>
+    /// <seealso cref="PreferencesAttribute"/>
+    /// <seealso cref="ScriptableSettings"/>
+    /// <seealso cref="ScriptableSettingsType"/>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     [BaseTypeRequired(typeof(ScriptableSettings))]
     public sealed class ProjectSettingsAttribute : Attribute

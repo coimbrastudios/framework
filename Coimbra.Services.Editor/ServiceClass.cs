@@ -29,7 +29,7 @@ namespace Coimbra.Services.Editor
 
         internal ServiceClass(Type type)
         {
-            Type = TypeString.Get(type);
+            Type = type.GetDisplayString();
             IsAbstract = type.IsAbstract;
             IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
             DisableDefaultFactory = type.GetCustomAttribute<DisableDefaultFactoryAttribute>() != null;

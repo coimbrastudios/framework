@@ -128,7 +128,7 @@ namespace Coimbra.Editor
 
             foreach (Type type in _types)
             {
-                TypeDropdownItem item = new(type, TypeString.Get(type))
+                TypeDropdownItem item = new(type, type.GetDisplayString())
                 {
                     id = itemCount++,
                 };

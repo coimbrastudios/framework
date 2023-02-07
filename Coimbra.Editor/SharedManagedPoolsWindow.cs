@@ -36,7 +36,7 @@ namespace Coimbra.Editor
 
             public ManagedPool(IManagedPool managedPool)
             {
-                Name = TypeString.Get(managedPool.GetType().GenericTypeArguments[0]);
+                Name = managedPool.GetType().GenericTypeArguments[0].GetDisplayString();
                 AvailableCount = managedPool.AvailableCount;
                 MaxCapacity = managedPool.MaxCapacity;
                 PreloadCount = managedPool.PreloadCount;

@@ -13,6 +13,8 @@
 - Fixed runtime issues with `ITimerService`.
 - Removed `UPMAuthenticator` as it never really worked as it was expected.
 - Removed `ServiceLocator.GetFactory` overloads as it shouldn't be possible to retrieve the factories after set.
+- Removed `IntString` class as `int.ToString()` is already optimized.
+- Removed `TypeString` class, moving its only method to `TypeUtility.GetDisplayString`.
 
 ## [10.10.3] - 2023-02-01
 

@@ -21,7 +21,7 @@ namespace Coimbra.Services.Editor
 
         internal ServiceInterface(Type type)
         {
-            Type = TypeString.Get(type);
+            Type = type.GetDisplayString();
             IsAbstract = type.GetCustomAttribute<AbstractServiceAttribute>() != null;
             IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
         }

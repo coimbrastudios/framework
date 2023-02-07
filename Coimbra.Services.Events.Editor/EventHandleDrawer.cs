@@ -90,7 +90,7 @@ namespace Coimbra.Services.Events.Editor
             using (ListPool.Pop(out List<DelegateListener> list))
             using (GUIContentPool.Pop(out GUIContent temp))
             {
-                temp.text = TypeString.Get(eventHandle.Type);
+                temp.text = eventHandle.Type.GetDisplayString();
                 eventHandle.Service.GetListeners(in eventHandle, list);
 
                 position.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
