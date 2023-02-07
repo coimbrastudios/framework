@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Coimbra.Services.PlayerLoopEvents
 {
@@ -9,8 +10,9 @@ namespace Coimbra.Services.PlayerLoopEvents
     public sealed class PlayerLoopSettings : ScriptableSettings
     {
         [SerializeField]
+        [FormerlySerializedAs("_defaultTimings")]
         [Tooltip("The default list of events to be fired.")]
-        private PlayerLoopTimingEvents _defaultTimings = PlayerLoopTimingEvents.Standard;
+        private PlayerLoopInjectedTimings _defaultInjectedTimings = PlayerLoopInjectedTimings.None;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlayerLoopSettings"/> class.
@@ -20,15 +22,15 @@ namespace Coimbra.Services.PlayerLoopEvents
         /// <summary>
         /// Initializes a new instance of the <see cref="PlayerLoopSettings"/> class.
         /// </summary>
-        /// <param name="defaultTimings">The list of events to be fired.</param>
-        public PlayerLoopSettings(PlayerLoopTimingEvents defaultTimings)
+        /// <param name="defaultInjectedTimings">The list of events to be fired.</param>
+        public PlayerLoopSettings(PlayerLoopInjectedTimings defaultInjectedTimings)
         {
-            _defaultTimings = defaultTimings;
+            _defaultInjectedTimings = defaultInjectedTimings;
         }
 
         /// <summary>
         /// Gets the default list of events to be fired.
         /// </summary>
-        public PlayerLoopTimingEvents DefaultTimings => _defaultTimings;
+        public PlayerLoopInjectedTimings DefaultInjectedTimings => _defaultInjectedTimings;
     }
 }

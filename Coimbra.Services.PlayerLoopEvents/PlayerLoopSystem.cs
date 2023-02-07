@@ -4,6 +4,7 @@ using Coimbra.Listeners;
 using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -23,13 +24,13 @@ namespace Coimbra.Services.PlayerLoopEvents
     [RequireComponent(typeof(UpdateListener))]
     public sealed class PlayerLoopSystem : Actor, IPlayerLoopService
     {
-        private const PlayerLoopTimingEvents FixedUpdateTimings = PlayerLoopTimingEvents.FirstFixedUpdate | PlayerLoopTimingEvents.LastFixedUpdate;
+        private const PlayerLoopInjectedTimings FixedUpdateTimings = PlayerLoopInjectedTimings.FirstFixedUpdate | PlayerLoopInjectedTimings.LastFixedUpdate;
 
-        private const PlayerLoopTimingEvents MainUpdateTimings = PlayerLoopTimingEvents.All & ~FixedUpdateTimings;
+        private const PlayerLoopInjectedTimings MainUpdateTimings = PlayerLoopInjectedTimings.All & ~FixedUpdateTimings;
 
         [SerializeField]
         [Disable]
-        private PlayerLoopTimingEvents _currentTimings = PlayerLoopTimingEvents.All;
+        private PlayerLoopInjectedTimings _currentInjectedTimings = PlayerLoopInjectedTimings.All;
 
         private FixedUpdateListener _fixedUpdateListener = null!;
 
@@ -40,9 +41,10 @@ namespace Coimbra.Services.PlayerLoopEvents
         private PlayerLoopSystem() { }
 
         /// <inheritdoc/>
-        public PlayerLoopTimingEvents CurrentTimings
+        public PlayerLoopInjectedTimings CurrentInjectedTimings
         {
-            get => _currentTimings;
+            [DebuggerStepThrough]
+            get => _currentInjectedTimings;
             set
             {
                 if (IsDestroyed)
@@ -52,16 +54,16 @@ namespace Coimbra.Services.PlayerLoopEvents
 
                 bool hadAnyFixedUpdateTiming = HasAnyFixedUpdateTiming();
                 bool hadAnyMainUpdateTiming = HasAnyMainUpdateTiming();
-                _currentTimings = value;
+                _currentInjectedTimings = value;
 
                 if (!hadAnyFixedUpdateTiming && HasAnyFixedUpdateTiming())
                 {
-                    InvokeFixedUpdateEvents().Forget();
+                    InvokeFixedUpdateEventsAsync().Forget();
                 }
 
                 if (!hadAnyMainUpdateTiming && HasAnyMainUpdateTiming())
                 {
-                    InvokeMainUpdateEvents().Forget();
+                    InvokeMainUpdateEventsAsync().Forget();
                 }
             }
         }
@@ -180,10 +182,10 @@ namespace Coimbra.Services.PlayerLoopEvents
         }
 
         /// <inheritdoc/>
-        public void RemoveAllListeners<T>()
+        public bool RemoveAllListeners<T>()
             where T : IPlayerLoopEvent
         {
-            ServiceLocator.GetChecked<IEventService>().RemoveAllListeners<T>();
+            return ServiceLocator.GetChecked<IEventService>().RemoveAllListeners<T>();
         }
 
         /// <inheritdoc/>
@@ -194,7 +196,7 @@ namespace Coimbra.Services.PlayerLoopEvents
 
             if (ScriptableSettings.TryGetOrFind(out PlayerLoopSettings settings))
             {
-                _currentTimings = settings.DefaultTimings;
+                _currentInjectedTimings = settings.DefaultInjectedTimings;
             }
 
             OnStarting += HandleStart;
@@ -208,7 +210,7 @@ namespace Coimbra.Services.PlayerLoopEvents
             eventService.AddRelevancyListener<UpdateEvent>(HandleUpdateRelevancyChanged);
         }
 
-        private async UniTask InvokeFixedUpdateEvents()
+        private async UniTask InvokeFixedUpdateEventsAsync()
         {
             do
             {
@@ -230,7 +232,7 @@ namespace Coimbra.Services.PlayerLoopEvents
         }
 
         [SuppressMessage("ReSharper", "CognitiveComplexity", Justification = "Can't simplify more without hurting performance or readability.")]
-        private async UniTask InvokeMainUpdateEvents()
+        private async UniTask InvokeMainUpdateEventsAsync()
         {
             do
             {
@@ -338,31 +340,31 @@ namespace Coimbra.Services.PlayerLoopEvents
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool HasAnyFixedUpdateTiming()
         {
-            return (_currentTimings & FixedUpdateTimings) != 0;
+            return (_currentInjectedTimings & FixedUpdateTimings) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool HasAnyMainUpdateTiming()
         {
-            return (_currentTimings & MainUpdateTimings) != 0;
+            return (_currentInjectedTimings & MainUpdateTimings) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool HasTiming(PlayerLoopTiming timing)
         {
-            return ((int)_currentTimings & 1 << (int)timing) != 0;
+            return ((int)_currentInjectedTimings & 1 << (int)timing) != 0;
         }
 
         private void HandleStart(Actor sender)
         {
             if (HasAnyFixedUpdateTiming())
             {
-                InvokeFixedUpdateEvents().Forget();
+                InvokeFixedUpdateEventsAsync().Forget();
             }
 
             if (HasAnyMainUpdateTiming())
             {
-                InvokeMainUpdateEvents().Forget();
+                InvokeMainUpdateEventsAsync().Forget();
             }
         }
 

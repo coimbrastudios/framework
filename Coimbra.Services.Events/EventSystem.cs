@@ -169,6 +169,20 @@ namespace Coimbra.Services.Events
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private EventSettings GetOrCreateEventSettings()
+        {
+            if (ScriptableSettings.TryGetOrFind(out EventSettings eventSettings, ScriptableSettings.FindSingle))
+            {
+                return eventSettings;
+            }
+
+            eventSettings = ScriptableObject.CreateInstance<EventSettings>();
+            ScriptableSettings.Set(eventSettings);
+
+            return eventSettings;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Invoke<T>(ref EventContext eventContext, in T eventData)
             where T : IEvent
         {
@@ -179,58 +193,88 @@ namespace Coimbra.Services.Events
 
             if (e.IsInvoking)
             {
-                Debug.LogError($"{typeof(T)} is already being invoked! Skipping its invocation to avoid a stack overflow.");
+                EventSettings eventSettings = GetOrCreateEventSettings();
+
+                if (eventSettings.LogRecursiveInvocationError)
+                {
+                    Debug.LogError($"{typeof(T)} is already being invoked! Skipping its invocation to avoid a stack overflow.");
+                }
 
                 return false;
             }
 
-            int count = e.ListenerCount;
+            int listenerCount = e.ListenerCount;
 
-            if (count == 0)
+            if (listenerCount == 0)
             {
                 return false;
             }
 
             using (new Event.InvokeScope(e))
             {
-#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
                 try
-#endif
                 {
-                    for (int i = 0; i < count; i++)
+                    EventSettings eventSettings = GetOrCreateEventSettings();
+
+                    if (eventSettings.ValidateInvocationTargets)
                     {
-                        eventContext.CurrentHandle = e[i];
-
-                        if (e.IsRemoving(eventContext.CurrentHandle))
-                        {
-                            continue;
-                        }
-
-                        EventContextHandler<T> listener = EventCallbacks<T>.Value[eventContext.CurrentHandle];
-
-#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
-                        if (listener.Target == null)
-                        {
-                            e.RemoveListener(eventContext.CurrentHandle);
-                        }
-                        else
-#endif
-                        {
-                            listener.Invoke(ref eventContext, in eventData);
-                        }
+                        InvokeSafely(ref eventContext, in eventData, e, listenerCount);
+                    }
+                    else
+                    {
+                        Invoke(ref eventContext, in eventData, e, listenerCount);
                     }
                 }
-#if !COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS
                 catch (Exception exception)
                 {
                     Delegate handler = EventCallbacks<T>.Value[eventContext.CurrentHandle];
                     Debug.LogError($"An exception occurred while invoking {typeof(T)} for {handler.Target}.{handler.Method.Name}!", eventContext.Sender as UnityEngine.Object);
                     Debug.LogException(exception);
                 }
-#endif
             }
 
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Invoke<T>(ref EventContext eventContext, in T eventData, Event e, int listenerCount)
+            where T : IEvent
+        {
+            for (int i = 0; i < listenerCount; i++)
+            {
+                eventContext.CurrentHandle = e[i];
+
+                if (!e.IsRemoving(eventContext.CurrentHandle))
+                {
+                    EventCallbacks<T>.Value[eventContext.CurrentHandle].Invoke(ref eventContext, in eventData);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InvokeSafely<T>(ref EventContext eventContext, in T eventData, Event e, int listenerCount)
+            where T : IEvent
+        {
+            for (int i = 0; i < listenerCount; i++)
+            {
+                eventContext.CurrentHandle = e[i];
+
+                if (e.IsRemoving(eventContext.CurrentHandle))
+                {
+                    continue;
+                }
+
+                EventContextHandler<T> listener = EventCallbacks<T>.Value[eventContext.CurrentHandle];
+
+                if (listener.Target == null)
+                {
+                    e.RemoveListener(eventContext.CurrentHandle);
+                }
+                else
+                {
+                    listener.Invoke(ref eventContext, in eventData);
+                }
+            }
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize() { }
