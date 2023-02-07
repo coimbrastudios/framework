@@ -60,3 +60,4 @@ crashlytics-build.properties
 # Misc
 # ====
 __*
+Documentation~/**.meta

@@ -23,11 +23,13 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Asserts that all types that inherits from a serializable type are also serializable.
+        /// Asserts that all types that inherits from a serializable type also contains the <see cref="SerializableAttribute"/>. It will also log a message if everything is correct.
         /// </summary>
         [MenuItem(CoimbraUtility.ToolsMenuPath + "Assert Serializable Types")]
         public static void AssertSerializableTypes()
         {
+            bool hadIssue = false;
+
             foreach (Type serializableType in TypeCache.GetTypesWithAttribute<SerializableAttribute>())
             {
                 if ((serializableType.Attributes & TypeAttributes.Serializable) == 0)
@@ -39,8 +41,14 @@ namespace Coimbra.Editor
                 {
                     bool condition = (derivedType.Attributes & TypeAttributes.Serializable) != 0;
                     string message = $"{derivedType.FullName} is not serializable and inherits from {serializableType.FullName} that is serializable!";
+                    hadIssue |= condition;
                     Debug.Assert(condition, message);
                 }
+            }
+
+            if (!hadIssue)
+            {
+                Debug.Log("All types that inherits from a serializable type contains the expected SerializableAttribute.");
             }
         }
 
@@ -61,7 +69,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Creates a runtime and an editor assembly for all scripts in the Assets folder.
+        /// Generate assemblies for all scripts in the Assets folder while also taking into consideration Editor folders. Needs to be triggered everytime a new third-party is imported.
         /// </summary>
         [MenuItem(CoimbraUtility.ToolsMenuPath + "Create Assets Assembly")]
         public static void CreateAssetsAssemblies()

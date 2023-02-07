@@ -10,6 +10,7 @@ namespace Coimbra
     /// <summary>
     /// Stores a range between 2 ints.
     /// </summary>
+    /// <seealso cref="FloatRange"/>
     [Preserve]
     [Serializable]
     public struct IntRange : IEquatable<IntRange>

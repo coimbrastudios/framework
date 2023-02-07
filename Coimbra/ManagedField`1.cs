@@ -8,15 +8,26 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Unified way to expose a managed field in the inspector. For it to be drawn it needs to either be a <see cref="Object"/> or satisfy the following conditions:
+    /// Unified way to expose a managed (class) field in the inspector.
+    /// </summary>
+    /// <remarks>
+    /// For it to be drawn it needs to either be a <see cref="Object"/> or satisfy the following conditions:
     /// <list type="bullet">
     /// <item>Not be abstract</item>
     /// <item>Not be generic</item>
     /// <item>Have the <see cref="SerializableAttribute"/></item>
     /// <item>Have a parameterless constructor</item>
     /// </list>
-    /// </summary>
+    /// It is compatible with <see cref="FilterTypesAttributeBase"/> and <see cref="DisablePickerAttribute"/> attributes.
+    /// </remarks>
     /// <typeparam name="T">The managed type.</typeparam>
+    /// <seealso cref="DisablePickerAttribute"/>
+    /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
+    /// <seealso cref="SerializableTypeDictionary{TKey,TValue,TFilter}"/>
     [Preserve]
     [Serializable]
     public struct ManagedField<T> : IEquatable<ManagedField<T>>, IEquatable<T>

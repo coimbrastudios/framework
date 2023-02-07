@@ -1,134 +1,39 @@
 ﻿# Coimbra Framework
 
-## Scripting Define Symbols
+## List of Content
 
-| Value                                | Description                                                                                                                                                     |
-|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS | Use it to improve performance of the `EventSystem` implementation, but you will need to take extra care with possible exceptions when invoking events.          |
-| COIMBRA_ROSLYN_SOURCE                | Use it when expanding the Roslyn Analyzers with a custom package version, it will add some menu items under `Tools/Coimbra Framework` to make your life easier. |
-
-## List of Contents
-
-- `Actor`: meant to be used as the main script for any `GameObject`, as if we were extending the `GameObject` class itself. See also the `ActorComponentBase` to properly initialize components that requires an `Actor`. An example is provided:
-    - `DebugOnly`: makes an `Actor` always be destroyed in release builds.
-- `Addressables` Helpers: some extra types to make working with it even easier.
-    - `AssetReferenceComponentRestriction`: filters any `AssetReference` to only show `GameObject` with the specified components.
-    - `AssetReferenceScene`: `AssetReference` that only accepts `SceneAsset` objects.
-- Assembly Definition Rules: linting tools for assembly definition assets. It comes with a few implementations:
-    - `BannedReferences`: disallow referencing some assemblies inside specific assemblies.
-    - `FixDuplicateReferences`: remove all duplicate references in the assemblies.
-    - `FixEditorOnly`: fix editor assemblies to have the correct platform and define constraints.
-    - `FixTestsOnly`: fix tests assemblies to have the correct precompiled reference and define constraints.
-    - `ForceRootNamespaceMatchName`: fix root namespace not matching the assembly name.
-    - `ForceReferenceByName`: disallow referencing assemblies by their GUID.
-    - `RequiredReferences`: always reference some assemblies inside specific assemblies
-    - `SortPrecompiledReferences`: always sort precompiled references by their name.
-    - `SortReferencesByName`: always sort the references assemblies by their name.
-- Assets Assembly Creator: use `Tools/Coimbra Framework/Create Assets Assembly` menu item to generate assemblies for all scripts in the `Assets` folder.
-- `CopyBaseConstructorsAttribute`: quick create types with the same constructors as their parent.
-- Decorator Attributes: decorator attributes fully compatible with Unity's standard workflow:
-    - `Disable`: disables a field so that it can't be edited. There is also `OnEditMode` and `OnPlayMode` versions.
-    - `Indent`: indents a field by the amount of steps specified.
-    - `MessageBox`: displays a message above a field. There is also `OnEditMode` and `OnPlayMode` versions.
-- Editor Startup Scene: easy way to always load a specific scene when going to play inside the editor This can be configured in `Project Settings/Coimbra Framework`.
-- Editor Tools: general utilities under `Tools/Coimbra Framework` menu.
-- `FormerlySerializedAsBackingFieldOfAttribute`: `FormerlySerializedAs` subclass that correctly formats the input to `<{propertyName}>k__BackingField`.
-- `GameObjectPool`: specialized pooling implementation for `GameObject` with auto resizing functionality.
-- `HierarchyFolder`: organize your object into folders that doesn't affect the hierarchy at runtime.
-- Int/Float Ranges: `IntRange` and `FloatRange` to be used instead of `Vector2` and `Vector2Int` when requiring a min and a max value.
-- Interface Fields: with `ManagedField` you can expose a field to reference an interface, accepting anything that implements it. Combine it with `FilterTypesAttributeBase` to better control which objects can be referenced or with `DisablePickerAttribute` to disable selecting another instance in the inspector.
-- Listeners: components to be used to listen for common events:
-    - `AnimatorIKListener`: depends on `Animator`.
-    - `AnimatorMoveListener`: depends on `Animator`.
-    - `BecameInvisibleListener`: depends on `Renderer`.
-    - `BecameVisibleListener`: depends on `Renderer`.
-    - `BeforeTransformParentChangedListener`: just a wrapper for `OnBeforeTransformParentChanged` callback.
-    - `CanvasGroupChangedListener`: just a wrapper for `OnCanvasGroupChanged` callback.
-    - `CanvasHierarchyChangedListener`: just a wrapper for `OnCanvasHierarchyChanged` callback.
-    - `Collider2DParticleCollisionListener`: depends on `Collider2D`.
-    - `ColliderOverlap2DListener`: custom trigger enter/exit implementation that uses [Collider2D.OverlapCollider](https://docs.unity3d.com/ScriptReference/Collider2D.OverlapCollider.html).
-    - `ColliderParticleCollisionListener`: depends on `Collider`.
-    - Collision Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
-    - Collision Enter/Exit/Stay Listener: depends on `Collider`.
-    - `ControllerColliderHitListener`: depends on `CharacterController`.
-    - `JointBreak2DListener`: depends on `Joint2D`.
-    - `JointBreakListener`: depends on `Joint`.
-    - `PlayerLoopEventListener`: depends `IPlayerLoopService` and is a more efficient way to register to update calls.
-    - `ParticleSystemParticleCollisionListener`: depends on `ParticleSystem`.
-    - `ParticleSystemStoppedListener`: depends on `ParticleSystem`.
-    - `ParticleTriggerListener`: depends on `ParticleSystem`.
-    - `ParticleUpdateJobScheduledListener`: depends on `ParticleSystem`.
-    - `PostRenderListener`: depends on `Camera`.
-    - `PreCullListener`: depends on `Camera`.
-    - `PreRenderListener`: depends on `Camera`.
-    - `RectTransformDimensionsChangeListener`: depends on `RectTransform`.
-    - `RenderImageListener`: depends on `Camera`.
-    - `RenderObjectListener`: just a wrapper for `OnRenderObject` callback.
-    - `RigidbodyOverlap2DListener`: custom trigger enter/exit implementation that uses [Rigidbody2D.OverlapCollider](https://docs.unity3d.com/ScriptReference/Rigidbody2D.OverlapCollider.html).
-    - `StartListener`: it also triggers correctly late-listeners.
-    - `TransformChangedListener`: manages the [Transform.hasChanged](https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html) property.
-    - `TransformChildrenChangedListener`: just a wrapper for `OnTransformChildrenChanged` callback.
-    - `TransformParentChangedListener`: just a wrapper for `OnTransformParentChanged` callback.
-    - Trigger Enter/Exit/Stay 2D Listener: depends on `Collider2D`.
-    - Trigger Enter/Exit/Stay Listener: depends on `Collider`.
-    - `WillRenderObjectListener`: depends on `Renderer`.
-- Managed Jobs: use `IManagedJob` and `IManagedJobParallelFor` to create custom jobs that makes use of managed objects.
-- Object Pooling: use `ManagedPoolT<T>` for pooling any managed objects. It also comes with a few `SharedManagedPool` implementations that can be inspected at `Window/Coimbra Framework/Shared Managed Pools`:
-    - `DictionaryPool`: clears the `Dictionary`.
-    - `GUIContentPool`: clears the `GUIContet`.
-    - `HashSetPool`: : clears the `HashSet`.
-    - `ListPool`: clears the `List`.
-    - `ManagedPool`: allows custom clearing through the `IManagedPoolHandler` interface.
-    - `QueuePool`: clears the `Queue`.
-    - `StackPool`: clears the `Stack`.
-    - `StringBuilderPool`: clears the `StringBuilder`.
-- Property Attributes: property attributes fully compatible with Unity's standard workflow:
-    - `AnimatorParameter`: turns a string field into a parameter selector for a given animator.
-    - `AssetsOnly`: prevents to assign a scene object to a `UnityEngine.Object` field.
-    - `EnumFlags`: turns an enum field into a enum mask popup field.
-    - `IntRange`: draws a property as if it was a `IntRange`.
-    - `FloatRange`: draws a property as if it was a `FloatRange`.
-    - `LayerSelector`: turns an int field into a layer popup field.
-    - `NotGreaterThan`: prevents an int field to have a value greater than the a given value.
-    - `NotLessThan`: prevents an int field to have a value smaller than the a given value.
-    - `RangeSlider`: draws a property using the Unity's `MinMaxSlider`.
-    - `SelectableLabel`: turns a string field into a selectable label.
-    - `SortingLayerID`: turns an int field into a sorting layer popup field.
-    - `TagSelector`: turns a string field into a tag popup field.
-    - `TypeDropdownAttribute`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `FilterTypesAttributeBase`.
-    - `Validate`: calls a method `void()` or `void(T previous)` when the property is changed. It is also the base for all others attributes.
-- `PropertyPathInfo`: reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
-- `Reference<T>`: create a `Reference` for any value or even another reference.
-- [Roslyn Analyzers](RoslynAnalyzers.md)
-- `ScriptableSettings`: easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. You can also make them appear in the project settings with `ProjectSettingsAttribute` or in the preferences with `PreferencesAttribute`. You can see all the currently loaded `ScriptableSettings` in `Window/Coimbra Framework/Scriptable Settings`;
-- Scene Processing: Use `ISceneProcessorComponent` and `IScenePostProcessorComponent` with any `MonoBehaviour` to add logic that will be executed while the `Scene` of the `GameObject` is processing.
-- `SerializableDictionary`: supports modifying and saving through the inspector. It is has some special behaviour based on some attributes:
-    - `DisableResizeAttribute`: will disable the size field and stop showing the buttons to add or remove elements.
-    - `DisableAttribute`: will stop showing the drag handle and stop showing the buttons to add or remove elements.
-    - `HideKeyLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
-    - `HideValueLabelAttribute`: will use [GUIContent.none](https://docs.unity3d.com/ScriptReference/GUIContent-none.html) for the key label.
-- `SerializableType`: serializes a `System.Type` that can be edited and saved from the inspector.
-- `SerializableTypeDictionary`: works in the same way as `SerializableDictionary` but using `SerializableType` as key. By default it only supports `ManagedField`, `List<ManagedField>` or `ManagedField[]` as value.
-- `ServiceLocator`: enable a service-based architecture easily. You can check all the created `ServiceLocator` at `Window/Coimbra Framework/Service Locator`. It also comes with a few built-in functionalities:
-    - Attributes:
-        - `AbstractService`: by default, any interface implementing `IService` is considered a valid service type. Use this attribute to create interfaces that should not be considered a valid service type besides implementing `IService`.
-        - `DisableDefaultFactory`: by default, a factory is set for each new compatible type during `SubsystemRegistration`. You can disable that per-implementation by using this attribute.
-        - `DynamicService`: by default, once a `IService` is set it can't be overriden. You can disable that by using that attribute, allowing to have temporary services (like per-scene).
-        - `HideInServiceLocatorWindow`: by default, all services will appear in the `Service Locator` window, even test ones. Use this attribute to hide unwanted services.
-        - `PreloadService`: add this in your `IService` implementation to call the `ServiceLocator.Get` during `BeforeSceneLoad`. This is just to reduce common boilerplate code.
-        - `RequiredService`: allow `ServiceLocator.GetChecked` to be used with the given service type. Useful for services that are known to always exist.
-    - Services:
-        - `IApplicationStateService`: responsible for some built-in events:
-            - `ApplicationFocusEvent`
-            - `ApplicationPauseEvent`
-            - `ApplicationQuitEvent`
-        - `ICoroutineService`: start or stop a Unity `Coroutine` from anywhere.
-        - `IEventService`: listen and invoke strongly-typed events.
-        - `IPlayerLoopService`: responsible for [PlayerLoop](https://docs.unity3d.com/ScriptReference/LowLevel.PlayerLoop.html)-related events:
-            - `FixedUpdateEvent`
-            - `LateUpdateEvent`
-            - `UpdateEvent`
-            - [PlayerLoopTiming](https://github.com/Cysharp/UniTask#playerloop) Events
-        - `IPoolingService`: leverages `GameObjectPool` by making those easily accessible from anywhere.
-        - `ITimerService`: start or stop timers from anywhere with the same precision as `Invoke` and `InvokeRepeating`.
-- Utilities & Extensions: check if a `GameObject` `IsPersistent`, `Destroy` any Unity `Object` safely, fake-cast a `GameObject` to `Actor`, use `?.` and `??` safely wth any Unity `Object`, and much more.
+- [Actor](Actor.md): Pretend you are inheriting from `GameObject` to make easier to design per-object behaviours. You probably have been doing that already, but without proper built-in support.
+- [Assembly Definition Rules](AssemblyDefinitionRules.md): linting tools for assembly definition assets. It comes with a few useful implementations and support to create custom ones easily.
+- [Event Service](EventService.md): Strongly-typed event system that takes full advantage of `Source Generators` and `Roslyn Analyzers`. Made to be as performance and easy to use as possible.
+- [Pooling](Pooling.md): Offers a thread-safe solution for pooling managed object and an `Addressables`-compatible solution for pooling `GameObject`.
+- [Property Attributes](PropertyAttributes.md): A few custom `PropertyAttribute` to change the display of your properties without requiring custom editors. Also contains helpers to make easier build a custom `PropertyDrawer`.
+- [Roslyn Analyzers](RoslynAnalyzers.md): Some analyzers are provided to guide how to use this framework correctly. Check the documentation for the complete list of available analyzers.
+- [Service Locator](ServiceLocator.md): Alternative way to design your code without needing the singleton pattern. Comes with support for `Enter Play Mode Options` and a nice debug window.
+- [Scriptable Settings](ScriptableSettings.md): Easily access a `ScriptableObject` from anywhere with option to preload those on the application startup. They can also be easily exposed to `Project Settings` and `Preferences`.
+- Editor Tools in `Tools/Coimbra Framework/`:
+    - `Assert Serializable Types`: Asserts that all types that inherits from a serializable type also contains the `SerializableAttribute`. It will also log a message if everything is correct.
+    - `Clear Cache`: Deletes all `AssetBundle` and `ProceduralMaterial` content that has been cached.
+    - `Create Assets Assembly`: Generate assemblies for all scripts in the `Assets` folder while also taking into consideration `Editor` folders. Needs to be triggered everytime a new third-party is imported.
+    - `Force Reserialize Assets`: Forcibly load and re-serialize all assets, flushing any outstanding data changes to disk. Useful after upgrading engine versions to avoid unnecessary dirtying later on.
+    - `Request Script Reload`: The Unity Editor reloads script assemblies asynchronously on the next frame. This resets the state of all the scripts, but Unity does not compile any code that has changed since the previous compilation.
+    - `Reset Play Mode Start Scene`: Reset the `EditorSceneManager.playModeStartScene` back to null, if set.
+    - `Save Assets`: Saves all assets changes to disk. About the same as `File/Save Project` but also with a nice default shortcut at `Alt + Shift + S`.
+- Managed Jobs:
+    - [IManagedJob](../Coimbra.Jobs/IManagedJob.cs)
+    - [IManagedJobParallelFor](../Coimbra.Jobs/IManagedJobParallelFor.cs)
+- Scene Processing:
+    - [ISceneProcessorComponent](../Coimbra/ISceneProcessorComponent.cs)
+    - [IScenePostProcessorComponent](../Coimbra/IScenePostProcessorComponent.cs)
+- Serialization-Friendly Types:
+    - [AssetReferenceScene](../Coimbra/AssetReferenceScene.cs)
+    - [FloatRange](../Coimbra/FloatRange.cs)
+    - [IntRange](../Coimbra/IntRange.cs)
+    - [ManagedField](../Coimbra/ManagedField`1.cs)
+    - [Reference](../Coimbra/Reference`1.cs)
+    - [SerializableType](../Coimbra/SerializableType`1.cs)
+    - [SerializableTypeDictionary](../Coimbra/SerializableTypeDictionary`3.cs)
+- Useful Attributes.
+    - [AssetReferenceComponentRestriction](../Coimbra/AssetReferenceComponentRestriction.cs)
+    - [CopyBaseConstructorsAttribute](../Coimbra/CopyBaseConstructorsAttribute.cs)
+    - [FormerlySerializedAsBackingFieldOfAttribute](../Coimbra/FormerlySerializedAsBackingFieldOfAttribute.cs)
+- And many utility classes with extension methods.

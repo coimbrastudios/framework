@@ -13,9 +13,11 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Default implementation for <see cref="IPlayerLoopService"/>.
     /// </summary>
+    /// <remarks>
+    /// The events are invoked using <see cref="IEventService"/> and this implementation makes use of <see cref="UnityEngine.Object.DontDestroyOnLoad"/> to persist between scenes.
+    /// </remarks>
     [AddComponentMenu("")]
     [PreloadService]
-    [RequireComponent(typeof(StartListener))]
     [RequireComponent(typeof(FixedUpdateListener))]
     [RequireComponent(typeof(LateUpdateListener))]
     [RequireComponent(typeof(UpdateListener))]
@@ -195,7 +197,7 @@ namespace Coimbra.Services.PlayerLoopEvents
                 _currentTimings = settings.DefaultTimings;
             }
 
-            GetComponent<StartListener>().OnTrigger += HandleStart;
+            OnStarting += HandleStart;
             TryGetComponent(out _fixedUpdateListener);
             TryGetComponent(out _lateUpdateListener);
             TryGetComponent(out _updateListener);
@@ -351,7 +353,7 @@ namespace Coimbra.Services.PlayerLoopEvents
             return ((int)_currentTimings & 1 << (int)timing) != 0;
         }
 
-        private void HandleStart(StartListener sender)
+        private void HandleStart(Actor sender)
         {
             if (HasAnyFixedUpdateTiming())
             {

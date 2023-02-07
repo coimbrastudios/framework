@@ -6,7 +6,13 @@ namespace Coimbra
     /// <summary>
     /// Filter the types using specific types.
     /// </summary>
+    /// <remarks>
+    /// Use this attribute to filter out very specific types.
+    /// </remarks>
     /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class FilterTypesBySpecificTypeAttribute : FilterTypesAttributeBase
     {

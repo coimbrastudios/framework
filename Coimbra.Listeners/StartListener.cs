@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace Coimbra.Listeners
@@ -10,6 +11,7 @@ namespace Coimbra.Listeners
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Start Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
+    [Obsolete("Use Actor.OnStarting instead.", true)]
     public sealed class StartListener : MonoBehaviour
     {
         public delegate void EventHandler(StartListener sender);

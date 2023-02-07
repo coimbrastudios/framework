@@ -6,7 +6,13 @@ namespace Coimbra
     /// <summary>
     /// Filter the types using <see cref="Type.IsAssignableFrom"/>.
     /// </summary>
+    /// <remarks>
+    /// The type should satisfy <see cref="All"/>, <see cref="Any"/> and <see cref="None"/> conditions. Conditions that are null will be skipped (i.e. in a case that all 3 are null, any type fill pass the filter).
+    /// </remarks>
     /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class FilterTypesByAssignableFromAttribute : FilterTypesAttributeBase
     {

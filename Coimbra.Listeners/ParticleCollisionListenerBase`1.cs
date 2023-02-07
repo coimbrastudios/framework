@@ -4,7 +4,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace Coimbra.Listeners
 {
     /// <summary>
-    /// Listen to <see cref="OnParticleCollision"/> callback.
+    /// Base class to listen to <see cref="OnParticleCollision"/> callback.
     /// </summary>
     [MovedFrom(true, "Coimbra", "Coimbra")]
     public abstract class ParticleCollisionListenerBase<T> : MonoBehaviour

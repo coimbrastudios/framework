@@ -5,6 +5,8 @@ namespace Coimbra
     /// <summary>
     /// Static implementation of <see cref="ManagedPool{T}"/> for objects with a default constructor that implements <see cref="IManagedPoolHandler"/>.
     /// </summary>
+    /// <seealso cref="ManagedPool{T}"/>
+    /// <seealso cref="IManagedPoolHandler"/>
     [Preserve]
     [SharedManagedPool("Value", "Instance")]
     public static partial class ManagedPool

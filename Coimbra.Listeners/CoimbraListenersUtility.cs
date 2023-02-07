@@ -28,7 +28,7 @@
         /// <summary>
         /// Default menu item path for transform-related listeners.
         /// </summary>
-        public const string TransformOrHierarchyMenuPath = CoimbraUtility.GeneralMenuPath + "Transform & Hierarchy" + MenuPathSuffix;
+        public const string TransformMenuPath = CoimbraUtility.GeneralMenuPath + "Transform" + MenuPathSuffix;
 
         private const string MenuPathSuffix = " Listeners/";
     }

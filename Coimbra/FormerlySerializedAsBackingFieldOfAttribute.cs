@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 namespace Coimbra
 {
     /// <summary>
-    ///   <para>Use this attribute to rename a field without losing its serialized value.</para>
+    /// Use this attribute to change from a property with a backing field to a explicit field without losing its serialized value.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public sealed class FormerlySerializedAsBackingFieldOfAttribute : FormerlySerializedAsAttribute

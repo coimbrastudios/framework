@@ -4,8 +4,13 @@ using UnityEngine;
 namespace Coimbra.Listeners
 {
     /// <summary>
-    /// Listen to player loop callbacks.
+    /// Base class to listen to player loop callbacks.
     /// </summary>
+    /// <remarks>
+    /// You can inherit from this class to create listeners for <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">FixedUpdate</a>, <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Update.html">Update</a> and <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.LateUpdate.html">LateUpdate</a> callbacks.
+    /// <para></para>
+    /// No default concrete implementation is offered in this module because the framework already offers alternative to those callbacks in another module.
+    /// </remarks>
     public abstract class PlayerLoopListenerBase : MonoBehaviour
     {
         public delegate void EventHandler(PlayerLoopListenerBase sender, float deltaTime);

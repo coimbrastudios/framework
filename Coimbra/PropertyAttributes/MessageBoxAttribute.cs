@@ -6,6 +6,8 @@ namespace Coimbra
     /// <summary>
     /// Display a message in the inspector.
     /// </summary>
+    /// <seealso cref="MessageBoxOnEditModeAttribute"/>
+    /// <seealso cref="MessageBoxOnPlayModeAttribute"/>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class MessageBoxAttribute : PropertyAttribute
     {

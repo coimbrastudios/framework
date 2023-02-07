@@ -3,6 +3,8 @@ namespace Coimbra
     /// <summary>
     /// Display a message in the inspector while in edit mode.
     /// </summary>
+    /// <seealso cref="MessageBoxAttribute"/>
+    /// <seealso cref="MessageBoxOnPlayModeAttribute"/>
     public sealed class MessageBoxOnEditModeAttribute : MessageBoxAttribute
     {
         public MessageBoxOnEditModeAttribute(string message, InspectorArea area)

@@ -8,7 +8,15 @@ namespace Coimbra
     /// <summary>
     /// <see cref="Type"/> that can be viewed, modified and saved from the inspector.
     /// </summary>
+    /// <remarks>
+    /// It is compatible with <see cref="FilterTypesAttributeBase"/> attributes.
+    /// </remarks>
     /// <typeparam name="T">Will require the type to be assignable to that.</typeparam>
+    /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
     [Serializable]
     public struct SerializableType<T> : IEquatable<SerializableType<T>>, IEquatable<Type>, ISerializationCallbackReceiver
     {

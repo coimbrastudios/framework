@@ -16,6 +16,7 @@ namespace Coimbra
     /// <summary>
     /// Stack-based pool for any <see cref="GameObject"/> that makes use of <see cref="Addressables"/> system.
     /// </summary>
+    /// <seealso cref="ManagedPool{T}"/>
     [PublicAPI]
     [Preserve]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "GameObject Pool")]

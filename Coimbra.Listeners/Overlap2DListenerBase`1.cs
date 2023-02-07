@@ -6,7 +6,7 @@ using UnityEngine.Scripting.APIUpdating;
 namespace Coimbra.Listeners
 {
     /// <summary>
-    /// Listen to 2D overlaps.
+    /// Custom implementation for 2D overlaps.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerLoopListenerBase))]

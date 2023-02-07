@@ -6,7 +6,7 @@ using UnityEngine.Scripting;
 namespace Coimbra.Services.Pooling
 {
     /// <summary>
-    /// Pooling service for <see cref="GameObject"/>.
+    /// Pooling service for <see cref="GameObject"/>, making those easily accessible from anywhere.
     /// </summary>
     [RequiredService]
     [RequireImplementors]

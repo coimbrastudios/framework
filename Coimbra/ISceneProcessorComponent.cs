@@ -3,8 +3,11 @@
 namespace Coimbra
 {
     /// <summary>
-    /// Add this to a <see cref="MonoBehaviour"/> to listen to IProcessSceneWithReport.OnProcessScene callback from outside an editor script.
+    /// Implement this on a <see cref="MonoBehaviour"/> to listen to IProcessSceneWithReport.OnProcessScene callback from outside an editor script.
     /// </summary>
+    /// <seealso cref="IScenePostProcessorComponent"/>
+    /// <seealso cref="DebugOnlyComponent"/>
+    /// <seealso cref="HierarchyFolder"/>
     public interface ISceneProcessorComponent
     {
         /// <summary>

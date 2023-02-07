@@ -6,6 +6,8 @@ namespace Coimbra
     /// <summary>
     /// Static implementation of <see cref="ManagedPool{T}"/> for <see cref="HashSet{T}"/>.
     /// </summary>
+    /// <seealso cref="ManagedPool{T}"/>
+    /// <seealso cref="SharedManagedPoolAttribute"/>
     [Preserve]
     [SharedManagedPool("Value", "Instance")]
     public static partial class HashSetPool

@@ -8,7 +8,15 @@ namespace Coimbra
     /// <summary>
     /// Create a reference for any type.
     /// </summary>
+    /// <remarks>
+    /// It is compatible with <see cref="FilterTypesAttributeBase"/> attributes.
+    /// </remarks>
     /// <typeparam name="T">The value type.</typeparam>
+    /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
     [Preserve]
     [Serializable]
     public sealed class Reference<T>

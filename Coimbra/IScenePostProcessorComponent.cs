@@ -3,8 +3,9 @@
 namespace Coimbra
 {
     /// <summary>
-    /// Add this to a <see cref="MonoBehaviour"/> to listen to PostProcessSceneAttribute callback from outside an editor script.
+    /// Implement this on a <see cref="MonoBehaviour"/> to listen to PostProcessSceneAttribute callback from outside an editor script.
     /// </summary>
+    /// <seealso cref="ISceneProcessorComponent"/>
     public interface IScenePostProcessorComponent
     {
         /// <summary>

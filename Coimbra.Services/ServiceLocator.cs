@@ -12,8 +12,26 @@ using Debug = UnityEngine.Debug;
 namespace Coimbra.Services
 {
     /// <summary>
-    /// A non-thread-safe service locator.
+    /// A non-thread-safe service locator implementation.
     /// </summary>
+    /// <remarks>
+    /// This implementation comes with some Roslyn Analyzers to ensure that the APIs are being used as designed, so only interfaces that extends <see cref="IService"/> can be used as type parameters in the APIs.
+    /// Any attempt to use classes or structs as type parameters will result in compile-time errors, avoiding runtime issues.
+    /// <para></para>
+    /// You can create your custom <see cref="IServiceFactory"/> so that you can inject your own logic for when <see cref="Get{T}"/>, <see cref="TryGet{T}"/>, or <see cref="GetChecked{T}"/> is used.
+    /// <para></para>
+    /// You can also listen for when a service is set with <see cref="AddSetListener{T}"/>, which will be fired even if it was set due a custom <see cref="IServiceFactory"/> implementation.
+    /// <para></para>
+    /// It also fully supports the new <b>Enter Play Mode Options</b> (any combination) and offers a debug window at <b>Window/Coimbra Framework/Service Locator</b>.
+    /// <para></para>
+    /// In most cases, you can simply register the <see cref="IServiceFactory"/> during application startup (i.e. on <see cref="UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration"/>) and then let the services be created on-demand.
+    /// Doing this will minimize the need to keep track of all dependencies between different services, but might create hard-to-track bugs if you end up having cyclic dependencies.
+    /// To avoid this situation, it is highly suggested to divide your application into smaller assemblies and having one assembly per service implementation, as assemblies already emit compile-time errors for cyclic references.
+    /// <para></para>
+    /// If having a more refined control over initialization logic is required you can still manually call <see cref="Set{T}"/> for each of your services, or even mix this with the solution above if you only need this level of control in a few places.
+    /// </remarks>
+    /// <seealso cref="IService"/>
+    /// <seealso cref="IServiceFactory"/>
     [Preserve]
     public static class ServiceLocator
     {
@@ -23,7 +41,7 @@ namespace Coimbra.Services
 
             internal readonly bool IsRequired;
 
-            public Service(Type type)
+            internal Service(Type type)
             {
                 IsDynamic = type.GetCustomAttribute<DynamicServiceAttribute>() != null;
                 IsRequired = type.GetCustomAttribute<RequiredServiceAttribute>() != null;
@@ -71,7 +89,7 @@ namespace Coimbra.Services
         }
 
         /// <summary>
-        /// Gets a service instance. It also asserts that the value is valid.
+        /// Gets a service instance. It also asserts that both <typeparamref name="T"/> has <see cref="RequiredServiceAttribute"/> and the value is valid.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
         /// <returns>The service instance.</returns>
@@ -85,28 +103,6 @@ namespace Coimbra.Services
             Debug.Assert(value.IsValid(), $"Called {nameof(GetChecked)} for a service that is null!");
 
             return value!;
-        }
-
-        /// <summary>
-        /// Gets the factory for a service type.
-        /// </summary>
-        /// <typeparam name="T">The service type.</typeparam>
-        /// <returns>The factory, if set.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IServiceFactory? GetFactory<T>()
-            where T : class, IService
-        {
-            return GetFactory(typeof(T));
-        }
-
-        /// <summary>
-        /// Gets the factory for a service type.
-        /// </summary>
-        /// <param name="type">The service type.</param>
-        /// <returns>The factory, if set.</returns>
-        public static IServiceFactory? GetFactory(Type type)
-        {
-            return Services.TryGetValue(type, out Service service) ? service.Factory : null;
         }
 
         /// <summary>
@@ -214,7 +210,7 @@ namespace Coimbra.Services
         }
 
         /// <summary>
-        /// Sets a service instance.
+        /// Sets a service instance. Will fail if value is already set and <typeparamref name="T"/> is missing <see cref="DynamicAttribute"/>.
         /// </summary>
         /// <param name="value">The service instance.</param>
         /// <typeparam name="T">The service type.</typeparam>
@@ -300,9 +296,12 @@ namespace Coimbra.Services
             {
                 case T result:
                 {
+                    if (service.Factory.ShouldSetService)
+                    {
 #pragma warning disable COIMBRA0110
-                    Set(result);
+                        Set(result);
 #pragma warning restore COIMBRA0110
+                    }
 
                     return result;
                 }

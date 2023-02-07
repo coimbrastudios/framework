@@ -1,18 +1,18 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using SceneAsset = UnityEditor.SceneAsset;
+#else
+using SceneAsset = UnityEngine.Object;
+#endif
+using System;
 using UnityEngine.AddressableAssets;
 
 namespace Coimbra
 {
     /// <summary>
-    /// Scene only asset reference.
+    /// Asset reference that only accepts <see cref="SceneAsset"/>.
     /// </summary>
     [Serializable]
-    public class AssetReferenceScene
-#if UNITY_EDITOR
-        : AssetReferenceT<UnityEditor.SceneAsset>
-#else
-        : AssetReferenceT<UnityEngine.Object>
-#endif
+    public class AssetReferenceScene : AssetReferenceT<SceneAsset>
     {
         public AssetReferenceScene(string guid)
             : base(guid) { }

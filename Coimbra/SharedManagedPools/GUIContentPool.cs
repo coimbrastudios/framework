@@ -6,6 +6,8 @@ namespace Coimbra
     /// <summary>
     /// Static implementation of <see cref="ManagedPool{T}"/> for <see cref="GUIContent"/>.
     /// </summary>
+    /// <seealso cref="ManagedPool{T}"/>
+    /// <seealso cref="SharedManagedPoolAttribute"/>
     [Preserve]
     [SharedManagedPool(nameof(Value))]
     public static partial class GUIContentPool

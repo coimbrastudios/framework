@@ -7,7 +7,7 @@ using UnityEngine.Scripting;
 namespace Coimbra.Services.Events
 {
     /// <summary>
-    /// Event service that also has encapsulation for some of its methods.
+    /// Event service for strongly-typed events that also has encapsulation for some of its methods and offers some basic debugging features.
     /// </summary>
     [RequiredService]
     [RequireImplementors]

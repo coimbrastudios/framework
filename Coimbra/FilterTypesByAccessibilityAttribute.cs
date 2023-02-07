@@ -5,7 +5,13 @@ namespace Coimbra
     /// <summary>
     /// Filter the types using their accessibility.
     /// </summary>
+    /// <remarks>
+    /// By adding this attribute any internal type not present in <see cref="IncludedInternalTypes"/> will be hidden.
+    /// </remarks>
     /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByMethodAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class FilterTypesByAccessibilityAttribute : FilterTypesAttributeBase
     {

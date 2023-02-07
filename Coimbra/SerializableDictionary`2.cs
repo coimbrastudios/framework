@@ -9,6 +9,7 @@ namespace Coimbra
     /// <summary>
     /// <see cref="Dictionary{TKey,TValue}"/> that can be viewed, modified and saved from the inspector.
     /// </summary>
+    /// <seealso cref="DisableAttribute"/>
     /// <seealso cref="DisableResizeAttribute"/>
     /// <seealso cref="HideKeyLabelAttribute"/>
     /// <seealso cref="HideValueLabelAttribute"/>

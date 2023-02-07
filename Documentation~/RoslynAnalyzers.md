@@ -1,6 +1,8 @@
-﻿# Coimbra Framework
+﻿# Coimbra Framework: Roslyn Analyzers
 
-Some analyzers are provided to guide how to use this framework correctly. The analyzers are divided according to the assembly they belong to.
+Some analyzers are provided to guide how to use this framework correctly.
+
+The analyzers are divided according to the assembly they belong to:
 
 | IDs       | Assemblies                    |
 |-----------|-------------------------------|
@@ -8,7 +10,11 @@ Some analyzers are provided to guide how to use this framework correctly. The an
 | 0101-0199 | Coimbra.Services              |
 | 0201-0299 | Coimbra.Services.Events       |
 
-> Actually all IDs begin with `COIMBRA`. This was omitted in the tables for brevity.
+> Actually all IDs begin with `COIMBRA` (i.e. where it says `0001` it is actually `COIMBRA0001`). This was omitted in the tables for brevity.
+
+## Customizing Analyzers and Generators
+
+You can add the define `COIMBRA_ROSLYN_SOURCE` in `Project Settings` when customizing this package. Doing that will add some menu items under `Tools/Coimbra Framework` to make your life easier when generating new DLLs.
 
 ## Current Analyzers
 

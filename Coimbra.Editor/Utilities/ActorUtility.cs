@@ -46,7 +46,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Create a new <see cref="Actor"/> with <see cref="DebugOnly"/>.
+        /// Create a new <see cref="Actor"/> with <see cref="DebugOnlyComponent"/>.
         /// </summary>
         [MenuItem(CoimbraUtility.GameObjectMenuName + "Actor (Debug Only)")]
         public static void CreateDebugOnlyActor(MenuCommand command)
@@ -55,11 +55,11 @@ namespace Coimbra.Editor
 
             if (command.context is GameObject gameObject)
             {
-                Create<Actor>(name, typeof(DebugOnly)).Transform.SetParent(gameObject.transform);
+                Create<Actor>(name, typeof(DebugOnlyComponent)).Transform.SetParent(gameObject.transform);
             }
             else
             {
-                Create<Actor>(name, typeof(DebugOnly));
+                Create<Actor>(name, typeof(DebugOnlyComponent));
             }
         }
 

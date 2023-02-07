@@ -8,6 +8,11 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// <summary>
     /// Default implementation for <see cref="IApplicationStateService"/>.
     /// </summary>
+    /// <remarks>
+    /// It uses <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationFocus.html">OnApplicationFocus</a>, <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</a>, and <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationQuit.html">OnApplicationQuit</a> to invoke the respective events.
+    /// <para></para>
+    /// The events are invoked using <see cref="IEventService"/> and this implementation makes use of <see cref="Object.DontDestroyOnLoad"/> to persist between scenes.
+    /// </remarks>
     [AddComponentMenu("")]
     [PreloadService]
     public sealed class ApplicationStateSystem : Actor, IApplicationStateService

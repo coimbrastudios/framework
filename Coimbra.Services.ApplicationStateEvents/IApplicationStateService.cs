@@ -3,8 +3,11 @@
 namespace Coimbra.Services.ApplicationStateEvents
 {
     /// <summary>
-    /// Responsible for the application lifetime cycle, meant to be used to fire Unity's callbacks events.
+    /// Responsible for part of the application lifetime cycle, meant to be used to fire Unity events related to quit, pause, and focus.
     /// </summary>
+    /// <remarks>
+    /// Meant to replace usage of <see cref="UnityEngine.MonoBehaviour"/> when listening to <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationFocus.html">OnApplicationFocus</a>, <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</a>, and <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationQuit.html">OnApplicationQuit</a>.
+    /// </remarks>
     [RequiredService]
     [RequireImplementors]
     public interface IApplicationStateService : IService

@@ -9,6 +9,9 @@ namespace Coimbra.Services.Timers
     /// <summary>
     /// Default implementation for <see cref="ITimerService"/>.
     /// </summary>
+    /// <remarks>
+    /// Makes use of <see cref="MonoBehaviour.Invoke"/> and <see cref="MonoBehaviour.InvokeRepeating"/>.
+    /// </remarks>
     [AddComponentMenu("")]
     public sealed class TimerSystem : Actor, ITimerService
     {

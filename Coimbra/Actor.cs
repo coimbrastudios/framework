@@ -68,9 +68,9 @@ namespace Coimbra
             IsInitialized = 1 << 1,
 
             /// <summary>
-            /// <see cref="Actor.IsPrefab"/>.
+            /// <see cref="Actor.IsStarted"/>.
             /// </summary>
-            IsPrefab = 1 << 2,
+            IsStarted = 1 << 2,
 
             /// <summary>
             /// <see cref="Actor.IsPooled"/>.
@@ -97,6 +97,11 @@ namespace Coimbra
             /// </summary>
             IsUnloadingScene = 1 << 7,
         }
+
+        /// <summary>
+        /// Delegate for handler a <see cref="GameObject"/> start.
+        /// </summary>
+        public delegate void StartHandler(Actor sender);
 
         /// <summary>
         /// Delegate for handling a <see cref="GameObject"/> active state changes.
@@ -131,7 +136,32 @@ namespace Coimbra
         /// <summary>
         /// Invoked when a <see cref="UnityEngine.GameObject"/> is being destroyed for any reason.
         /// </summary>
-        public event DestroyHandler OnDestroying;
+        public event DestroyHandler OnDestroying
+        {
+            add
+            {
+                Debug.Assert(!IsDestroyed, $"{nameof(OnDestroying)} shouldn't receive new listeners after the object is destroyed!", this);
+                _onDestroying += value;
+            }
+
+            [DebuggerStepThrough]
+            remove => _onDestroying -= value;
+        }
+
+        /// <summary>
+        /// Invoked when a <see cref="UnityEngine.GameObject"/> is being started.
+        /// </summary>
+        public event StartHandler OnStarting
+        {
+            add
+            {
+                Debug.Assert(!IsStarted, $"{nameof(OnStarting)} shouldn't receive new listeners after the object is started!", this);
+                _onStarting += value;
+            }
+
+            [DebuggerStepThrough]
+            remove => _onStarting -= value;
+        }
 
         private static readonly List<Actor> UninitializedActors = new();
 
@@ -171,6 +201,10 @@ namespace Coimbra
         private GameObject _gameObject;
 
         private Transform _transform;
+
+        private DestroyHandler _onDestroying;
+
+        private StartHandler _onStarting;
 
         protected Actor()
         {
@@ -291,7 +325,7 @@ namespace Coimbra
         /// <summary>
         /// Gets a value indicating whether this object is a prefab asset.
         /// </summary>
-        public bool IsPrefab => (States & StateFlags.IsPrefab) != 0;
+        public bool IsPrefab => GameObject.scene.name == null;
 
         /// <summary>
         /// Gets a value indicating whether the application is quitting.
@@ -302,6 +336,11 @@ namespace Coimbra
         /// Gets a value indicating whether the object is currently spawned.
         /// </summary>
         public bool IsSpawned => (States & StateFlags.IsSpawned) != 0;
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="Start"/> was called already.
+        /// </summary>
+        public bool IsStarted => (States & StateFlags.IsStarted) != 0;
 
         /// <summary>
         /// Gets a value indicating whether the scene of this <see cref="Actor"/> is currently unloading.
@@ -399,15 +438,7 @@ namespace Coimbra
             Pool = pool;
             States |= StateFlags.IsInitialized;
 
-            // should be initialized already to work correctly
             _gameObjectID = GameObject;
-
-            if (GameObject.scene.name == null)
-            {
-                States |= StateFlags.IsPrefab;
-            }
-
-            // should be the last call
             UninitializedActorCount.Value--;
             InitializedActorCount.Value++;
             CachedActors.Add(GameObjectID, this);
@@ -562,6 +593,9 @@ namespace Coimbra
         {
             const string message = nameof(Actor) + "." + nameof(Initialize) + " needs to be called before the " + nameof(Start) + " callback!";
             Debug.Assert(IsInitialized, message, this);
+            _onStarting?.Invoke(this);
+            _onStarting = null;
+            States |= StateFlags.IsStarted;
         }
 
 #endif
@@ -669,15 +703,15 @@ namespace Coimbra
 
             if (IsQuitting)
             {
-                OnDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
+                _onDestroying?.Invoke(this, DestroyReason.ApplicationQuit);
             }
             else if (!GameObject.scene.isLoaded)
             {
-                OnDestroying?.Invoke(this, DestroyReason.SceneChange);
+                _onDestroying?.Invoke(this, DestroyReason.SceneChange);
             }
             else
             {
-                OnDestroying?.Invoke(this, DestroyReason.ExplicitCall);
+                _onDestroying?.Invoke(this, DestroyReason.ExplicitCall);
             }
 
             OnDestroyed();
@@ -702,8 +736,8 @@ namespace Coimbra
             }
 
             OnActiveStateChanged = null;
-            OnDestroying = null;
             Pool = null;
+            _onDestroying = null;
             _gameObject = null;
             _transform = null;
             InitializedActorCount.Value--;

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -10,7 +9,15 @@ namespace Coimbra
     /// <summary>
     /// <see cref="FilterTypesAttributeBase"/> that forward its implementation to the owning class.
     /// </summary>
+    /// <remarks>
+    /// Allows to pass an arbitrary method to filter the types without requiring a completely new <see cref="FilterTypesAttributeBase"/> implementation.
+    /// <para></para>
+    /// The method should have the signature <see cref="bool"/>(<see cref="PropertyPathInfo"/>, <see cref="UnityEngine.Object"/>, <see cref="Type"/>).
+    /// </remarks>
     /// <seealso cref="FilterTypesAttributeBase"/>
+    /// <seealso cref="FilterTypesByAccessibilityAttribute"/>
+    /// <seealso cref="FilterTypesByAssignableFromAttribute"/>
+    /// <seealso cref="FilterTypesBySpecificTypeAttribute"/>
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class FilterTypesByMethodAttribute : FilterTypesAttributeBase
     {
