@@ -3,6 +3,7 @@
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">FixedUpdate</a>.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
     public readonly partial struct FixedUpdateEvent : IPlayerLoopEvent
     {
         public FixedUpdateEvent(float deltaTime)

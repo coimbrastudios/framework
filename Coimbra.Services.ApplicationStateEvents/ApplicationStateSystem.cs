@@ -13,6 +13,11 @@ namespace Coimbra.Services.ApplicationStateEvents
     /// <para></para>
     /// The events are invoked using <see cref="IEventService"/> and this implementation makes use of <see cref="Object.DontDestroyOnLoad"/> to persist between scenes.
     /// </remarks>
+    /// <seealso cref="ApplicationFocusEvent"/>
+    /// <seealso cref="ApplicationPauseEvent"/>
+    /// <seealso cref="ApplicationQuitEvent"/>
+    /// <seealso cref="IApplicationStateEvent"/>
+    /// <seealso cref="IApplicationStateService"/>
     [AddComponentMenu("")]
     [PreloadService]
     public sealed class ApplicationStateSystem : Actor, IApplicationStateService

@@ -17,6 +17,9 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <remarks>
     /// The events are invoked using <see cref="IEventService"/> and this implementation makes use of <see cref="UnityEngine.Object.DontDestroyOnLoad"/> to persist between scenes.
     /// </remarks>
+    /// <seealso cref="IPlayerLoopEvent"/>
+    /// <seealso cref="IPlayerLoopService"/>
+    /// <seealso cref="PlayerLoopEventListener"/>
     [AddComponentMenu("")]
     [PreloadService]
     [RequireComponent(typeof(FixedUpdateListener))]

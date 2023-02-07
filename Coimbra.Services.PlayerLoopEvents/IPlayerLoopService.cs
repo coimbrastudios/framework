@@ -5,6 +5,9 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Responsible for any <see cref="IPlayerLoopEvent"/>, which includes <see cref="UpdateEvent"/>, <see cref="LateUpdateEvent"/>, <see cref="FixedUpdateEvent"/>, and each <see cref="PlayerLoopInjectedTimings"/>.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
+    /// <seealso cref="PlayerLoopSystem"/>
+    /// <seealso cref="PlayerLoopEventListener"/>
     [RequiredService]
     public interface IPlayerLoopService : IService
     {

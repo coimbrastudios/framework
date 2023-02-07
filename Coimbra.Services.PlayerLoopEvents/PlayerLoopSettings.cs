@@ -6,6 +6,11 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// <see cref="ScriptableSettingsType.RuntimeProjectSettings"/> for <see cref="PlayerLoopSystem"/>.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
+    /// <seealso cref="IPlayerLoopService"/>
+    /// <seealso cref="PlayerLoopSystem"/>
+    /// <seealso cref="PlayerLoopEventListener"/>
+    /// <seealso cref="PlayerLoopInjectedTimings"/>
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath)]
     public sealed class PlayerLoopSettings : ScriptableSettings
     {

@@ -3,6 +3,7 @@
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</a>.
     /// </summary>
+    /// <seealso cref="IApplicationStateEvent"/>
     public readonly partial struct ApplicationPauseEvent : IApplicationStateEvent
     {
         /// <summary>

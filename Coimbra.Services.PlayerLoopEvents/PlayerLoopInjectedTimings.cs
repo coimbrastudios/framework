@@ -6,6 +6,11 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Equivalent to <see cref="InjectPlayerLoopTimings"/>, but with the actual <see cref="IPlayerLoopEvent"/> names.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
+    /// <seealso cref="IPlayerLoopService"/>
+    /// <seealso cref="PlayerLoopSystem"/>
+    /// <seealso cref="PlayerLoopEventListener"/>
+    /// <seealso cref="PlayerLoopSettings"/>
     [Flags]
     public enum PlayerLoopInjectedTimings
     {

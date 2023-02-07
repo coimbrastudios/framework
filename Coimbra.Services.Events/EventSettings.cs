@@ -17,11 +17,6 @@ namespace Coimbra.Services.Events
         private bool _validateInvocationTargets = true;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventSettings"/> class.
-        /// </summary>
-        public EventSettings() { }
-
-        /// <summary>
         /// Gets a value indicating whether an error message should be logged when attempting to invoke an event from one of its listeners.
         /// </summary>
         public bool LogRecursiveInvocationError => _logRecursiveInvocationError;

@@ -3,6 +3,7 @@
     /// <summary>
     /// Invoked during <see cref="UnityEngine.PlayerLoop.FixedUpdate"/>.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
     public readonly partial struct LastFixedUpdateEvent : IPlayerLoopEvent
     {
         public LastFixedUpdateEvent(float deltaTime)

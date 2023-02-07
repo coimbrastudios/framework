@@ -3,6 +3,7 @@
     /// <summary>
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationFocus.html">OnApplicationFocus</a>.
     /// </summary>
+    /// <seealso cref="IApplicationStateEvent"/>
     public readonly partial struct ApplicationFocusEvent : IApplicationStateEvent
     {
         /// <summary>

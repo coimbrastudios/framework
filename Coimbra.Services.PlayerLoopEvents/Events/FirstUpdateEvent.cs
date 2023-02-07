@@ -3,6 +3,7 @@
     /// <summary>
     /// Invoked during <see cref="UnityEngine.PlayerLoop.Update"/>.
     /// </summary>
+    /// <seealso cref="IPlayerLoopEvent"/>
     public readonly partial struct FirstUpdateEvent : IPlayerLoopEvent
     {
         public FirstUpdateEvent(float deltaTime)
