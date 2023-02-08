@@ -1,0 +1,22 @@
+{
+    "name": "Coimbra.Samples.DifficultySettings.Editor",
+    "rootNamespace": "Coimbra.Samples.DifficultySettings.Editor",
+    "references": [
+        "Coimbra",
+        "Coimbra.Samples.DifficultySettings",
+        "CoimbraInternal.Linting"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

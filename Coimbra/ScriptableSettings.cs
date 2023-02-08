@@ -90,7 +90,7 @@ namespace Coimbra
 
             if (Type.IsEditorOnly())
             {
-                Preload = false;
+                _preload = false;
             }
         }
 
@@ -102,8 +102,11 @@ namespace Coimbra
         {
             [DebuggerStepThrough]
             get => _preload;
-            [DebuggerStepThrough]
-            protected set => _preload = value;
+            protected set
+            {
+                _preload = value;
+                ValidatePreload();
+            }
         }
 
         /// <summary>
@@ -125,6 +128,9 @@ namespace Coimbra
         /// <summary>
         /// Gets the last set value for the specified type, but also tries to find one if not set.
         /// </summary>
+        /// <remarks>
+        /// It will never call <see cref="Set"/> or <see cref="SetOrOverwrite"/> for you, but you can use a custom <paramref name="findCallback"/> to do it if no value is found.
+        /// </remarks>
         /// <param name="type">The type of the settings.</param>
         /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
@@ -182,6 +188,11 @@ namespace Coimbra
         /// <summary>
         /// Sets the value for the specified type, if not set yet.
         /// </summary>
+        /// <remarks>
+        /// If another value is already set then it will emit a warning and don't do anything.
+        /// <para></para>
+        /// If overwriting is intended use <see cref="SetOrOverwrite"/>.
+        /// </remarks>
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -202,6 +213,11 @@ namespace Coimbra
         /// <summary>
         /// Sets the value for the specified type, even if it was already set.
         /// </summary>
+        /// <remarks>
+        /// It will set the new value even if another value is already set.
+        /// <para></para>
+        /// If overwriting is intended use <see cref="SetOrOverwrite"/>.
+        /// </remarks>
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -288,10 +304,10 @@ namespace Coimbra
 
             if (Type.IsEditorOnly())
             {
-                Preload = false;
+                _preload = false;
             }
 
-            if (Preload)
+            if (_preload)
             {
                 EnsurePreload(true);
             }
@@ -319,46 +335,72 @@ namespace Coimbra
 #endif
         }
 
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
         protected virtual void Reset()
         {
 #if UNITY_EDITOR
             if (Type.IsEditorOnly())
             {
-                Preload = false;
+                _preload = false;
             }
 
-            if (Preload)
+            if (_preload)
             {
                 EnsurePreload(false);
             }
 #endif
         }
 
+        /// <summary>
+        /// Use this for one-time initializations instead of <see cref="OnEnable"/> callback. This method can be called inside edit-mode when inside the editor.
+        /// </summary>
+        protected virtual void OnLoaded()
+        {
+            Set(GetType(), this);
+        }
+
+        /// <summary>
+        /// Use this for one-time un-initializations instead of <see cref="OnDisable"/> callback. This method can be called inside edit-mode when inside the editor.
+        /// </summary>
+        protected virtual void OnUnload(bool wasCurrentInstance) { }
+
+        /// <summary>
+        /// Unity callback.
+        /// </summary>
         protected virtual void OnValidate()
         {
             ValidatePreload();
         }
 
-        protected virtual void OnEnable()
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnLoaded"/> instead.
+        /// </summary>
+        protected void OnEnable()
         {
-            Type type = GetType();
-
             if (string.IsNullOrWhiteSpace(name))
             {
-                name = type.Name;
+                name = GetType().Name;
             }
 
-            Set(type, this);
+            OnLoaded();
         }
 
-        protected virtual void OnDisable()
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnUnloaded"/> instead.
+        /// </summary>
+        protected void OnDisable()
         {
             Type type = GetType();
+            bool wasCurrentInstance = TryGet(type, out ScriptableSettings current) && current == this;
 
-            if (TryGet(type, out ScriptableSettings current) && current == this)
+            if (wasCurrentInstance)
             {
                 SetOrOverwrite(type, null);
             }
+
+            OnUnload(wasCurrentInstance);
         }
 
         private static void HandleApplicationQuitting()
@@ -374,7 +416,11 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    LogIfOverriding(type, value, currentValue);
+                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
+                    {
+                        Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
+                        Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                    }
                 }
                 else
                 {
@@ -399,17 +445,6 @@ namespace Coimbra
             {
                 Map.Remove(type);
             }
-        }
-
-        private static void LogIfOverriding(Type type, ScriptableSettings value, ScriptableSettings currentValue)
-        {
-            if (CoimbraUtility.IsReloadingScripts || IsQuitting || GetType(type).IsEditorOnly())
-            {
-                return;
-            }
-
-            Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
-            Debug.LogWarning($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
         }
 
 #if UNITY_EDITOR

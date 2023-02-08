@@ -10,9 +10,10 @@ You can select the defined rules by going to `Project Settings/Linting Settings`
 
 To implement a new rule you need the following steps:
 
-- Create a new rule by inheriting from [AssemblyDefinitionRuleBase](../Coimbra.Editor.Linting/AssemblyDefinitionRuleBase.cs) and override the `Apply` method.
+- Create a new rule by inheriting from [AssemblyDefinitionRuleBase].
+- Override the `Apply` method.
+- Add [CreateAssetMenuAttribute] to make easier to create a new asset.
 - Create a new asset and configure it in the inspector.
-- (Optional) Add `CreateAssetMenuAttribute` to make easier to create a new asset.
 
 > You can also just create a new asset from one of the existing rules and customize the options. The default ones should give you enough control already for all the basic needs.
 
@@ -20,17 +21,26 @@ To implement a new rule you need the following steps:
 
 This package comes with some default rules implementations. They are all production-ready and provide good example of how to create your own rules efficiently.
 
-- [BannedReferencesAssemblyDefinitionRule]
-- [FixDuplicateReferencesAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixDuplicateReferencesAssemblyDefinitionRule.cs)
-- [FixEditorOnlyAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixEditorOnlyAssemblyDefinitionRule.cs)
-- [FixTestsOnlyAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixTestsOnlyAssemblyDefinitionRule.cs)
-- [ForceReferenceByNameAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/ForceReferenceByNameAssemblyDefinitionRule.cs)
-- [ForceRootNamespaceMatchNameAssemblyDefinitionRule]
-- [RequiredReferencesAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/RequiredReferencesAssemblyDefinitionRule.cs)
-- [SortPrecompiledReferencesAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/SortPrecompiledReferencesAssemblyDefinitionRule.cs)
-- [SortReferencesByNameAssemblyDefinitionRule](../Coimbra.Editor.Linting/AssemblyDefinitionRules/SortReferencesByNameAssemblyDefinitionRule.cs)
+- [Banned References]
+- [Fix Duplicate References]
+- [Fix Editor Only]
+- [Fix Tests Only]
+- [Force Reference By Name]
+- [Force Root Namespace Match Name]
+- [Required References]
+- [Sort Precompiled References]
+- [Sort References By Name]
 
-> If you are looking into an advanced example see [BannedReferencesAssemblyDefinitionRule] as it is the one that makes the most from the available APIs, including caching techniques to ensure a smooth editor experience. If you are looking into a very basic example see [ForceRootNamespaceMatchNameAssemblyDefinitionRule].
+> If you are looking into an advanced example see [Banned References] as it is the one that makes the most from the available APIs, including caching techniques to ensure a smooth editor experience. If you are looking into a very basic example see [Force Root Namespace Match Name].
 
-[BannedReferencesAssemblyDefinitionRule]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/BannedReferencesAssemblyDefinitionRule.cs>
-[ForceRootNamespaceMatchNameAssemblyDefinitionRule]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/ForceRootNamespaceMatchNameAssemblyDefinitionRule.cs>
+[AssemblyDefinitionRuleBase]:<../Coimbra.Editor.Linting/AssemblyDefinitionRuleBase.cs>
+[Banned References]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/BannedReferencesAssemblyDefinitionRule.cs>
+[Fix Duplicate References]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixDuplicateReferencesAssemblyDefinitionRule.cs>
+[Fix Editor Only]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixEditorOnlyAssemblyDefinitionRule.cs>
+[Fix Tests Only]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/FixTestsOnlyAssemblyDefinitionRule.cs>
+[Force Reference By Name]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/ForceReferenceByNameAssemblyDefinitionRule.cs>
+[Force Root Namespace Match Name]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/ForceRootNamespaceMatchNameAssemblyDefinitionRule.cs>
+[Required References]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/RequiredReferencesAssemblyDefinitionRule.cs>
+[Sort Precompiled References]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/SortPrecompiledReferencesAssemblyDefinitionRule.cs>
+[Sort References By Name]:<../Coimbra.Editor.Linting/AssemblyDefinitionRules/SortReferencesByNameAssemblyDefinitionRule.cs>
+[CreateAssetMenuAttribute]:<https://docs.unity3d.com/ScriptReference/CreateAssetMenuAttribute.html>

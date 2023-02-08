@@ -532,12 +532,12 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Use this for one-time un-initializations instead of OnDestroy callback. This method is called even if the object starts inactive.
+        /// Use this for one-time un-initializations instead of <see cref="OnDestroy"/> callback. This method is called even if the object starts inactive.
         /// </summary>
         protected virtual void OnDestroyed() { }
 
         /// <summary>
-        /// Use this for one-time initializations instead of Awake callback. This method is called even if the object starts inactive.
+        /// Use this for one-time initializations instead of <see cref="Awake"/> callback. This method is called even if the object starts inactive.
         /// </summary>
         protected virtual void OnInitialize() { }
 

@@ -7,8 +7,13 @@ namespace Coimbra
 {
     /// <summary>
     /// Apply this attribute to a <see cref="ScriptableSettings"/> that should show up in the preferences window.
-    /// <para>A <see cref="ScriptableSettings"/> with this attribute will not have its serialized data available on builds, but you can still define default values for it.</para>
     /// </summary>
+    /// <remarks>
+    /// If <see cref="UseEditorPrefs"/> is true the <see cref="ScriptableSettings"/> will become a <see cref="ScriptableSettingsType.EditorUserPreferences"/>.
+    /// If false, it will be a <see cref="ScriptableSettingsType.ProjectUserPreferences"/>.
+    /// <para></para>
+    /// Any <see cref="ScriptableSettings"/> with this attribute will not have its serialized data available on builds, but you can still define hard-coded default values for runtime usage.
+    /// </remarks>
     /// <seealso cref="ProjectSettingsAttribute"/>
     /// <seealso cref="ScriptableSettings"/>
     /// <seealso cref="ScriptableSettingsType"/>

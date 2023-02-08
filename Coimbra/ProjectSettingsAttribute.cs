@@ -8,6 +8,12 @@ namespace Coimbra
     /// <summary>
     /// Apply this attribute to a <see cref="ScriptableSettings"/> that should show up in the project settings window.
     /// </summary>
+    /// <remarks>
+    /// If <see cref="IsEditorOnly"/> is true the <see cref="ScriptableSettings"/> will become a <see cref="ScriptableSettingsType.EditorProjectSettings"/>.
+    /// If false, it will be a <see cref="ScriptableSettingsType.RuntimeProjectSettings"/> and be able to change the <see cref="ScriptableSettings.Preload"/> property.
+    /// <para></para>
+    /// Even if <see cref="IsEditorOnly"/> is true, you can still define hard-coded default values for runtime usage.
+    /// </remarks>
     /// <seealso cref="PreferencesAttribute"/>
     /// <seealso cref="ScriptableSettings"/>
     /// <seealso cref="ScriptableSettingsType"/>

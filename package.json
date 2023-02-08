@@ -14,8 +14,13 @@
   "samples": [
     {
       "displayName": "Managed Jobs: Concat Strings",
-      "description": "Example classes of how to create simple managed jobs.",
+      "description": "Example of how to create simple managed jobs. It contains one script for each additional job type included in the project.",
       "path": "Samples~/Concat Strings"
+    },
+    {
+      "displayName": "Scriptable Settings: Difficulty Settings",
+      "description": "Example of how to use Scriptable Settings that changes the active instance at runtime. It also focus on some best practices when it comes to use the full power of the framework, such as using the Actor and IEventService APIs.",
+      "path": "Samples~/Difficulty Settings"
     }
   ],
   "dependencies": {
