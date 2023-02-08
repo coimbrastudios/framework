@@ -39,12 +39,12 @@ This package comes with some default services implementations. They are all prod
 
 > You might notice that most of those services are [Actor], which seems to go against the recommended approach. However you can see that each one has a clear reasoning behind this decision.
 
-[Actor]:<../Coimbra/Actor.cs>
+[Actor]:<Actor.md>
+[ScriptableSettings]:<ScriptableSettings.md>
 [DisableDefaultFactoryAttribute]:<../Coimbra.Services/DisableDefaultFactoryAttribute.cs>
 [IService]:<../Coimbra.Services/IService.cs>
 [IServiceFactory]:<../Coimbra.Services/IServiceFactory.cs>
 [ServiceLocator]:<../Coimbra.Services/ServiceLocator.cs>
-[ScriptableSettings]:<../Coimbra/ScriptableSettings.cs>
 [Coroutine]:<https://docs.unity3d.com/ScriptReference/Coroutine.html>
 [GameObject]:<https://docs.unity3d.com/ScriptReference/GameObject.html>
 [Invoke]:<https://docs.unity3d.com/ScriptReference/MonoBehaviour.Invoke.html>
