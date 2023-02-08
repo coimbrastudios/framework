@@ -1,4 +1,4 @@
-﻿# Coimbra Framework: Roslyn Analyzers
+﻿# [Coimbra Framework](Index.md): Roslyn Analyzers
 
 Some analyzers are provided to guide how to use this framework correctly.
 

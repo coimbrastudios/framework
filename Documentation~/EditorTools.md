@@ -1,4 +1,4 @@
-# Coimbra Framework: Editor Tools
+# [Coimbra Framework](Index.md): Editor Tools
 
 This package offers some tools available in `Tools/Coimbra Framework/` and an option to configure a startup scene while playing in the editor.
 

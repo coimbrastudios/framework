@@ -13,8 +13,19 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Class that allows easy access to a <see cref="ScriptableObject"/> and also enables automatic preloading for it.
+    /// Class that allows easy access to a <see cref="ScriptableObject"/>.
     /// </summary>
+    /// <remarks>
+    /// This class is meant for globally-accessible read-only data containers. Those data containers can have different level os scopes:
+    /// <list type="bullet">
+    /// <item><see cref="ScriptableSettingsType.Custom"/>: those are dynamic objects generally either created at runtime or that the current instance changes at different stages of the application (i.e. a different asset according to selected difficulty).</item>
+    /// <item><see cref="ScriptableSettingsType.EditorProjectSettings"/>: configured in the <b>Project Settings</b> window and saved at the <b>ProjectSettings</b> folder. Those settings are shared between all users of the current project and are never available outside the editor.</item>
+    /// <item><see cref="ScriptableSettingsType.RuntimeProjectSettings"/>: configured in the <b>Project Settings</b> window and saved in the <b>Assets</b> folder (in a sub-folder of your choice). Those settings have the option to be included with the Preloaded Assets to be available since the application startup in the builds.</item>
+    /// <item><see cref="ScriptableSettingsType.EditorUserPreferences"/>: configured in the <b>Preferences</b> window and saved using <b>EditorPrefs</b>. Those settings are local for the user machine, meaning that they are shader across all projects using the same Unity editor, and are never available outside the editor.</item>
+    /// <item><see cref="ScriptableSettingsType.ProjectUserPreferences"/>: configured in the <b>Preferences</b> window and saved at the <b>UserSettings</b> folder. Those settings are local for the project, meaning that they won't affect other projects or other users, and are never available outside the editor.</item>
+    /// </list>
+    /// You can check all currently loaded <see cref="ScriptableSettings"/> by going to <b>Window/Coimbra Framework/Scriptable Settings</b>.
+    /// </remarks>
     /// <seealso cref="PreferencesAttribute"/>
     /// <seealso cref="ProjectSettingsAttribute"/>
     /// <seealso cref="ScriptableSettingsType"/>

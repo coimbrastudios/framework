@@ -1,4 +1,4 @@
-# Coimbra Framework: Assembly Definition Rules
+# [Coimbra Framework](Index.md): Assembly Definition Rules
 
 Linting tools for assembly definition assets.
 

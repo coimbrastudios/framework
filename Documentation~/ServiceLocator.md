@@ -1,4 +1,4 @@
-# Coimbra Framework: Service Locator
+# [Coimbra Framework](Index.md): Service Locator
 
 Alternative way to design your code without needing the singleton pattern.
 
