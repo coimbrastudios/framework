@@ -7,6 +7,7 @@
 - Added asserting to `Actor.OnDestroying` to avoid unexpected errors.
 - Added `IServiceFactory.ShouldSetService` property that defaults to true to keep previous behaviour.
 - Added more in-depth information for many existing APIs to make their usage clearer.
+- Added `Difficulty Settings` sample.
 - Changed `PlayerLoopTimingEvents` to `PlayerLoopInjectedTimings`.
 - Changed documentation structure to improve its readability.
 - Changed `DebugOnly` to `DebugOnlyComponent` as it is an `ActorComponent` to make API more consistent.

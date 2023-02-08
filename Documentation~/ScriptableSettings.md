@@ -15,7 +15,8 @@ To implement a new settings you only need to:
 - Inherit from [ScriptableSettings].
 - Add you data fields (usually private fields with public getters).
 - Add either [CreateAssetMenuAttribute], [PreferencesAttribute], or [ProjectSettingsAttribute].
-- Configure it in the editor. If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
+- Configure it in the editor.
+- (Optional) If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
 
 [PreferencesAttribute]:<../Coimbra/PreferencesAttribute.cs>
 [ProjectSettingsAttribute]:<../Coimbra/ProjectSettingsAttribute.cs>
