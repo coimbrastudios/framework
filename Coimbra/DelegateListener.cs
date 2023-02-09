@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Coimbra
 {
     /// <summary>
-    /// Describes a <see cref="Delegate"/> listener.
+    /// Describes a <see cref="Delegate"/> listener. This is mostly used to expose those information in the inspector and doesn't provide functionality to save and load from the disk.
     /// </summary>
     [Serializable]
     public struct DelegateListener

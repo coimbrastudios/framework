@@ -17,6 +17,15 @@ Package of general utilities to be used with Unity development.
     - [Roslyn Analyzers](RoslynAnalyzers.md)
     - [Service Locator](ServiceLocator.md)
     - [Scriptable Settings](ScriptableSettings.md)
+- Custom Serializable Types:
+    - [AssetReferenceScene](../Coimbra/AssetReferenceScene.cs)
+    - [DelegateListener](../Coimbra/DelegateListener.cs)
+    - [FloatRange](../Coimbra/FloatRange.cs)
+    - [IntRange](../Coimbra/IntRange.cs)
+    - [ManagedField](../Coimbra/ManagedField`1.cs)
+    - [Reference](../Coimbra/Reference`1.cs)
+    - [SerializableType](../Coimbra/SerializableType`1.cs)
+    - [SerializableTypeDictionary](../Coimbra/SerializableTypeDictionary`3.cs)
 - GUI Scopes:
     - [BackgroundColorScope](../Coimbra.Editor/GUIScopes/BackgroundColorScope.cs)
     - [HierarchyModeScope](../Coimbra.Editor/GUIScopes/HierarchyModeScope.cs)
@@ -66,14 +75,6 @@ Package of general utilities to be used with Unity development.
 - Scene Processing:
     - [ISceneProcessorComponent](../Coimbra/ISceneProcessorComponent.cs)
     - [IScenePostProcessorComponent](../Coimbra/IScenePostProcessorComponent.cs)
-- Serializable Types:
-    - [AssetReferenceScene](../Coimbra/AssetReferenceScene.cs)
-    - [FloatRange](../Coimbra/FloatRange.cs)
-    - [IntRange](../Coimbra/IntRange.cs)
-    - [ManagedField](../Coimbra/ManagedField`1.cs)
-    - [Reference](../Coimbra/Reference`1.cs)
-    - [SerializableType](../Coimbra/SerializableType`1.cs)
-    - [SerializableTypeDictionary](../Coimbra/SerializableTypeDictionary`3.cs)
 - Transform Listeners:
     - [BeforeTransformParentChangedListener](../Coimbra.Listeners/Transform/BeforeTransformParentChangedListener.cs)
     - [CanvasGroupChangedListener](../Coimbra.Listeners/Transform/CanvasGroupChangedListener.cs)
@@ -82,13 +83,12 @@ Package of general utilities to be used with Unity development.
     - [TransformChangedListener](../Coimbra.Listeners/Transform/TransformChangedListener.cs)
     - [TransformChildrenChangedListener](../Coimbra.Listeners/Transform/TransformChildrenChangedListener.cs)
     - [TransformParentChangedListener](../Coimbra.Listeners/Transform/TransformParentChangedListener.cs)
-- Useful Attributes:
+- Utilities and other types:
     - [AssetReferenceComponentRestriction](../Coimbra/AssetReferenceComponentRestriction.cs)
     - [CopyBaseConstructorsAttribute](../Coimbra/CopyBaseConstructorsAttribute.cs)
     - [FormerlySerializedAsBackingFieldOfAttribute](../Coimbra/FormerlySerializedAsBackingFieldOfAttribute.cs)
-- And many other utilities:
-    - [PlayerLoopEventListener](../Coimbra.Services.PlayerLoopEvents/Listeners/PlayerLoopEventListener.cs)
     - [ImageHitTestInitializer](../Coimbra.UI/ImageHitTestInitializer.cs)
+    - [PlayerLoopEventListener](../Coimbra.Services.PlayerLoopEvents/Listeners/PlayerLoopEventListener.cs)
     - [ApplicationUtility](../Coimbra/Utilities/ApplicationUtility.cs)
     - [CancellationTokenSourceUtility](../Coimbra/Utilities/CancellationTokenSourceUtility.cs)
     - [DelegateUtility](../Coimbra/Utilities/DelegateUtility.cs)
