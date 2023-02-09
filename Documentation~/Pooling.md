@@ -8,19 +8,7 @@ Offers a thread-safe solution for pooling managed object and an [Addressables]-c
 
 Specialized pooling implementation for [GameObject] with auto resizing functionality and support for [Addressables].
 
-### Creating [GameObjectPool]
-
-### Using [GameObjectPool]
-
 ## [ManagedPool<T>]
-
-## Creating [ManagedPool<T>]
-
-## Using [ManagedPool<T>]
-
-## Creating [SharedManagedPool]
-
-## Using [SharedManagedPool]
 
 ## [SharedManagedPool]
 
