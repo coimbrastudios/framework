@@ -1,7 +1,8 @@
 # Changelog
 
-## [10.10.4] - UNRELEASED
+## [11.0.0] - UNRELEASED
 
+- Added `Scene Selector` window.
 - Added `EventSettings` in the `Project Settings` window.
 - Added `Actor.OnStarting` to make API more consistent.
 - Added asserting to `Actor.OnDestroying` to avoid unexpected errors.

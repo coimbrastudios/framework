@@ -14,8 +14,6 @@ Specialized pooling implementation for [GameObject] with auto resizing functiona
 
 ## [ManagedPool<T>]
 
-Comes with a few [SharedManagedPool] implementations that can be inspected at `Window/Coimbra Framework/Shared Managed Pools`:
-
 ## Creating [ManagedPool<T>]
 
 ## Using [ManagedPool<T>]
@@ -24,7 +22,9 @@ Comes with a few [SharedManagedPool] implementations that can be inspected at `W
 
 ## Using [SharedManagedPool]
 
-## Default [SharedManagedPool]
+## [SharedManagedPool]
+
+Comes with a few default implementations that can be inspected at `Window/Coimbra Framework/Shared Managed Pools`:
 
 - [DictionaryPool]
 - [GUIContentPool]
@@ -39,15 +39,9 @@ Comes with a few [SharedManagedPool] implementations that can be inspected at `W
 
 Have same overloads as `Object.Instantiate` to make easier to migrate existing code.
 
-[GameObjectPool]:<../Coimbra/GameObjectPool.cs>
-
-[ManagedPool<T>]:<../Coimbra/ManagedPool`1.cs>
-
-[PoolService]:<../Coimbra.Services.Pooling/IPoolService.cs>
-
-[SharedManagedPool]:<../Coimbra/SharedManagedPoolAttribute.cs>
-
 [DictionaryPool]:<../Coimbra/SharedManagedPools/DictionaryPool.cs>
+
+[GameObjectPool]:<../Coimbra/GameObjectPool.cs>
 
 [GUIContentPool]:<../Coimbra/SharedManagedPools/GUIContentPool.cs>
 
@@ -57,7 +51,13 @@ Have same overloads as `Object.Instantiate` to make easier to migrate existing c
 
 [ManagedPool]:<../Coimbra/SharedManagedPools/ManagedPool.cs>
 
+[ManagedPool<T>]:<../Coimbra/ManagedPool`1.cs>
+
+[PoolService]:<../Coimbra.Services.Pooling/IPoolService.cs>
+
 [QueuePool]:<../Coimbra/SharedManagedPools/QueuePool.cs>
+
+[SharedManagedPool]:<../Coimbra/SharedManagedPoolAttribute.cs>
 
 [StackPool]:<../Coimbra/SharedManagedPools/StackPool.cs>
 
@@ -66,4 +66,3 @@ Have same overloads as `Object.Instantiate` to make easier to migrate existing c
 [Addressables]:<https://docs.unity3d.com/Manual/com.unity.addressables.html>
 
 [GameObject]:<https://docs.unity3d.com/ScriptReference/GameObject.html>
-[]:<https://docs.unity3d.com/ScriptReference/.html>

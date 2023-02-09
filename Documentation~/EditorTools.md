@@ -12,6 +12,15 @@ If none is set, then the default editor behaviour takes place.
 > The startup scene will only be used if attempting to enter play mode when a scene included in the build settings is currently open.
 > This will allow you to still play from test scenes where you always can iterate faster.
 
+## Windows:
+
+The windows available in `Window/Coimbra Framework/` are:
+
+- `Scene Selector`: Personal window to have quick access to specific scenes of the project.
+- `Scriptable Settings`: Debug window for [ScriptableSettings](ScriptableSettings.md).
+- `Shared Managed Pools`: Debug window for [SharedManagedPool](Pooling.md#sharedmanagedpool).
+- `Service Locator`: Debug window for [ServiceLocator](ServiceLocator.md).
+
 ## Menu Items:
 
 The menu items available in `Tools/Coimbra Framework/` are:
