@@ -12,10 +12,10 @@ namespace Coimbra.Services
     /// </summary>
     /// <remarks>
     /// There are a few different attributes that can be used in custom services.
-    /// <list type="bullets">
+    /// <list type="bullet">
     /// <item>
     /// Definition interfaces attributes:
-    /// <list type="bullets">
+    /// <list type="bullet">
     /// <item><see cref="AbstractServiceAttribute"/></item>
     /// <item><see cref="DynamicServiceAttribute"/></item>
     /// <item><see cref="RequiredServiceAttribute"/></item>
@@ -24,7 +24,7 @@ namespace Coimbra.Services
     /// </item>
     /// <item>
     /// Implementation class attributes:
-    /// <list type="bullets">
+    /// <list type="bullet">
     /// <item><see cref="DisableDefaultFactoryAttribute"/></item>
     /// <item><see cref="PreloadServiceAttribute"/></item>
     /// <item><see cref="HideInServiceLocatorWindowAttribute"/></item>

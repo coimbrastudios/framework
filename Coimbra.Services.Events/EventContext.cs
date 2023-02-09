@@ -7,6 +7,12 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// An event being invoked.
     /// </summary>
+    /// <remarks>
+    /// You will only ever care about this struct when listening to any <see cref="IEvent"/>, which works as a wrapper for some useful information for the current invocation context, or if implementing a custom <see cref="IEventService"/> for some reason.
+    /// </remarks>
+    /// <seealso cref="IEvent"/>
+    /// <seealso cref="IEventService"/>
+    /// <seealso cref="EventContextHandler{T}"/>
     [Preserve]
     public ref struct EventContext
     {
@@ -29,7 +35,7 @@ namespace Coimbra.Services.Events
         public readonly Type Type;
 
         /// <summary>
-        /// The handle for the current call.
+        /// The handle for the current call. Only meant to be modified by the <see cref="IEventService"/> implementation.
         /// </summary>
         public EventHandle CurrentHandle;
 

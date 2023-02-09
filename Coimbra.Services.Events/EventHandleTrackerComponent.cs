@@ -8,6 +8,10 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// Helper component to keep track of <see cref="EventHandle"/> for an <see cref="Actor"/>.
     /// </summary>
+    /// <seealso cref="IEvent"/>
+    /// <seealso cref="IEventService"/>
+    /// <seealso cref="EventHandle"/>
+    /// <seealso cref="ActorComponentBase"/>
     public sealed class EventHandleTrackerComponent : ActorComponentBase, ISerializationCallbackReceiver
     {
         private readonly HashSet<EventHandle> _trackedHandles = new();

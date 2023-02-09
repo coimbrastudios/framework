@@ -1,12 +1,28 @@
-# Coimbra Framework: Event Service
-
-    Under construction
+# [Coimbra Framework](Index.md): Event Service
 
 Strongly-typed event system that takes full advantage of `Source Generators` and `Roslyn Analyzers`.
 
+The [IEventService] is designed to be a flexible strongly-typed event system, mostly focused in global events (common C# events are still recommended for events at [Actor]-level in most cases).
+
+Designed with performance and debuggability in mind, with each new event having its own APIs generated that wraps the actual call to the equivalent [IEventService] API. This allows anyone to find usages of a single event type and only see the relevant results.
+
+For maximum performance, use structs to implement your events. You can use class if really needed, but reusing the event instance is recommended to avoid generating garbage for each invocation.
+
+You can check its usage details in the [IEvent] and [IEventService] APIs. Check also the `Project Settings/Coimbra Framework/Event Settings` window for additional options and the `Window/Service Locator` window for runtime debug information (if using the [ServiceLocator]).
+
 ## Implementing Events
 
+To implement a new event you only need to:
+
+- (Optional) Define your own [IEvent] interface.
+- Implement either [IEvent] or your own defined interface in a struct (recommended) or sealed class.
+- Ensure that the struct or class is partial.
+
+> Abstract classes can be used, they will be incompatible with the [IEventService] APIs and won't have generated methods. They sole purpose would be to reuse code across different sealed events implementations.
+
 ## Default Events
+
+Some [default services](ServiceLocator.md#default-services) were designed to invoke commonly needed events:
 
 - [IApplicationStateEvent](../Coimbra.Services.ApplicationStateEvents/IApplicationStateEvent.cs)
   - [ApplicationFocusEvent](../Coimbra.Services.ApplicationStateEvents/ApplicationFocusEvent.cs)
@@ -33,4 +49,10 @@ Strongly-typed event system that takes full advantage of `Source Generators` and
   - [PreTimeUpdateEvent](../Coimbra.Services.PlayerLoopEvents/Events/PreTimeUpdateEvent.cs)
   - [PostTimeUpdateEvent](../Coimbra.Services.PlayerLoopEvents/Events/PostTimeUpdateEvent.cs)
 
-## Using Events
+> You might notice those events have a custom [IEvent] definition interface, this is to take full advantage from both [AllowEventServiceUsageForAttribute] and the generic APIs at [IEventService] that are allowed by this attribute.
+
+[Actor]:<Actor.md>
+[ServiceLocator]:<ServiceLocator>
+[AllowEventServiceUsageForAttribute]:<../Coimbra.Services.Events/AllowEventServiceUsageForAttribute.cs>
+[IEvent]:<../Coimbra.Services.Events/IEvent.cs>
+[IEventService]:<../Coimbra.Services.Events/IEventService.cs>

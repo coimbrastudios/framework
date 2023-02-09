@@ -115,7 +115,7 @@ namespace Coimbra.Tests
         [Test]
         public void RemoveListener_Empty()
         {
-            _eventSystem.RemoveListener(EventHandle.Create(_eventSystem, typeof(TestEvent)));
+            _eventSystem.RemoveListener(new EventHandle(_eventSystem, typeof(TestEvent)));
             _eventSystem.Invoke(this, default(TestEvent));
             LogAssert.NoUnexpectedReceived();
         }

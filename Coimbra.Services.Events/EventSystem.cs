@@ -10,6 +10,24 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// Default implementation for <see cref="IEventService"/>.
     /// </summary>
+    /// <remarks>
+    /// This implementation focus into <see cref="Invoke{T}"/> performance, with some key safety mechanisms:
+    /// <list type="bullet">
+    /// <item>All invocations are wrapped by a try/catch block to ensure that any thrown exceptions are logged with enough information to solve the issue.</item>
+    /// <item>Invocations of a given event type within the same event type listeners is no-op (a warning message is logged by default, but can be disabled).</item>
+    /// <item>Listeners are validated before being invoked to ensure that destroyed/null objects doesn't cause runtime errors (you can disable that validation to gain some performance at your own risk).</item>
+    /// </list>
+    /// Check the <see cref="EventSettings"/> for the customization options and the <b>Window/Coimbra Framework/Service Locator</b> window for useful debug information.
+    /// Custom instances offers the same debug information as through the <see cref="ServiceLocator"/> as it is using a custom property drawer for that.
+    /// </remarks>
+    /// <seealso cref="IEvent"/>
+    /// <seealso cref="IEventService"/>
+    /// <seealso cref="EventHandle"/>
+    /// <seealso cref="EventHandleTrackerComponent"/>
+    /// <seealso cref="EventContext"/>
+    /// <seealso cref="EventContextHandler{T}"/>
+    /// <seealso cref="EventRelevancyChangedHandler"/>
+    /// <seealso cref="EventSettings"/>
     [Serializable]
     public sealed class EventSystem : IEventService, ISerializationCallbackReceiver
     {
@@ -26,7 +44,7 @@ namespace Coimbra.Services.Events
         public EventHandle AddListener<T>(in EventContextHandler<T> eventHandler)
             where T : IEvent
         {
-            EventHandle handle = EventHandle.Create(this, typeof(T));
+            EventHandle handle = new(this, typeof(T));
             EventCallbacks<T>.Value.Add(handle, eventHandler);
 
             if (!_events.TryGetValue(typeof(T), out Event e))
@@ -195,9 +213,9 @@ namespace Coimbra.Services.Events
             {
                 EventSettings eventSettings = GetOrCreateEventSettings();
 
-                if (eventSettings.LogRecursiveInvocationError)
+                if (eventSettings.LogRecursiveInvocationWarning)
                 {
-                    Debug.LogError($"{typeof(T)} is already being invoked! Skipping its invocation to avoid a stack overflow.");
+                    Debug.LogWarning($"{typeof(T)} is already being invoked! Skipping its invocation to avoid a stack overflow.");
                 }
 
                 return false;

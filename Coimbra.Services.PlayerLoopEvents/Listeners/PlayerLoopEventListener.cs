@@ -7,6 +7,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Listen to any <see cref="IPlayerLoopEvent"/> invocation.
     /// </summary>
+    /// <seealso cref="IPlayerLoopService"/>
     /// <seealso cref="IPlayerLoopEvent"/>
     /// <seealso cref="FixedUpdateEvent"/>
     /// <seealso cref="UpdateEvent"/>
@@ -27,7 +28,6 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <seealso cref="LastPostLateUpdateEvent"/>
     /// <seealso cref="PreTimeUpdateEvent"/>
     /// <seealso cref="PostTimeUpdateEvent"/>
-    /// <seealso cref="IPlayerLoopService"/>
     [DisallowMultipleComponent]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Player Loop Event Listener")]
     [HelpURL("https://github.com/Cysharp/UniTask#playerloop")]

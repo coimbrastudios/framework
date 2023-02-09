@@ -9,6 +9,24 @@ namespace Coimbra.Services.Events
     /// <summary>
     /// Event service for strongly-typed events that also has encapsulation for some of its methods and offers some basic debugging features.
     /// </summary>
+    /// <remarks>
+    /// This implementation comes with some Roslyn Analyzers to ensure that the APIs are being used as designed, so only non-generic APIs can be used directly.
+    /// Generic APIs are required to be accessed by the respective <see cref="IEvent"/> implementation's generated APIs, unless specified otherwise by some <see cref="AllowEventServiceUsageForAttribute"/> usage.
+    /// <para></para>
+    /// While you can create your own implementation for this <see cref="IEventService"/>, the provided default implementation at <see cref="EventSystem"/> should be both performant and generic enough for most projects.
+    /// The default <see cref="EventSystem"/> also offers a custom drawer with useful debug information for each instance, alongside some safety mechanisms to maker easier to detect runtime issues.
+    /// <para></para>
+    /// You can listen for when an <see cref="IEvent"/> gets its first listener added or its last listener removed through the <see cref="AddRelevancyListener{TEvent}"/> API.
+    /// </remarks>
+    /// <seealso cref="AllowEventServiceUsageForAttribute"/>
+    /// <seealso cref="IEvent"/>
+    /// <seealso cref="EventHandle"/>
+    /// <seealso cref="EventHandleTrackerComponent"/>
+    /// <seealso cref="EventContext"/>
+    /// <seealso cref="EventContextHandler{T}"/>
+    /// <seealso cref="EventRelevancyChangedHandler"/>
+    /// <seealso cref="EventSettings"/>
+    /// <seealso cref="EventSystem"/>
     [RequiredService]
     [RequireImplementors]
     public interface IEventService : IService

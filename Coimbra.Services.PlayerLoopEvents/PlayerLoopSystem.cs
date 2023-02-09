@@ -17,9 +17,28 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <remarks>
     /// The events are invoked using <see cref="IEventService"/> and this implementation makes use of <see cref="UnityEngine.Object.DontDestroyOnLoad"/> to persist between scenes.
     /// </remarks>
-    /// <seealso cref="IPlayerLoopEvent"/>
-    /// <seealso cref="IPlayerLoopService"/>
     /// <seealso cref="PlayerLoopEventListener"/>
+    /// <seealso cref="IPlayerLoopService"/>
+    /// <seealso cref="IPlayerLoopEvent"/>
+    /// <seealso cref="FixedUpdateEvent"/>
+    /// <seealso cref="UpdateEvent"/>
+    /// <seealso cref="LateUpdateEvent"/>
+    /// <seealso cref="FirstInitializationEvent"/>
+    /// <seealso cref="LastInitializationEvent"/>
+    /// <seealso cref="FirstEarlyUpdateEvent"/>
+    /// <seealso cref="LastEarlyUpdateEvent"/>
+    /// <seealso cref="FirstFixedUpdateEvent"/>
+    /// <seealso cref="LastFixedUpdateEvent"/>
+    /// <seealso cref="FirstPreUpdateEvent"/>
+    /// <seealso cref="LastPreUpdateEvent"/>
+    /// <seealso cref="FirstUpdateEvent"/>
+    /// <seealso cref="LastUpdateEvent"/>
+    /// <seealso cref="PreLateUpdateEvent"/>
+    /// <seealso cref="FirstPostLateUpdateEvent"/>
+    /// <seealso cref="PostLateUpdateEvent"/>
+    /// <seealso cref="LastPostLateUpdateEvent"/>
+    /// <seealso cref="PreTimeUpdateEvent"/>
+    /// <seealso cref="PostTimeUpdateEvent"/>
     [AddComponentMenu("")]
     [PreloadService]
     [RequireComponent(typeof(FixedUpdateListener))]

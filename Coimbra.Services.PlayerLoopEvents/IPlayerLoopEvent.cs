@@ -6,6 +6,9 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <summary>
     /// Base event interface for any event that occurs per frame.
     /// </summary>
+    /// <seealso cref="IPlayerLoopService"/>
+    /// <seealso cref="PlayerLoopSystem"/>
+    /// <seealso cref="PlayerLoopEventListener"/>
     /// <seealso cref="FixedUpdateEvent"/>
     /// <seealso cref="UpdateEvent"/>
     /// <seealso cref="LateUpdateEvent"/>
@@ -25,9 +28,6 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <seealso cref="LastPostLateUpdateEvent"/>
     /// <seealso cref="PreTimeUpdateEvent"/>
     /// <seealso cref="PostTimeUpdateEvent"/>
-    /// <seealso cref="IPlayerLoopService"/>
-    /// <seealso cref="PlayerLoopSystem"/>
-    /// <seealso cref="PlayerLoopEventListener"/>
     [RequireImplementors]
     [AllowEventServiceUsageFor(typeof(IPlayerLoopService))]
     public interface IPlayerLoopEvent : IEvent
