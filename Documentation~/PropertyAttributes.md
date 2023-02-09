@@ -1,5 +1,7 @@
 # [Coimbra Framework](Index.md): Property Attributes
 
+    UNDER CONSTRUCTION
+
 A few custom [PropertyAttribute] to change the display of your properties without requiring custom editors.
 
 ## Decorator Attributes

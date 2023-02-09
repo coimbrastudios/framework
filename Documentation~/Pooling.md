@@ -1,5 +1,7 @@
 # [Coimbra Framework](Index.md): Pooling
 
+    UNDER CONSTRUCTION
+
 Offers a thread-safe solution for pooling managed object and an [Addressables]-compatible solution for pooling [GameObject].
 
 ## [GameObjectPool]
