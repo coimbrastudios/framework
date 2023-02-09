@@ -3,7 +3,7 @@
 namespace Coimbra.Editor.Tests
 {
     [TestFixture]
-    [TestOf(typeof(CoimbraGUIUtility))]
+    [TestOf(typeof(EngineUtility))]
     internal sealed class CoimbraEditorGUIUtilityTests
     {
         [TestCase("m_1_CSEditorGUIUtility2020_3LTS", "1 CS Editor GUI Utility 2020.3 LTS")]
@@ -18,7 +18,7 @@ namespace Coimbra.Editor.Tests
         [TestCase("_gui_ui_Canvas", "Gui Ui Canvas")]
         public void ToDisplayName_TestCases(string input, string expected)
         {
-            Assert.AreEqual(expected, CoimbraGUIUtility.GetDisplayName(input));
+            Assert.AreEqual(expected, EngineUtility.GetDisplayName(input));
         }
     }
 }

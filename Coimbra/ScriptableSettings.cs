@@ -42,7 +42,7 @@ namespace Coimbra
         /// </summary>
         public static readonly FindHandler FindSingle = delegate(Type type)
         {
-            Object[] rawValues = ObjectUtility.FindAll(type);
+            Object[] rawValues = ObjectUtility.FindAllAnywhere(type);
 
             if (rawValues.Length == 0)
             {
@@ -388,7 +388,7 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnUnloaded"/> instead.
+        /// Non-virtual by design, use <see cref="OnUnload"/> instead.
         /// </summary>
         protected void OnDisable()
         {
@@ -416,7 +416,7 @@ namespace Coimbra
             {
                 if (forceSet)
                 {
-                    if (!CoimbraUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
+                    if (!ApplicationUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
                     {
                         Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
                         Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);

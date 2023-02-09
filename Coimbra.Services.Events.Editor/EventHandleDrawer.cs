@@ -30,7 +30,7 @@ namespace Coimbra.Services.Events.Editor
             {
                 eventHandle.Service.GetListeners(in eventHandle, list);
 
-                return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + CoimbraGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
+                return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + EngineUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
             }
         }
 
@@ -75,7 +75,7 @@ namespace Coimbra.Services.Events.Editor
             {
                 using (new ResetIndentLevelScope())
                 {
-                    EditorGUI.LabelField(CoimbraGUIUtility.AdjustPosition(position, InspectorArea.Field), eventHandle.ToString());
+                    EditorGUI.LabelField(EngineUtility.AdjustPosition(position, InspectorArea.Field), eventHandle.ToString());
                 }
 
                 property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
@@ -94,8 +94,8 @@ namespace Coimbra.Services.Events.Editor
                 eventHandle.Service.GetListeners(in eventHandle, list);
 
                 position.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
-                position.height = CoimbraGUIUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
-                CoimbraGUIUtility.DrawDelegateListeners(position, temp, list, property.serializedObject.isEditingMultipleObjects);
+                position.height = EngineUtility.GetDelegateListenersHeight(list, property.serializedObject.isEditingMultipleObjects);
+                EngineUtility.DrawDelegateListeners(position, temp, list, property.serializedObject.isEditingMultipleObjects);
             }
 
             foreach (UnityEditor.Editor editor in ActiveEditorTracker.sharedTracker.activeEditors)

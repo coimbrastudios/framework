@@ -101,7 +101,7 @@ namespace Coimbra.Services.Events.Editor
 
         private bool TryMatchSearch(Event e)
         {
-            if (CoimbraGUIUtility.TryMatchSearch(_filter, e.Label))
+            if (EngineUtility.TryMatchSearch(_filter, e.Label))
             {
                 return true;
             }
@@ -110,7 +110,7 @@ namespace Coimbra.Services.Events.Editor
             {
                 for (int i = 0; i < e.ListenerCount; i++)
                 {
-                    if (CoimbraGUIUtility.TryMatchSearch(_filter, e[i].ToString()))
+                    if (EngineUtility.TryMatchSearch(_filter, e[i].ToString()))
                     {
                         return true;
                     }
@@ -122,7 +122,7 @@ namespace Coimbra.Services.Events.Editor
 
                 foreach (DelegateListener listener in list)
                 {
-                    if (CoimbraGUIUtility.TryMatchSearch(_filter, listener.ToString()))
+                    if (EngineUtility.TryMatchSearch(_filter, listener.ToString()))
                     {
                         return true;
                     }

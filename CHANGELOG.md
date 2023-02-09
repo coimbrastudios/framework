@@ -8,6 +8,8 @@
 - Added `IServiceFactory.ShouldSetService` property that defaults to true to keep previous behaviour.
 - Added more in-depth information for many existing APIs to make their usage clearer.
 - Added `Difficulty Settings` sample.
+- Added `ApplicationUtility` with things previously in `CoimbraUtility` but were actually useful outside the framework scope.
+- Changed `CoimbraGUIUtility` to `EngineUtility` to not cause confusion with internal framework classes.
 - Changed `PlayerLoopTimingEvents` to `PlayerLoopInjectedTimings`.
 - Changed documentation structure to improve its readability.
 - Changed `DebugOnly` to `DebugOnlyComponent` as it is an `ActorComponent` to make API more consistent.
@@ -19,6 +21,7 @@
 - Removed `ServiceLocator.GetFactory` overloads as it shouldn't be possible to retrieve the factories after set.
 - Removed `IntString` class as `int.ToString()` is already optimized.
 - Removed `TypeString` class, moving its only method to `TypeUtility.GetDisplayString`.
+- Removed `Actor.OnInitializePrefab` API as it wasn't editor-safe, making it way to hard to use correctly without breaking your prefabs.
 
 ## [10.10.3] - 2023-02-01
 

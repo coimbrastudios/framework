@@ -28,7 +28,7 @@ namespace Coimbra.Services.Events.Editor
             {
                 property.GetValue<Event>()!.GetRelevancyListeners(list);
 
-                height += EditorGUIUtility.standardVerticalSpacing + CoimbraGUIUtility.GetDelegateListenersHeight(list, property.hasMultipleDifferentValues);
+                height += EditorGUIUtility.standardVerticalSpacing + EngineUtility.GetDelegateListenersHeight(list, property.hasMultipleDifferentValues);
             }
 
             return height;
@@ -38,7 +38,7 @@ namespace Coimbra.Services.Events.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             ReorderableList listenersList = property.FindPropertyRelative(ListenersProperty).ToReorderableList(HandleInitializeReorderableList);
-            CoimbraGUIUtility.DrawListHeader(position, label, property, listenersList);
+            EngineUtility.DrawListHeader(position, label, property, listenersList);
 
             if (!property.isExpanded)
             {
@@ -59,8 +59,8 @@ namespace Coimbra.Services.Events.Editor
                     property.GetValue<Event>()!.GetRelevancyListeners(list);
 
                     position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
-                    position.height = CoimbraGUIUtility.GetDelegateListenersHeight(list, isMultiEditing);
-                    CoimbraGUIUtility.DrawDelegateListeners(position, temp, list, isMultiEditing);
+                    position.height = EngineUtility.GetDelegateListenersHeight(list, isMultiEditing);
+                    EngineUtility.DrawDelegateListeners(position, temp, list, isMultiEditing);
                 }
             }
         }

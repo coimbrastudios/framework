@@ -69,7 +69,7 @@ namespace Coimbra.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             ReorderableList list = property.FindPropertyRelative(ListProperty).ToReorderableList(InitializeReorderableList);
-            CoimbraGUIUtility.DrawListHeader(position, label, property, list);
+            EngineUtility.DrawListHeader(position, label, property, list);
 
             if (!property.isExpanded)
             {
@@ -114,7 +114,7 @@ namespace Coimbra.Editor
 
             SerializedProperty newProperty = property.FindPropertyRelative(NewProperty);
             float foldoutWidth = EditorStyles.foldout.CalcSize(GUIContent.none).x;
-            CoimbraGUIUtility.AdjustPosition(ref position, InspectorArea.Label);
+            EngineUtility.AdjustPosition(ref position, InspectorArea.Label);
 
             if (list.draggable)
             {
@@ -265,8 +265,8 @@ namespace Coimbra.Editor
                 SerializedProperty valueProperty = elementProperty.FindPropertyRelative(ValueProperty);
                 Rect keyPosition = position.WithHeight(EditorGUI.GetPropertyHeight(keyProperty, GUIContent.none));
                 Rect valuePosition = position.WithHeight(EditorGUI.GetPropertyHeight(valueProperty, GUIContent.none));
-                CoimbraGUIUtility.AdjustPosition(ref keyPosition, InspectorArea.Label);
-                CoimbraGUIUtility.AdjustPosition(ref valuePosition, InspectorArea.Field);
+                EngineUtility.AdjustPosition(ref keyPosition, InspectorArea.Label);
+                EngineUtility.AdjustPosition(ref valuePosition, InspectorArea.Field);
                 keyPosition.xMin += foldoutWidth;
                 valuePosition.xMin += foldoutWidth;
 

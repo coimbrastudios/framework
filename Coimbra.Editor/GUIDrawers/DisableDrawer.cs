@@ -24,7 +24,7 @@ namespace Coimbra.Editor
             {
                 case DisableOnEditModeAttribute _:
                 {
-                    if (CoimbraUtility.IsEditMode)
+                    if (ApplicationUtility.IsEditMode)
                     {
                         GUI.enabled = false;
                     }
@@ -34,7 +34,7 @@ namespace Coimbra.Editor
 
                 case DisableOnPlayModeAttribute _:
                 {
-                    if (CoimbraUtility.IsPlayMode)
+                    if (ApplicationUtility.IsPlayMode)
                     {
                         GUI.enabled = false;
                     }

@@ -1,8 +1,6 @@
-# Coimbra Framework: Property Attributes
+# [Coimbra Framework](Index.md): Property Attributes
 
-    Under construction
-
-A few custom `PropertyAttribute` to change the display of your properties without requiring custom editors.
+A few custom [PropertyAttribute] to change the display of your properties without requiring custom editors.
 
 ## Decorator Attributes
 
@@ -24,7 +22,7 @@ A few custom `PropertyAttribute` to change the display of your properties withou
 - `SelectableLabel`: turns a string field into a selectable label.
 - `SortingLayerID`: turns an int field into a sorting layer popup field.
 - `TagSelector`: turns a string field into a tag popup field.
-- `TypeDropdownAttribute`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `FilterTypesAttributeBase`.
+- `TypeDropdown`: use in combination with `SerializeReferenceAttribute` to expose a type selector. Can also be combined with `FilterTypesAttributeBase`.
 - `Validate`: calls a method `void()` or `void(T previous)` when the property is changed. It is also the base for all others attributes.
 
 ## [PropertyPathInfo]
@@ -32,3 +30,8 @@ A few custom `PropertyAttribute` to change the display of your properties withou
 Reflection helper class for any `SerializeField` based on its [propertyPath](https://docs.unity3d.com/ScriptReference/SerializedProperty-propertyPath.html).
 
 [PropertyPathInfo]:<../Coimbra/PropertyPathInfo.cs>
+
+[PropertyAttribute]:<https://docs.unity3d.com/ScriptReference/PropertyAttribute.html>
+
+[PropertyDrawer]:<https://docs.unity3d.com/ScriptReference/PropertyDrawer.html>
+

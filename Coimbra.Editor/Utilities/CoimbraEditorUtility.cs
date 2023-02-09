@@ -1,5 +1,4 @@
-﻿using CoimbraInternal.Editor;
-using System;
+﻿using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -109,14 +108,6 @@ namespace Coimbra.Editor
             AssetDatabase.SaveAssets();
         }
 
-        /// <summary>
-        /// Clears the console windows.
-        /// </summary>
-        public static void ClearConsoleWindow()
-        {
-            UnityEditorInternals.ClearLogEntries();
-        }
-
         [MenuItem(ResetPlayModeStartSceneMenuItem, true)]
         private static bool CanResetPlayModeStartScene()
         {
@@ -125,12 +116,12 @@ namespace Coimbra.Editor
 
         private static void HandleBeforeAssemblyReload()
         {
-            CoimbraUtility.IsReloadingScripts = true;
+            ApplicationUtility.IsReloadingScripts = true;
         }
 
         private static void HandleDelayCall()
         {
-            CoimbraUtility.IsReloadingScripts = false;
+            ApplicationUtility.IsReloadingScripts = false;
         }
     }
 }

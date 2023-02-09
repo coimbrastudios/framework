@@ -45,7 +45,7 @@ namespace Coimbra
             {
                 actor.Destroy();
             }
-            else if (CoimbraUtility.IsPlayMode)
+            else if (ApplicationUtility.IsPlayMode)
             {
 #pragma warning disable COIMBRA0008
                 Object.Destroy(gameObject);

@@ -17,8 +17,22 @@ using Object = UnityEngine.Object;
 namespace Coimbra
 {
     /// <summary>
-    /// Used to represent a <see cref="UnityEngine.GameObject"/>. It is expected to inherit from this class to create the main script of each object.
+    /// Used to represent a <see cref="GameObject"/>. You can inherit from this class to create the main script of each object.
     /// </summary>
+    /// <remarks>
+    /// Different from most <see cref="MonoBehaviour"/>, the <see cref="Actor"/> contains the <see cref="DisallowMultipleComponent"/> and is expected to have its lifecycle completely linked to the <see cref="GameObject"/> it is attached to. Any <see cref="GameObject"/> without an explicit <see cref="Actor"/> type attached is implicitly an <see cref="Actor"/> by default.
+    /// <para></para>
+    /// It encapsulates some ambiguous Unity callbacks to ensure that they are actually fired in the expected timings, this includes the <see cref="OnInitialize"/> method that will get fired even if the objects never gets activated and its <see cref="OnDestroyed"/> method that will get fired even if the object was never set active during its lifecycle.
+    /// <para></para>
+    /// To achieve that, custom APIs are provided to ensure proper creation and destruction for any given <see cref="Actor"/>. Take a look into <see cref="Initialize"/>, that should be called after each instantiation (check documentation for alternatives), and <see cref="Destroy"/>, that should be used instead of the static <see cref="Object.Destroy(Object)"/> method.
+    /// <para></para>
+    /// It offers additional <see cref="GameObject"/>-level events (<see cref="OnStarting"/>, <see cref="OnActiveStateChanged"/>, and <see cref="OnDestroying"/>), and built-in pooling support with the <see cref="Spawn"/> and <see cref="Despawn"/> APIs (<see cref="GameObjectPool"/>).
+    /// <para></para>
+    /// It also offers some common cancellation tokens (<see cref="DespawnCancellationToken"/> and <see cref="DestroyCancellationToken"/>), cached properties for <see cref="Transform"/>, <see cref="GameObject"/>, and <see cref="GameObjectID"/>, useful <see cref="StateFlags"/>, and implements the <see cref="IDisposable"/> interface.
+    /// </remarks>
+    /// <seealso cref="ActorComponentBase"/>
+    /// <seealso cref="GameObjectID"/>
+    /// <seealso cref="GameObjectPool"/>
     [PublicAPI]
     [Preserve]
     [DisallowMultipleComponent]
@@ -445,8 +459,6 @@ namespace Coimbra
 
             if (IsPrefab)
             {
-                OnInitializePrefab();
-
                 return;
             }
 
@@ -540,11 +552,6 @@ namespace Coimbra
         /// Use this for one-time initializations instead of <see cref="Awake"/> callback. This method is called even if the object starts inactive.
         /// </summary>
         protected virtual void OnInitialize() { }
-
-        /// <summary>
-        /// Use this for one-time initializations on prefabs.
-        /// </summary>
-        protected virtual void OnInitializePrefab() { }
 
         /// <summary>
         /// Called each time this object is spawned. By default, it activates the object.
@@ -660,7 +667,7 @@ namespace Coimbra
         [ContextMenu(nameof(Initialize), true)]
         private bool CanInitialize()
         {
-            return CoimbraUtility.IsPlayMode && !CoimbraUtility.IsFirstFrame;
+            return ApplicationUtility.IsPlayMode && !ApplicationUtility.IsFirstFrame;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -723,7 +730,7 @@ namespace Coimbra
 
             if (callObjectDestroy)
             {
-                if (CoimbraUtility.IsPlayMode)
+                if (ApplicationUtility.IsPlayMode)
                 {
 #pragma warning disable COIMBRA0008
                     Object.Destroy(gameObject);

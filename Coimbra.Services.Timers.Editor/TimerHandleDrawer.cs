@@ -28,7 +28,7 @@ namespace Coimbra.Services.Timers.Editor
 
             timerHandle.Service.GetTimerData(in timerHandle, out Action callback, out _, out _, out _, out _);
 
-            return (EditorGUIUtility.singleLineHeight * 4) + (EditorGUIUtility.standardVerticalSpacing * 4) + CoimbraGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
+            return (EditorGUIUtility.singleLineHeight * 4) + (EditorGUIUtility.standardVerticalSpacing * 4) + EngineUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
         }
 
         /// <inheritdoc/>
@@ -66,7 +66,7 @@ namespace Coimbra.Services.Timers.Editor
 
             using (new ResetIndentLevelScope())
             {
-                EditorGUI.LabelField(CoimbraGUIUtility.AdjustPosition(position, InspectorArea.Field), timerHandle.ToString());
+                EditorGUI.LabelField(EngineUtility.AdjustPosition(position, InspectorArea.Field), timerHandle.ToString());
             }
 
             property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, propertyScope.content, true);
@@ -134,8 +134,8 @@ namespace Coimbra.Services.Timers.Editor
                 {
                     temp.text = "Callback";
                     callbackPosition.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
-                    callbackPosition.height = CoimbraGUIUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
-                    CoimbraGUIUtility.DrawDelegateListeners(callbackPosition, temp, callback, property.serializedObject.isEditingMultipleObjects);
+                    callbackPosition.height = EngineUtility.GetDelegateListenersHeight(callback, property.serializedObject.isEditingMultipleObjects);
+                    EngineUtility.DrawDelegateListeners(callbackPosition, temp, callback, property.serializedObject.isEditingMultipleObjects);
                 }
             }
 

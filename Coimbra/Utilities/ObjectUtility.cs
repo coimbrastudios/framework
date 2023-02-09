@@ -54,7 +54,7 @@ namespace Coimbra
                 return false;
             }
 
-            if (CoimbraUtility.IsPlayMode)
+            if (ApplicationUtility.IsPlayMode)
             {
 #pragma warning disable COIMBRA0008
                 Object.Destroy(o);
@@ -69,10 +69,10 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Finds all objects of given type. in the project. If inside editor it will use AssetDatabase class, otherwise it will use <see cref="Resources.FindObjectsOfTypeAll"/>.
+        /// Finds all objects of given type in the project. If inside editor it will use AssetDatabase class, otherwise it will use <see cref="Resources.FindObjectsOfTypeAll"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Object[] FindAll(Type type)
+        public static Object[] FindAllAnywhere(Type type)
         {
 #if UNITY_EDITOR
             if (ScriptableSettings.GetType(type).IsEditorOnly())

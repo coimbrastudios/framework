@@ -25,7 +25,7 @@ namespace Coimbra.Editor
         {
             Rect valuePosition = position;
             position.height = EditorGUIUtility.singleLineHeight;
-            CoimbraGUIUtility.AdjustPosition(ref position, InspectorArea.Field);
+            EngineUtility.AdjustPosition(ref position, InspectorArea.Field);
 
             using (GUIContentPool.Pop(out GUIContent typeLabel))
             {

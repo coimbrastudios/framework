@@ -1,4 +1,5 @@
 ﻿#if COIMBRA_ROSLYN_SOURCE
+using CoimbraInternal.Editor;
 using System;
 using System.IO;
 using UnityEditor;
@@ -25,7 +26,7 @@ namespace Coimbra.Editor
 
         private static void UpdateRoslynDLLs(string type)
         {
-            CoimbraEditorUtility.ClearConsoleWindow();
+            UnityEditorInternals.ClearLogEntries();
 
             bool isDirty = false;
             string[] directories = Directory.GetDirectories(PackageDirectory, "Coimbra*", SearchOption.TopDirectoryOnly);

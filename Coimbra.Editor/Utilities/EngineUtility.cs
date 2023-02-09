@@ -12,9 +12,9 @@ using Object = UnityEngine.Object;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// General editor GUI utilities.
+    /// General engine utilities.
     /// </summary>
-    public static class CoimbraGUIUtility
+    public static class EngineUtility
     {
         /// <summary>
         /// Gets the default count field size for any list or array.

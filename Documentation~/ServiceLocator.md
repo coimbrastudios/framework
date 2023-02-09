@@ -9,9 +9,12 @@ Why avoid singletons?
 - Hard to integrate with third-party code, often requiring even more coupling to achieve that.
 - Hides the dependency chain of your application as the instances are globally accessible from anywhere.
 
-With [ServiceLocator] the creation is controlled by the [IServiceFactory] (with some default ones offered) and the implementation details is hidden behind the public interface defined as an [IService]. As it doesn't relies in specific inheritance chain it also makes easier to integrate with third-party code, which can be consumed privately in a given service implementation.
+With [ServiceLocator] the creation is controlled by the [IServiceFactory] (with some default ones offered) and the implementation details is hidden behind the public interface defined as an [IService].
+As it doesn't relies in specific inheritance chain it also makes easier to integrate with third-party code, which can be consumed privately in a given service implementation.
 
-However, I haven't solved the dependency chain issue as `Unity` itself doesn't support an easy way to explicit forward dependencies without hurting encapsulation. So unless you are going to avoid [GameObject], [MonoBehaviour], and [ScriptableObject] in your project you are stuck with that issue anyway. If you are committed to avoid those types, then I recommend you to take a look into some `Dependency Injection` framework instead or consider moving to `Entity Component System` framework.
+However, I haven't solved the dependency chain issue as `Unity` itself doesn't support an easy way to explicit forward dependencies without hurting encapsulation.
+So unless you are going to avoid [GameObject], [MonoBehaviour], and [ScriptableObject] in your project you are stuck with that issue anyway.
+If you are committed to avoid those types, then I recommend you to take a look into some `Dependency Injection` framework instead or consider moving to `Entity Component System` framework.
 
 In the end, there is no silver bullet. It is a design choice that should be made according to the project needs, which is why it is a separated module of the framework.
 
@@ -37,19 +40,33 @@ This package comes with some default services implementations. They are all prod
 - [ApplicationStateService](../Coimbra.Services.ApplicationStateEvents/IApplicationStateService.cs): implemented as [Actor] as only [MonoBehaviour] have access to `OnApplicationXXX` callbacks.
 - [PlayerLoopService](../Coimbra.Services.PlayerLoopEvents/IPlayerLoopService.cs): implemented as [Actor] as only [MonoBehaviour] have access to player loop callbacks.
 
-> You might notice that most of those services are [Actor], which seems to go against the recommended approach. However you can see that each one has a clear reasoning behind this decision.
+> You might notice that most of those services are [Actor], which seems to go against the recommended approach.
+> However you can see that each one has a clear reasoning behind this decision.
 
 [Actor]:<Actor.md>
+
 [ScriptableSettings]:<ScriptableSettings.md>
+
 [DisableDefaultFactoryAttribute]:<../Coimbra.Services/DisableDefaultFactoryAttribute.cs>
+
 [IService]:<../Coimbra.Services/IService.cs>
+
 [IServiceFactory]:<../Coimbra.Services/IServiceFactory.cs>
+
 [ServiceLocator]:<../Coimbra.Services/ServiceLocator.cs>
+
 [Coroutine]:<https://docs.unity3d.com/ScriptReference/Coroutine.html>
+
 [GameObject]:<https://docs.unity3d.com/ScriptReference/GameObject.html>
+
 [Invoke]:<https://docs.unity3d.com/ScriptReference/MonoBehaviour.Invoke.html>
+
 [InvokeRepeating]:<https://docs.unity3d.com/ScriptReference/MonoBehaviour.InvokeRepeating.html>
+
 [MonoBehaviour]:<https://docs.unity3d.com/ScriptReference/MonoBehaviour.html>
+
 [ScriptableObject]:<https://docs.unity3d.com/ScriptReference/ScriptableObject.html>
+
 [Scene]:<https://docs.unity3d.com/ScriptReference/SceneManagement.Scene.html>
+
 [Transform]:<https://docs.unity3d.com/ScriptReference/Transform.html>
