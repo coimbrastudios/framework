@@ -1,6 +1,6 @@
 # Changelog
 
-## [11.0.0] - UNRELEASED
+## [11.0.0] - 2023-02-10
 
 - Added `Scene Selector` window.
 - Added `EventSettings` in the `Project Settings` window.
