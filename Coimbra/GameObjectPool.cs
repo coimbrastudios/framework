@@ -21,7 +21,9 @@ namespace Coimbra
     /// This pool implementation is deeply integrated into <see cref="Actor"/> class but offers complete support to work with any <see cref="GameObject"/>.
     /// <para></para>
     /// It provides hooks for <see cref="OnInstanceCreated"/> and <see cref="OnPoolStateChanged"/>.
-    /// It is also completely customizable and with auto-resizing functionalities (check <see cref="DesiredAvailableInstancesRange"/>, <see cref="ExpandStep"/> and <see cref="ShrinkStep"/>).
+    /// It contains some customization options and auto-resizing functionalities (check <see cref="DesiredAvailableInstancesRange"/>, <see cref="ExpandStep"/> and <see cref="ShrinkStep"/>).
+    /// <para></para>
+    /// Only loaded pools <see cref="State"/> can have one of its <see cref="Spawn(UnityEngine.Transform,bool)"/> methods called, otherwise a warning is logged.
     /// </remarks>
     /// <seealso cref="ManagedPool{T}"/>
     [PublicAPI]
@@ -356,6 +358,11 @@ namespace Coimbra
                 return null;
             }
 
+            if (!_prefabReference.IsDone)
+            {
+                return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
+            }
+
             Actor instance;
 
             do
@@ -398,6 +405,11 @@ namespace Coimbra
                 Debug.LogWarning($"{GameObject} is useless while unloaded!", GameObject);
 
                 return null;
+            }
+
+            if (!_prefabReference.IsDone)
+            {
+                return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
             }
 
             Actor instance;

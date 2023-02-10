@@ -284,13 +284,13 @@ namespace Coimbra.Services.Events
 
                 EventContextHandler<T> listener = EventCallbacks<T>.Value[eventContext.CurrentHandle];
 
-                if (listener.Target == null)
+                if (listener.Method.IsStatic || listener.Target.IsValid())
                 {
-                    e.RemoveListener(eventContext.CurrentHandle);
+                    listener.Invoke(ref eventContext, in eventData);
                 }
                 else
                 {
-                    listener.Invoke(ref eventContext, in eventData);
+                    e.RemoveListener(eventContext.CurrentHandle);
                 }
             }
         }
