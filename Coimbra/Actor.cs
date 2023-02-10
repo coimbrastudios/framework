@@ -418,7 +418,7 @@ namespace Coimbra
                 return DestroyInstance(true) ? ObjectDisposeResult.Destroyed : ObjectDisposeResult.None;
             }
 
-            return ReturnInstance(true) ? ObjectDisposeResult.Pooled : ObjectDisposeResult.None;
+            return ReturnInstance(true);
         }
 
         /// <summary>
@@ -767,30 +767,28 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ReturnInstance(bool callPoolReturnOrDestroyInstance)
+        private ObjectDisposeResult ReturnInstance(bool callPoolReturnOrDestroyInstance)
         {
             if (!IsSpawned)
             {
-                return false;
+                return ObjectDisposeResult.None;
             }
 
             States |= StateFlags.IsSpawned;
             CancellationTokenSourceUtility.Collect(ref _disposeCancellationTokenSource);
             OnDispose();
 
-            if (callPoolReturnOrDestroyInstance)
+            if (!callPoolReturnOrDestroyInstance)
             {
-                if (IsPooled && Pool != null && Pool.CurrentState == GameObjectPool.State.Loaded)
-                {
-                    Pool.ReturnInstance(this);
-                }
-                else
-                {
-                    DestroyInstance(true);
-                }
+                return ObjectDisposeResult.None;
             }
 
-            return true;
+            if (IsPooled && Pool != null && Pool.ReturnInstance(this))
+            {
+                return ObjectDisposeResult.Pooled;
+            }
+
+            return DestroyInstance(true) ? ObjectDisposeResult.Destroyed : ObjectDisposeResult.None;
         }
 
         /// <inheritdoc/>

@@ -13,11 +13,11 @@ You can check its usage details in the [ScriptableSettings] APIs and in `Difficu
 
 To implement a new settings you only need to:
 
-- Inherit from [ScriptableSettings].
-- Add you data fields (usually private fields with public getters).
-- Add either [CreateAssetMenuAttribute], [PreferencesAttribute], or [ProjectSettingsAttribute].
-- Configure it in the editor.
-- (Optional) If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
+1. Inherit from [ScriptableSettings].
+2. Add you data fields (usually private fields with public getters).
+3. Add either [CreateAssetMenuAttribute], [PreferencesAttribute], or [ProjectSettingsAttribute].
+4. Configure it in the editor.
+5. (Optional) If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
 
 [PreferencesAttribute]:<../Coimbra/PreferencesAttribute.cs>
 

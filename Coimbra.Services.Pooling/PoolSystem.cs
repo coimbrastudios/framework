@@ -92,13 +92,22 @@ namespace Coimbra.Services.Pooling
                 return false;
             }
 
-            if (pool.CurrentState == GameObjectPool.State.Loaded)
+            switch (pool.CurrentState)
             {
-                _poolFromPrefab.Remove(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()));
-            }
-            else
-            {
-                _loadingPools.Remove(pool);
+                case GameObjectPool.State.Loaded:
+                case GameObjectPool.State.LoadingInstances:
+                {
+                    _poolFromPrefab.Remove(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()));
+
+                    break;
+                }
+
+                default:
+                {
+                    _loadingPools.Remove(pool);
+
+                    break;
+                }
             }
 
             _prefabsSet.Remove(pool.PrefabReference.RuntimeKey);
@@ -251,10 +260,16 @@ namespace Coimbra.Services.Pooling
                     break;
                 }
 
+                case GameObjectPool.State.LoadingInstances:
+                {
+                    _poolFromPrefab.Add(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()), pool);
+
+                    break;
+                }
+
                 case GameObjectPool.State.Loaded:
                 {
                     _loadingPools.Remove(pool);
-                    _poolFromPrefab.Add(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()), pool);
 
                     break;
                 }

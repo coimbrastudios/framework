@@ -15,9 +15,10 @@
 - Changed documentation structure to improve its readability.
 - Changed `DebugOnly` to `DebugOnlyComponent` as it is an `ActorComponent` to make API more consistent.
 - Changed `StartupSceneManager` to `EditorStartupSceneSettings` to make API more consistent.
-- Deprecated `StartListener` in favor of new `Actor.OnStarting` event. 
+- Deprecated `StartListener` in favor of new `Actor.OnStarting` event.
 - Fixed runtime issues with `ITimerService`.
 - Fixed static `Actor` data not being reset on play mode state changed.
+- Removed `GameObjectPool.State.Loading` in favor of two new states and a new `GameObjectPool.WaitPrefabOnSpawn` option.
 - Removed `COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS` scripting define symbol in favor of new `EventSettings` options.
 - Removed `UPMAuthenticator` as it never really worked as it was expected.
 - Removed `ServiceLocator.GetFactory` overloads as it shouldn't be possible to retrieve the factories after set.

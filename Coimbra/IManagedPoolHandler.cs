@@ -9,7 +9,7 @@ namespace Coimbra
     public interface IManagedPoolHandler : IDisposable
     {
         /// <summary>
-        /// Called when picking this instance from the pool.
+        /// Called when getting this instance from the pool.
         /// </summary>
         void OnPop();
 

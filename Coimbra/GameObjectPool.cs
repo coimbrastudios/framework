@@ -42,14 +42,19 @@ namespace Coimbra
             Unloaded = 0,
 
             /// <summary>
-            /// Pool is preloading its instances.
+            /// Pool is loading the prefab.
             /// </summary>
-            Loading = 1,
+            LoadingPrefab = 1,
+
+            /// <summary>
+            /// Pool is loading the instances.
+            /// </summary>
+            LoadingInstances = 2,
 
             /// <summary>
             /// Pool is completely loaded and ready to be used.
             /// </summary>
-            Loaded = 2,
+            Loaded = 3,
         }
 
         /// <summary>
@@ -97,6 +102,10 @@ namespace Coimbra
         private bool _canInstantiateOnSpawn = true;
 
         [SerializeField]
+        [Tooltip("If true, spawn call can cause an WaitForCompletion in case prefab is loading.")]
+        private bool _waitPrefabOnSpawn = true;
+
+        [SerializeField]
         [Tooltip("If true, new instances will receive a more descriptive name. (Editor Only)")]
         private bool _changeNameOnInstantiate = true;
 
@@ -114,7 +123,7 @@ namespace Coimbra
         [DisableOnPlayMode]
         [Min(0)]
         [Tooltip("The amount of instances to preload each time we are below the minimum amount of desired available instances. If 0, then it will never expand.")]
-        private int _expandStep;
+        private int _expandStep = 1;
 
         [SerializeField]
         [DisableOnPlayMode]
@@ -210,6 +219,17 @@ namespace Coimbra
                     LoadAsync().Forget();
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether spawn call can cause an <see cref="AsyncOperationHandle.WaitForCompletion"/> in case prefab is loading.
+        /// </summary>
+        public bool WaitPrefabOnSpawn
+        {
+            [DebuggerStepThrough]
+            get => _waitPrefabOnSpawn;
+            [DebuggerStepThrough]
+            set => _waitPrefabOnSpawn = value;
         }
 
         /// <summary>
@@ -309,7 +329,7 @@ namespace Coimbra
             }
 
             GameObject.SetActive(false);
-            ChangeCurrentState(State.Loading);
+            ChangeCurrentState(State.LoadingPrefab);
 
             try
             {
@@ -325,6 +345,7 @@ namespace Coimbra
                 _loadFrame = Time.frameCount;
                 _prefabActor = prefab.AsActor();
                 _availableInstances = new List<Actor>(_desiredAvailableInstancesRange.Max + _shrinkStep);
+                ChangeCurrentState(State.LoadingInstances);
 
                 await PreloadAsync(_desiredAvailableInstancesRange.Max, cancellationToken);
 
@@ -351,16 +372,26 @@ namespace Coimbra
         /// <returns>The spawned instance.</returns>
         public Actor Spawn(Transform parent = null, bool spawnInWorldSpace = false)
         {
-            if (_currentState == State.Unloaded)
+            switch (_currentState)
             {
-                Debug.LogWarning($"{GameObject} is useless while unloaded!", GameObject);
+                case State.Unloaded:
+                {
+                    Debug.LogWarning($"{GameObject} is useless while prefab is unloaded!", GameObject);
 
-                return null;
-            }
+                    return null;
+                }
 
-            if (!_prefabReference.IsDone)
-            {
-                return _canInstantiateOnSpawn ? CreateInstance(parent, spawnInWorldSpace) : null;
+                case State.LoadingPrefab:
+                {
+                    if (!_waitPrefabOnSpawn)
+                    {
+                        goto case State.Unloaded;
+                    }
+
+                    _prefabReference.OperationHandle.WaitForCompletion();
+
+                    break;
+                }
             }
 
             Actor instance;
@@ -400,16 +431,26 @@ namespace Coimbra
         /// <returns>The spawned instance.</returns>
         public Actor Spawn(Vector3 position, Quaternion rotation, Transform parent = null)
         {
-            if (_currentState == State.Unloaded)
+            switch (_currentState)
             {
-                Debug.LogWarning($"{GameObject} is useless while unloaded!", GameObject);
+                case State.Unloaded:
+                {
+                    Debug.LogWarning($"{GameObject} is useless while prefab is unloaded!", GameObject);
 
-                return null;
-            }
+                    return null;
+                }
 
-            if (!_prefabReference.IsDone)
-            {
-                return _canInstantiateOnSpawn ? CreateInstance(position, rotation, parent) : null;
+                case State.LoadingPrefab:
+                {
+                    if (!_waitPrefabOnSpawn)
+                    {
+                        goto case State.Unloaded;
+                    }
+
+                    _prefabReference.OperationHandle.WaitForCompletion();
+
+                    break;
+                }
             }
 
             Actor instance;
@@ -490,8 +531,17 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ReturnInstance(Actor instance)
+        internal bool ReturnInstance(Actor instance)
         {
+            switch (_currentState)
+            {
+                case State.Unloaded:
+                case State.LoadingPrefab:
+                {
+                    return false;
+                }
+            }
+
             if (!_keepParentWhenReturning)
             {
                 instance.Transform.SetParent(_containerTransform, false);
@@ -510,6 +560,8 @@ namespace Coimbra
                     _availableInstances.Pop().Dispose(true);
                 }
             }
+
+            return !instance.IsDestroyed;
         }
 
         /// <inheritdoc/>

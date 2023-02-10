@@ -17,9 +17,9 @@ Check also the `Project Settings/Coimbra Framework/Event Settings` window for ad
 
 To implement a new event you only need to:
 
-- (Optional) Define your own [IEvent] interface.
-- Implement either [IEvent] or your own defined interface in a struct (recommended) or sealed class.
-- Ensure that the struct or class is partial.
+1. (Optional) Define your own [IEvent] interface.
+2. Implement either [IEvent] or your own defined interface in a struct (recommended) or sealed class.
+3. Ensure that the struct or class is partial.
 
 > Abstract classes can be used, they will be incompatible with the [IEventService] APIs and won't have generated methods.
 > They sole purpose would be to reuse code across different sealed events implementations.

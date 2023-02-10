@@ -22,10 +22,10 @@ In the end, there is no silver bullet. It is a design choice that should be made
 
 To implement a new service you need the following steps:
 
-- Define a new interface that extends [IService] with the public APIs for your service. This is what other parts of the application will access through the [ServiceLocator] APIs.
-- Provide an implementation for this interface. You can use a plain C# class for that (recommended) or inherit from [Actor] if it is a service that should have its lifecycle tied to the [Scene].
-- (Optional) apply [DisableDefaultFactoryAttribute] to the implementation class and provide your custom [IServiceFactory] implementation for your [IService] type through the [ServiceLocator] API.
-- (Optional) decorate the definition interface and the implementation class with the other attributes available. See [IService] documentation to check which ones are available.
+1. Define a new interface that extends [IService] with the public APIs for your service. This is what other parts of the application will access through the [ServiceLocator] APIs.
+2. Provide an implementation for this interface. You can use a plain C# class for that (recommended) or inherit from [Actor] if it is a service that should have its lifecycle tied to the [Scene].
+3. (Optional) apply [DisableDefaultFactoryAttribute] to the implementation class and provide your custom [IServiceFactory] implementation for your [IService] type through the [ServiceLocator] API.
+4. (Optional) decorate the definition interface and the implementation class with the other attributes available. See [IService] documentation to check which ones are available.
 
 > Do not inherit from [Actor] just to expose things in the inspector. Instead, use [ScriptableSettings] with your services to reference assets or expose configurations in the inspector.
 

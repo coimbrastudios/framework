@@ -12,10 +12,10 @@ The rules will be applied in the same order as their are defined in the list, so
 
 To implement a new rule you need the following steps:
 
-- Create a new rule by inheriting from [AssemblyDefinitionRuleBase].
-- Override the `Apply` method.
-- Add [CreateAssetMenuAttribute] to make easier to create a new asset.
-- Create a new asset and configure it in the inspector.
+1. Create a new rule by inheriting from [AssemblyDefinitionRuleBase].
+2. Override the `Apply` method.
+3. (Optional) Add [CreateAssetMenuAttribute] to make easier to create a new asset.
+4. Create a new asset and configure it in the inspector.
 
 > You can also just create a new asset from one of the existing rules and customize the options.
 > The default ones should give you enough control already for all the basic needs.
