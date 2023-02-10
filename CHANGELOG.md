@@ -3,6 +3,7 @@
 ## [11.0.1] - UNRELEASED
 
 - Fixed some documentation typos and missing links.
+- Fixed edge case on `PlayerLoopSystem` that caused already relevant events to not be registered correctly.
 
 ## [11.0.0] - 2023-02-10
 

@@ -230,6 +230,21 @@ namespace Coimbra.Services.PlayerLoopEvents
             eventService.AddRelevancyListener<FixedUpdateEvent>(HandleFixedUpdateRelevancyChanged);
             eventService.AddRelevancyListener<LateUpdateEvent>(HandleLateUpdateRelevancyChanged);
             eventService.AddRelevancyListener<UpdateEvent>(HandleUpdateRelevancyChanged);
+
+            if (eventService.GetListenerCount<FixedUpdateEvent>() > 0)
+            {
+                _fixedUpdateListener.OnTrigger += HandleFixedUpdate;
+            }
+
+            if (eventService.GetListenerCount<LateUpdateEvent>() > 0)
+            {
+                _lateUpdateListener.OnTrigger += HandleLateUpdate;
+            }
+
+            if (eventService.GetListenerCount<UpdateEvent>() > 0)
+            {
+                _updateListener.OnTrigger += HandleUpdate;
+            }
         }
 
         private async UniTask InvokeFixedUpdateEventsAsync()
