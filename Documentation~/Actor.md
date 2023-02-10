@@ -11,7 +11,7 @@ The main reason for that is because any individual [MonoBehaviour] can't have an
 
 ## Initializing Actors
 
-Due engine limitations, to be able to have control full control of the lifecycle of a [GameObject] the [Actor] requires its `Initialize` method to be called as early as possible after instantiation.
+Due engine limitations, to be able to fully control the lifecycle of a [GameObject] the [Actor] requires its `Initialize` method to be called as early as possible after instantiation.
 
 For scene-placed actors, nothing special is needed as everything is already handled internally in the package.
 However, do have in mind that the initialization logic for any given scene will be:
