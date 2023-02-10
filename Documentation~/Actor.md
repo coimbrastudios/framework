@@ -54,7 +54,7 @@ To implement a new actor you only need to:
 - Inherit from [Actor].
 - (Optional) Override `OnInitialize` for one-time initialization. This is called as soon that the objects gets instantiated.
 - (Optional) Override `OnSpawn` for initialization logic that should happens everytime the object is actually spawned (i.e. from a [GameObjectPool]).
-- (Optional) Override `OnDespawn` for cleanup logic that should happens everytime the object is despawned (i.e. from a [GameObjectPool]).
+- (Optional) Override `OnDispose` for cleanup logic that should happens everytime the object is disposed (i.e. from a [GameObjectPool]).
 - (Optional) Override `OnDestroyed` for one-time cleanup logic when the object is finally destroyed.
 
 > If the [Actor] wasn't created by a [GameObjectPool] the `OnSpawn` will get called right after `OnInitialize`, and `OnDespawn` will get called right before `OnDestroyed`.
