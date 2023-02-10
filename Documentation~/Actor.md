@@ -57,7 +57,7 @@ To implement a new actor you only need to:
 - (Optional) Override `OnDispose` for cleanup logic that should happens everytime the object is disposed (i.e. from a [GameObjectPool]).
 - (Optional) Override `OnDestroyed` for one-time cleanup logic when the object is finally destroyed.
 
-> If the [Actor] wasn't created by a [GameObjectPool] the `OnSpawn` will get called right after `OnInitialize`, and `OnDespawn` will get called right before `OnDestroyed`.
+> If the [Actor] wasn't created by a [GameObjectPool] the `OnSpawn` will get called right after `OnInitialize`, and `OnDispose` will get called right before `OnDestroyed`.
 
 ## Implementing Actor Components
 
