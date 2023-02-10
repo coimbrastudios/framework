@@ -1,5 +1,9 @@
 # Changelog
 
+## [11.0.1] - UNRELEASED
+
+- Fixed some documentation typos and missing links.
+
 ## [11.0.0] - 2023-02-10
 
 - Added `Scene Selector` window.

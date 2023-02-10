@@ -20,7 +20,7 @@ However, do have in mind that the initialization logic for any given scene will 
 2. Each [Actor] `OnInitialize` method followed immediately by their `OnSpawn` method.
 3. Each [MonoBehaviour.Start] callback.
 
-For runtime instantiation you need to call [Actor] `Initialize` method right after the `Object.Instantiate` call.
+For runtime instantiation you need to call [Actor] `Initialize` method right after the [Object.Instantiate] call.
 
 However, some APIs do that for you internally already:
 
@@ -41,7 +41,7 @@ For this reason this package offers a unified way to destroy any object safely:
 - [GameObject] `Dispose` extension method from [GameObjectUtility]. It will decide efficiently if it needs to call [Actor] `Dispose` or if it can destroy the [GameObject] directly.
 - [Object] `Dispose` extension method from [ObjectUtility]. Whenever you call `Dispose` from an [Object] instance it will detect efficiently how to properly destroy it.
 
-In short, **never** use either `Destroy(_myObject)` or `Object.Destroy(_myObject)`.
+In short, **never** use [Object.Destroy] (i.e. `Destroy(_myObject)` or `Object.Destroy(_myObject)`).
 Instead, **always** use either `Dispose(bool)`, `this.Dispose(bool)` or `_myObject.Dispose(bool)`.
 
 > When you use `true` as the `bool` it will force an object destroy even if it actually could've returned to a [GameObjectPool].
@@ -49,7 +49,7 @@ Instead, **always** use either `Dispose(bool)`, `this.Dispose(bool)` or `_myObje
 
 ## Implementing Actors
 
-To implement a new settings you only need to:
+To implement a new actor you only need to:
 
 - Inherit from [Actor].
 - (Optional) Override `OnInitialize` for one-time initialization. This is called as soon that the objects gets instantiated.
@@ -136,5 +136,7 @@ This framework uses [Actor] in many places, you can check their implementation d
 [Object]:<https://docs.unity3d.com/ScriptReference/Object.html>
 
 [Object.Destroy]:<https://docs.unity3d.com/ScriptReference/Object.Destroy.html>
+
+[Object.Instantiate]:<https://docs.unity3d.com/ScriptReference/Object.Instantiate.html>
 
 [RequireComponentAttribute]:<https://docs.unity3d.com/ScriptReference/RequireComponent.html>

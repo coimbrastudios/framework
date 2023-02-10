@@ -54,7 +54,7 @@ Instead of creating static pools, you can take advantage of the static [ManagedP
 
 ## [PoolService]
 
-Meant to be a complete substitute for `Object.Instantiate`, having `Spawn` methods with the exact same overloads as `Object.Instantiate` to make easier to migrate existing code.
+Meant to be a complete substitute for [Object.Instantiate], having `Spawn` methods with the exact same overloads as [Object.Instantiate] to make easier to migrate existing code.
 
 When spawning something through the [PoolService] it will automatically check if there is a [GameObjectPool] for it or if should fallback to [Object.Instantiate] call.
 
@@ -90,3 +90,5 @@ Pools can also be dynamically added and removed for the [PoolService] at runtime
 [Addressables]:<https://docs.unity3d.com/Manual/com.unity.addressables.html>
 
 [GameObject]:<https://docs.unity3d.com/ScriptReference/GameObject.html>
+
+[Object.Instantiate]:<https://docs.unity3d.com/ScriptReference/Object.Instantiate.html>
