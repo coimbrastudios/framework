@@ -60,7 +60,7 @@ namespace Coimbra.Roslyn
 
         public static readonly DiagnosticDescriptor ObjectDestroyShouldNotBeUsed = new("COIMBRA" + "0008",
                                                                                        "Object.Destroy should not be used with Objects that can be an Actor.",
-                                                                                       "Use {0}.Destroy() or Object.DestroyImmediate({0}) instead of Object.Destroy({0}).",
+                                                                                       "Use {0}.Dispose(bool) or Object.DestroyImmediate({0}) instead of Object.Destroy({0}).",
                                                                                        Category,
                                                                                        DiagnosticSeverity.Error,
                                                                                        true);
