@@ -9,6 +9,7 @@ namespace Coimbra.Editor
     /// Serializable representation of <see cref="UnityEditorInternal.AssemblyDefinitionReferenceAsset"/>.
     /// </summary>
     [Serializable]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Serialization compatibility.")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SX1309:Field names should begin with underscore", Justification = "Serialization compatibility.")]
     public sealed class AssemblyDefinitionReference
     {

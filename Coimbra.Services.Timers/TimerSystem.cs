@@ -125,10 +125,7 @@ namespace Coimbra.Services.Timers
 
             static void disposeCallback(TimerComponent component)
             {
-                if (component != null)
-                {
-                    Destroy(component);
-                }
+                component.Dispose(true);
             }
 
             TimerComponent createCallback()

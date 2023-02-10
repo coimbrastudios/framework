@@ -17,12 +17,14 @@
 - Changed `StartupSceneManager` to `EditorStartupSceneSettings` to make API more consistent.
 - Deprecated `StartListener` in favor of new `Actor.OnStarting` event. 
 - Fixed runtime issues with `ITimerService`.
+- Fixed static `Actor` data not being reset on play mode state changed.
 - Removed `COIMBRA_EVENTS_DISABLE_SAFETY_CHECKS` scripting define symbol in favor of new `EventSettings` options.
 - Removed `UPMAuthenticator` as it never really worked as it was expected.
 - Removed `ServiceLocator.GetFactory` overloads as it shouldn't be possible to retrieve the factories after set.
 - Removed `IntString` class as `int.ToString()` is already optimized.
 - Removed `TypeString` class, moving its only method to `TypeUtility.GetDisplayString`.
 - Removed `Actor.OnInitializePrefab` API as it wasn't editor-safe, making it way to hard to use correctly without breaking your prefabs.
+- Removed `Actor.Destroy` and `Actor.Despawn` in favor of new `Actor.Dispose(bool)` API. `ObjectUtility` and `GameObjectUtility` also got affected.
 
 ## [10.10.3] - 2023-02-01
 

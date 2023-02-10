@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace Coimbra.Samples.DifficultySettings.Editor
     public sealed class DifficultyListSettings : ScriptableSettings
     {
         [SerializeField]
+        [UsedImplicitly]
         [MessageBox("Right click this field and hit 'refresh' to check the current instance.")]
         [ContextMenuItem("Refresh", nameof(Refresh))]
         private DifficultySettings _defaultDifficultySettings;

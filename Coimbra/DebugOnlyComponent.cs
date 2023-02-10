@@ -69,7 +69,7 @@ namespace Coimbra
                 return;
             }
 #endif
-            Actor.Destroy();
+            Actor.Dispose(true);
         }
 
         /// <inheritdoc/>

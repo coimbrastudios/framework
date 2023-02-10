@@ -73,7 +73,7 @@ namespace Coimbra.Services.Events.Editor
             list.footerHeight = 0;
             list.headerHeight = 0;
 
-            list.drawElementCallback = delegate(Rect rect, int index, bool active, bool focused)
+            list.drawElementCallback = delegate(Rect rect, int index, bool _, bool _)
             {
                 EditorGUI.PropertyField(rect, list.serializedProperty.GetArrayElementAtIndex(index), GUIContent.none);
             };

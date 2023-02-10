@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Scripting;
+using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 
 namespace Coimbra
@@ -16,6 +17,12 @@ namespace Coimbra
     /// <summary>
     /// Stack-based pool for any <see cref="GameObject"/> that makes use of <see cref="Addressables"/> system.
     /// </summary>
+    /// <remarks>
+    /// This pool implementation is deeply integrated into <see cref="Actor"/> class but offers complete support to work with any <see cref="GameObject"/>.
+    /// <para></para>
+    /// It provides hooks for <see cref="OnInstanceCreated"/> and <see cref="OnPoolStateChanged"/>.
+    /// It is also completely customizable and with auto-resizing functionalities (check <see cref="DesiredAvailableInstancesRange"/>, <see cref="ExpandStep"/> and <see cref="ShrinkStep"/>).
+    /// </remarks>
     /// <seealso cref="ManagedPool{T}"/>
     [PublicAPI]
     [Preserve]
@@ -91,9 +98,10 @@ namespace Coimbra
         [Tooltip("If true, new instances will receive a more descriptive name. (Editor Only)")]
         private bool _changeNameOnInstantiate = true;
 
+        [FormerlySerializedAs("_keepParentOnDespawn")]
         [SerializeField]
-        [Tooltip("If true, parent will not change automatically when despawned.")]
-        private bool _keepParentOnDespawn;
+        [Tooltip("If true, parent will not change automatically when returning the instance.")]
+        private bool _keepParentWhenReturning;
 
         [SerializeField]
         [DisableOnPlayMode]
@@ -174,14 +182,14 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the parent will not change automatically when despawned. Changing to false affects performance.
+        /// Gets or sets a value indicating whether the parent will not change automatically when returning. Changing to false affects performance.
         /// </summary>
-        public bool KeepParentOnDespawn
+        public bool KeepParentWhenReturning
         {
             [DebuggerStepThrough]
-            get => _keepParentOnDespawn;
+            get => _keepParentWhenReturning;
             [DebuggerStepThrough]
-            set => _keepParentOnDespawn = value;
+            set => _keepParentWhenReturning = value;
         }
 
         /// <summary>
@@ -258,7 +266,7 @@ namespace Coimbra
 
                 _containerTransform = value;
 
-                if (_availableInstances == null || _keepParentOnDespawn)
+                if (_availableInstances == null || _keepParentWhenReturning)
                 {
                     return;
                 }
@@ -457,7 +465,7 @@ namespace Coimbra
                      i++)
                 {
 #pragma warning disable UNT0008
-                    _availableInstances.Pop().GetValid()?.Destroy();
+                    _availableInstances.Pop().GetValid()?.Dispose(true);
 #pragma warning restore UNT0008
                 }
 
@@ -470,9 +478,9 @@ namespace Coimbra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Despawn(Actor instance)
+        internal void ReturnInstance(Actor instance)
         {
-            if (!_keepParentOnDespawn)
+            if (!_keepParentWhenReturning)
             {
                 instance.Transform.SetParent(_containerTransform, false);
             }
@@ -487,7 +495,7 @@ namespace Coimbra
             {
                 for (int i = 0; i < _shrinkStep; i++)
                 {
-                    _availableInstances.Pop().Destroy();
+                    _availableInstances.Pop().Dispose(true);
                 }
             }
         }
@@ -561,7 +569,7 @@ namespace Coimbra
                 if (_loadFrame == null || savedLoadFrame != _loadFrame)
                 {
                     Addressables.ReleaseInstance(instance);
-                    instance.Destroy();
+                    instance.Dispose(true);
 
                     return;
                 }
@@ -586,7 +594,7 @@ namespace Coimbra
         private Actor CreateInstance(Transform parent, bool instantiateInWorldSpace)
         {
             Actor instance = Instantiate(_prefabActor, parent, instantiateInWorldSpace);
-            instance.Initialize(this, default);
+            instance.Initialize(this, default(AsyncOperationHandle<GameObject>));
             ProcessInstance(instance, true);
 
             return instance;
@@ -596,7 +604,7 @@ namespace Coimbra
         private Actor CreateInstance(Vector3 position, Quaternion rotation, Transform parent)
         {
             Actor instance = Instantiate(_prefabActor, position, rotation, parent);
-            instance.Initialize(this, default);
+            instance.Initialize(this, default(AsyncOperationHandle<GameObject>));
             ProcessInstance(instance, true);
 
             return instance;

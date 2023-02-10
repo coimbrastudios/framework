@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,8 +22,9 @@ namespace Coimbra.Services.Events
         private bool _clearOnComponentDestroyed = true;
 
         [SerializeField]
+        [UsedImplicitly]
         [Tooltip("Current tracked handles.")]
-        private List<EventHandle> _eventHandles;
+        private List<EventHandle> _eventHandles = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether <see cref="Clear"/> should be called also if the component is being destroyed without its <see cref="Actor"/>.

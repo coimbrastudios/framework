@@ -476,7 +476,7 @@ namespace Coimbra.Tests.Editor
                 PropertyPathInfo propertyPathInfo = serializedObject.targetObject.GetPropertyPathInfo(serializedProperty.propertyPath);
                 Object[] targets = serializedObject.targetObjects;
 
-                propertyPathInfo.SetValues(targets, false, delegate(PropertyPathInfo sender, Object target)
+                propertyPathInfo.SetValues(targets, false, delegate(PropertyPathInfo _, Object target)
                 {
                     return $"{testString}{target.name}";
                 });

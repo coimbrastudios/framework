@@ -44,7 +44,7 @@ namespace Coimbra.Editor
 
         private void OnDisable()
         {
-            _settingsEditor.Destroy();
+            _settingsEditor.Dispose(true);
             _serializedObject.Dispose();
         }
 

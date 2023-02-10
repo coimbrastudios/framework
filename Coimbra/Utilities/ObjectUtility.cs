@@ -30,28 +30,22 @@ namespace Coimbra
         /// <summary>
         /// Destroys the <see cref="Object"/> correctly by checking if it isn't already an <see cref="Actor"/> first.
         /// </summary>
-        public static bool Destroy(this Object o)
+        /// <seealso cref="Actor.Dispose"/>
+        public static ObjectDisposeResult Dispose(this Object o, bool forceDestroy)
         {
+            if (!o.TryGetValid(out o))
+            {
+                return ObjectDisposeResult.None;
+            }
+
             if (o is GameObject gameObject)
             {
-                return gameObject.Destroy();
+                return gameObject.Dispose(forceDestroy);
             }
 
             if (o is Actor actor)
             {
-                if (actor.IsDestroyed)
-                {
-                    return false;
-                }
-
-                actor.Destroy();
-
-                return true;
-            }
-
-            if (!o.TryGetValid(out o))
-            {
-                return false;
+                return actor.Dispose(forceDestroy);
             }
 
             if (ApplicationUtility.IsPlayMode)
@@ -65,7 +59,7 @@ namespace Coimbra
                 Object.DestroyImmediate(o);
             }
 
-            return true;
+            return ObjectDisposeResult.Destroyed;
         }
 
         /// <summary>

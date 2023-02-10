@@ -54,7 +54,7 @@ namespace Coimbra
                 Transform.GetChild(0).parent = parent;
             }
 
-            Destroy();
+            Dispose(true);
         }
 
         /// <inheritdoc/>

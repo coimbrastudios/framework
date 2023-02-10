@@ -32,20 +32,20 @@ When using any of those APIs you don't need to care about dealing with the `Init
 
 > In case of doubt, just call `Initialize` as calling it after the initial call is always a no-op.
 
-## Destroying Actors
+## Disposing Actors
 
 Due engine limitations, we don't have way to now if a [GameObject] ever gets destroyed unless it was previously active at least once or if we inject our own custom logic between our code and the destruction logic itself.
-
 For this reason this package offers a unified way to destroy any object safely:
 
-- [Actor] `Destroy` instance method. When you destroy an [Actor] it destroys the [GameObject] too.
-- [GameObjectUtility] `Destroy` extension method. It will decide efficiently if it needs to call [Actor] `Destroy` or if it can destroy the [GameObject] directly.
-- [ObjectUtility] `Destroy` extension method. Whenever you call `Destroy` from an [Object] instance it will detect efficiently how to properly destroy it.
+- [Actor] `Dispose` instance method. When you destroy an [Actor] it destroys the [GameObject] too.
+- [GameObject] `Dispose` extension method from [GameObjectUtility]. It will decide efficiently if it needs to call [Actor] `Dispose` or if it can destroy the [GameObject] directly.
+- [Object] `Dispose` extension method from [ObjectUtility]. Whenever you call `Dispose` from an [Object] instance it will detect efficiently how to properly destroy it.
 
 In short, **never** use either `Destroy(_myObject)` or `Object.Destroy(_myObject)`.
-Instead, **always** use either `Destroy()`, `this.Destroy()` or `_myObject.Destroy()`.
+Instead, **always** use either `Dispose(bool)`, `this.Dispose(bool)` or `_myObject.Dispose(bool)`.
 
-> Notice that the wrong method receives a parameter, the correct one doesn't. There are analyzers to catch this mistake, but they might not catch all cases.
+> When you use `true` as the `bool` it will force an object destroy even if it actually could've returned to a [GameObjectPool].
+> Usually using `false` is the preferred choice as when no [GameObjectPool] is linked it will already destroy the object instead.
 
 ## Implementing Actors
 
@@ -114,6 +114,8 @@ This framework uses [Actor] in many places, you can check their implementation d
 [Overlap2DListenerBase]:<../Coimbra.Listeners/Overlap2DListenerBase`1.cs>
 
 [PlayerLoopSystem]:<../Coimbra.Services.PlayerLoopEvents/PlayerLoopSystem.cs>
+
+[Pooling]:<Pooling.md>
 
 [RigidbodyOverlap2DListener]:<../Coimbra.Listeners/Physics2D/RigidbodyOverlap2DListener.cs>
 

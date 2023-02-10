@@ -11,6 +11,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
+using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -24,11 +25,11 @@ namespace Coimbra
     /// <para></para>
     /// It encapsulates some ambiguous Unity callbacks to ensure that they are actually fired in the expected timings, this includes the <see cref="OnInitialize"/> method that will get fired even if the objects never gets activated and its <see cref="OnDestroyed"/> method that will get fired even if the object was never set active during its lifecycle.
     /// <para></para>
-    /// To achieve that, custom APIs are provided to ensure proper creation and destruction for any given <see cref="Actor"/>. Take a look into <see cref="Initialize"/>, that should be called after each instantiation (check documentation for alternatives), and <see cref="Destroy"/>, that should be used instead of the static <see cref="Object.Destroy(Object)"/> method.
+    /// To achieve that, custom APIs are provided to ensure proper creation and destruction for any given <see cref="Actor"/>. Take a look into <see cref="Initialize"/>, that should be called after each instantiation (check documentation for alternatives), and <see cref="Dispose"/>, that should be used instead of the static <see cref="Object.Destroy(Object)"/> method.
     /// <para></para>
-    /// It offers additional <see cref="GameObject"/>-level events (<see cref="OnStarting"/>, <see cref="OnActiveStateChanged"/>, and <see cref="OnDestroying"/>), and built-in pooling support with the <see cref="Spawn"/> and <see cref="Despawn"/> APIs (<see cref="GameObjectPool"/>).
+    /// It offers additional <see cref="GameObject"/>-level events (<see cref="OnStarting"/>, <see cref="OnActiveStateChanged"/>, and <see cref="OnDestroying"/>), and built-in pooling support with the <see cref="OnSpawn"/> and <see cref="OnDispose"/> APIs (<see cref="GameObjectPool"/>).
     /// <para></para>
-    /// It also offers some common cancellation tokens (<see cref="DespawnCancellationToken"/> and <see cref="DestroyCancellationToken"/>), cached properties for <see cref="Transform"/>, <see cref="GameObject"/>, and <see cref="GameObjectID"/>, useful <see cref="StateFlags"/>, and implements the <see cref="IDisposable"/> interface.
+    /// It also offers some common cancellation tokens (<see cref="DisposeCancellationToken"/> and <see cref="DestroyCancellationToken"/>), cached properties for <see cref="Transform"/>, <see cref="GameObject"/>, and <see cref="GameObjectID"/>, useful <see cref="StateFlags"/>, and implements the <see cref="IDisposable"/> interface.
     /// </remarks>
     /// <seealso cref="ActorComponentBase"/>
     /// <seealso cref="GameObjectID"/>
@@ -133,14 +134,14 @@ namespace Coimbra
         public delegate void SceneInitializedHandler(Scene scene, LoadSceneMode mode);
 
         /// <summary>
-        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. Use <see cref="OnSceneInitializedOnce"/> if you need to only fire it once.
+        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. Use <see cref="OnSceneActorsInitializedOnce"/> if you need to only fire it once.
         /// </summary>
-        public static event SceneInitializedHandler OnSceneInitialized;
+        public static event SceneInitializedHandler OnSceneActorsInitialized;
 
         /// <summary>
-        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. It resets after each call and is called after <see cref="OnSceneInitialized"/>.
+        /// Invoked each time a new <see cref="Scene"/> is loaded and all of its <see cref="Actor"/> got initialized. It resets after each call and is called after <see cref="OnSceneActorsInitialized"/>.
         /// </summary>
-        public static event SceneInitializedHandler OnSceneInitializedOnce;
+        public static event SceneInitializedHandler OnSceneActorsInitializedOnce;
 
         /// <summary>
         /// Invoked when a <see cref="UnityEngine.GameObject"/> is activated or deactivated in the scene.
@@ -198,17 +199,18 @@ namespace Coimbra
         [Tooltip("If true, it will activate the object when spawning it.")]
         private bool _activateOnSpawn;
 
+        [FormerlySerializedAs("_deactivateOnDespawn")]
         [SerializeField]
         [DisableOnPlayMode]
-        [FormerlySerializedAsBackingFieldOf("DeactivateOnDespawn")]
-        [Tooltip("If true, it will deactivate the object when despawning it.")]
-        private bool _deactivateOnDespawn;
+        [FormerlySerializedAsBackingFieldOf("DeactivateOnDispose")]
+        [Tooltip("If true, it will deactivate the object when disposing it.")]
+        private bool _deactivateOnDispose;
 
         private GameObjectID? _gameObjectID;
 
         private AsyncOperationHandle<GameObject> _operationHandle;
 
-        private CancellationTokenSource _despawnCancellationTokenSource;
+        private CancellationTokenSource _disposeCancellationTokenSource;
 
         private CancellationTokenSource _destroyCancellationTokenSource;
 
@@ -250,20 +252,20 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether it will deactivate the object when despawning it.
+        /// Gets or sets a value indicating whether it will deactivate the object when disposing it.
         /// </summary>
-        public bool DeactivateOnDespawn
+        public bool DeactivateOnDispose
         {
             [DebuggerStepThrough]
-            get => _deactivateOnDespawn;
+            get => _deactivateOnDispose;
             [DebuggerStepThrough]
-            set => _deactivateOnDespawn = value;
+            set => _deactivateOnDispose = value;
         }
 
         /// <summary>
-        /// Gets the <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be despawned.
+        /// Gets the <see cref="CancellationToken"/> for when this <see cref="Actor"/> is about to be disposed.
         /// </summary>
-        public CancellationToken DespawnCancellationToken
+        public CancellationToken DisposeCancellationToken
         {
             get
             {
@@ -272,9 +274,9 @@ namespace Coimbra
                     return CancellationToken.None;
                 }
 
-                _despawnCancellationTokenSource ??= new CancellationTokenSource();
+                _disposeCancellationTokenSource ??= new CancellationTokenSource();
 
-                return _despawnCancellationTokenSource.Token;
+                return _disposeCancellationTokenSource.Token;
             }
         }
 
@@ -322,7 +324,7 @@ namespace Coimbra
         public bool IsAwaken => (States & StateFlags.IsAwaken) != 0;
 
         /// <summary>
-        /// Gets a value indicating whether <see cref="Destroy"/> was called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>.
+        /// Gets a value indicating whether <see cref="Dispose"/> was called at least once in this <see cref="Actor"/> or <see cref="UnityEngine.GameObject"/>.
         /// </summary>
         public bool IsDestroyed => (States & StateFlags.IsDestroyed) != 0;
 
@@ -399,26 +401,24 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Despawns the <see cref="UnityEngine.GameObject"/> and return it to its pool. If it doesn't belong to a <see cref="GameObjectPool"/>, it will <see cref="Destroy"/> the object instead.
+        /// Destroys the <see cref="UnityEngine.GameObject"/> that this actor represents. By default, will return it to its <see cref="GameObjectPool"/>, unless it doesn't belong to one.
         /// </summary>
-        public void Despawn()
-        {
-            Despawn(true);
-        }
-
-        /// <summary>
-        /// Destroys the <see cref="UnityEngine.GameObject"/> that this actor represents.
-        /// </summary>
+        /// <returns>
+        /// <list type="bullet">
+        /// <item><see cref="ObjectDisposeResult.None"/>When <see cref="IsDestroyed"/> was already true, or when <see cref="IsSpawned"/> was already false and <paramref name="forceDestroy"/> was false.</item>
+        /// <item><see cref="ObjectDisposeResult.Pooled"/>When was pushed back to the <see cref="GameObjectPool"/> with success.</item>
+        /// <item><see cref="ObjectDisposeResult.Destroyed"/>When failed to be pushed back to the <see cref="GameObjectPool"/> or <paramref name="forceDestroy"/> was true.</item>
+        /// </list>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Destroy()
+        public ObjectDisposeResult Dispose(bool forceDestroy)
         {
-            Destroy(true);
-        }
+            if (forceDestroy)
+            {
+                return DestroyInstance(true) ? ObjectDisposeResult.Destroyed : ObjectDisposeResult.None;
+            }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            Destroy(true);
+            return ReturnInstance(true) ? ObjectDisposeResult.Pooled : ObjectDisposeResult.None;
         }
 
         /// <summary>
@@ -428,12 +428,22 @@ namespace Coimbra
         [ContextMenu(nameof(Initialize))]
         public void Initialize()
         {
-            Initialize(null, default);
+            Initialize(null, default(AsyncOperationHandle<GameObject>));
         }
 
         internal static IReadOnlyCollection<Actor> GetCachedActors()
         {
             return CachedActors.Values;
+        }
+
+        internal static void OnPlayModeStateChanged()
+        {
+            OnSceneActorsInitialized = null;
+            OnSceneActorsInitializedOnce = null;
+            InitializedActorCount.Value = 0;
+            UninitializedActorCount.Value = 0;
+            UninitializedActors.Clear();
+            CachedActors.Clear();
         }
 
         internal void Initialize(GameObjectPool pool, AsyncOperationHandle<GameObject> operationHandle)
@@ -502,7 +512,7 @@ namespace Coimbra
                 return;
             }
 
-            Despawn();
+            Dispose(false);
 
             if (GameObject.scene != scene)
             {
@@ -511,7 +521,7 @@ namespace Coimbra
                 return;
             }
 
-            if (!Pool.KeepParentOnDespawn || Pool.GameObject.scene == scene)
+            if (!Pool.KeepParentWhenReturning || Pool.GameObject.scene == scene)
             {
                 return;
             }
@@ -533,20 +543,20 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Called each time this object is despawned. By default, it deactivates the object.
+        /// Use this for one-time un-initializations instead of <see cref="OnDestroy"/> callback. This method is called even if the object starts inactive.
         /// </summary>
-        protected virtual void OnDespawn()
+        protected virtual void OnDestroyed() { }
+
+        /// <summary>
+        /// Called each time this object is disposed. By default, it deactivates the object.
+        /// </summary>
+        protected virtual void OnDispose()
         {
-            if (DeactivateOnDespawn)
+            if (DeactivateOnDispose)
             {
                 GameObject.SetActive(false);
             }
         }
-
-        /// <summary>
-        /// Use this for one-time un-initializations instead of <see cref="OnDestroy"/> callback. This method is called even if the object starts inactive.
-        /// </summary>
-        protected virtual void OnDestroyed() { }
 
         /// <summary>
         /// Use this for one-time initializations instead of <see cref="Awake"/> callback. This method is called even if the object starts inactive.
@@ -631,7 +641,7 @@ namespace Coimbra
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void OnDestroy()
         {
-            Destroy(false);
+            DestroyInstance(false);
         }
 
         /// <summary>
@@ -653,15 +663,15 @@ namespace Coimbra
         private static void HandleSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
         {
             InitializeActors();
-            OnSceneInitialized?.Invoke(scene, loadSceneMode);
+            OnSceneActorsInitialized?.Invoke(scene, loadSceneMode);
 
-            if (OnSceneInitializedOnce == null)
+            if (OnSceneActorsInitializedOnce == null)
             {
                 return;
             }
 
-            OnSceneInitializedOnce.Invoke(scene, loadSceneMode);
-            OnSceneInitializedOnce = null;
+            OnSceneActorsInitializedOnce.Invoke(scene, loadSceneMode);
+            OnSceneActorsInitializedOnce = null;
         }
 
         [ContextMenu(nameof(Initialize), true)]
@@ -670,42 +680,15 @@ namespace Coimbra
             return ApplicationUtility.IsPlayMode && !ApplicationUtility.IsFirstFrame;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Despawn(bool callPoolDespawnOrDestroy)
-        {
-            if (!IsSpawned)
-            {
-                return;
-            }
-
-            States |= StateFlags.IsSpawned;
-            CancellationTokenSourceUtility.Collect(ref _despawnCancellationTokenSource);
-            OnDespawn();
-
-            if (!callPoolDespawnOrDestroy)
-            {
-                return;
-            }
-
-            if (IsPooled && Pool != null && Pool.CurrentState == GameObjectPool.State.Loaded)
-            {
-                Pool.Despawn(this);
-            }
-            else
-            {
-                Destroy(true);
-            }
-        }
-
-        private void Destroy(bool callObjectDestroy)
+        private bool DestroyInstance(bool callObjectDestroy)
         {
             if (IsDestroyed)
             {
-                return;
+                return false;
             }
 
             States |= StateFlags.IsDestroyed;
-            Despawn(false);
+            ReturnInstance(false);
             CancellationTokenSourceUtility.Collect(ref _destroyCancellationTokenSource);
 
             if (IsQuitting)
@@ -733,7 +716,7 @@ namespace Coimbra
                 if (ApplicationUtility.IsPlayMode)
                 {
 #pragma warning disable COIMBRA0008
-                    Object.Destroy(gameObject);
+                    Destroy(gameObject);
 #pragma warning restore COIMBRA0008
                 }
                 else
@@ -749,6 +732,8 @@ namespace Coimbra
             _transform = null;
             InitializedActorCount.Value--;
             CachedActors.Remove(GameObjectID);
+
+            return true;
         }
 
         private void InitializeComponentsAndSelf()
@@ -779,6 +764,39 @@ namespace Coimbra
                     component.PostInitialize();
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool ReturnInstance(bool callPoolReturnOrDestroyInstance)
+        {
+            if (!IsSpawned)
+            {
+                return false;
+            }
+
+            States |= StateFlags.IsSpawned;
+            CancellationTokenSourceUtility.Collect(ref _disposeCancellationTokenSource);
+            OnDispose();
+
+            if (callPoolReturnOrDestroyInstance)
+            {
+                if (IsPooled && Pool != null && Pool.CurrentState == GameObjectPool.State.Loaded)
+                {
+                    Pool.ReturnInstance(this);
+                }
+                else
+                {
+                    DestroyInstance(true);
+                }
+            }
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
+        {
+            Dispose(false);
         }
     }
 }

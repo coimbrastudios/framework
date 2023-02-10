@@ -23,7 +23,7 @@ namespace Coimbra.UI
         private Image _image;
 
         /// <summary>
-        /// The image this component depends on.
+        /// Gets the image this component depends on.
         /// </summary>
         public Image Image => _image != null ? _image : _image = GetComponent<Image>();
 
