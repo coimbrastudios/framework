@@ -2,6 +2,7 @@
 
 ## [11.0.1] - UNRELEASED
 
+- Added `ApplicationUtility.GetDisplayName(string)` as runtime version for `EngineUtility.GetDisplayName(string)`.
 - Fixed some documentation typos and missing links.
 - Fixed edge case on `PlayerLoopSystem` that caused already relevant events to not be registered correctly.
 
