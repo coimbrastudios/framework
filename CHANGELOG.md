@@ -1,6 +1,6 @@
 # Changelog
 
-## [11.0.1] - UNRELEASED
+## [11.0.1] - 2023-02-11
 
 - Added `ApplicationUtility.GetDisplayName(string)` as runtime version for `EngineUtility.GetDisplayName(string)`.
 - Changed `Linting Settings` to come with the default rules set.
