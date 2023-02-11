@@ -6,7 +6,7 @@
 - Changed `Linting Settings` to come with the default rules set.
 - Fixed some documentation typos and missing links.
 - Fixed edge case on `PlayerLoopSystem` that caused already relevant events to not be registered correctly.
-- Fixed `SceneSelectorWindow` opening scenes with the wrong API.s
+- Fixed `SceneSelectorWindow` opening scenes with the wrong API.
 
 ## [11.0.0] - 2023-02-10
 
