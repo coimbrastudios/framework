@@ -1,5 +1,11 @@
 # Changelog
 
+## [11.0.2] - 2023-02-11
+
+- Added documentation for `ActorSceneManagerAPI` in `Actor` documentation.
+- Fixed usage of `UnityEditor` APIs in `ActorSceneManagerAPI`.
+- Fixed incompatibilities with `EnterPlayModeOptions` with `Actor` and `ScripttableSettings`.
+
 ## [11.0.1] - 2023-02-11
 
 - Added `ApplicationUtility.GetDisplayName(string)` as runtime version for `EngineUtility.GetDisplayName(string)`.

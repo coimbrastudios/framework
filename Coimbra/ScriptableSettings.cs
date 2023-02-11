@@ -123,7 +123,7 @@ namespace Coimbra
         /// <summary>
         /// Gets a value indicating whether the application is quitting.
         /// </summary>
-        protected static bool IsQuitting { get; private set; }
+        protected internal static bool IsQuitting { get; internal set; }
 
         /// <summary>
         /// Gets the last set value for the specified type, but also tries to find one if not set.
@@ -448,15 +448,6 @@ namespace Coimbra
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        [UnityEditor.InitializeOnEnterPlayMode]
-        private static void Initialize()
-        {
-            IsQuitting = false;
-            Map.Clear();
-            UnityEditor.PlayerSettings.GetPreloadedAssets();
-        }
-
         private void EnsurePreload(bool withWarning)
         {
             using (ListPool.Pop(out List<Object> pooledList))

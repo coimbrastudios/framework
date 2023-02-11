@@ -97,10 +97,10 @@ namespace Coimbra.Services
             where T : class, IService
         {
             Initialize(typeof(T), out Service service);
-            Debug.Assert(service.IsRequired, $"Called {nameof(GetChecked)} for a service without {nameof(RequiredServiceAttribute)}! Use {nameof(Get)} or {nameof(TryGet)} instead.");
+            Debug.Assert(service.IsRequired, $"Called {nameof(GetChecked)} but service {typeof(T)} is missing {nameof(RequiredServiceAttribute)}! Use {nameof(Get)} or {nameof(TryGet)} instead.");
 
             T? value = Get<T>(service);
-            Debug.Assert(value.IsValid(), $"Called {nameof(GetChecked)} for a service that is null!");
+            Debug.Assert(value.IsValid(), $"Called {nameof(GetChecked)} but service {typeof(T)} was null!");
 
             return value!;
         }

@@ -9,6 +9,22 @@ The main reason for that is because any individual [MonoBehaviour] can't have an
 
 > Remember: it is totally unsafe to remove an [Actor] from a [GameObject] without destroying both together.
 
+## [ActorSceneManagerAPI](../Coimbra/ActorSceneManagerAPI.cs)
+
+> This feature makes use of a custom [SceneManagerAPI](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManagerAPI.html).
+> If your project doesn't touch the  [SceneManagerAPI.overrideAPI](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManagerAPI-overrideAPI.html) property then no further action is needed.
+
+However, if your project does set this property:
+
+- Never set it to `null`, use the provided implementation as the default value instead
+- Add the following piece of code at the beginning of your custom implementation's [SceneManagerAPI.UnloadSceneAsyncByNameOrIndex](https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManagerAPI.UnloadSceneAsyncByNameOrIndex.html) method:
+ ```csharp
+if (ActorSceneManagerAPI.TryGetScene(sceneName, sceneBuildIndex, out Scene scene))
+{
+    ActorSceneManagerAPI.PreprocessUnloadScene(scene);
+}
+```
+
 ## Initializing Actors
 
 Due engine limitations, to be able to fully control the lifecycle of a [GameObject] the [Actor] requires its `Initialize` method to be called as early as possible after instantiation.

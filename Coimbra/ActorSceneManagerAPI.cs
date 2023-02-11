@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Coimbra
@@ -7,15 +6,8 @@ namespace Coimbra
     /// <summary>
     /// Custom <see cref="SceneManagerAPI"/> that does some pre-processing when unloading a scene.
     /// </summary>
-    [InitializeOnLoad]
     public class ActorSceneManagerAPI : SceneManagerAPI
     {
-        static ActorSceneManagerAPI()
-        {
-            EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
-            EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
-        }
-
         /// <summary>
         /// Call this method from your custom <see cref="SceneManagerAPI"/> if not using the <see cref="ActorSceneManagerAPI"/>.
         /// </summary>
@@ -70,20 +62,6 @@ namespace Coimbra
         private static void HandleBeforeSceneLoad()
         {
             overrideAPI ??= new ActorSceneManagerAPI();
-        }
-
-        private static void HandlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
-        {
-            switch (playModeStateChange)
-            {
-                case PlayModeStateChange.EnteredEditMode:
-                case PlayModeStateChange.ExitingEditMode:
-                {
-                    Actor.OnPlayModeStateChanged();
-
-                    break;
-                }
-            }
         }
     }
 }

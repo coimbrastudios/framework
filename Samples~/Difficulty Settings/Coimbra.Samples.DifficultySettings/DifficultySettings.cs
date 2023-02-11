@@ -9,7 +9,7 @@ namespace Coimbra.Samples.DifficultySettings
         private bool _isDefault;
 
         [SerializeField]
-        private float _cubeMovementSpeed;
+        private float _cubeMovementSpeed = 10;
 
         public bool IsDefault
         {
@@ -21,10 +21,21 @@ namespace Coimbra.Samples.DifficultySettings
 
         protected override void OnLoaded()
         {
-            if (_isDefault)
+            if (!_isDefault)
             {
-                base.OnLoaded();
+                return;
             }
+
+            base.OnLoaded();
+
+            Application.quitting += HandleApplicationQuitting;
+        }
+
+        protected override void OnUnload(bool wasCurrentInstance)
+        {
+            Application.quitting -= HandleApplicationQuitting;
+
+            base.OnUnload(wasCurrentInstance);
         }
 
         protected override void OnValidate()
@@ -47,6 +58,14 @@ namespace Coimbra.Samples.DifficultySettings
                 SetOrOverwrite(this);
             }
 #endif
+        }
+
+        private void HandleApplicationQuitting()
+        {
+            if (_isDefault)
+            {
+                SetOrOverwrite(this);
+            }
         }
     }
 }

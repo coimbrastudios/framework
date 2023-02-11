@@ -3,6 +3,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
@@ -18,7 +19,11 @@ namespace Coimbra.Editor
         {
             AssemblyReloadEvents.beforeAssemblyReload -= HandleBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+            EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
             EditorApplication.delayCall += HandleDelayCall;
+            ScriptableSettings.IsQuitting = false;
+            PlayerSettings.GetPreloadedAssets();
         }
 
         /// <summary>
@@ -122,6 +127,35 @@ namespace Coimbra.Editor
         private static void HandleDelayCall()
         {
             ApplicationUtility.IsReloadingScripts = false;
+        }
+
+        private static void HandlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
+        {
+            switch (playModeStateChange)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                {
+                    if (Object.FindObjectOfType<ActorManager>().TryGetValid(out ActorManager actorManager))
+                    {
+                        Object.DestroyImmediate(actorManager.gameObject);
+                    }
+
+                    ScriptableSettings.IsQuitting = false;
+                    Actor.OnPlayModeStateChanged();
+
+                    break;
+                }
+
+                case PlayModeStateChange.ExitingEditMode:
+                {
+                    Actor.OnPlayModeStateChanged();
+                    PlayerSettings.GetPreloadedAssets();
+
+                    _ = new GameObject(nameof(ActorManager), typeof(ActorManager));
+
+                    break;
+                }
+            }
         }
     }
 }
