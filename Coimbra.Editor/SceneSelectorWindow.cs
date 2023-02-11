@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -40,6 +41,7 @@ namespace Coimbra.Editor
             _reorderableList.drawElementCallback += DrawListElement;
             _reorderableList.drawNoneElementCallback += DrawEmptyList;
             _reorderableList.elementHeight = EditorGUIUtility.singleLineHeight;
+            _settingsEditor = UnityEditor.Editor.CreateEditor(settings);
         }
 
         private void OnDisable()
@@ -58,8 +60,9 @@ namespace Coimbra.Editor
             const float buttonWidth = 50;
             const float assetWidth = 200;
             Object sceneAsset = (Object)_reorderableList.list[index];
+            string scenePath = AssetDatabase.GetAssetPath(sceneAsset);
             rect.width -= assetWidth + buttonWidth + EditorGUIUtility.standardVerticalSpacing;
-            EditorGUI.SelectableLabel(rect, AssetDatabase.GetAssetPath(sceneAsset));
+            EditorGUI.SelectableLabel(rect, scenePath);
 
             using (new EditorGUI.DisabledScope(true))
             {
@@ -73,7 +76,7 @@ namespace Coimbra.Editor
 
             if (GUI.Button(rect, "Open"))
             {
-                AssetDatabase.OpenAsset(sceneAsset);
+                EditorSceneManager.OpenScene(scenePath);
             }
         }
 
@@ -89,11 +92,6 @@ namespace Coimbra.Editor
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    if (_settingsEditor == null)
-                    {
-                        _settingsEditor = UnityEditor.Editor.CreateEditor(settings);
-                    }
-
                     _settingsEditor.OnInspectorGUI();
                 }
             }
