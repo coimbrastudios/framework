@@ -41,18 +41,14 @@ namespace Coimbra.Editor
 
             using (ListPool.Pop(out List<Type> types))
             {
+                if (IsSupportedType(type))
+                {
+                    types.Add(type);
+                }
+
                 foreach (Type derivedType in TypeCache.GetTypesDerivedFrom(type))
                 {
-                    if (derivedType.IsAbstract
-                     || derivedType.IsGenericType
-                     || typeof(Object).IsAssignableFrom(derivedType)
-                     || derivedType.IsDefined(typeof(CompilerGeneratedAttribute))
-                     || !derivedType.IsDefined(typeof(SerializableAttribute)))
-                    {
-                        continue;
-                    }
-
-                    if (derivedType.CanCreateInstance())
+                    if (IsSupportedType(derivedType))
                     {
                         types.Add(derivedType);
                     }
@@ -147,6 +143,16 @@ namespace Coimbra.Editor
             {
                 OnItemSelected?.Invoke(typePopupItem);
             }
+        }
+
+        private static bool IsSupportedType(Type type)
+        {
+            return !type.IsAbstract
+                && !type.IsGenericType
+                && !typeof(Object).IsAssignableFrom(type)
+                && !type.IsDefined(typeof(CompilerGeneratedAttribute))
+                && type.IsDefined(typeof(SerializableAttribute))
+                && type.CanCreateInstance();
         }
     }
 }

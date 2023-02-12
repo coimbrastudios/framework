@@ -1,5 +1,9 @@
 # Changelog
 
+## [11.0.3] - 2023-02-12
+
+- Fixed `TypeDropdown` never showing the base type as options, even if compatible.
+
 ## [11.0.2] - 2023-02-11
 
 - Added documentation for `ActorSceneManagerAPI` in `Actor` documentation.
