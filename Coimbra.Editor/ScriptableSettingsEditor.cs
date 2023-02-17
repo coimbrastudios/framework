@@ -104,7 +104,7 @@ namespace Coimbra.Editor
         /// </summary>
         protected virtual void OnEnable()
         {
-            Type = ScriptableSettings.GetType(target.GetType());
+            Type = ScriptableSettings.GetTypeData(target.GetType());
         }
 
         /// <summary>
@@ -126,6 +126,8 @@ namespace Coimbra.Editor
                 {
                     continue;
                 }
+
+                GUI.enabled = true;
 
                 if (Type == ScriptableSettingsType.Custom)
                 {

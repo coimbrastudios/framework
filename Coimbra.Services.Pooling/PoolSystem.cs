@@ -210,7 +210,7 @@ namespace Coimbra.Services.Pooling
             base.OnInitialize();
             DontDestroyOnLoad(GameObject);
 
-            if (!ScriptableSettings.TryGetOrFind(out PoolSettings settings))
+            if (!ScriptableSettings.TryGet(out PoolSettings settings))
             {
                 return;
             }

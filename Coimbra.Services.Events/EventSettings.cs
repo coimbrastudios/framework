@@ -9,6 +9,7 @@ namespace Coimbra.Services.Events
     /// <seealso cref="IEventService"/>
     /// <seealso cref="EventSystem"/>
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath)]
+    [ScriptableSettingsProvider(typeof(FindAnywhereScriptableSettingsProvider))]
     public sealed class EventSettings : ScriptableSettings
     {
         [SerializeField]

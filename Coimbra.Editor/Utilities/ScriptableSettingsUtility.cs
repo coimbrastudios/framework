@@ -3,273 +3,116 @@
 using CoimbraInternal.Editor;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
-using UnityEditorInternal;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Coimbra.Editor
 {
-    /// <summary>
-    /// Utility methods for <see cref="ScriptableSettings"/>.
-    /// </summary>
     [InitializeOnLoad]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ScriptableSettingsUtility
     {
-        private static readonly Object?[] SaveTarget = new Object?[1];
-
         static ScriptableSettingsUtility()
         {
             UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
             UnityEditorInternals.OnEditorApplicationFocusChanged += HandleEditorApplicationFocusChanged;
         }
 
-        /// <summary>
-        /// Reloads a <see cref="ScriptableSettings"/>.
-        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Reload) + " instead.")]
         public static void Reload(this ScriptableSettings scriptableSettings)
         {
-            Type type = scriptableSettings.GetType();
-
-            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _)
-             || !string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(scriptableSettings)))
-            {
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (!TryLoad(type, filePath, scriptableSettings.Type, out ScriptableSettings? target))
-                {
-                    target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                }
-
-                JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(target), scriptableSettings);
-                Object.DestroyImmediate(target, false);
-            }
-            else if (settingsScope == SettingsScope.User)
-            {
-                ScriptableSettings target = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                string defaultValue = EditorJsonUtility.ToJson(target, false);
-                string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
-                EditorJsonUtility.FromJsonOverwrite(newValue, scriptableSettings);
-
-                if (scriptableSettings.Type != ScriptableSettings.GetType(type))
-                {
-                    JsonUtility.FromJsonOverwrite(defaultValue, scriptableSettings);
-                }
-
-                Object.DestroyImmediate(target, false);
-            }
+            scriptableSettings.Reload();
         }
 
-        /// <inheritdoc cref="LoadOrCreate"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(LoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Get) + " instead.")]
+        public static ScriptableSettings? LoadOrCreate(Type type, ScriptableSettings.FindHandler? findCallback = null)
+        {
+            return ScriptableSettings.Get(type);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(LoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Get) + " instead.")]
         public static T? LoadOrCreate<T>(ScriptableSettings.FindHandler? findCallback = null)
             where T : ScriptableSettings
         {
-            return (T?)LoadOrCreate(typeof(T), findCallback);
+            return ScriptableSettings.Get<T>();
         }
 
-        /// <summary>
-        /// Create or load a <see cref="ScriptableSettings"/>.
-        /// </summary>
-        public static ScriptableSettings? LoadOrCreate(Type type, ScriptableSettings.FindHandler? findCallback = null)
-        {
-            ScriptableSettingsType filter = ScriptableSettings.GetType(type);
-
-            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
-            {
-                return null;
-            }
-
-            if (ScriptableSettings.TryGetOrFind(type, out ScriptableSettings value, findCallback))
-            {
-                if (filePath != null)
-                {
-                    string assetPath = AssetDatabase.GetAssetPath(value);
-
-                    if (!string.IsNullOrWhiteSpace(assetPath))
-                    {
-                        ScriptableSettings copy = Object.Instantiate(value);
-                        Debug.LogWarning($"Moving {value} from {assetPath} to {filePath}!", copy);
-                        ScriptableSettings.SetOrOverwrite(type, copy);
-                        Object.DestroyImmediate(value, true);
-                        AssetDatabase.DeleteAsset(assetPath);
-                        copy.Save();
-
-                        return copy;
-                    }
-                }
-
-                if (value.Type == filter)
-                {
-                    return value;
-                }
-
-                Debug.LogWarning($"Destroying {value} because its type changed from {value.Type} to {filter}!", value);
-                Object.DestroyImmediate(value, true);
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (TryLoad(type, filePath, filter, out ScriptableSettings? scriptableSettings))
-                {
-                    return scriptableSettings;
-                }
-
-                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-            }
-            else if (settingsScope == SettingsScope.User)
-            {
-                value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-
-                string defaultValue = EditorJsonUtility.ToJson(value, false);
-                string newValue = EditorPrefs.GetString(GetPrefsKey(type), defaultValue);
-                EditorJsonUtility.FromJsonOverwrite(newValue, value);
-
-                if (value.Type != filter)
-                {
-                    Object.DestroyImmediate(value, false);
-
-                    value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
-                }
-            }
-
-            ScriptableSettings.SetOrOverwrite(type, value);
-
-            return value;
-        }
-
-        /// <summary>
-        /// Save a <see cref="ScriptableSettings"/>.
-        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Save) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Save) + " instead.")]
         public static void Save(this ScriptableSettings scriptableSettings)
         {
-            Type type = scriptableSettings.GetType();
-
-            if (!TryGetAttributeData(type, out SettingsScope? settingsScope, out _, out string? filePath, out _))
-            {
-                return;
-            }
-
-            if (filePath == null)
-            {
-                if (settingsScope == SettingsScope.Project)
-                {
-                    EditorUtility.SetDirty(scriptableSettings);
-                    AssetDatabase.SaveAssetIfDirty(scriptableSettings);
-
-                    return;
-                }
-
-                string value = EditorJsonUtility.ToJson(scriptableSettings, true);
-                EditorPrefs.SetString(GetPrefsKey(type), value);
-
-                return;
-            }
-
-            if (settingsScope == SettingsScope.Project && !string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(scriptableSettings)))
-            {
-                EditorUtility.SetDirty(scriptableSettings);
-                AssetDatabase.SaveAssetIfDirty(scriptableSettings);
-
-                return;
-            }
-
-            string? directoryName = Path.GetDirectoryName(filePath);
-
-            if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
-            {
-                Directory.CreateDirectory(directoryName);
-            }
-
-            SaveTarget[0] = scriptableSettings;
-            InternalEditorUtility.SaveToSerializedFileAndForget(SaveTarget, filePath, true);
-
-            SaveTarget[0] = null;
+            scriptableSettings.Save();
         }
 
-        /// <summary>
-        /// Gets the file path for a given <see cref="ScriptableSettings"/> type.
-        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.TryGet) + " instead.")]
         public static bool TryGetAttributeData(Type type, [NotNullWhen(true)] out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords)
         {
-            settingsScope = null;
-            windowPath = null;
-            filePath = null;
-            keywords = null;
-
-            ProjectSettingsAttribute projectSettingsAttribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
-
-            if (projectSettingsAttribute != null)
+            switch (ScriptableSettings.GetTypeData(type, out windowPath, out filePath, out keywords))
             {
-                settingsScope = SettingsScope.Project;
-                windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? EngineUtility.GetDisplayName(type.Name)}";
-                filePath = projectSettingsAttribute.IsEditorOnly && projectSettingsAttribute.FileDirectory != null ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
-                keywords = projectSettingsAttribute.Keywords;
-            }
+                case ScriptableSettingsType.EditorProjectSettings:
+                case ScriptableSettingsType.RuntimeProjectSettings:
+                {
+                    settingsScope = SettingsScope.Project;
 
-            PreferencesAttribute preferencesAttribute = type.GetCustomAttribute<PreferencesAttribute>();
+                    break;
+                }
 
-            if (preferencesAttribute != null)
-            {
-                settingsScope = SettingsScope.User;
-                windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? EngineUtility.GetDisplayName(type.Name)}" : null;
-                filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset"}";
-                keywords = preferencesAttribute.Keywords;
+                case ScriptableSettingsType.EditorUserPreferences:
+                case ScriptableSettingsType.ProjectUserPreferences:
+                {
+                    settingsScope = SettingsScope.User;
+
+                    break;
+                }
+
+                default:
+                {
+                    settingsScope = null;
+
+                    break;
+                }
             }
 
             return settingsScope != null;
         }
 
-        /// <summary>
-        /// Tries to create or load a <see cref="ScriptableSettings"/>.
-        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.TryGet) + " instead.")]
         public static bool TryLoadOrCreate<T>([NotNullWhen(true)] out T? scriptableSettings, ScriptableSettings.FindHandler? findCallback = null)
             where T : ScriptableSettings
         {
-            scriptableSettings = LoadOrCreate(typeof(T), findCallback) as T;
-
-            return scriptableSettings != null;
+            return ScriptableSettings.TryGet(out scriptableSettings);
         }
 
-        /// <summary>
-        /// Gets the prefs key to use with a given type.
-        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(GetPrefsKey) + " shouldn't be used anymore, use " + nameof(ApplicationUtility) + "." + nameof(ApplicationUtility.GetPrefsKey) + " instead.")]
         public static string GetPrefsKey(Type type)
         {
-            return $"{CoimbraUtility.PackageName}.{type.FullName}";
+            return ApplicationUtility.GetPrefsKey(type);
         }
 
         private static void HandleEditorApplicationFocusChanged(bool isFocused)
         {
-            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
+            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
             {
-                pair.Value.Reload();
-            }
-        }
-
-        private static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, [NotNullWhen(true)] out ScriptableSettings? scriptableSettings)
-        {
-            Object[] objects = InternalEditorUtility.LoadSerializedFileAndForget(filePath);
-
-            foreach (Object o in objects)
-            {
-                if (o is ScriptableSettings match && match.Type == filter)
+                if (pair.Value.Current.TryGetValid(out ScriptableSettings? value))
                 {
-                    ScriptableSettings.Set(type, match);
-                    scriptableSettings = match;
-
-                    return true;
+                    value.Reload();
                 }
             }
-
-            scriptableSettings = null;
-
-            return false;
         }
     }
 }

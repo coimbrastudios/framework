@@ -10,6 +10,7 @@ namespace Coimbra.Services.Pooling
     /// <see cref="ScriptableSettingsType.RuntimeProjectSettings"/> for <see cref="PoolSystem"/>.
     /// </summary>
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath)]
+    [ScriptableSettingsProvider(typeof(FindAnywhereScriptableSettingsProvider))]
     public sealed class PoolSettings : ScriptableSettings
     {
         [SerializeField]

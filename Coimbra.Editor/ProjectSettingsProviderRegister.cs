@@ -17,7 +17,7 @@ namespace Coimbra.Editor
             {
                 foreach (Type type in TypeCache.GetTypesWithAttribute<ProjectSettingsAttribute>())
                 {
-                    if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && !type.IsGenericType && !type.IsAbstract)
+                    if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && type is { IsGenericType: false, IsAbstract: false })
                     {
                         bool hasProvider = ScriptableSettingsProvider.TryCreate(type, out ScriptableSettingsProvider? provider);
                         Debug.Assert(hasProvider, $"{type} should not have null as the {nameof(ProjectSettingsAttribute.WindowPath)}.");

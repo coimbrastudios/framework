@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4fdaf48a44edbb4da9e66d9d92e3176, type: 3}
   m_Name: HardDifficultySettings
   m_EditorClassIdentifier: 
-  _preload: 1
+  _preload: 0
   _type: 0
-  _isDefault: 0
   _cubeMovementSpeed: 15

@@ -1,8 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿#nullable enable
+
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -29,44 +33,42 @@ namespace Coimbra
     /// <seealso cref="PreferencesAttribute"/>
     /// <seealso cref="ProjectSettingsAttribute"/>
     /// <seealso cref="ScriptableSettingsType"/>
+    /// <seealso cref="ScriptableSettingsTypeUtility"/>
+    /// <seealso cref="ScriptableSettingsProviderAttribute"/>
+    /// <seealso cref="IScriptableSettingsProvider"/>
+    /// <seealso cref="FindAnywhereScriptableSettingsProvider"/>
+    /// <seealso cref="LoadOrCreateScriptableSettingsProvider"/>
     [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {
-        /// <summary>
-        /// Delegate for using with the find methods.
-        /// </summary>
+        internal sealed class Instance
+        {
+            internal readonly IScriptableSettingsProvider Provider;
+
+            internal Instance(IScriptableSettingsProvider provider)
+            {
+                Provider = provider;
+            }
+
+            internal ScriptableSettings? Current { get; set; }
+
+            internal ScriptableSettings? Default { get; set; }
+        }
+
+#pragma warning disable CS0618
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindHandler) + " shouldn't be used anymore, use the new " + nameof(ScriptableSettingsProviderAttribute) + " instead.")]
         public delegate ScriptableSettings FindHandler(Type type);
 
-        /// <summary>
-        /// Finds with <see cref="Resources.FindObjectsOfTypeAll"/>, returning null if none. Also logs a warning if more than 1 is found.
-        /// </summary>
-        public static readonly FindHandler FindSingle = delegate(Type type)
-        {
-            Object[] rawValues = ObjectUtility.FindAllAnywhere(type);
+        // ReSharper disable once UnassignedReadonlyField
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindSingle) + " shouldn't be used anymore, use the new " + nameof(ScriptableSettingsProviderAttribute) + " instead.")]
+        public static readonly FindHandler? FindSingle;
+#pragma warning restore CS0618
 
-            if (rawValues.Length == 0)
-            {
-                return null;
-            }
+        internal static readonly Dictionary<Type, Instance> Map = new();
 
-            if (rawValues.Length > 1)
-            {
-                Debug.LogWarning($"It was expected a single loaded object of type {type}, but it was found {rawValues.Length}!");
-#if UNITY_EDITOR
-                foreach (Object rawValue in rawValues)
-                {
-                    Debug.Log(UnityEditor.AssetDatabase.GetAssetPath(rawValue), rawValue);
-                }
-#endif
-            }
-
-            ScriptableSettings result = (ScriptableSettings)rawValues[0];
-            Map[type] = result;
-
-            return result;
-        };
-
-        internal static readonly Dictionary<Type, ScriptableSettings> Map = new();
+        private static readonly Object?[] SaveTarget = new Object?[1];
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
@@ -86,13 +88,19 @@ namespace Coimbra
 
         protected ScriptableSettings()
         {
-            Type = GetType(GetType());
+            Type = GetTypeData(GetType());
 
-            if (Type.IsEditorOnly())
+            if (IsDefault || Type.IsEditorOnly())
             {
                 _preload = false;
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether this setting was created as a default setting.
+        /// </summary>
+        [PublicAPI]
+        public bool IsDefault { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this setting should be included in the preloaded assets.
@@ -126,40 +134,94 @@ namespace Coimbra
         protected internal static bool IsQuitting { get; internal set; }
 
         /// <summary>
-        /// Gets the last set value for the specified type, but also tries to find one if not set.
+        /// Gets the last set value for the specified type. If none, will fallbacks to its type <see cref="IScriptableSettingsProvider"/>.
         /// </summary>
-        /// <remarks>
-        /// It will never call <see cref="Set"/> or <see cref="SetOrOverwrite"/> for you, but you can use a custom <paramref name="findCallback"/> to do it if no value is found.
-        /// </remarks>
         /// <param name="type">The type of the settings.</param>
-        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptableSettings GetOrFind(Type type, FindHandler findCallback = null)
+        public static ScriptableSettings? Get(Type type)
         {
-            if (Map.TryGetValue(type, out ScriptableSettings value) && value.IsValid())
-            {
-                return value;
-            }
+            Get(type, out ScriptableSettings? value, false);
 
-            findCallback ??= FindSingle;
-
-            return findCallback.Invoke(type);
+            return value;
         }
 
-        /// <inheritdoc cref="GetOrFind"/>
+        /// <inheritdoc cref="Get"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetOrFind<T>(FindHandler findCallback = null)
+        public static T? Get<T>()
             where T : ScriptableSettings
         {
-            return GetOrFind(typeof(T), findCallback) as T;
+            Get(typeof(T), out ScriptableSettings? value, false);
+
+            return (T?)value;
         }
 
         /// <summary>
-        /// Gets the <see cref="ScriptableSettingsType"/> for the specified <paramref name="type"/>.
+        /// Tries to get a value with <see cref="Get"/>. If none, fallbacks to a default created instance.
         /// </summary>
+        /// <returns>Always a valid instance.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetOrDefault<T>()
+            where T : ScriptableSettings
+        {
+            Get(typeof(T), out ScriptableSettings? value, true);
+
+            return (T)value!;
+        }
+
+        /// <inheritdoc cref="GetOrDefault{T}()"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetOrDefault<T>(out T value)
+            where T : ScriptableSettings
+        {
+            Get(typeof(T), out ScriptableSettings? raw, true);
+
+            value = (T)raw!;
+        }
+
+#pragma warning disable CS0618
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(GetOrDefault) + ", or " + nameof(IsSet) + " instead.")]
+        public static ScriptableSettings? GetOrFind(Type type, FindHandler? findHandler = null)
+        {
+            return Get(type);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(GetOrDefault) + ", or " + nameof(IsSet) + " instead.")]
+        public static T? GetOrFind<T>(FindHandler? findHandler = null)
+            where T : ScriptableSettings
+        {
+            return Get<T>();
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetType) + " shouldn't be used anymore, use " + nameof(GetTypeData) + " instead.")]
         public static ScriptableSettingsType GetType(Type type)
         {
+            return GetTypeData(type);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetType) + " shouldn't be used anymore, use " + nameof(GetTypeData) + " instead.")]
+        public static ScriptableSettingsType GetType<T>()
+            where T : ScriptableSettings
+        {
+            return GetTypeData(typeof(T));
+        }
+#pragma warning restore CS0618
+
+        /// <summary>
+        /// Gets the <see cref="ScriptableSettingsType"/> for the <paramref name="type"/>.
+        /// </summary>
+        public static ScriptableSettingsType GetTypeData(Type type)
+        {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+
             ProjectSettingsAttribute projectSettingsAttribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
 
             if (projectSettingsAttribute != null)
@@ -177,12 +239,77 @@ namespace Coimbra
             return ScriptableSettingsType.Custom;
         }
 
-        /// <inheritdoc cref="GetType(System.Type)"/>
+        /// <summary>
+        /// Gets the <see cref="ProjectSettingsAttribute"/> or <see cref="PreferencesAttribute"/> data for a <see cref="ScriptableSettings"/> type.
+        /// </summary>
+        /// <returns>The <see cref="ScriptableSettingsType"/> for the specified <paramref name="type"/>.</returns>
+        public static ScriptableSettingsType GetTypeData(Type type, out string? windowPath, out string? filePath, out string[]? keywords)
+        {
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+
+            windowPath = null;
+            filePath = null;
+            keywords = null;
+
+            ProjectSettingsAttribute projectSettingsAttribute = type.GetCustomAttribute<ProjectSettingsAttribute>();
+
+            if (projectSettingsAttribute != null)
+            {
+                windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? ApplicationUtility.GetDisplayName(type.Name)}";
+                filePath = projectSettingsAttribute is { IsEditorOnly: true, FileDirectory: { } } ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
+                keywords = projectSettingsAttribute.Keywords;
+
+                return projectSettingsAttribute.IsEditorOnly ? ScriptableSettingsType.EditorProjectSettings : ScriptableSettingsType.RuntimeProjectSettings;
+            }
+
+            PreferencesAttribute preferencesAttribute = type.GetCustomAttribute<PreferencesAttribute>();
+
+            if (preferencesAttribute != null)
+            {
+                windowPath = preferencesAttribute.WindowPath != null ? $"{preferencesAttribute.WindowPath}/{preferencesAttribute.NameOverride ?? ApplicationUtility.GetDisplayName(type.Name)}" : null;
+                filePath = preferencesAttribute.UseEditorPrefs ? null : $"{preferencesAttribute.FileDirectory}/{preferencesAttribute.FileNameOverride ?? $"{type.Name}.asset"}";
+                keywords = preferencesAttribute.Keywords;
+
+                return preferencesAttribute.UseEditorPrefs ? ScriptableSettingsType.EditorUserPreferences : ScriptableSettingsType.ProjectUserPreferences;
+            }
+
+            return ScriptableSettingsType.Custom;
+        }
+
+        /// <summary>
+        /// Checks if the value is set for the specified type.
+        /// </summary>
+        /// <param name="type">The type of the settings.</param>
+        /// <param name="result">The settings if set and still valid.</param>
+        /// <returns>True if the settings is set and still valid.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptableSettingsType GetType<T>()
+        public static bool IsSet(Type type, [NotNullWhen(true)] out ScriptableSettings? result)
+        {
+            if (Map.TryGetValue(type, out Instance instance) && instance.Current.TryGetValid(out result) && !result.IsDefault)
+            {
+                return true;
+            }
+
+            result = null;
+
+            return false;
+        }
+
+        /// <inheritdoc cref="IsSet"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsSet<T>([NotNullWhen(true)] out T? result)
             where T : ScriptableSettings
         {
-            return GetType(typeof(T));
+            if (IsSet(typeof(T), out ScriptableSettings? rawResult))
+            {
+                result = (T)rawResult;
+
+                return true;
+            }
+
+            result = null;
+
+            return false;
         }
 
         /// <summary>
@@ -196,7 +323,7 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Set(Type type, ScriptableSettings value)
+        public static void Set(Type type, ScriptableSettings? value)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             Set(false, type, value);
@@ -221,7 +348,7 @@ namespace Coimbra
         /// <param name="type">The type of the settings.</param>
         /// <param name="value">The new value for the specified type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetOrOverwrite(Type type, ScriptableSettings value)
+        public static void SetOrOverwrite(Type type, ScriptableSettings? value)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
             Set(true, type, value);
@@ -229,71 +356,167 @@ namespace Coimbra
 
         /// <inheritdoc cref="SetOrOverwrite"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetOrOverwrite<T>(T value)
+        public static void SetOrOverwrite<T>(T? value)
             where T : ScriptableSettings
         {
             Set(true, typeof(T), value);
         }
 
         /// <summary>
-        /// Tries to get the last set value for the specified type.
+        /// Tries to get a value with <see cref="Get"/>. If none, return false and the <paramref name="value"/> will be null.
         /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <param name="result">The settings if set and still valid.</param>
-        /// <returns>True if the settings is set and still valid.</returns>
+        /// <returns>Always a valid instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(Type type, [NotNullWhen(true)] out ScriptableSettings result)
+        public static bool TryGet(Type type, [NotNullWhen(true)] out ScriptableSettings? value)
         {
-            if (Map.TryGetValue(type, out ScriptableSettings value))
-            {
-                return value.TryGetValid(out result);
-            }
-
-            result = null;
-
-            return false;
+            return Get(type, out value, false);
         }
 
         /// <inheritdoc cref="TryGet"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<T>([NotNullWhen(true)] out T result)
+        public static bool TryGet<T>([NotNullWhen(true)] out T? value)
             where T : ScriptableSettings
         {
-            if (TryGet(typeof(T), out ScriptableSettings rawResult))
+            bool isSet = Get(typeof(T), out ScriptableSettings? raw, false);
+            value = (T?)raw;
+
+            return isSet;
+        }
+
+#pragma warning disable CS0618
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use " + nameof(TryGet) + " instead.")]
+        public static bool TryGetOrFind(Type type, [NotNullWhen(true)] out ScriptableSettings? value, FindHandler? findHandler = null)
+        {
+            return TryGet(type, out value);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use " + nameof(TryGet) + " instead.")]
+        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T? value, FindHandler? findHandler = null)
+            where T : ScriptableSettings
+        {
+            return TryGet(out value);
+        }
+#pragma warning restore CS0618
+
+        /// <summary>
+        /// Tries to load a <see cref="ScriptableSettings"/> from the disk.
+        /// </summary>
+        /// <returns>True if loaded with success, false if it fails.</returns>
+        public static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, [NotNullWhen(true)] out ScriptableSettings? scriptableSettings)
+        {
+#if UNITY_EDITOR
+            Object[] objects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(filePath);
+
+            foreach (Object o in objects)
             {
-                result = (T)rawResult;
+                if (o is ScriptableSettings match && match.Type == filter)
+                {
+                    Set(type, match);
+                    scriptableSettings = match;
 
-                return true;
+                    return true;
+                }
             }
+#endif
 
-            result = null;
+            scriptableSettings = null;
 
             return false;
         }
 
         /// <summary>
-        /// Tries to get the last set value for the specified type, but also tries to find one through <see cref="Resources.FindObjectsOfTypeAll"/> if not set.
+        /// Reloads this <see cref="ScriptableSettings"/> from the disk, if supported.
         /// </summary>
-        /// <param name="type">The type of the settings.</param>
-        /// <param name="result">The settings if set and still valid or if a new one could be found.</param>
-        /// <param name="findCallback">How to find a new instance. Defaults to use <see cref="FindSingle"/>.</param>.
-        /// <returns>True if the settings is set and still valid or if a new one could be found.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetOrFind(Type type, [NotNullWhen(true)] out ScriptableSettings result, FindHandler findCallback = null)
+        public void Reload()
         {
-            result = GetOrFind(type, findCallback);
+#if UNITY_EDITOR
+            ScriptableSettingsType type = GetTypeData(GetType(), out _, out string? filePath, out _);
 
-            return result.IsValid();
+            if (type == ScriptableSettingsType.Custom || IsDefault || !string.IsNullOrWhiteSpace(UnityEditor.AssetDatabase.GetAssetPath(this)))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                if (!TryLoad(GetType(), filePath, Type, out ScriptableSettings? target))
+                {
+                    target = (ScriptableSettings)CreateInstance(GetType());
+                }
+
+                JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(target), this);
+                DestroyImmediate(target, false);
+            }
+            else if (type.IsUserPreferences())
+            {
+                ScriptableSettings target = (ScriptableSettings)CreateInstance(GetType());
+                string defaultValue = UnityEditor.EditorJsonUtility.ToJson(target, false);
+                string newValue = UnityEditor.EditorPrefs.GetString(ApplicationUtility.GetPrefsKey(GetType()), defaultValue);
+                UnityEditor.EditorJsonUtility.FromJsonOverwrite(newValue, this);
+
+                if (Type != type)
+                {
+                    JsonUtility.FromJsonOverwrite(defaultValue, this);
+                }
+
+                DestroyImmediate(target, false);
+            }
+#endif
         }
 
-        /// <inheritdoc cref="TryGetOrFind"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T result, FindHandler findCallback = null)
-            where T : ScriptableSettings
+        /// <summary>
+        /// Saves this <see cref="ScriptableSettings"/> to the disk, if supported.
+        /// </summary>
+        public void Save()
         {
-            result = GetOrFind(typeof(T), findCallback) as T;
+#if UNITY_EDITOR
+            ScriptableSettingsType type = GetTypeData(GetType(), out _, out string? filePath, out _);
 
-            return result.IsValid();
+            if (type == ScriptableSettingsType.Custom || IsDefault)
+            {
+                return;
+            }
+
+            if (filePath == null)
+            {
+                if (type.IsProjectSettings())
+                {
+                    UnityEditor.EditorUtility.SetDirty(this);
+                    UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+
+                    return;
+                }
+
+                string value = UnityEditor.EditorJsonUtility.ToJson(this, true);
+                UnityEditor.EditorPrefs.SetString(ApplicationUtility.GetPrefsKey(GetType()), value);
+
+                return;
+            }
+
+            if (type.IsProjectSettings() && !string.IsNullOrWhiteSpace(UnityEditor.AssetDatabase.GetAssetPath(this)))
+            {
+                UnityEditor.EditorUtility.SetDirty(this);
+                UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+
+                return;
+            }
+
+            string? directoryName = Path.GetDirectoryName(filePath);
+
+            if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
+            {
+                Directory.CreateDirectory(directoryName);
+            }
+
+            SaveTarget[0] = this;
+            UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(SaveTarget, filePath, true);
+
+            SaveTarget[0] = null;
+#endif
         }
 
         internal void ValidatePreload()
@@ -302,7 +525,7 @@ namespace Coimbra
             GUI.changed = true;
             UnityEditor.EditorUtility.SetDirty(this);
 
-            if (Type.IsEditorOnly())
+            if (IsDefault || Type.IsEditorOnly())
             {
                 _preload = false;
             }
@@ -336,42 +559,37 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Unity callback.
-        /// </summary>
-        protected virtual void Reset()
-        {
-#if UNITY_EDITOR
-            if (Type.IsEditorOnly())
-            {
-                _preload = false;
-            }
-
-            if (_preload)
-            {
-                EnsurePreload(false);
-            }
-#endif
-        }
-
-        /// <summary>
         /// Use this for one-time initializations instead of <see cref="OnEnable"/> callback. This method can be called inside edit-mode when inside the editor.
         /// </summary>
         protected virtual void OnLoaded()
         {
-            Set(GetType(), this);
+            if (!IsDefault)
+            {
+                Set(GetType(), this);
+            }
         }
 
         /// <summary>
-        /// Use this for one-time un-initializations instead of <see cref="OnDisable"/> callback. This method can be called inside edit-mode when inside the editor.
+        /// Use this instead of the standard <see cref="Reset"/> callback.
         /// </summary>
-        protected virtual void OnUnload(bool wasCurrentInstance) { }
+        protected virtual void OnReset() { }
 
         /// <summary>
-        /// Unity callback.
+        /// Use this for one-time un-initializations instead of <see cref="OnDisable"/> callback. This method may be called inside edit-mode when inside the editor.
         /// </summary>
-        protected virtual void OnValidate()
+        protected virtual void OnUnload() { }
+
+        /// <summary>
+        /// Use this instead of the standard <see cref="OnValidate"/> callback.
+        /// </summary>
+        protected virtual void OnValidating() { }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnUnload"/> instead.
+        /// </summary>
+        protected void OnDisable()
         {
-            ValidatePreload();
+            OnUnload();
         }
 
         /// <summary>
@@ -388,19 +606,32 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnUnload"/> instead.
+        /// Non-virtual by design, use <see cref="OnReset"/> instead.
         /// </summary>
-        protected void OnDisable()
+        protected void Reset()
         {
-            Type type = GetType();
-            bool wasCurrentInstance = TryGet(type, out ScriptableSettings current) && current == this;
-
-            if (wasCurrentInstance)
+#if UNITY_EDITOR
+            if (IsDefault || Type.IsEditorOnly())
             {
-                SetOrOverwrite(type, null);
+                _preload = false;
             }
 
-            OnUnload(wasCurrentInstance);
+            if (_preload)
+            {
+                EnsurePreload(false);
+            }
+#endif
+
+            OnReset();
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnValidating"/> instead.
+        /// </summary>
+        protected void OnValidate()
+        {
+            ValidatePreload();
+            OnValidating();
         }
 
         private static void HandleApplicationQuitting()
@@ -408,42 +639,110 @@ namespace Coimbra
             IsQuitting = true;
         }
 
-        private static void Set(bool forceSet, Type type, ScriptableSettings value)
+        private static bool Get(Type type, out ScriptableSettings? value, bool allowDefault)
+        {
+            if (Map.TryGetValue(type, out Instance instance))
+            {
+                if (instance.Current.TryGetValid(out value))
+                {
+                    if (allowDefault || !value.IsDefault)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                instance = InitializeInstance(type);
+            }
+
+            {
+                value = instance.Provider.GetScriptableSettings(type);
+
+                if (value.TryGetValid(out value))
+                {
+                    instance.Current = value;
+
+                    return true;
+                }
+
+                if (!allowDefault)
+                {
+                    return false;
+                }
+
+                if (instance.Default == null)
+                {
+                    instance.Default = (ScriptableSettings)CreateInstance(type);
+                    instance.Default.IsDefault = true;
+                }
+
+                value = instance.Default;
+                instance.Current = value;
+
+                return true;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Instance InitializeInstance(Type type)
+        {
+            ScriptableSettingsProviderAttribute? providerAttribute = type.GetCustomAttribute<ScriptableSettingsProviderAttribute>();
+
+            if (providerAttribute == null || !providerAttribute.Type.TryCreateInstance(out IScriptableSettingsProvider provider))
+            {
+                provider = FindAnywhereScriptableSettingsProvider.Default;
+            }
+
+            Instance value = new(provider);
+            Map.Add(type, value);
+
+            return value;
+        }
+
+        private static void Set(bool forceSet, Type type, ScriptableSettings? value)
         {
             value = value.GetValid();
 
-            if (TryGet(type, out ScriptableSettings currentValue) && value != currentValue)
+            if (Map.TryGetValue(type, out Instance instance))
             {
-                if (forceSet)
+                if (instance.Current.TryGetValid(out ScriptableSettings? current) && !current.IsDefault && value != current)
                 {
-                    if (!ApplicationUtility.IsReloadingScripts && !IsQuitting && !GetType(type).IsEditorOnly())
+                    if (forceSet)
                     {
-                        Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} from \"{currentValue}\"!", currentValue);
-                        Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                        if (!ApplicationUtility.IsReloadingScripts && !IsQuitting && !GetTypeData(type).IsEditorOnly())
+                        {
+                            Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} from \"{current}\"!", current);
+                            Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);
+                        }
                     }
-                }
-                else
-                {
-                    if (GetType(type).IsEditorOnly())
+                    else
                     {
+                        if (GetTypeData(type).IsEditorOnly())
+                        {
+                            return;
+                        }
+
+                        Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{current}\"!", current);
+                        Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
+
                         return;
                     }
-
-                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} is already set to \"{currentValue}\"!", currentValue);
-                    Debug.LogWarning($"{type} in {nameof(ScriptableSettings)} can't be overriden to \"{value}\".", value);
-
-                    return;
                 }
+            }
+            else
+            {
+                instance = InitializeInstance(type);
             }
 
             if (value != null)
             {
                 Debug.Assert(type.IsInstanceOfType(value));
-                Map[type] = value;
+                instance.Current = value;
             }
             else
             {
-                Map.Remove(type);
+                instance.Current = null;
             }
         }
 

@@ -10,6 +10,7 @@ namespace Coimbra.Editor
     /// </summary>
     [InitializeOnLoad]
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
+    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     public sealed class EditorStartupSceneSettings : ScriptableSettings
     {
         [SerializeField]
@@ -34,7 +35,7 @@ namespace Coimbra.Editor
         private static void ConfigureStartupScene(PlayModeStateChange state)
         {
             EditorStartupSceneStateSettings stateSettings = GetInternalSettings(state);
-            Debug.Assert(ScriptableSettingsUtility.TryLoadOrCreate(out EditorStartupSceneSettings settings));
+            GetOrDefault(out EditorStartupSceneSettings settings);
 
             if (settings.StartupScene == null)
             {
@@ -81,7 +82,7 @@ namespace Coimbra.Editor
 
         private static EditorStartupSceneStateSettings GetInternalSettings(PlayModeStateChange state)
         {
-            Debug.Assert(ScriptableSettingsUtility.TryLoadOrCreate(out EditorStartupSceneStateSettings internalSettings));
+            GetOrDefault(out EditorStartupSceneStateSettings internalSettings);
 
             switch (state)
             {

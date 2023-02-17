@@ -2,26 +2,23 @@ using UnityEngine;
 
 namespace Coimbra.Samples.DifficultySettings
 {
+    /// <summary>
+    /// Example of how to create a <see cref="ScriptableSettingsType.Custom"/> <see cref="ScriptableSettings"/> that is expected to have the current instance changed at runtime.
+    /// </summary>
+    /// <seealso cref="DifficultyListSettings"/>
+    /// <seealso cref="DifficultySettingsCube"/>
     [CreateAssetMenu(menuName = CoimbraUtility.GeneralMenuPath + "Samples/Difficulty Settings")]
     public sealed class DifficultySettings : ScriptableSettings
     {
         [SerializeField]
-        private bool _isDefault;
-
-        [SerializeField]
         private float _cubeMovementSpeed = 10;
-
-        public bool IsDefault
-        {
-            get => _isDefault;
-            private set => _isDefault = value;
-        }
 
         public float CubeMovementSpeed => _cubeMovementSpeed;
 
+        /// <inheritdoc/>
         protected override void OnLoaded()
         {
-            if (!_isDefault)
+            if (!Preload)
             {
                 return;
             }
@@ -31,27 +28,29 @@ namespace Coimbra.Samples.DifficultySettings
             Application.quitting += HandleApplicationQuitting;
         }
 
-        protected override void OnUnload(bool wasCurrentInstance)
+        /// <inheritdoc/>
+        protected override void OnUnload()
         {
             Application.quitting -= HandleApplicationQuitting;
 
-            base.OnUnload(wasCurrentInstance);
+            base.OnUnload();
         }
 
-        protected override void OnValidate()
+        /// <inheritdoc/>
+        protected override void OnValidating()
         {
-            base.OnValidate();
+            base.OnValidating();
 
 #if UNITY_EDITOR
-            if (_isDefault)
+            if (Preload)
             {
                 foreach (string asset in UnityEditor.AssetDatabase.FindAssets($"t:{nameof(DifficultySettings)}"))
                 {
                     DifficultySettings difficultySettings = UnityEditor.AssetDatabase.LoadAssetAtPath<DifficultySettings>(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
 
-                    if (difficultySettings.IsValid() && difficultySettings.IsDefault && difficultySettings != this)
+                    if (difficultySettings.IsValid() && difficultySettings.Preload && difficultySettings != this)
                     {
-                        difficultySettings.IsDefault = false;
+                        difficultySettings.Preload = false;
                     }
                 }
 
@@ -62,7 +61,7 @@ namespace Coimbra.Samples.DifficultySettings
 
         private void HandleApplicationQuitting()
         {
-            if (_isDefault)
+            if (Preload)
             {
                 SetOrOverwrite(this);
             }

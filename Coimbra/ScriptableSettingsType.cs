@@ -6,6 +6,7 @@
     /// <seealso cref="PreferencesAttribute"/>
     /// <seealso cref="ProjectSettingsAttribute"/>
     /// <seealso cref="ScriptableSettings"/>
+    /// <seealso cref="ScriptableSettingsTypeUtility"/>
     public enum ScriptableSettingsType
     {
         /// <summary>

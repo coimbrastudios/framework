@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using UnityEngine;
 
@@ -124,6 +125,14 @@ namespace Coimbra
 
                 return stringBuilder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Gets a prefs key to use with a given type in the format '{<see cref="CoimbraUtility.PackageName"/>}.{<see cref="Type.FullName"/>}'.
+        /// </summary>
+        public static string GetPrefsKey(Type type)
+        {
+            return $"{CoimbraUtility.PackageName}.{type.FullName}";
         }
 
         private static bool IsNullOrUnderscores(ref string value, out int firstIndexOfNonUnderscore)

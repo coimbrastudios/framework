@@ -187,20 +187,6 @@ namespace Coimbra.Services.Events
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private EventSettings GetOrCreateEventSettings()
-        {
-            if (ScriptableSettings.TryGetOrFind(out EventSettings eventSettings, ScriptableSettings.FindSingle))
-            {
-                return eventSettings;
-            }
-
-            eventSettings = ScriptableObject.CreateInstance<EventSettings>();
-            ScriptableSettings.Set(eventSettings);
-
-            return eventSettings;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Invoke<T>(ref EventContext eventContext, in T eventData)
             where T : IEvent
         {
@@ -211,7 +197,7 @@ namespace Coimbra.Services.Events
 
             if (e.IsInvoking)
             {
-                EventSettings eventSettings = GetOrCreateEventSettings();
+                ScriptableSettings.GetOrDefault(out EventSettings eventSettings);
 
                 if (eventSettings.LogRecursiveInvocationWarning)
                 {
@@ -232,7 +218,7 @@ namespace Coimbra.Services.Events
             {
                 try
                 {
-                    EventSettings eventSettings = GetOrCreateEventSettings();
+                    ScriptableSettings.GetOrDefault(out EventSettings eventSettings);
 
                     if (eventSettings.ValidateInvocationTargets)
                     {

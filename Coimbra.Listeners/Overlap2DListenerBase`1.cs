@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
@@ -11,7 +12,7 @@ namespace Coimbra.Listeners
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerLoopListenerBase))]
     [MovedFrom(true, "Coimbra", "Coimbra")]
-    public abstract class Overlap2DListenerBase<T> : ActorComponentBase
+    public abstract class Overlap2DListenerBase<T> : ActorComponentBase, IDisposable
         where T : Component
     {
         public delegate void OverlapEventHandler(Overlap2DListenerBase<T> sender, Collider2D other);
@@ -177,6 +178,7 @@ namespace Coimbra.Listeners
         /// <inheritdoc/>
         protected sealed override void OnPreInitializeActor()
         {
+            Actor.OnDestroying += HandleActorDestroying;
             PlayerLoopListener.OnTrigger += HandlePlayerLoop;
         }
 
@@ -189,10 +191,7 @@ namespace Coimbra.Listeners
             }
         }
 
-        /// <summary>
-        /// Unity callback.
-        /// </summary>
-        protected void OnDestroy()
+        private void HandleActorDestroying(Actor sender, Actor.DestroyReason reason)
         {
             PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
         }
@@ -203,6 +202,12 @@ namespace Coimbra.Listeners
             {
                 ForceUpdateOverlaps();
             }
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
+        {
+            PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
         }
     }
 }

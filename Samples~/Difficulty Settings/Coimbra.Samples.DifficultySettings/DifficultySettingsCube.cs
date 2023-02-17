@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace Coimbra.Samples.DifficultySettings
 {
+    /// <summary>
+    /// A simple moving cube implementation that gets its speed from the current <see cref="DifficultySettings"/> set.
+    /// </summary>
+    /// <remarks>
+    /// It also showcases the usage of the <see cref="UpdateEvent"/> and <see cref="EventHandleTrackerComponent"/>.
+    /// </remarks>
+    /// <seealso cref="DifficultyListSettings"/>
+    /// <seealso cref="DifficultySettings"/>
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Samples/Difficulty Settings Cube")]
     [RequireComponent(typeof(EventHandleTrackerComponent))]
     public sealed class DifficultySettingsCube : Actor
@@ -13,6 +21,7 @@ namespace Coimbra.Samples.DifficultySettings
 
         private Vector3 _origin;
 
+        /// <inheritdoc/>
         protected override void OnInitialize()
         {
             base.OnInitialize();

@@ -679,10 +679,28 @@ namespace Coimbra
             OnSceneActorsInitializedOnce = null;
         }
 
+        [ContextMenu(nameof(Dispose), true)]
+        private bool CanDispose()
+        {
+            return IsSpawned;
+        }
+
+        [ContextMenu("Dispose (Force Destroy)", true)]
+        private bool CanDisposeWithForceDestroy()
+        {
+            return !IsDestroyed;
+        }
+
         [ContextMenu(nameof(Initialize), true)]
         private bool CanInitialize()
         {
-            return ApplicationUtility.IsPlayMode && !ApplicationUtility.IsFirstFrame;
+            return !IsInitialized;
+        }
+
+        [ContextMenu("Dispose (Force Destroy)")]
+        private void DisposeWithForceDestroy()
+        {
+            Dispose(true);
         }
 
         private bool DestroyInstance(bool callObjectDestroy)
@@ -797,6 +815,7 @@ namespace Coimbra
         }
 
         /// <inheritdoc/>
+        [ContextMenu(nameof(Dispose))]
         void IDisposable.Dispose()
         {
             Dispose(false);

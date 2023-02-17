@@ -16,14 +16,22 @@ To implement a new settings you only need to:
 1. Inherit from [ScriptableSettings].
 2. Add you data fields (usually private fields with public getters).
 3. Add either [CreateAssetMenuAttribute], [PreferencesAttribute], or [ProjectSettingsAttribute].
-4. Configure it in the editor.
-5. (Optional) If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
+4. (Optional) If it is not an editor-only [ScriptableSettings] you can enable the `Preload` option in the inspector to add it to the `Preloaded Assets`.
+5. (Optional) Add the [ScriptableSettingsProviderAttribute] to change from the default [FindAnywhereScriptableSettingsProvider] to either [LoadOrCreateScriptableSettingsProvider] or a custom one by implementing the [IScriptableSettingsProvider].
+
+[FindAnywhereScriptableSettingsProvider]:<../Coimbra/ScriptableSettingsProviders/FindAnywhereScriptableSettingsProvider.cs>
+
+[IScriptableSettingsProvider]:<../Coimbra/IScriptableSettingsProvider.cs>
+
+[LoadOrCreateScriptableSettingsProvider]:<../Coimbra/ScriptableSettingsProviders/LoadOrCreateScriptableSettingsProvider.cs>
 
 [PreferencesAttribute]:<../Coimbra/PreferencesAttribute.cs>
 
 [ProjectSettingsAttribute]:<../Coimbra/ProjectSettingsAttribute.cs>
 
 [ScriptableSettings]:<../Coimbra/ScriptableSettings.cs>
+
+[ScriptableSettingsProviderAttribute]:<../Coimbra/ScriptableSettingsProviderAttribute.cs>
 
 [CreateAssetMenuAttribute]:<https://docs.unity3d.com/ScriptReference/CreateAssetMenuAttribute.html>
 

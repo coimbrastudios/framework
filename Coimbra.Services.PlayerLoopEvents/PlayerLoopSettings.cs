@@ -12,6 +12,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     /// <seealso cref="PlayerLoopEventListener"/>
     /// <seealso cref="PlayerLoopInjectedTimings"/>
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath)]
+    [ScriptableSettingsProvider(typeof(FindAnywhereScriptableSettingsProvider))]
     public sealed class PlayerLoopSettings : ScriptableSettings
     {
         [SerializeField]

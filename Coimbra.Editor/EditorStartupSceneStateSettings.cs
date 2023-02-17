@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     [Preferences(null, false)]
+    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     internal sealed class EditorStartupSceneStateSettings : ScriptableSettings
     {
         [field: SerializeField]

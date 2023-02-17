@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 
 namespace Coimbra.Listeners
@@ -13,7 +14,7 @@ namespace Coimbra.Listeners
     [AddComponentMenu(CoimbraListenersUtility.TransformMenuPath + "Transform Changed Listener")]
     [HelpURL("https://docs.unity3d.com/ScriptReference/Transform-hasChanged.html")]
     [MovedFrom(true, "Coimbra", "Coimbra")]
-    public sealed class TransformChangedListener : ActorComponentBase
+    public sealed class TransformChangedListener : ActorComponentBase, IDisposable
     {
         public delegate void EventHandler(TransformChangedListener sender);
 
@@ -45,6 +46,7 @@ namespace Coimbra.Listeners
         /// <inheritdoc/>
         protected override void OnPreInitializeActor()
         {
+            Actor.OnDestroying += HandleActorDestroying;
             PlayerLoopListener.OnTrigger += HandlePlayerLoop;
         }
 
@@ -57,7 +59,7 @@ namespace Coimbra.Listeners
             }
         }
 
-        private void OnDestroy()
+        private void HandleActorDestroying(Actor sender, Actor.DestroyReason reason)
         {
             PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
         }
@@ -71,6 +73,12 @@ namespace Coimbra.Listeners
 
             Actor.Transform.hasChanged = false;
             OnTrigger?.Invoke(this);
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
+        {
+            PlayerLoopListener.OnTrigger -= HandlePlayerLoop;
         }
     }
 }

@@ -50,7 +50,7 @@ When using any of those APIs you don't need to care about dealing with the `Init
 
 ## Disposing Actors
 
-Due engine limitations, we don't have way to now if a [GameObject] ever gets destroyed unless it was previously active at least once or if we inject our own custom logic between our code and the destruction logic itself.
+Due engine limitations, we don't have way to know if a [GameObject] ever gets destroyed unless it was previously active at least once or if we inject our own custom logic between our code and the destruction logic itself.
 For this reason this package offers a unified way to destroy any object safely:
 
 - [Actor] `Dispose` instance method. When you destroy an [Actor] it destroys the [GameObject] too.
@@ -97,6 +97,11 @@ This framework uses [Actor] in many places, you can check their implementation d
     - [TimerSystem]
 - [ActorComponentBase]
     - [DebugOnlyComponent]
+    - [PlayerLoopListenerBase]
+        - [FixedUpdateListener]
+        - [LateUpdateListener]
+        - [PlayerLoopEventListener]
+        - [UpdateListener]
     - [Overlap2DListenerBase]
         - [ColliderOverlap2DListener]
         - [RigidbodyOverlap2DListener]
@@ -121,13 +126,21 @@ This framework uses [Actor] in many places, you can check their implementation d
 
 [EventHandleTrackerComponent]:<../Coimbra.Services.Events/EventHandleTrackerComponent.cs>
 
+[FixedUpdateListener]:<../Coimbra.Services.PlayerLoopEvents/Listeners/FixedUpdateListener.cs>
+
 [GameObjectUtility]:<../Coimbra/Utilities/GameObjectUtility.cs>
 
 [HierarchyFolder]:<../Coimbra/HierarchyFolder.cs>
 
+[LateUpdateListener]:<../Coimbra.Services.PlayerLoopEvents/Listeners/LateUpdateListener.cs>
+
 [ObjectUtility]:<../Coimbra/Utilities/ObjectUtility.cs>
 
 [Overlap2DListenerBase]:<../Coimbra.Listeners/Overlap2DListenerBase`1.cs>
+
+[PlayerLoopEventListener]:<../Coimbra.Services.PlayerLoopEvents/Listeners/PlayerLoopEventListener.cs>
+
+[PlayerLoopListenerBase]:<../Coimbra.Listeners/PlayerLoopListenerBase.cs>
 
 [PlayerLoopSystem]:<../Coimbra.Services.PlayerLoopEvents/PlayerLoopSystem.cs>
 
@@ -138,6 +151,8 @@ This framework uses [Actor] in many places, you can check their implementation d
 [TimerSystem]:<../Coimbra.Services.Timers/TimerSystem.cs>
 
 [TransformChangedListener]:<../Coimbra.Listeners/Transform/TransformChangedListener.cs>
+
+[UpdateListener]:<../Coimbra.Services.PlayerLoopEvents/Listeners/UpdateListener.cs>
 
 [Component]:<https://docs.unity3d.com/ScriptReference/Component.html>
 

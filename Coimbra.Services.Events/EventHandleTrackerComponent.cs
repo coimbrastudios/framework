@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Coimbra.Services.Events
     /// <seealso cref="IEventService"/>
     /// <seealso cref="EventHandle"/>
     /// <seealso cref="ActorComponentBase"/>
-    public sealed class EventHandleTrackerComponent : ActorComponentBase, ISerializationCallbackReceiver
+    public sealed class EventHandleTrackerComponent : ActorComponentBase, IDisposable, ISerializationCallbackReceiver
     {
         private readonly HashSet<EventHandle> _trackedHandles = new();
 
@@ -81,7 +82,13 @@ namespace Coimbra.Services.Events
         /// <inheritdoc/>
         protected override void OnPostInitializeActor() { }
 
-        private void OnDestroy()
+        private void HandleActorDestroying(Actor sender, Actor.DestroyReason reason)
+        {
+            Clear(true);
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
         {
             if (Actor != null)
             {
@@ -92,11 +99,6 @@ namespace Coimbra.Services.Events
             {
                 Clear(true);
             }
-        }
-
-        private void HandleActorDestroying(Actor sender, Actor.DestroyReason reason)
-        {
-            Clear(true);
         }
 
         /// <inheritdoc/>

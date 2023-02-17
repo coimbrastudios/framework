@@ -34,10 +34,14 @@ namespace Coimbra.Services.PlayerLoopEvents
             }
         }
 
-        private void Awake()
+        /// <inheritdoc/>
+        protected override void OnPreInitializeActor()
         {
             enabled = HasListener;
         }
+
+        /// <inheritdoc/>
+        protected override void OnPostInitializeActor() { }
 
         private void FixedUpdate()
         {

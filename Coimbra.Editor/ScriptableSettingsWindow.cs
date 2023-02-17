@@ -14,7 +14,7 @@ namespace Coimbra.Editor
         {
             internal bool IsOpen;
 
-            internal SettingsScope? SettingsScope;
+            internal bool IsPredefinedType;
 
             internal string AssetPath;
 
@@ -77,21 +77,21 @@ namespace Coimbra.Editor
             using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
-            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Map)
+            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
             {
-                if (_filter != 0 && (_filter & 1 << (int)ScriptableSettings.GetType(pair.Key)) == 0)
+                if (_filter != 0 && (_filter & 1 << (int)ScriptableSettings.GetTypeData(pair.Key)) == 0)
                 {
                     continue;
                 }
 
-                if (!TryGetEditorState(pair.Key, pair.Value, out EditorState editorState))
+                if (!TryGetEditorState(pair.Key, pair.Value.Current, out EditorState editorState) || pair.Value.Current == null)
                 {
                     continue;
                 }
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new();
 
-                DrawEditor(pair.Key, pair.Value, ref editorState);
+                DrawEditor(pair.Key, pair.Value.Current, ref editorState);
 
                 if (!changeCheckScope.changed)
                 {
@@ -99,62 +99,67 @@ namespace Coimbra.Editor
                 }
 
                 _editorStates[pair.Key] = editorState;
-                pair.Value.Save();
+                pair.Value.Current!.Save();
             }
         }
 
         private void DrawEditor(Type type, ScriptableSettings value, ref EditorState editorState)
         {
-            using (new EditorGUI.DisabledScope(editorState.SettingsScope != null && editorState.WindowPath == null))
+            using (new EditorGUI.DisabledScope(editorState is { IsPredefinedType: true, WindowPath: null }))
             {
                 editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Editor);
 
-                if (editorState.IsOpen)
+                if (!editorState.IsOpen)
                 {
-                    using (GUIContentPool.Pop(out GUIContent label))
+                    return;
+                }
+
+                using (GUIContentPool.Pop(out GUIContent label))
+                {
+                    using (new EditorGUI.DisabledScope(true))
                     {
-                        using (new EditorGUI.DisabledScope(true))
-                        {
-                            EditorGUILayout.EnumPopup("Type", value.Type);
-                        }
-
-                        switch (value.Type)
-                        {
-                            case ScriptableSettingsType.Custom:
-                            case ScriptableSettingsType.RuntimeProjectSettings:
-                            {
-                                using (new EditorGUI.DisabledScope(true))
-                                {
-                                    EditorGUILayout.ObjectField("Asset", value, type, false);
-                                }
-
-                                break;
-                            }
-
-                            case ScriptableSettingsType.EditorUserPreferences:
-                            {
-                                label.text = "Asset Key";
-
-                                Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-                                rect = EditorGUI.PrefixLabel(rect, label);
-                                EditorGUI.SelectableLabel(rect, ScriptableSettingsUtility.GetPrefsKey(type));
-
-                                break;
-                            }
-
-                            default:
-                            {
-                                label.text = "Asset Path";
-
-                                Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
-                                rect = EditorGUI.PrefixLabel(rect, label);
-                                EditorGUI.SelectableLabel(rect, editorState.AssetPath);
-
-                                break;
-                            }
-                        }
+                        EditorGUILayout.EnumPopup("Type", value.Type);
                     }
 
+                    switch (value.Type)
+                    {
+                        case ScriptableSettingsType.Custom:
+                        case ScriptableSettingsType.RuntimeProjectSettings:
+                        {
+                            using (new EditorGUI.DisabledScope(true))
+                            {
+                                EditorGUILayout.ObjectField("Asset", value, type, false);
+                            }
+
+                            break;
+                        }
+
+                        case ScriptableSettingsType.EditorUserPreferences:
+                        {
+                            label.text = "Asset Key";
+
+                            Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                            rect = EditorGUI.PrefixLabel(rect, label);
+                            EditorGUI.SelectableLabel(rect, ApplicationUtility.GetPrefsKey(type));
+
+                            break;
+                        }
+
+                        default:
+                        {
+                            label.text = "Asset Path";
+
+                            Rect rect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+                            rect = EditorGUI.PrefixLabel(rect, label);
+                            EditorGUI.SelectableLabel(rect, editorState.AssetPath);
+
+                            break;
+                        }
+                    }
+                }
+
+                using (new EditorGUI.DisabledScope(value.IsDefault))
+                {
                     editorState.Editor.OnInspectorGUI();
                 }
             }
@@ -175,9 +180,8 @@ namespace Coimbra.Editor
                         return false;
                     }
 
-                    ScriptableSettingsUtility.TryGetAttributeData(type, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
-
                     editorState.Editor = UnityEditor.Editor.CreateEditor(value);
+                    editorState.IsPredefinedType = ScriptableSettings.GetTypeData(type, out editorState.WindowPath, out editorState.AssetPath, out _) != ScriptableSettingsType.Custom;
                     _editorStates[type] = editorState;
                 }
             }
@@ -189,11 +193,11 @@ namespace Coimbra.Editor
                 }
 
                 editorState.Editor = UnityEditor.Editor.CreateEditor(value);
-                ScriptableSettingsUtility.TryGetAttributeData(type, out editorState.SettingsScope, out editorState.WindowPath, out editorState.AssetPath, out _);
+                editorState.IsPredefinedType = ScriptableSettings.GetTypeData(type, out editorState.WindowPath, out editorState.AssetPath, out _) != ScriptableSettingsType.Custom;
                 _editorStates.Add(type, editorState);
             }
 
-            return true;
+            return value != null;
         }
     }
 }

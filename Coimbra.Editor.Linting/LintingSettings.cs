@@ -13,9 +13,27 @@ namespace Coimbra.Editor.Linting
     /// </summary>
     [InitializeOnLoad]
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
+    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     public sealed class LintingSettings : ScriptableSettings
     {
         private const string AssemblyDefinitionFilter = "t:asmdef";
+
+        private static readonly string[] DefaultRules =
+        {
+            "30f3d018aa91612458a73822b63c1733",
+            "fbf9a035505766a41b1f7fb8e54fbe15",
+            "c118adc722ff7994c8bfe76332da9b3f",
+            "bd97c2eb44693c44589fc7fbcde28a29",
+            "ef0791cf148fdd9448284359b6b312ab",
+            "9c9fc9d6ef1bad04b976c792302e8ed0",
+            "58460b9a11c55a749924b05acd6efc4b",
+            "08c8f835d645d9340b7def3a31fead74",
+            "724079212532c9840a307b6a7fe9ba88",
+            "edd3021720ab4a24ca46ffb39b2b7eb9",
+            "3ba3cb4ef983c9a43b25adafc1757b84",
+            "8785eb2eeddc1fd40b90de45916dc280",
+            "29537581b2d432a44a3e12b2f8062bfd",
+        };
 
         static LintingSettings()
         {
@@ -42,12 +60,8 @@ namespace Coimbra.Editor.Linting
         [InitializeOnLoadMethod]
         internal static void InitializeAssemblyDefinitionRules()
         {
-            if (!ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings))
-            {
-                return;
-            }
-
             bool isDirty = false;
+            GetOrDefault(out LintingSettings settings);
 
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
@@ -76,45 +90,12 @@ namespace Coimbra.Editor.Linting
         }
 
         /// <inheritdoc/>
-        protected override void Reset()
+        protected override void OnReset()
         {
-            base.Reset();
-
+            base.OnReset();
             AssemblyDefinitionRules.Clear();
-
-            using (ListPool.Pop(out List<string> list))
-            {
-                list.Add("30f3d018aa91612458a73822b63c1733");
-                list.Add("fbf9a035505766a41b1f7fb8e54fbe15");
-                list.Add("c118adc722ff7994c8bfe76332da9b3f");
-                list.Add("bd97c2eb44693c44589fc7fbcde28a29");
-                list.Add("ef0791cf148fdd9448284359b6b312ab");
-                list.Add("9c9fc9d6ef1bad04b976c792302e8ed0");
-                list.Add("58460b9a11c55a749924b05acd6efc4b");
-                list.Add("08c8f835d645d9340b7def3a31fead74");
-                list.Add("724079212532c9840a307b6a7fe9ba88");
-                list.Add("edd3021720ab4a24ca46ffb39b2b7eb9");
-                list.Add("3ba3cb4ef983c9a43b25adafc1757b84");
-                list.Add("8785eb2eeddc1fd40b90de45916dc280");
-                list.Add("29537581b2d432a44a3e12b2f8062bfd");
-
-                foreach (string guid in list)
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    AssemblyDefinitionRuleBase rule = AssetDatabase.LoadAssetAtPath<AssemblyDefinitionRuleBase>(path);
-
-                    if (rule != null)
-                    {
-                        AssemblyDefinitionRules.Add(rule);
-                    }
-                    else
-                    {
-                        Debug.LogError($"Missing asset {guid} at path: {guid}", rule);
-                    }
-                }
-            }
-
-            this.Save();
+            SetDefaultRules();
+            Save();
         }
 
         private static void HandleAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] compilerMessages)
@@ -170,6 +151,24 @@ namespace Coimbra.Editor.Linting
             Debug.LogError($"File ends with '.asmdef' but is not a {nameof(TextAsset)}: {assetPath}.");
 
             return false;
+        }
+
+        private void SetDefaultRules()
+        {
+            foreach (string guid in DefaultRules)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                AssemblyDefinitionRuleBase rule = AssetDatabase.LoadAssetAtPath<AssemblyDefinitionRuleBase>(path);
+
+                if (rule != null)
+                {
+                    AssemblyDefinitionRules.Add(rule);
+                }
+                else
+                {
+                    Debug.LogError($"Missing asset {guid} at path: {guid}", rule);
+                }
+            }
         }
     }
 }

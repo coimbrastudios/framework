@@ -16,7 +16,7 @@ namespace Coimbra.Editor
             {
                 foreach (Type type in TypeCache.GetTypesWithAttribute<PreferencesAttribute>())
                 {
-                    if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && !type.IsGenericType && !type.IsAbstract)
+                    if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && type is { IsGenericType: false, IsAbstract: false })
                     {
                         if (ScriptableSettingsProvider.TryCreate(type, out ScriptableSettingsProvider? provider))
                         {
@@ -24,7 +24,7 @@ namespace Coimbra.Editor
                         }
                         else
                         {
-                            ScriptableSettingsUtility.LoadOrCreate(type);
+                            ScriptableSettings.Get(type);
                         }
                     }
                 }

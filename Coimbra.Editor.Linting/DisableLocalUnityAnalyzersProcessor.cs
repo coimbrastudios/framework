@@ -10,12 +10,9 @@ namespace Coimbra.Editor.Linting
 
         private static string OnGeneratedCSProject(string path, string content)
         {
-            if (ScriptableSettingsUtility.TryLoadOrCreate(out LintingSettings settings) && settings.DisableLocalUnityAnalyzers)
-            {
-                return Regex.Replace(content, "$1 Condition=\"false\" $2");
-            }
+            ScriptableSettings.GetOrDefault(out LintingSettings settings);
 
-            return content;
+            return settings.DisableLocalUnityAnalyzers ? Regex.Replace(content, "$1 Condition=\"false\" $2") : content;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Coimbra.Listeners;
 using Coimbra.Services.Events;
+using System;
 using UnityEngine;
 
 namespace Coimbra.Services.PlayerLoopEvents
@@ -31,7 +32,7 @@ namespace Coimbra.Services.PlayerLoopEvents
     [DisallowMultipleComponent]
     [AddComponentMenu(CoimbraUtility.GeneralMenuPath + "Player Loop Event Listener")]
     [HelpURL("https://github.com/Cysharp/UniTask#playerloop")]
-    public sealed class PlayerLoopEventListener : PlayerLoopListenerBase
+    public sealed class PlayerLoopEventListener : PlayerLoopListenerBase, IDisposable
     {
         /// <inheritdoc />
         public override event EventHandler OnTrigger
@@ -84,6 +85,15 @@ namespace Coimbra.Services.PlayerLoopEvents
             }
         }
 
+        /// <inheritdoc/>
+        protected override void OnPreInitializeActor()
+        {
+            Actor.OnDestroying += HandleActorDestroying;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnPostInitializeActor() { }
+
         private void Reset()
         {
             ForgetPlayerLoopEvent();
@@ -95,11 +105,6 @@ namespace Coimbra.Services.PlayerLoopEvents
             {
                 PlayerLoopEventType = _playerLoopEventType;
             }
-        }
-
-        private void OnDestroy()
-        {
-            ForgetPlayerLoopEvent();
         }
 
         private void ForgetPlayerLoopEvent()
@@ -122,9 +127,20 @@ namespace Coimbra.Services.PlayerLoopEvents
             }
         }
 
+        private void HandleActorDestroying(Actor sender, Actor.DestroyReason reason)
+        {
+            ForgetPlayerLoopEvent();
+        }
+
         private void HandlePlayerLoopEvent(ref EventContext context, float deltaTime)
         {
             Trigger(deltaTime);
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
+        {
+            ForgetPlayerLoopEvent();
         }
     }
 }

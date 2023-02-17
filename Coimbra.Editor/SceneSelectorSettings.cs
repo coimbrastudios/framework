@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 namespace Coimbra.Editor
 {
     [Preferences(CoimbraUtility.UserPreferencesPath, FileDirectory = CoimbraUtility.UserPreferencesFilePath)]
+    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     internal sealed class SceneSelectorSettings : ScriptableSettings
     {
         private readonly List<SceneAsset> _displayedScenes = new();

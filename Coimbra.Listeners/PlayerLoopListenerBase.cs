@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using UnityEngine;
 
 namespace Coimbra.Listeners
 {
@@ -11,7 +10,7 @@ namespace Coimbra.Listeners
     /// <para></para>
     /// No default concrete implementation is offered in this module because the framework already offers alternative to those callbacks in another module.
     /// </remarks>
-    public abstract class PlayerLoopListenerBase : MonoBehaviour
+    public abstract class PlayerLoopListenerBase : ActorComponentBase
     {
         public delegate void EventHandler(PlayerLoopListenerBase sender, float deltaTime);
 

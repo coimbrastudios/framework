@@ -104,7 +104,6 @@ Package of general utilities to be used with Unity development.
     - [ActorUtility](../Coimbra.Editor/Utilities/ActorUtility.cs)
     - [EngineUtility](../Coimbra.Editor/Utilities/EngineUtility.cs)
     - [ReorderableListUtility](../Coimbra.Editor/Utilities/ReorderableListUtility.cs)
-    - [ScriptableSettingsUtility](../Coimbra.Editor/Utilities/ScriptableSettingsUtility.cs)
     - [SerializedPropertyUtility](../Coimbra.Editor/Utilities/SerializedPropertyUtility.cs)
 
 [Addressables]:<https://docs.unity3d.com/Manual/com.unity.addressables.html>

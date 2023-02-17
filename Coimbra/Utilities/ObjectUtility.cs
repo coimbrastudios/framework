@@ -48,6 +48,11 @@ namespace Coimbra
                 return actor.Dispose(forceDestroy);
             }
 
+            if (o is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
             if (ApplicationUtility.IsPlayMode)
             {
 #pragma warning disable COIMBRA0008
@@ -69,7 +74,7 @@ namespace Coimbra
         public static Object[] FindAllAnywhere(Type type)
         {
 #if UNITY_EDITOR
-            if (ScriptableSettings.GetType(type).IsEditorOnly())
+            if (typeof(ScriptableSettings).IsAssignableFrom(type) && ScriptableSettings.GetTypeData(type).IsEditorOnly())
             {
                 string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}", FindAssetsFolders);
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## [11.1.0] - UNRELEASED
+
+- Added `Destroy` and `Dispose` context menu options for `Actor`.
+- Added `ScriptableSettingsProviderAttribute` as substitute to old `FindHandler` callback.
+- Added `IScriptableSettingsProvider` and two default implementations to be used with the new `ScriptableSettingsProviderAttribute`.
+- Changed public APIs to retrieve a `ScriptableSettings`.
+- Changed everything from `ScriptableSettingsUtility` to be inside `ScriptableSettings` directly.
+- Changed Unity callbacks on `ScriptableSettings` to be non-virtual, with alternatives to use for each one.
+- Changed `ObjectUtility.Dispose` to call `IDisposable.Dispose` method before `Object.Destroy` to allow cleanup of components that never got awaken.
+
 ## [11.0.5] - 2023-02-17
 
 - Fixed non-awaken `Actor` not having its `OnDestroyed` called when switching scenes.
