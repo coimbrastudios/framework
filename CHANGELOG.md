@@ -1,5 +1,9 @@
 # Changelog
 
+## [11.0.5] - 2023-02-17
+
+- Fixed non-awaken `Actor` not having its `OnDestroyed` called when switching scenes.
+
 ## [11.0.4] - 2023-02-16
 
 - Fixed disabled `Actor` in scene not being initialized with enter play mode options enabled.

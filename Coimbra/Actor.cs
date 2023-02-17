@@ -496,6 +496,11 @@ namespace Coimbra
 
             if (!IsPooled)
             {
+                if (!IsAwaken)
+                {
+                    Dispose(true);
+                }
+
                 return;
             }
 
