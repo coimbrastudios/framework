@@ -151,7 +151,10 @@ namespace Coimbra.Editor
                     Actor.OnPlayModeStateChanged();
                     PlayerSettings.GetPreloadedAssets();
 
-                    _ = new GameObject(nameof(ActorManager), typeof(ActorManager));
+                    if (EditorSettings.enterPlayModeOptionsEnabled && (EditorSettings.enterPlayModeOptions & EnterPlayModeOptions.DisableSceneReload) != 0)
+                    {
+                        _ = new GameObject(nameof(ActorManager), typeof(ActorManager));
+                    }
 
                     break;
                 }

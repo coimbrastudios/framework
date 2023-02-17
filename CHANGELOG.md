@@ -1,5 +1,9 @@
 # Changelog
 
+## [11.0.4] - 2023-02-16
+
+- Fixed disabled `Actor` in scene not being initialized with enter play mode options enabled.
+
 ## [11.0.3] - 2023-02-12
 
 - Fixed `TypeDropdown` never showing the base type as options, even if compatible.

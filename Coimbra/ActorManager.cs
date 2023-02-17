@@ -7,7 +7,7 @@ namespace Coimbra
     {
         private void Awake()
         {
-            foreach (Actor actor in FindObjectsOfType<Actor>())
+            foreach (Actor actor in FindObjectsOfType<Actor>(true))
             {
                 actor.Initialize();
             }
