@@ -49,10 +49,10 @@ Those are special attributes compatible with the following fields:
 To implement a new filter type attribute you only need to inherit from [FilterTypesAttributeBase](../Coimbra/FilterTypesAttributeBase.cs) and implement its abstract `Validate` method.
 There are some default implementations provided so that you can start filter types:
 
-- [By Accessibility](../Coimbra/FilterTypesByAccessibilityAttribute.cs)
-- [By Assignable From](../Coimbra/FilterTypesByAssignableFromAttribute.cs)
-- [By Method](../Coimbra/FilterTypesByMethodAttribute.cs)
-- [By Specific Type](../Coimbra/FilterTypesBySpecificTypeAttribute.cs)
+- [By Accessibility](../Coimbra/FilterTypesAttributes/FilterTypesByAccessibilityAttribute.cs)
+- [By Assignable From](../Coimbra/FilterTypesAttributes/FilterTypesByAssignableFromAttribute.cs)
+- [By Method](../Coimbra/FilterTypesAttributes/FilterTypesByMethodAttribute.cs)
+- [By Specific Type](../Coimbra/FilterTypesAttributes/FilterTypesBySpecificTypeAttribute.cs)
 
 ## [PropertyPathInfo]
 
