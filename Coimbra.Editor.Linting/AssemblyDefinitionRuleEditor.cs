@@ -71,7 +71,7 @@ namespace Coimbra.Editor.Linting
             using (ListPool.Pop(out List<AssemblyDefinitionRuleBase> rulesToRemove))
             using (new EditorGUILayout.HorizontalScope())
             {
-                ScriptableSettings.GetOrDefault(out LintingSettings settings);
+                LintingSettings settings = ScriptableSettings.Get<LintingSettings>(true);
 
                 foreach (Object o in targets)
                 {

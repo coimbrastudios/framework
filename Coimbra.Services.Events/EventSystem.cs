@@ -197,7 +197,7 @@ namespace Coimbra.Services.Events
 
             if (e.IsInvoking)
             {
-                ScriptableSettings.GetOrDefault(out EventSettings eventSettings);
+                EventSettings eventSettings = ScriptableSettings.Get<EventSettings>(true)!;
 
                 if (eventSettings.LogRecursiveInvocationWarning)
                 {
@@ -218,7 +218,7 @@ namespace Coimbra.Services.Events
             {
                 try
                 {
-                    ScriptableSettings.GetOrDefault(out EventSettings eventSettings);
+                    EventSettings eventSettings = ScriptableSettings.Get<EventSettings>(true)!;
 
                     if (eventSettings.ValidateInvocationTargets)
                     {

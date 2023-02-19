@@ -45,14 +45,35 @@ namespace Coimbra
         {
             internal readonly IScriptableSettingsProvider Provider;
 
+            private ScriptableSettings? _default;
+
             internal Instance(IScriptableSettingsProvider provider)
             {
                 Provider = provider;
             }
 
+            internal static bool IsCreatingDefault { get; private set; }
+
             internal ScriptableSettings? Current { get; set; }
 
-            internal ScriptableSettings? Default { get; set; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal ScriptableSettings? GetDefault(Type type)
+            {
+                if (_default == null)
+                {
+                    try
+                    {
+                        IsCreatingDefault = true;
+                        _default = (ScriptableSettings)CreateInstance(type);
+                    }
+                    finally
+                    {
+                        IsCreatingDefault = false;
+                    }
+                }
+
+                return _default;
+            }
         }
 
 #pragma warning disable CS0618
@@ -65,6 +86,13 @@ namespace Coimbra
         [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindSingle) + " shouldn't be used anymore, use the new " + nameof(ScriptableSettingsProviderAttribute) + " instead.")]
         public static readonly FindHandler? FindSingle;
 #pragma warning restore CS0618
+
+        /// <summary>
+        /// Gets a value indicating whether this setting was created as a default setting.
+        /// </summary>
+        [PublicAPI]
+        [NonSerialized]
+        public readonly bool IsDefault;
 
         internal static readonly Dictionary<Type, Instance> Map = new();
 
@@ -89,18 +117,13 @@ namespace Coimbra
         protected ScriptableSettings()
         {
             Type = GetTypeData(GetType());
+            IsDefault = Instance.IsCreatingDefault;
 
             if (IsDefault || Type.IsEditorOnly())
             {
                 _preload = false;
             }
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this setting was created as a default setting.
-        /// </summary>
-        [PublicAPI]
-        public bool IsDefault { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this setting should be included in the preloaded assets.
@@ -112,7 +135,7 @@ namespace Coimbra
             get => _preload;
             protected set
             {
-                _preload = value;
+                _preload = !IsDefault && value;
                 ValidatePreload();
             }
         }
@@ -137,52 +160,33 @@ namespace Coimbra
         /// Gets the last set value for the specified type. If none, will fallbacks to its type <see cref="IScriptableSettingsProvider"/>.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
+        /// <param name="allowDefault">If true, it will return a default created instance if none is set and its <see cref="IScriptableSettingsProvider"/> couldn't return a valid one.</param>
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
+        [ContractAnnotation("allowDefault:true => notnull", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptableSettings? Get(Type type)
+        public static ScriptableSettings? Get(Type type, bool allowDefault = false)
         {
-            Get(type, out ScriptableSettings? value, false);
+            Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
+            Get(type, out ScriptableSettings? value, allowDefault);
 
             return value;
         }
 
         /// <inheritdoc cref="Get"/>
+        [ContractAnnotation("allowDefault:true => notnull", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Get<T>()
+        public static T? Get<T>(bool allowDefault = false)
             where T : ScriptableSettings
         {
-            Get(typeof(T), out ScriptableSettings? value, false);
+            Get(typeof(T), out ScriptableSettings? value, allowDefault);
 
             return (T?)value;
-        }
-
-        /// <summary>
-        /// Tries to get a value with <see cref="Get"/>. If none, fallbacks to a default created instance.
-        /// </summary>
-        /// <returns>Always a valid instance.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetOrDefault<T>()
-            where T : ScriptableSettings
-        {
-            Get(typeof(T), out ScriptableSettings? value, true);
-
-            return (T)value!;
-        }
-
-        /// <inheritdoc cref="GetOrDefault{T}()"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetOrDefault<T>(out T value)
-            where T : ScriptableSettings
-        {
-            Get(typeof(T), out ScriptableSettings? raw, true);
-
-            value = (T)raw!;
         }
 
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(GetOrDefault) + ", or " + nameof(IsSet) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
         public static ScriptableSettings? GetOrFind(Type type, FindHandler? findHandler = null)
         {
             return Get(type);
@@ -190,7 +194,7 @@ namespace Coimbra
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(GetOrDefault) + ", or " + nameof(IsSet) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
         public static T? GetOrFind<T>(FindHandler? findHandler = null)
             where T : ScriptableSettings
         {
@@ -386,7 +390,7 @@ namespace Coimbra
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use " + nameof(TryGet) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
         public static bool TryGetOrFind(Type type, [NotNullWhen(true)] out ScriptableSettings? value, FindHandler? findHandler = null)
         {
             return TryGet(type, out value);
@@ -394,7 +398,7 @@ namespace Coimbra
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use " + nameof(TryGet) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
         public static bool TryGetOrFind<T>([NotNullWhen(true)] out T? value, FindHandler? findHandler = null)
             where T : ScriptableSettings
         {
@@ -671,13 +675,7 @@ namespace Coimbra
                     return false;
                 }
 
-                if (instance.Default == null)
-                {
-                    instance.Default = (ScriptableSettings)CreateInstance(type);
-                    instance.Default.IsDefault = true;
-                }
-
-                value = instance.Default;
+                value = instance.GetDefault(type);
                 instance.Current = value;
 
                 return true;

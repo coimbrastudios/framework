@@ -35,7 +35,7 @@ namespace Coimbra.Editor
         private static void ConfigureStartupScene(PlayModeStateChange state)
         {
             EditorStartupSceneStateSettings stateSettings = GetInternalSettings(state);
-            GetOrDefault(out EditorStartupSceneSettings settings);
+            EditorStartupSceneSettings settings = Get<EditorStartupSceneSettings>(true);
 
             if (settings.StartupScene == null)
             {
@@ -82,7 +82,7 @@ namespace Coimbra.Editor
 
         private static EditorStartupSceneStateSettings GetInternalSettings(PlayModeStateChange state)
         {
-            GetOrDefault(out EditorStartupSceneStateSettings internalSettings);
+            EditorStartupSceneStateSettings internalSettings = Get<EditorStartupSceneStateSettings>(true);
 
             switch (state)
             {

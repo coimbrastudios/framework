@@ -61,7 +61,7 @@ namespace Coimbra.Editor.Linting
         internal static void InitializeAssemblyDefinitionRules()
         {
             bool isDirty = false;
-            GetOrDefault(out LintingSettings settings);
+            LintingSettings settings = Get<LintingSettings>(true);
 
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))
