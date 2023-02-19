@@ -444,6 +444,14 @@ namespace Coimbra
             UninitializedActorCount.Value = 0;
             UninitializedActors.Clear();
             CachedActors.Clear();
+
+            foreach (Actor actor in FindObjectsOfType<Actor>(true))
+            {
+                if (actor.IsInitialized)
+                {
+                    CachedActors.Add(actor.GameObjectID, actor);
+                }
+            }
         }
 
         internal void Initialize(GameObjectPool pool, AsyncOperationHandle<GameObject> operationHandle)
