@@ -3,6 +3,7 @@
 ## [11.1.0] - UNRELEASED
 
 - Added `Destroy` and `Dispose` context menu options for `Actor`.
+- Added documentation for `ScriptableSettingsEditor`.
 - Added `ScriptableSettingsProviderAttribute` as substitute to old `FindHandler` callback.
 - Added `IScriptableSettingsProvider` and two default implementations to be used with the new `ScriptableSettingsProviderAttribute`.
 - Changed public APIs to retrieve a `ScriptableSettings` from `GetOrFind` to `Get`.
