@@ -39,7 +39,7 @@ namespace Coimbra
 
         /// <summary>
         /// Implement this to provide a default instance when the <see cref="ScriptableSettings.Get"/> is called with `allowDefault` set to true.
-        /// The provided value will not be set as the current instance and this method will only be evaluated if <see cref="GetCurrentSettings"/> returns an invalid value.
+        /// Will only be evaluated if <see cref="GetCurrentSettings"/> returns an invalid value.
         /// </summary>
         /// <param name="type">The <see cref="ScriptableSettings"/> type to be provided.</param>
         /// <returns>The <see cref="ScriptableSettings"/> according to the provided <paramref name="type"/>.</returns>
