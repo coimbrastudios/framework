@@ -1,8 +1,6 @@
 ﻿#nullable enable
 
-using CoimbraInternal.Editor;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -10,16 +8,9 @@ using UnityEditor;
 
 namespace Coimbra.Editor
 {
-    [InitializeOnLoad]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ScriptableSettingsUtility
     {
-        static ScriptableSettingsUtility()
-        {
-            UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
-            UnityEditorInternals.OnEditorApplicationFocusChanged += HandleEditorApplicationFocusChanged;
-        }
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Reload) + " instead.")]
@@ -102,17 +93,6 @@ namespace Coimbra.Editor
         public static string GetPrefsKey(Type type)
         {
             return ApplicationUtility.GetPrefsKey(type);
-        }
-
-        private static void HandleEditorApplicationFocusChanged(bool isFocused)
-        {
-            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
-            {
-                if (pair.Value.Current.TryGetValid(out ScriptableSettings? value))
-                {
-                    value.Reload();
-                }
-            }
         }
     }
 }

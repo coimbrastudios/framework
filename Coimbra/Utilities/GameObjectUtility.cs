@@ -12,7 +12,7 @@ namespace Coimbra
     /// </summary>
     public static class GameObjectUtility
     {
-        private const string DontDestroyOnLoadScene = "DontDestroyOnLoad";
+        private const string PersistentSceneName = "DontDestroyOnLoad";
 
         /// <inheritdoc cref="GetActor"/>
         [NotNull]
@@ -178,7 +178,7 @@ namespace Coimbra
         {
             Scene scene = gameObject.scene;
 
-            return scene.buildIndex == -1 && scene.name == DontDestroyOnLoadScene;
+            return scene is { buildIndex: -1, name: PersistentSceneName };
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using CoimbraInternal.Editor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -21,6 +25,8 @@ namespace Coimbra.Editor
             AssemblyReloadEvents.beforeAssemblyReload += HandleBeforeAssemblyReload;
             EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
             EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
+            UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
+            UnityEditorInternals.OnEditorApplicationFocusChanged += HandleEditorApplicationFocusChanged;
             EditorApplication.delayCall += HandleDelayCall;
             ScriptableSettings.IsQuitting = false;
             PlayerSettings.GetPreloadedAssets();
@@ -129,6 +135,17 @@ namespace Coimbra.Editor
             ApplicationUtility.IsReloadingScripts = false;
         }
 
+        private static void HandleEditorApplicationFocusChanged(bool isFocused)
+        {
+            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
+            {
+                if (pair.Value.Current.TryGetValid(out ScriptableSettings? value))
+                {
+                    value.Reload();
+                }
+            }
+        }
+
         private static void HandlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
         {
             switch (playModeStateChange)
@@ -148,6 +165,7 @@ namespace Coimbra.Editor
 
                 case PlayModeStateChange.ExitingEditMode:
                 {
+                    IScriptableSettingsProvider.ResetDefaultSettingsMap();
                     Actor.OnPlayModeStateChanged();
                     PlayerSettings.GetPreloadedAssets();
 

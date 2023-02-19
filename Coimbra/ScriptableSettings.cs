@@ -45,35 +45,12 @@ namespace Coimbra
         {
             internal readonly IScriptableSettingsProvider Provider;
 
-            private ScriptableSettings? _default;
-
             internal Instance(IScriptableSettingsProvider provider)
             {
                 Provider = provider;
             }
 
-            internal static bool IsCreatingDefault { get; private set; }
-
             internal ScriptableSettings? Current { get; set; }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal ScriptableSettings? GetDefault(Type type)
-            {
-                if (_default == null)
-                {
-                    try
-                    {
-                        IsCreatingDefault = true;
-                        _default = (ScriptableSettings)CreateInstance(type);
-                    }
-                    finally
-                    {
-                        IsCreatingDefault = false;
-                    }
-                }
-
-                return _default;
-            }
         }
 
 #pragma warning disable CS0618
@@ -117,7 +94,7 @@ namespace Coimbra
         protected ScriptableSettings()
         {
             Type = GetTypeData(GetType());
-            IsDefault = Instance.IsCreatingDefault;
+            IsDefault = IsCreatingDefault;
 
             if (IsDefault || Type.IsEditorOnly())
             {
@@ -150,6 +127,11 @@ namespace Coimbra
             [DebuggerStepThrough]
             private set => _type = value;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether a default <see cref="ScriptableSettings"/> is currently being created.
+        /// </summary>
+        protected internal static bool IsCreatingDefault { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the application is quitting.
@@ -661,7 +643,7 @@ namespace Coimbra
             }
 
             {
-                value = instance.Provider.GetScriptableSettings(type);
+                value = instance.Provider.GetCurrentSettings(type);
 
                 if (value.TryGetValid(out value))
                 {
@@ -675,7 +657,21 @@ namespace Coimbra
                     return false;
                 }
 
-                value = instance.GetDefault(type);
+                try
+                {
+                    IsCreatingDefault = true;
+
+                    value = instance.Provider.GetDefaultSettings(type);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, value);
+                }
+                finally
+                {
+                    IsCreatingDefault = false;
+                }
+
                 instance.Current = value;
 
                 return true;

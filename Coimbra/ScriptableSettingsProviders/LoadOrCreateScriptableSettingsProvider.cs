@@ -21,14 +21,14 @@ namespace Coimbra
         public static readonly LoadOrCreateScriptableSettingsProvider Default = new();
 
         /// <inheritdoc/>
-        public ScriptableSettings GetScriptableSettings(Type type)
+        public ScriptableSettings GetCurrentSettings(Type type)
         {
             ScriptableSettingsType filter = ScriptableSettings.GetTypeData(type, out _, out string? filePath, out _);
             ScriptableSettings? value;
 
             if (!Application.isEditor || filter == ScriptableSettingsType.Custom)
             {
-                if (!FindAnywhereScriptableSettingsProvider.Default.GetScriptableSettings(type).TryGetValid(out value))
+                if (!FindAnywhereScriptableSettingsProvider.Default.GetCurrentSettings(type).TryGetValid(out value))
                 {
                     value = (ScriptableSettings)ScriptableObject.CreateInstance(type);
                 }
@@ -37,7 +37,7 @@ namespace Coimbra
             }
 
 #if UNITY_EDITOR
-            if (FindAnywhereScriptableSettingsProvider.Default.GetScriptableSettings(type).TryGetValid(out value))
+            if (FindAnywhereScriptableSettingsProvider.Default.GetCurrentSettings(type).TryGetValid(out value))
             {
                 if (filePath != null)
                 {

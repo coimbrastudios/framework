@@ -21,7 +21,7 @@ namespace Coimbra
         public static readonly FindAnywhereScriptableSettingsProvider Default = new();
 
         /// <inheritdoc/>
-        public ScriptableSettings? GetScriptableSettings(Type type)
+        public ScriptableSettings? GetCurrentSettings(Type type)
         {
             Object[] rawValues = ObjectUtility.FindAllAnywhere(type);
 
