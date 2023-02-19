@@ -8,6 +8,18 @@ namespace Coimbra.Editor
     /// <summary>
     /// Editor for <see cref="ScriptableSettings"/>.
     /// </summary>
+    /// <remarks>
+    /// Inherit from this class to preserve search support inside Preferences or Project Settings window when creating a custom <see cref="UnityEditor.Editor"/> for any <see cref="ScriptableSettings"/>.
+    /// The functionalities provided here are mostly ignored if <see cref="ScriptableSettings"/> is <see cref="ScriptableSettingsType.Custom"/>.
+    /// <para></para>
+    /// The <see cref="HasSearchInterest"/> will be used to check if the object itself should be visible in its respective window.
+    /// The default implementation uses <see cref="HasSearchInterestInAnyProperty"/> alongside <see cref="DefaultIgnoredProperties"/> or <see cref="DefaultIgnoredPropertiesForEditorOnly"/> (according the <see cref="Type"/>).
+    /// <para></para>
+    /// To draw a field with search support you need to use either <see cref="TryMatchSearch(string)"/> or <see cref="TryMatchSearch(SerializedProperty)"/> to check if the field should actually be drawn.
+    /// There is also <see cref="TryPropertyField(UnityEditor.SerializedProperty)"/> (and some overloads) provided for simple cases.
+    /// <para></para>
+    /// You can also draw the default inspector using <see cref="DrawDefaultInspectorWithSearchSupport"/>.
+    /// </remarks>
     [CanEditMultipleObjects]
     [CustomEditor(typeof(ScriptableSettings), true, isFallback = true)]
     public class ScriptableSettingsEditor : UnityEditor.Editor
@@ -46,7 +58,7 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Override this to define a custom searching logic.
+        /// Override this to define if the <see cref="ScriptableSettings"/> is currently relevant for a search.
         /// </summary>
         public virtual bool HasSearchInterest(string searchContext)
         {
@@ -72,6 +84,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Helper method that uses <see cref="TryMatchSearch(string)"/> before drawing a property field.
         /// </summary>
+        /// <returns>Null if the field doesn't match the current search, otherwise it will return the same as <see cref="EditorGUILayout.PropertyField(UnityEditor.SerializedProperty,UnityEngine.GUILayoutOption[])"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool? TryPropertyField(SerializedProperty property)
         {
