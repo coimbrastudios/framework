@@ -37,9 +37,12 @@ namespace Coimbra.Editor
 
                     foreach (Object o in pooledList)
                     {
-                        if (o is ScriptableSettings settings && settings.Type.IsEditorOnly())
+                        if (o is ScriptableSettings settings)
                         {
-                            Debug.LogError($"{settings} is editor-only but is set to preload. This is not supported!", settings);
+                            if (settings.Type.IsEditorOnly() || settings.Type == ScriptableSettingsType.EditorProjectSettings)
+                            {
+                                Debug.LogError($"{settings} is editor-only but is set to preload. This is not supported!", settings);
+                            }
                         }
                     }
                 }

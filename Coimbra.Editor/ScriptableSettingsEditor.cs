@@ -165,7 +165,7 @@ namespace Coimbra.Editor
                 if (o is ScriptableSettings settings)
                 {
                     EditorUtility.ClearDirty(o);
-                    settings.Save();
+                    settings.SaveAsset();
                 }
             }
         }

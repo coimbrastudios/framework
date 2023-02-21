@@ -57,8 +57,6 @@ namespace Coimbra
 
         private static readonly Object?[] SaveTarget = new Object?[1];
 
-        private bool _isCreating;
-
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
         [Tooltip("Should this setting be included in the preloaded assets?")]
@@ -351,21 +349,15 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Loads this instance from the supported storage method, if any.
+        /// Reload this instance from the disk. Does nothing if <see cref="ScriptableSettingsType.Custom"/> or outside the editor.
         /// </summary>
-        public void Load()
+        public void ReloadAsset()
         {
+#if UNITY_EDITOR
             ScriptableSettingsType type = _type;
 
             switch (type)
             {
-                case ScriptableSettingsType.Custom:
-                {
-                    OnLoad();
-
-                    break;
-                }
-#if UNITY_EDITOR
                 case ScriptableSettingsType.RuntimeProjectSettings:
                 {
                     string path = UnityEditor.AssetDatabase.GetAssetPath(this);
@@ -416,28 +408,22 @@ namespace Coimbra
 
                     break;
                 }
-#endif
             }
-
-            OnLoaded();
+#endif
         }
 
         /// <summary>
-        /// Saves this instance to the supported storage method, if any.
+        /// Saves this instance to the disk. Does nothing if <see cref="ScriptableSettingsType.Custom"/> or outside the editor.
         /// </summary>
-        /// <seealso cref="OnSave"/>
-        public void Save()
+        public void SaveAsset()
         {
+#if UNITY_EDITOR
             switch (_type)
             {
-                case ScriptableSettingsType.Custom:
-                {
-                    OnSave();
-
-                    return;
-                }
-#if UNITY_EDITOR
-                default:
+                case ScriptableSettingsType.EditorProjectSettings:
+                case ScriptableSettingsType.RuntimeProjectSettings:
+                case ScriptableSettingsType.EditorUserPreferences:
+                case ScriptableSettingsType.ProjectUserPreferences:
                 {
                     GetTypeData(GetType(), out _, out string? filePath, out _);
 
@@ -558,27 +544,11 @@ namespace Coimbra
         /// <summary>
         /// Will get called only once for a given object after the <see cref="ScriptableObject.CreateInstance(System.Type)"/>.
         /// <para></para>
-        /// This will not get for previously created assets that are only being loaded from the disk.
+        /// This will not get called for previously created assets that are only being loaded from the disk.
         /// <para></para>
         /// Can be called inside edit-mode when inside the editor.
         /// </summary>
-        protected virtual void OnCreate() { }
-
-        /// <summary>
-        /// Will get called whenever <see cref="Load"/> is called.
-        /// <para></para>
-        /// Only gets called if instance is <see cref="ScriptableSettingsType.Custom"/>.
-        /// </summary>
-        protected virtual void OnLoad() { }
-
-        /// <summary>
-        /// Will get called right after <see cref="OnLoad"/> or <see cref="OnCreate"/>.
-        /// <para></para>
-        /// Can be called multiple times without going through <see cref="OnUnload"/>.
-        /// <para></para>
-        /// Can be called inside edit-mode when inside the editor.
-        /// </summary>
-        protected virtual void OnLoaded() { }
+        protected virtual void OnCreated() { }
 
         /// <summary>
         /// Will get called whenever <see cref="Reset"/> is called.
@@ -588,26 +558,12 @@ namespace Coimbra
         protected virtual void OnReset() { }
 
         /// <summary>
-        /// Will get called when <see cref="Save"/> is called.
-        /// <para></para>
-        /// Only gets called if instance is <see cref="ScriptableSettingsType.Custom"/>.
-        /// </summary>
-        protected virtual void OnSave() { }
-
-        /// <summary>
-        /// Will get called whenever the object is unloaded from the memory.
-        /// <para></para>
-        /// Can be called inside edit-mode when inside the editor.
-        /// </summary>
-        protected virtual void OnUnload() { }
-
-        /// <summary>
         /// Use this instead of the standard <see cref="OnValidate"/> callback.
         /// </summary>
         protected virtual void OnValidating() { }
 
         /// <summary>
-        /// Non-virtual by design, use <see cref="OnCreate"/> instead.
+        /// Non-virtual by design, use <see cref="OnCreated"/> instead.
         /// </summary>
         protected void Awake()
         {
@@ -616,28 +572,7 @@ namespace Coimbra
                 name = GetType().Name;
             }
 
-            _isCreating = true;
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnUnload"/> instead.
-        /// </summary>
-        protected void OnDisable()
-        {
-            OnUnload();
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnLoaded"/> instead.
-        /// </summary>
-        protected void OnEnable()
-        {
-            if (_isCreating)
-            {
-                OnCreate();
-            }
-
-            OnLoaded();
+            OnCreated();
         }
 
         /// <summary>
@@ -677,11 +612,7 @@ namespace Coimbra
             {
                 case ScriptableSettingsType.Custom:
                 {
-                    if (TryFindAsset(type, out value))
-                    {
-                        value.Load();
-                    }
-                    else
+                    if (!TryFindAsset(type, out value))
                     {
                         value = (ScriptableSettings)CreateInstance(type);
                     }
@@ -704,7 +635,7 @@ namespace Coimbra
                             Debug.LogWarning($"Moving {value} from {assetPath} to {filePath}!", copy);
                             DestroyImmediate(value, true);
                             UnityEditor.AssetDatabase.DeleteAsset(assetPath);
-                            copy.Save();
+                            copy.SaveAsset();
 
                             value = copy;
                         }
@@ -718,10 +649,6 @@ namespace Coimbra
             if (value == null)
             {
                 value = (ScriptableSettings)CreateInstance(type);
-            }
-            else
-            {
-                value.Load();
             }
 
             Instances[type] = value;

@@ -103,7 +103,7 @@ namespace Coimbra.Editor
                     }
 
                     _editorStates[pair.Key] = editorState;
-                    pair.Value.Save();
+                    pair.Value.SaveAsset();
                 }
             }
         }

@@ -90,7 +90,7 @@ namespace Coimbra.Editor
 
                 if (changeCheckScope.changed)
                 {
-                    settings.Save();
+                    settings.SaveAsset();
                 }
             }
             else

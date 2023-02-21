@@ -137,11 +137,11 @@ namespace Coimbra.Editor
 
         private static void HandleEditorApplicationFocusChanged(bool isFocused)
         {
-            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Instances)
+            foreach (KeyValuePair<Type, ScriptableSettings?> pair in ScriptableSettings.Instances)
             {
                 if (pair.Value != null && pair.Value.TryGetValid(out ScriptableSettings? value))
                 {
-                    value.Load();
+                    value.ReloadAsset();
                 }
             }
         }

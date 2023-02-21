@@ -13,10 +13,10 @@ namespace Coimbra.Editor
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Load) + " instead.")]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.ReloadAsset) + " instead.")]
         public static void Reload(this ScriptableSettings scriptableSettings)
         {
-            scriptableSettings.Load();
+            scriptableSettings.ReloadAsset();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -38,10 +38,10 @@ namespace Coimbra.Editor
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Save) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Save) + " instead.")]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Save) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.SaveAsset) + " instead.")]
         public static void Save(this ScriptableSettings scriptableSettings)
         {
-            scriptableSettings.Save();
+            scriptableSettings.SaveAsset();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

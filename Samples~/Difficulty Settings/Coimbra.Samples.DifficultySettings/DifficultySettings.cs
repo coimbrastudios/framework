@@ -16,47 +16,41 @@ namespace Coimbra.Samples.DifficultySettings
         public float CubeMovementSpeed => _cubeMovementSpeed;
 
         /// <inheritdoc/>
-        protected override void OnLoaded()
-        {
-            if (!Preload)
-            {
-                return;
-            }
-
-            base.OnLoaded();
-
-            Application.quitting += HandleApplicationQuitting;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnUnload()
-        {
-            Application.quitting -= HandleApplicationQuitting;
-
-            base.OnUnload();
-        }
-
-        /// <inheritdoc/>
         protected override void OnValidating()
         {
             base.OnValidating();
 
 #if UNITY_EDITOR
+            if (!Preload)
+            {
+                return;
+            }
+
+            foreach (string asset in UnityEditor.AssetDatabase.FindAssets($"t:{nameof(DifficultySettings)}"))
+            {
+                DifficultySettings difficultySettings = UnityEditor.AssetDatabase.LoadAssetAtPath<DifficultySettings>(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
+
+                if (difficultySettings.IsValid() && difficultySettings.Preload && difficultySettings != this)
+                {
+                    difficultySettings.Preload = false;
+                }
+            }
+
+            SetOrOverwrite(this);
+#endif
+        }
+
+        private void OnEnable()
+        {
             if (Preload)
             {
-                foreach (string asset in UnityEditor.AssetDatabase.FindAssets($"t:{nameof(DifficultySettings)}"))
-                {
-                    DifficultySettings difficultySettings = UnityEditor.AssetDatabase.LoadAssetAtPath<DifficultySettings>(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
-
-                    if (difficultySettings.IsValid() && difficultySettings.Preload && difficultySettings != this)
-                    {
-                        difficultySettings.Preload = false;
-                    }
-                }
-
-                SetOrOverwrite(this);
+                Application.quitting += HandleApplicationQuitting;
             }
-#endif
+        }
+
+        private void OnDisable()
+        {
+            Application.quitting -= HandleApplicationQuitting;
         }
 
         private void HandleApplicationQuitting()

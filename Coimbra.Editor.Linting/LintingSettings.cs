@@ -94,7 +94,7 @@ namespace Coimbra.Editor.Linting
             base.OnReset();
             AssemblyDefinitionRules.Clear();
             SetDefaultRules();
-            Save();
+            SaveAsset();
         }
 
         private static void HandleAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] compilerMessages)

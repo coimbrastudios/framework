@@ -41,7 +41,7 @@ namespace Coimbra.Editor.Linting
                         settings.AssemblyDefinitionRules.Add(rule);
                     }
 
-                    settings.Save();
+                    settings.SaveAsset();
                     LintingSettings.InitializeAssemblyDefinitionRules();
                 }
             }
@@ -59,7 +59,7 @@ namespace Coimbra.Editor.Linting
                         settings.AssemblyDefinitionRules.Remove(rule);
                     }
 
-                    settings.Save();
+                    settings.SaveAsset();
                     LintingSettings.InitializeAssemblyDefinitionRules();
                 }
             }

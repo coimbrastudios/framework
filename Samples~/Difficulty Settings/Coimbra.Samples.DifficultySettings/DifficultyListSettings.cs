@@ -8,10 +8,6 @@ namespace Coimbra.Samples.DifficultySettings
     /// <summary>
     /// A simple editor-only <see cref="ScriptableSettings"/> implementation that showcases how you can easily expose information in the editor using the <see cref="ProjectSettingsAttribute"/> without much code.
     /// </summary>
-    /// <remarks>
-    /// <see cref="OnLoaded"/> is used to ensure an up-to-date information when you first load the project settings window.
-    /// <see cref="OnReset"/> is used as an easy way to refresh the inspector with the latest information.
-    /// </remarks>
     /// <seealso cref="DifficultySettings"/>
     /// <seealso cref="DifficultySettingsCube"/>
     [Preferences(CoimbraUtility.UserPreferencesPath + "/Samples", false, FileDirectory = CoimbraUtility.UserPreferencesFilePath + ".samples")]
@@ -30,17 +26,15 @@ namespace Coimbra.Samples.DifficultySettings
         [Disable]
         private List<DifficultySettings> _difficultySettingsList = new();
 
-        /// <inheritdoc/>
-        protected override void OnLoaded()
-        {
-            base.OnLoaded();
-            Refresh();
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override void OnReset()
         {
             base.OnReset();
+            Refresh();
+        }
+
+        private void OnDisable()
+        {
             Refresh();
         }
 

@@ -56,7 +56,7 @@ namespace Coimbra.Editor
                     stateSettings.HasSavedStartupScene = true;
                     EditorSceneManager.playModeStartScene = settings.StartupScene;
                     Debug.Log($"Overriding Startup Scene to \"{EditorSceneManager.playModeStartScene}\"");
-                    stateSettings.Save();
+                    stateSettings.SaveAsset();
 
                     break;
                 }
@@ -72,7 +72,7 @@ namespace Coimbra.Editor
                     Debug.Log($"Reverting Startup Scene to \"{EditorSceneManager.playModeStartScene}\"");
 
                     stateSettings.HasSavedStartupScene = false;
-                    stateSettings.Save();
+                    stateSettings.SaveAsset();
 
                     break;
                 }
@@ -92,7 +92,7 @@ namespace Coimbra.Editor
                     {
                         EditorSceneManager.playModeStartScene = internalSettings.SavedStartupScene;
                         internalSettings.HasSavedStartupScene = false;
-                        internalSettings.Save();
+                        internalSettings.SaveAsset();
                     }
 
                     break;
