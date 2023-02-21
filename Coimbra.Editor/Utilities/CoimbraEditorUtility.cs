@@ -137,11 +137,11 @@ namespace Coimbra.Editor
 
         private static void HandleEditorApplicationFocusChanged(bool isFocused)
         {
-            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
+            foreach (KeyValuePair<Type, ScriptableSettings> pair in ScriptableSettings.Instances)
             {
-                if (pair.Value.Current.TryGetValid(out ScriptableSettings? value))
+                if (pair.Value != null && pair.Value.TryGetValid(out ScriptableSettings? value))
                 {
-                    value.Reload();
+                    value.Load();
                 }
             }
         }
@@ -165,7 +165,6 @@ namespace Coimbra.Editor
 
                 case PlayModeStateChange.ExitingEditMode:
                 {
-                    IScriptableSettingsProvider.ResetDefaultSettingsMap();
                     Actor.OnPlayModeStateChanged();
                     PlayerSettings.GetPreloadedAssets();
 

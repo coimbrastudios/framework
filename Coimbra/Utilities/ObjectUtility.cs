@@ -68,38 +68,6 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Finds all objects of given type in the project. If inside editor it will use AssetDatabase class, otherwise it will use <see cref="Resources.FindObjectsOfTypeAll"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Object[] FindAllAnywhere(Type type)
-        {
-#if UNITY_EDITOR
-            if (typeof(ScriptableSettings).IsAssignableFrom(type) && ScriptableSettings.GetTypeData(type).IsEditorOnly())
-            {
-                string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}", FindAssetsFolders);
-
-                using (ListPool.Pop(out List<Object> list))
-                {
-                    list.EnsureCapacity(assets.Length);
-
-                    foreach (string asset in assets)
-                    {
-                        Object o = UnityEditor.AssetDatabase.LoadMainAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
-
-                        if (type.IsInstanceOfType(o))
-                        {
-                            list.Add(o);
-                        }
-                    }
-
-                    return list.ToArray();
-                }
-            }
-#endif
-            return Resources.FindObjectsOfTypeAll(type);
-        }
-
-        /// <summary>
         /// Gets a valid object to be used with ?. and ?? operators.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

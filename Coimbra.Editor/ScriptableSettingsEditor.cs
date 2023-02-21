@@ -13,7 +13,7 @@ namespace Coimbra.Editor
     /// The functionalities provided here are mostly ignored if <see cref="ScriptableSettings"/> is <see cref="ScriptableSettingsType.Custom"/>.
     /// <para></para>
     /// The <see cref="HasSearchInterest"/> will be used to check if the object itself should be visible in its respective window.
-    /// The default implementation uses <see cref="HasSearchInterestInAnyProperty"/> alongside <see cref="DefaultIgnoredProperties"/> or <see cref="DefaultIgnoredPropertiesForEditorOnly"/> (according the <see cref="Type"/>).
+    /// The default implementation uses <see cref="HasSearchInterestInAnyProperty"/> alongside <see cref="CustomIgnoredProperties"/> or <see cref="DefaultIgnoredProperties"/> (according the <see cref="Type"/>).
     /// <para></para>
     /// To draw a field with search support you need to use either <see cref="TryMatchSearch(string)"/> or <see cref="TryMatchSearch(SerializedProperty)"/> to check if the field should actually be drawn.
     /// There is also <see cref="TryPropertyField(UnityEditor.SerializedProperty)"/> (and some overloads) provided for simple cases.
@@ -24,26 +24,26 @@ namespace Coimbra.Editor
     [CustomEditor(typeof(ScriptableSettings), true, isFallback = true)]
     public class ScriptableSettingsEditor : UnityEditor.Editor
     {
+        internal const float WindowLabelWidthPercent = 0.3f;
+
         /// <summary>
-        /// Default excluded fields.
+        /// Default excluded fields for <see cref="ScriptableSettingsType.Custom"/> instances.
         /// </summary>
-        protected static readonly HashSet<string> DefaultIgnoredProperties = new()
+        protected static readonly HashSet<string> CustomIgnoredProperties = new()
         {
             "m_Script",
             "_type",
         };
 
         /// <summary>
-        /// Excluded fields when <see cref="Type"/> is editor-only.
+        /// Excluded fields when <see cref="Type"/> is not <see cref="ScriptableSettingsType.Custom"/>.
         /// </summary>
-        protected static readonly HashSet<string> DefaultIgnoredPropertiesForEditorOnly = new()
+        protected static readonly HashSet<string> DefaultIgnoredProperties = new()
         {
             "m_Script",
             "_preload",
             "_type",
         };
-
-        private const float WindowLabelWidthPercent = 0.3f;
 
         /// <inheritdoc cref="ScriptableSettings.Type"/>
         protected ScriptableSettingsType Type { get; set; }
@@ -53,7 +53,7 @@ namespace Coimbra.Editor
         {
             using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * WindowLabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                DrawDefaultInspectorWithSearchSupport(Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
+                DrawDefaultInspectorWithSearchSupport(Type == ScriptableSettingsType.Custom ? CustomIgnoredProperties : DefaultIgnoredProperties);
             }
         }
 
@@ -62,7 +62,7 @@ namespace Coimbra.Editor
         /// </summary>
         public virtual bool HasSearchInterest(string searchContext)
         {
-            return HasSearchInterestInAnyProperty(searchContext, Type.IsEditorOnly() ? DefaultIgnoredPropertiesForEditorOnly : DefaultIgnoredProperties);
+            return HasSearchInterestInAnyProperty(searchContext, Type == ScriptableSettingsType.Custom ? CustomIgnoredProperties : DefaultIgnoredProperties);
         }
 
         /// <summary>
@@ -140,15 +140,16 @@ namespace Coimbra.Editor
                     continue;
                 }
 
-                GUI.enabled = true;
-
-                if (Type == ScriptableSettingsType.Custom)
+                using (new EditorGUI.DisabledScope(false))
                 {
-                    EditorGUILayout.PropertyField(iterator, true);
-                }
-                else
-                {
-                    TryPropertyField(iterator, true);
+                    if (Type == ScriptableSettingsType.Custom)
+                    {
+                        EditorGUILayout.PropertyField(iterator, true);
+                    }
+                    else
+                    {
+                        TryPropertyField(iterator, true);
+                    }
                 }
             }
 

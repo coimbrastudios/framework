@@ -8,7 +8,6 @@ namespace Coimbra.Editor
     /// Settings to customize the behaviour of <see cref="ISceneProcessorComponent"/> and <see cref="IScenePostProcessorComponent"/>.
     /// </summary>
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
-    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     public sealed class SceneProcessingSettings : ScriptableSettings
     {
         /// <inheritdoc cref="IOrderedCallback.callbackOrder"/>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +18,9 @@ namespace Coimbra.Editor
 
             internal bool IsPredefinedType;
 
-            internal string AssetPath;
+            internal string? AssetPath;
 
-            internal string WindowPath;
+            internal string? WindowPath;
 
             internal UnityEditor.Editor Editor;
         }
@@ -69,37 +71,40 @@ namespace Coimbra.Editor
 
         private void OnGUI()
         {
-            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+            using (new LabelWidthScope(EditorGUIUtility.currentViewWidth * ScriptableSettingsEditor.WindowLabelWidthPercent, LabelWidthScope.MagnitudeMode.Absolute))
             {
-                _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup);
-            }
-
-            using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
-            _scrollPosition = scrollView.scrollPosition;
-
-            foreach (KeyValuePair<Type, ScriptableSettings.Instance> pair in ScriptableSettings.Map)
-            {
-                if (_filter != 0 && (_filter & 1 << (int)ScriptableSettings.GetTypeData(pair.Key)) == 0)
+                using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
                 {
-                    continue;
+                    _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup);
                 }
 
-                if (!TryGetEditorState(pair.Key, pair.Value.Current, out EditorState editorState) || pair.Value.Current == null)
+                using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
+                _scrollPosition = scrollView.scrollPosition;
+
+                foreach (KeyValuePair<Type, ScriptableSettings?> pair in ScriptableSettings.Instances)
                 {
-                    continue;
+                    if (_filter != 0 && (_filter & 1 << (int)ScriptableSettings.GetTypeData(pair.Key)) == 0)
+                    {
+                        continue;
+                    }
+
+                    if (!TryGetEditorState(pair.Key, pair.Value, out EditorState editorState) || pair.Value == null)
+                    {
+                        continue;
+                    }
+
+                    using EditorGUI.ChangeCheckScope changeCheckScope = new();
+
+                    DrawEditor(pair.Key, pair.Value, ref editorState);
+
+                    if (!changeCheckScope.changed)
+                    {
+                        continue;
+                    }
+
+                    _editorStates[pair.Key] = editorState;
+                    pair.Value.Save();
                 }
-
-                using EditorGUI.ChangeCheckScope changeCheckScope = new();
-
-                DrawEditor(pair.Key, pair.Value.Current, ref editorState);
-
-                if (!changeCheckScope.changed)
-                {
-                    continue;
-                }
-
-                _editorStates[pair.Key] = editorState;
-                pair.Value.Current!.Save();
             }
         }
 
@@ -145,7 +150,8 @@ namespace Coimbra.Editor
                             break;
                         }
 
-                        default:
+                        case ScriptableSettingsType.EditorProjectSettings:
+                        case ScriptableSettingsType.ProjectUserPreferences:
                         {
                             label.text = "Asset Path";
 
@@ -158,14 +164,11 @@ namespace Coimbra.Editor
                     }
                 }
 
-                using (new EditorGUI.DisabledScope(value.IsDefault))
-                {
-                    editorState.Editor.OnInspectorGUI();
-                }
+                editorState.Editor.OnInspectorGUI();
             }
         }
 
-        private bool TryGetEditorState(Type type, ScriptableSettings value, out EditorState editorState)
+        private bool TryGetEditorState(Type type, ScriptableSettings? value, out EditorState editorState)
         {
             if (_editorStates.TryGetValue(type, out editorState))
             {

@@ -11,12 +11,12 @@ namespace Coimbra.Editor
     {
         private static Scene _current;
 
-        int IOrderedCallback.callbackOrder => ScriptableSettings.Get<SceneProcessingSettings>(true).ProcessSceneCallbackOrder;
+        int IOrderedCallback.callbackOrder => ScriptableSettings.Get<SceneProcessingSettings>().ProcessSceneCallbackOrder;
 
         [PostProcessScene]
         private static void HandlePostProcessScene()
         {
-            if (ScriptableSettings.Get<SceneProcessingSettings>(true).DisableScenePostProcessorComponentCallback)
+            if (ScriptableSettings.Get<SceneProcessingSettings>().DisableScenePostProcessorComponentCallback)
             {
                 _current = default;
 
@@ -43,7 +43,7 @@ namespace Coimbra.Editor
         {
             _current = scene;
 
-            if (ScriptableSettings.Get<SceneProcessingSettings>(true).DisableSceneProcessorComponentCallback)
+            if (ScriptableSettings.Get<SceneProcessingSettings>().DisableSceneProcessorComponentCallback)
             {
                 return;
             }

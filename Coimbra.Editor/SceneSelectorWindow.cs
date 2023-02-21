@@ -35,7 +35,7 @@ namespace Coimbra.Editor
 
         private void OnEnable()
         {
-            SceneSelectorSettings settings = ScriptableSettings.Get<SceneSelectorSettings>(true);
+            SceneSelectorSettings settings = ScriptableSettings.Get<SceneSelectorSettings>();
             _serializedObject = new SerializedObject(settings);
             _reorderableList = new ReorderableList(settings.DisplayedScenes, typeof(SceneAsset), false, false, false, false);
             _reorderableList.drawElementCallback += DrawListElement;
@@ -85,7 +85,7 @@ namespace Coimbra.Editor
             using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
             _scrollPosition = scrollView.scrollPosition;
 
-            SceneSelectorSettings settings = ScriptableSettings.Get<SceneSelectorSettings>(true);
+            SceneSelectorSettings settings = ScriptableSettings.Get<SceneSelectorSettings>();
             _isSettingsEditorOpen = EditorGUILayout.Foldout(_isSettingsEditorOpen, "Settings");
 
             if (_isSettingsEditorOpen)

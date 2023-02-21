@@ -14,8 +14,7 @@ namespace Coimbra.Samples.DifficultySettings
     /// </remarks>
     /// <seealso cref="DifficultySettings"/>
     /// <seealso cref="DifficultySettingsCube"/>
-    [ProjectSettings(CoimbraUtility.ProjectSettingsPath + "/Samples", true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath + ".samples")]
-    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
+    [Preferences(CoimbraUtility.UserPreferencesPath + "/Samples", false, FileDirectory = CoimbraUtility.UserPreferencesFilePath + ".samples")]
     public sealed class DifficultyListSettings : ScriptableSettings
     {
         [SerializeField]

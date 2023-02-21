@@ -13,16 +13,16 @@ namespace Coimbra.Editor
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Reload) + " instead.")]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(Reload) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Load) + " instead.")]
         public static void Reload(this ScriptableSettings scriptableSettings)
         {
-            scriptableSettings.Reload();
+            scriptableSettings.Load();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(LoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Get) + " instead.")]
-        public static ScriptableSettings? LoadOrCreate(Type type, ScriptableSettings.FindHandler? findCallback = null)
+        public static ScriptableSettings LoadOrCreate(Type type, ScriptableSettings.FindHandler? findCallback = null)
         {
             return ScriptableSettings.Get(type);
         }
@@ -30,7 +30,7 @@ namespace Coimbra.Editor
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(LoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Get) + " instead.")]
-        public static T? LoadOrCreate<T>(ScriptableSettings.FindHandler? findCallback = null)
+        public static T LoadOrCreate<T>(ScriptableSettings.FindHandler? findCallback = null)
             where T : ScriptableSettings
         {
             return ScriptableSettings.Get<T>();
@@ -46,7 +46,7 @@ namespace Coimbra.Editor
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.TryGet) + " instead.")]
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.GetTypeData) + " instead.")]
         public static bool TryGetAttributeData(Type type, [NotNullWhen(true)] out SettingsScope? settingsScope, out string? windowPath, out string? filePath, out string[]? keywords)
         {
             switch (ScriptableSettings.GetTypeData(type, out windowPath, out filePath, out keywords))
@@ -80,11 +80,13 @@ namespace Coimbra.Editor
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.TryGet) + " instead.")]
-        public static bool TryLoadOrCreate<T>([NotNullWhen(true)] out T? scriptableSettings, ScriptableSettings.FindHandler? findCallback = null)
+        [Obsolete(nameof(ScriptableSettingsUtility) + "." + nameof(TryLoadOrCreate) + " shouldn't be used anymore, use " + nameof(ScriptableSettings) + "." + nameof(ScriptableSettings.Get) + " instead.")]
+        public static bool TryLoadOrCreate<T>(out T scriptableSettings, ScriptableSettings.FindHandler? findCallback = null)
             where T : ScriptableSettings
         {
-            return ScriptableSettings.TryGet(out scriptableSettings);
+            scriptableSettings = ScriptableSettings.Get<T>();
+
+            return true;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

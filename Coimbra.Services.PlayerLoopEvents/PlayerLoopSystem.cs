@@ -216,10 +216,8 @@ namespace Coimbra.Services.PlayerLoopEvents
             base.OnInitialize();
             DontDestroyOnLoad(GameObject);
 
-            if (ScriptableSettings.TryGet(out PlayerLoopSettings? settings))
-            {
-                _currentInjectedTimings = settings.DefaultInjectedTimings;
-            }
+            PlayerLoopSettings settings = ScriptableSettings.Get<PlayerLoopSettings>();
+            _currentInjectedTimings = settings.DefaultInjectedTimings;
 
             OnStarting += HandleStart;
             TryGetComponent(out _fixedUpdateListener);

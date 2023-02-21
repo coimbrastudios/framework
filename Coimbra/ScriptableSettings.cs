@@ -34,51 +34,35 @@ namespace Coimbra
     /// <seealso cref="ProjectSettingsAttribute"/>
     /// <seealso cref="ScriptableSettingsType"/>
     /// <seealso cref="ScriptableSettingsTypeUtility"/>
-    /// <seealso cref="ScriptableSettingsProviderAttribute"/>
-    /// <seealso cref="IScriptableSettingsProvider"/>
-    /// <seealso cref="FindAnywhereScriptableSettingsProvider"/>
-    /// <seealso cref="LoadOrCreateScriptableSettingsProvider"/>
     [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {
-        internal sealed class Instance
-        {
-            internal readonly IScriptableSettingsProvider Provider;
-
-            internal Instance(IScriptableSettingsProvider provider)
-            {
-                Provider = provider;
-            }
-
-            internal ScriptableSettings? Current { get; set; }
-        }
-
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindHandler) + " shouldn't be used anymore, use the new " + nameof(ScriptableSettingsProviderAttribute) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindHandler) + " shouldn't be used anymore.")]
         public delegate ScriptableSettings FindHandler(Type type);
 
         // ReSharper disable once UnassignedReadonlyField
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindSingle) + " shouldn't be used anymore, use the new " + nameof(ScriptableSettingsProviderAttribute) + " instead.")]
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindSingle) + " shouldn't be used anymore.")]
         public static readonly FindHandler? FindSingle;
 #pragma warning restore CS0618
 
-        /// <summary>
-        /// Gets a value indicating whether this setting was created as a default setting.
-        /// </summary>
-        [PublicAPI]
-        [NonSerialized]
-        public readonly bool IsDefault;
+        internal static readonly Dictionary<Type, ScriptableSettings?> Instances = new();
 
-        internal static readonly Dictionary<Type, Instance> Map = new();
+        internal static readonly string[] FindAssetsFolders = new string[]
+        {
+            "Assets",
+        };
 
         private static readonly Object?[] SaveTarget = new Object?[1];
+
+        private bool _isCreating;
 
         [SerializeField]
         [FormerlySerializedAsBackingFieldOf("Preload")]
         [Tooltip("Should this setting be included in the preloaded assets?")]
-        private bool _preload = true;
+        private bool _preload;
 
         [SerializeField]
         [HideInInspector]
@@ -93,13 +77,8 @@ namespace Coimbra
 
         protected ScriptableSettings()
         {
-            Type = GetTypeData(GetType());
-            IsDefault = IsCreatingDefault;
-
-            if (IsDefault || Type.IsEditorOnly())
-            {
-                _preload = false;
-            }
+            _type = GetTypeData(GetType());
+            _preload = !_type.IsEditorOnly();
         }
 
         /// <summary>
@@ -112,26 +91,15 @@ namespace Coimbra
             get => _preload;
             protected set
             {
-                _preload = !IsDefault && value;
-                ValidatePreload();
+                _preload = value;
+                ValidatePreload(true);
             }
         }
 
         /// <summary>
         /// Gets the type of <see cref="ScriptableSettings"/> based on the presence of either <see cref="PreferencesAttribute"/> or <see cref="ProjectSettingsAttribute"/>.
         /// </summary>
-        public ScriptableSettingsType Type
-        {
-            [DebuggerStepThrough]
-            get => _type;
-            [DebuggerStepThrough]
-            private set => _type = value;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether a default <see cref="ScriptableSettings"/> is currently being created.
-        /// </summary>
-        protected internal static bool IsCreatingDefault { get; internal set; }
+        public ScriptableSettingsType Type => _type;
 
         /// <summary>
         /// Gets a value indicating whether the application is quitting.
@@ -139,45 +107,39 @@ namespace Coimbra
         protected internal static bool IsQuitting { get; internal set; }
 
         /// <summary>
-        /// Gets the last set value for the specified type. If none, will fallbacks to its type <see cref="IScriptableSettingsProvider"/>.
+        /// Gets the last set value for the specified type, or a default created one if none is set.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
-        /// <param name="allowDefault">If true, it will return a default created instance if none is set and its <see cref="IScriptableSettingsProvider"/> couldn't return a valid one.</param>
         /// <returns>The settings if set and still valid or if a new one could be found.</returns>
-        [ContractAnnotation("allowDefault:true => notnull", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScriptableSettings? Get(Type type, bool allowDefault = false)
+        public static ScriptableSettings Get(Type type)
         {
             Debug.Assert(typeof(ScriptableSettings).IsAssignableFrom(type));
-            Get(type, out ScriptableSettings? value, allowDefault);
 
-            return value;
+            return GetOrCreate(type);
         }
 
         /// <inheritdoc cref="Get"/>
-        [ContractAnnotation("allowDefault:true => notnull", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Get<T>(bool allowDefault = false)
+        public static T Get<T>()
             where T : ScriptableSettings
         {
-            Get(typeof(T), out ScriptableSettings? value, allowDefault);
-
-            return (T?)value;
+            return (T)GetOrCreate(typeof(T));
         }
 
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
-        public static ScriptableSettings? GetOrFind(Type type, FindHandler? findHandler = null)
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
+        public static ScriptableSettings GetOrFind(Type type, FindHandler? findHandler = null)
         {
             return Get(type);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
-        public static T? GetOrFind<T>(FindHandler? findHandler = null)
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
+        public static T GetOrFind<T>(FindHandler? findHandler = null)
             where T : ScriptableSettings
         {
             return Get<T>();
@@ -242,7 +204,7 @@ namespace Coimbra
             if (projectSettingsAttribute != null)
             {
                 windowPath = $"{projectSettingsAttribute.WindowPath}/{projectSettingsAttribute.NameOverride ?? ApplicationUtility.GetDisplayName(type.Name)}";
-                filePath = projectSettingsAttribute is { IsEditorOnly: true, FileDirectory: { } } ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
+                filePath = projectSettingsAttribute.IsEditorOnly ? $"{projectSettingsAttribute.FileDirectory}/{projectSettingsAttribute.FileNameOverride ?? $"{type.Name}.asset"}" : null;
                 keywords = projectSettingsAttribute.Keywords;
 
                 return projectSettingsAttribute.IsEditorOnly ? ScriptableSettingsType.EditorProjectSettings : ScriptableSettingsType.RuntimeProjectSettings;
@@ -271,9 +233,14 @@ namespace Coimbra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSet(Type type, [NotNullWhen(true)] out ScriptableSettings? result)
         {
-            if (Map.TryGetValue(type, out Instance instance) && instance.Current.TryGetValid(out result) && !result.IsDefault)
+            if (Instances.TryGetValue(type, out result))
             {
-                return true;
+                if (result != null)
+                {
+                    return true;
+                }
+
+                Instances.Remove(type);
             }
 
             result = null;
@@ -348,177 +315,221 @@ namespace Coimbra
             Set(true, typeof(T), value);
         }
 
-        /// <summary>
-        /// Tries to get a value with <see cref="Get"/>. If none, return false and the <paramref name="value"/> will be null.
-        /// </summary>
-        /// <returns>Always a valid instance.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(Type type, [NotNullWhen(true)] out ScriptableSettings? value)
-        {
-            return Get(type, out value, false);
-        }
-
-        /// <inheritdoc cref="TryGet"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<T>([NotNullWhen(true)] out T? value)
-            where T : ScriptableSettings
-        {
-            bool isSet = Get(typeof(T), out ScriptableSettings? raw, false);
-            value = (T?)raw;
-
-            return isSet;
-        }
-
 #pragma warning disable CS0618
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
-        public static bool TryGetOrFind(Type type, [NotNullWhen(true)] out ScriptableSettings? value, FindHandler? findHandler = null)
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
+        public static bool TryGetOrFind(Type type, out ScriptableSettings value, FindHandler? findHandler = null)
         {
-            return TryGet(type, out value);
+            value = Get(type);
+
+            return true;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + ", " + nameof(IsSet) + ", or " + nameof(TryGet) + " instead.")]
-        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T? value, FindHandler? findHandler = null)
+        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
+        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T value, FindHandler? findHandler = null)
             where T : ScriptableSettings
         {
-            return TryGet(out value);
+            value = Get<T>();
+
+            return true;
         }
 #pragma warning restore CS0618
 
         /// <summary>
-        /// Tries to load a <see cref="ScriptableSettings"/> from the disk.
+        /// Compare if this instance content equals to another instance.
+        /// <para></para>
+        /// By default it uses <see cref="JsonUtility.ToJson(object, bool)"/> with pretty print disabled to compare the instances, but can be overriden to have a more performant comparison according to the project needs.
         /// </summary>
-        /// <returns>True if loaded with success, false if it fails.</returns>
-        public static bool TryLoad(Type type, string? filePath, ScriptableSettingsType filter, [NotNullWhen(true)] out ScriptableSettings? scriptableSettings)
+        /// <param name="other">The instance to compare with.</param>
+        /// <returns>True if their content are equal.</returns>
+        public virtual bool CompareContent(ScriptableSettings other)
         {
-#if UNITY_EDITOR
-            Object[] objects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(filePath);
-
-            foreach (Object o in objects)
-            {
-                if (o is ScriptableSettings match && match.Type == filter)
-                {
-                    Set(type, match);
-                    scriptableSettings = match;
-
-                    return true;
-                }
-            }
-#endif
-
-            scriptableSettings = null;
-
-            return false;
+            return JsonUtility.ToJson(this, false) == JsonUtility.ToJson(other, false);
         }
 
         /// <summary>
-        /// Reloads this <see cref="ScriptableSettings"/> from the disk, if supported.
+        /// Loads this instance from the supported storage method, if any.
         /// </summary>
-        public void Reload()
+        public void Load()
         {
+            ScriptableSettingsType type = _type;
+
+            switch (type)
+            {
+                case ScriptableSettingsType.Custom:
+                {
+                    OnLoad();
+
+                    break;
+                }
 #if UNITY_EDITOR
-            ScriptableSettingsType type = GetTypeData(GetType(), out _, out string? filePath, out _);
-
-            if (type == ScriptableSettingsType.Custom || IsDefault || !string.IsNullOrWhiteSpace(UnityEditor.AssetDatabase.GetAssetPath(this)))
-            {
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (!TryLoad(GetType(), filePath, Type, out ScriptableSettings? target))
+                case ScriptableSettingsType.RuntimeProjectSettings:
                 {
-                    target = (ScriptableSettings)CreateInstance(GetType());
+                    string path = UnityEditor.AssetDatabase.GetAssetPath(this);
+
+                    if (!string.IsNullOrWhiteSpace(path) && UnityEditor.AssetDatabase.LoadAssetAtPath(path, GetType()) is { } o && GetType().IsInstanceOfType(o))
+                    {
+                        string? data = UnityEditor.EditorJsonUtility.ToJson(o, false);
+                        UnityEditor.EditorJsonUtility.FromJsonOverwrite(data, this);
+                        _type = GetTypeData(GetType());
+                    }
+
+                    break;
                 }
 
-                JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(target), this);
-                DestroyImmediate(target, false);
-            }
-            else if (type.IsUserPreferences())
-            {
-                ScriptableSettings target = (ScriptableSettings)CreateInstance(GetType());
-                string defaultValue = UnityEditor.EditorJsonUtility.ToJson(target, false);
-                string newValue = UnityEditor.EditorPrefs.GetString(ApplicationUtility.GetPrefsKey(GetType()), defaultValue);
-                UnityEditor.EditorJsonUtility.FromJsonOverwrite(newValue, this);
-
-                if (Type != type)
+                case ScriptableSettingsType.EditorProjectSettings:
+                case ScriptableSettingsType.ProjectUserPreferences:
                 {
-                    JsonUtility.FromJsonOverwrite(defaultValue, this);
+                    GetTypeData(GetType(), out _, out string? filePath, out _);
+
+                    Object[] objects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(filePath);
+                    string? data = null;
+
+                    foreach (Object o in objects)
+                    {
+                        if (data == null && GetType().IsInstanceOfType(o))
+                        {
+                            data = UnityEditor.EditorJsonUtility.ToJson(o, false);
+                            UnityEditor.EditorJsonUtility.FromJsonOverwrite(data, this);
+                            _type = GetTypeData(GetType());
+                        }
+
+                        DestroyImmediate(o);
+                    }
+
+                    break;
                 }
 
-                DestroyImmediate(target, false);
-            }
+                case ScriptableSettingsType.EditorUserPreferences:
+                {
+                    string key = ApplicationUtility.GetPrefsKey(GetType());
+
+                    if (UnityEditor.EditorPrefs.HasKey(key))
+                    {
+                        string data = UnityEditor.EditorPrefs.GetString(key);
+                        UnityEditor.EditorJsonUtility.FromJsonOverwrite(data, this);
+                        _type = GetTypeData(GetType());
+                    }
+
+                    break;
+                }
 #endif
+            }
+
+            OnLoaded();
         }
 
         /// <summary>
-        /// Saves this <see cref="ScriptableSettings"/> to the disk, if supported.
+        /// Saves this instance to the supported storage method, if any.
         /// </summary>
+        /// <seealso cref="OnSave"/>
         public void Save()
         {
-#if UNITY_EDITOR
-            ScriptableSettingsType type = GetTypeData(GetType(), out _, out string? filePath, out _);
-
-            if (type == ScriptableSettingsType.Custom || IsDefault)
+            switch (_type)
             {
-                return;
-            }
-
-            if (filePath == null)
-            {
-                if (type.IsProjectSettings())
+                case ScriptableSettingsType.Custom:
                 {
-                    UnityEditor.EditorUtility.SetDirty(this);
-                    UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+                    OnSave();
 
                     return;
                 }
+#if UNITY_EDITOR
+                default:
+                {
+                    GetTypeData(GetType(), out _, out string? filePath, out _);
 
-                string value = UnityEditor.EditorJsonUtility.ToJson(this, true);
-                UnityEditor.EditorPrefs.SetString(ApplicationUtility.GetPrefsKey(GetType()), value);
+                    if (filePath == null)
+                    {
+                        if (_type.IsProjectSettings())
+                        {
+                            UnityEditor.EditorUtility.SetDirty(this);
+                            UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
 
-                return;
-            }
+                            break;
+                        }
 
-            if (type.IsProjectSettings() && !string.IsNullOrWhiteSpace(UnityEditor.AssetDatabase.GetAssetPath(this)))
-            {
-                UnityEditor.EditorUtility.SetDirty(this);
-                UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+                        string value = UnityEditor.EditorJsonUtility.ToJson(this, true);
+                        UnityEditor.EditorPrefs.SetString(ApplicationUtility.GetPrefsKey(GetType()), value);
 
-                return;
-            }
+                        break;
+                    }
 
-            string? directoryName = Path.GetDirectoryName(filePath);
+                    if (!string.IsNullOrWhiteSpace(UnityEditor.AssetDatabase.GetAssetPath(this)))
+                    {
+                        if (_type.IsProjectSettings())
+                        {
+                            UnityEditor.EditorUtility.SetDirty(this);
+                            UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
 
-            if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
-            {
-                Directory.CreateDirectory(directoryName);
-            }
+                            break;
+                        }
+                    }
 
-            SaveTarget[0] = this;
-            UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(SaveTarget, filePath, true);
+                    string? directoryName = Path.GetDirectoryName(filePath);
 
-            SaveTarget[0] = null;
+                    if (!string.IsNullOrWhiteSpace(directoryName) && !Directory.Exists(directoryName))
+                    {
+                        Directory.CreateDirectory(directoryName);
+                    }
+
+                    SaveTarget[0] = this;
+                    UnityEditorInternal.InternalEditorUtility.SaveToSerializedFileAndForget(SaveTarget, filePath, true);
+
+                    SaveTarget[0] = null;
+
+                    break;
+                }
 #endif
+            }
         }
 
-        internal void ValidatePreload()
+        internal void ValidatePreload(bool logMissingPreloadedAssets)
         {
+            switch (_type)
+            {
+                case ScriptableSettingsType.RuntimeProjectSettings:
+                {
+                    _preload = true;
+
+                    break;
+                }
+
+                case ScriptableSettingsType.EditorProjectSettings:
+                case ScriptableSettingsType.EditorUserPreferences:
+                case ScriptableSettingsType.ProjectUserPreferences:
+                {
+                    _preload = false;
+
+                    break;
+                }
+            }
+
 #if UNITY_EDITOR
             GUI.changed = true;
             UnityEditor.EditorUtility.SetDirty(this);
 
-            if (IsDefault || Type.IsEditorOnly())
-            {
-                _preload = false;
-            }
-
             if (_preload)
             {
-                EnsurePreload(true);
+                using (ListPool.Pop(out List<Object> pooledList))
+                {
+                    pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
+
+                    if (pooledList.Contains(this))
+                    {
+                        return;
+                    }
+
+                    if (logMissingPreloadedAssets)
+                    {
+                        Debug.LogWarning($"Fixing \"{this}\" not being added to the preloaded assets.", this);
+                    }
+
+                    pooledList.Add(this);
+                    UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
+                }
             }
             else
             {
@@ -545,23 +556,48 @@ namespace Coimbra
         }
 
         /// <summary>
-        /// Use this for one-time initializations instead of <see cref="OnEnable"/> callback. This method can be called inside edit-mode when inside the editor.
+        /// Will get called only once for a given object after the <see cref="ScriptableObject.CreateInstance(System.Type)"/>.
+        /// <para></para>
+        /// This will not get for previously created assets that are only being loaded from the disk.
+        /// <para></para>
+        /// Can be called inside edit-mode when inside the editor.
         /// </summary>
-        protected virtual void OnLoaded()
-        {
-            if (!IsDefault)
-            {
-                Set(GetType(), this);
-            }
-        }
+        protected virtual void OnCreate() { }
 
         /// <summary>
-        /// Use this instead of the standard <see cref="Reset"/> callback.
+        /// Will get called whenever <see cref="Load"/> is called.
+        /// <para></para>
+        /// Only gets called if instance is <see cref="ScriptableSettingsType.Custom"/>.
+        /// </summary>
+        protected virtual void OnLoad() { }
+
+        /// <summary>
+        /// Will get called right after <see cref="OnLoad"/> or <see cref="OnCreate"/>.
+        /// <para></para>
+        /// Can be called multiple times without going through <see cref="OnUnload"/>.
+        /// <para></para>
+        /// Can be called inside edit-mode when inside the editor.
+        /// </summary>
+        protected virtual void OnLoaded() { }
+
+        /// <summary>
+        /// Will get called whenever <see cref="Reset"/> is called.
+        /// <para></para>
+        /// Can be called inside edit-mode when inside the editor.
         /// </summary>
         protected virtual void OnReset() { }
 
         /// <summary>
-        /// Use this for one-time un-initializations instead of <see cref="OnDisable"/> callback. This method may be called inside edit-mode when inside the editor.
+        /// Will get called when <see cref="Save"/> is called.
+        /// <para></para>
+        /// Only gets called if instance is <see cref="ScriptableSettingsType.Custom"/>.
+        /// </summary>
+        protected virtual void OnSave() { }
+
+        /// <summary>
+        /// Will get called whenever the object is unloaded from the memory.
+        /// <para></para>
+        /// Can be called inside edit-mode when inside the editor.
         /// </summary>
         protected virtual void OnUnload() { }
 
@@ -569,6 +605,19 @@ namespace Coimbra
         /// Use this instead of the standard <see cref="OnValidate"/> callback.
         /// </summary>
         protected virtual void OnValidating() { }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnCreate"/> instead.
+        /// </summary>
+        protected void Awake()
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = GetType().Name;
+            }
+
+            _isCreating = true;
+        }
 
         /// <summary>
         /// Non-virtual by design, use <see cref="OnUnload"/> instead.
@@ -583,32 +632,12 @@ namespace Coimbra
         /// </summary>
         protected void OnEnable()
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (_isCreating)
             {
-                name = GetType().Name;
+                OnCreate();
             }
 
             OnLoaded();
-        }
-
-        /// <summary>
-        /// Non-virtual by design, use <see cref="OnReset"/> instead.
-        /// </summary>
-        protected void Reset()
-        {
-#if UNITY_EDITOR
-            if (IsDefault || Type.IsEditorOnly())
-            {
-                _preload = false;
-            }
-
-            if (_preload)
-            {
-                EnsurePreload(false);
-            }
-#endif
-
-            OnReset();
         }
 
         /// <summary>
@@ -616,8 +645,17 @@ namespace Coimbra
         /// </summary>
         protected void OnValidate()
         {
-            ValidatePreload();
+            ValidatePreload(true);
             OnValidating();
+        }
+
+        /// <summary>
+        /// Non-virtual by design, use <see cref="OnReset"/> instead.
+        /// </summary>
+        protected void Reset()
+        {
+            ValidatePreload(false);
+            OnReset();
         }
 
         private static void HandleApplicationQuitting()
@@ -625,71 +663,68 @@ namespace Coimbra
             IsQuitting = true;
         }
 
-        private static bool Get(Type type, out ScriptableSettings? value, bool allowDefault)
+        private static ScriptableSettings GetOrCreate(Type type)
         {
-            if (Map.TryGetValue(type, out Instance instance))
+            if (Instances.TryGetValue(type, out ScriptableSettings? value))
             {
-                if (instance.Current.TryGetValid(out value))
+                if (value != null)
                 {
-                    if (allowDefault || !value.IsDefault)
-                    {
-                        return true;
-                    }
+                    return value;
                 }
+            }
+
+            switch (GetTypeData(type, out _, out string? filePath, out _))
+            {
+                case ScriptableSettingsType.Custom:
+                {
+                    if (TryFindAsset(type, out value))
+                    {
+                        value.Load();
+                    }
+                    else
+                    {
+                        value = (ScriptableSettings)CreateInstance(type);
+                    }
+
+                    Instances[type] = value;
+
+                    return value;
+                }
+
+#if UNITY_EDITOR
+                default:
+                {
+                    if (TryFindAsset(type, out value) && filePath != null)
+                    {
+                        string assetPath = UnityEditor.AssetDatabase.GetAssetPath(value);
+
+                        if (!string.IsNullOrWhiteSpace(assetPath))
+                        {
+                            ScriptableSettings copy = Instantiate(value);
+                            Debug.LogWarning($"Moving {value} from {assetPath} to {filePath}!", copy);
+                            DestroyImmediate(value, true);
+                            UnityEditor.AssetDatabase.DeleteAsset(assetPath);
+                            copy.Save();
+
+                            value = copy;
+                        }
+                    }
+
+                    break;
+                }
+#endif
+            }
+
+            if (value == null)
+            {
+                value = (ScriptableSettings)CreateInstance(type);
             }
             else
             {
-                instance = InitializeInstance(type);
+                value.Load();
             }
 
-            {
-                value = instance.Provider.GetCurrentSettings(type);
-
-                if (value.TryGetValid(out value))
-                {
-                    instance.Current = value;
-
-                    return true;
-                }
-
-                if (!allowDefault)
-                {
-                    return false;
-                }
-
-                try
-                {
-                    IsCreatingDefault = true;
-
-                    value = instance.Provider.GetDefaultSettings(type);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, value);
-                }
-                finally
-                {
-                    IsCreatingDefault = false;
-                }
-
-                instance.Current = value;
-
-                return true;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Instance InitializeInstance(Type type)
-        {
-            ScriptableSettingsProviderAttribute? providerAttribute = type.GetCustomAttribute<ScriptableSettingsProviderAttribute>();
-
-            if (providerAttribute == null || !providerAttribute.Type.TryCreateInstance(out IScriptableSettingsProvider provider))
-            {
-                provider = FindAnywhereScriptableSettingsProvider.Default;
-            }
-
-            Instance value = new(provider);
-            Map.Add(type, value);
+            Instances[type] = value;
 
             return value;
         }
@@ -698,9 +733,9 @@ namespace Coimbra
         {
             value = value.GetValid();
 
-            if (Map.TryGetValue(type, out Instance instance))
+            if (Instances.TryGetValue(type, out ScriptableSettings? current))
             {
-                if (instance.Current.TryGetValid(out ScriptableSettings? current) && !current.IsDefault && value != current)
+                if (current != null && current != value)
                 {
                     if (forceSet)
                     {
@@ -724,43 +759,70 @@ namespace Coimbra
                     }
                 }
             }
-            else
-            {
-                instance = InitializeInstance(type);
-            }
 
             if (value != null)
             {
-                Debug.Assert(type.IsInstanceOfType(value));
-                instance.Current = value;
+                Instances[type] = value;
             }
             else
             {
-                instance.Current = null;
+                Instances.Remove(type);
             }
         }
 
-#if UNITY_EDITOR
-        private void EnsurePreload(bool withWarning)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryFindAsset(Type type, [NotNullWhen(true)] out ScriptableSettings? value)
         {
-            using (ListPool.Pop(out List<Object> pooledList))
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static void assertSingle(Type type, IReadOnlyList<Object> instances)
             {
-                pooledList.AddRange(UnityEditor.PlayerSettings.GetPreloadedAssets());
+                int count = instances.Count;
 
-                if (pooledList.Contains(this))
+                for (int i = 1; i < count; i++)
                 {
-                    return;
+                    string path = UnityEditor.AssetDatabase.GetAssetPath(instances[0]);
+                    Debug.LogError($"It was expected a single object of type {type}, but {instances[i]} is from the same type as {path}! Set the instance manually before trying to access it to ensure the correct one is used.", instances[i]);
                 }
-
-                if (withWarning)
-                {
-                    Debug.LogWarning($"Fixing \"{this}\" not being added to the preloaded assets.", this);
-                }
-
-                pooledList.Add(this);
-                UnityEditor.PlayerSettings.SetPreloadedAssets(pooledList.ToArray());
             }
-        }
+#if UNITY_EDITOR
+            string[] assets = UnityEditor.AssetDatabase.FindAssets($"t:{type.Name}", FindAssetsFolders);
+
+            using (ListPool.Pop(out List<Object> list))
+            {
+                list.EnsureCapacity(assets.Length);
+
+                foreach (string asset in assets)
+                {
+                    Object o = UnityEditor.AssetDatabase.LoadMainAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(asset));
+
+                    if (type.IsInstanceOfType(o))
+                    {
+                        list.Add(o);
+                    }
+                }
+
+                if (list.Count > 0)
+                {
+                    value = (ScriptableSettings)list[0];
+                    assertSingle(type, list);
+
+                    return true;
+                }
+            }
 #endif
+            Object[] array = Resources.FindObjectsOfTypeAll(type);
+
+            if (array.Length > 0)
+            {
+                value = (ScriptableSettings)array[0];
+                assertSingle(type, array);
+
+                return true;
+            }
+
+            value = null;
+
+            return false;
+        }
     }
 }

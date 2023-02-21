@@ -77,7 +77,7 @@ namespace Coimbra
         /// <summary>
         /// Gets or sets the directory to save the file if <see cref="IsEditorOnly"/> is true.
         /// </summary>
-        public string? FileDirectory { get; set; } = DefaultFileDirectory;
+        public string FileDirectory { get; set; } = DefaultFileDirectory;
 
         /// <summary>
         /// Gets or sets a value that overrides the default file name.

@@ -34,25 +34,20 @@ namespace Coimbra.Samples.DifficultySettings
 
         private void HandleUpdate(ref EventContext context, in UpdateEvent e)
         {
-            if (ScriptableSettings.TryGet(out DifficultySettings difficultySettings))
-            {
-                float deltaMovement = difficultySettings.CubeMovementSpeed * e.DeltaTime;
-                Transform.Translate(Vector3.forward * deltaMovement, Space.Self);
+            float deltaMovement = ScriptableSettings.Get<DifficultySettings>().CubeMovementSpeed * e.DeltaTime;
+            Transform.Translate(Vector3.forward * deltaMovement, Space.Self);
 
-                Vector3 distance = Transform.position - _origin;
-                float sqrMaxOriginOffset = _maxOriginOffset * _maxOriginOffset;
+            Vector3 distance = Transform.position - _origin;
+            float sqrMaxOriginOffset = _maxOriginOffset * _maxOriginOffset;
 
-                if (distance.sqrMagnitude >= sqrMaxOriginOffset)
-                {
-                    // turn and get away from bounds
-                    Transform.Rotate(Vector3.up, 180);
-                    Transform.Translate(Vector3.forward * deltaMovement, Space.Self);
-                }
-            }
-            else
+            if (distance.sqrMagnitude < sqrMaxOriginOffset)
             {
-                Debug.LogWarning($"{typeof(DifficultySettings)} is not set!");
+                return;
             }
+
+            // turn and get away from bounds
+            Transform.Rotate(Vector3.up, 180);
+            Transform.Translate(Vector3.forward * deltaMovement, Space.Self);
         }
     }
 }

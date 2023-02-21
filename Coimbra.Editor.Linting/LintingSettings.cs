@@ -13,7 +13,6 @@ namespace Coimbra.Editor.Linting
     /// </summary>
     [InitializeOnLoad]
     [ProjectSettings(CoimbraUtility.ProjectSettingsPath, true, FileDirectory = CoimbraUtility.ProjectSettingsFilePath)]
-    [ScriptableSettingsProvider(typeof(LoadOrCreateScriptableSettingsProvider))]
     public sealed class LintingSettings : ScriptableSettings
     {
         private const string AssemblyDefinitionFilter = "t:asmdef";
@@ -61,7 +60,7 @@ namespace Coimbra.Editor.Linting
         internal static void InitializeAssemblyDefinitionRules()
         {
             bool isDirty = false;
-            LintingSettings settings = Get<LintingSettings>(true);
+            LintingSettings settings = Get<LintingSettings>();
 
             using (DictionaryPool.Pop(out Dictionary<string, TextAsset> textAssetMap))
             using (DictionaryPool.Pop(out Dictionary<TextAsset, AssemblyDefinition> assemblyDefinitionMap))

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
 
 namespace Coimbra.Editor
 {
@@ -19,9 +18,7 @@ namespace Coimbra.Editor
                 {
                     if (!dictionary.ContainsKey(type) && typeof(ScriptableSettings).IsAssignableFrom(type) && type is { IsGenericType: false, IsAbstract: false })
                     {
-                        bool hasProvider = ScriptableSettingsProvider.TryCreate(type, out ScriptableSettingsProvider? provider);
-                        Debug.Assert(hasProvider, $"{type} should not have null as the {nameof(ProjectSettingsAttribute.WindowPath)}.");
-                        dictionary.Add(type, provider!);
+                        dictionary.Add(type, ScriptableSettingsProvider.CreateProjectSettingsProvider(type));
                     }
                 }
 

@@ -12,17 +12,11 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public void OnPreprocessBuild(BuildReport report)
         {
-            string[] folders = new string[]
-            {
-                "Assets",
-                "Packages",
-            };
-
-            foreach (string asset in AssetDatabase.FindAssets($"t:{nameof(ScriptableSettings)}", folders))
+            foreach (string asset in AssetDatabase.FindAssets($"t:{nameof(ScriptableSettings)}", ScriptableSettings.FindAssetsFolders))
             {
                 string path = AssetDatabase.GUIDToAssetPath(asset);
                 ScriptableSettings scriptableSettings = AssetDatabase.LoadAssetAtPath<ScriptableSettings>(path);
-                scriptableSettings.ValidatePreload();
+                scriptableSettings.ValidatePreload(true);
             }
         }
     }

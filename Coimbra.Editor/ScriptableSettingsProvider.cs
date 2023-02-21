@@ -65,12 +65,25 @@ namespace Coimbra.Editor
         {
             if (settingsEditor != null && settingsEditor.target != null && settingsEditor.target is ScriptableSettings settings)
             {
+                bool requiresCreation = RequiresCreation(settings);
+
+                if (requiresCreation)
+                {
+                    if (GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
+                    {
+                        CreateAsset(settings);
+                    }
+                }
+
                 using EditorGUI.ChangeCheckScope changeCheckScope = new();
                 CurrentSearchContext = searchContext;
 
-                if (!keywords.Any() || TryMatchKeywords(searchContext))
+                using (new EditorGUI.DisabledScope(requiresCreation))
                 {
-                    base.OnGUI(searchContext);
+                    if (!keywords.Any() || TryMatchKeywords(searchContext))
+                    {
+                        base.OnGUI(searchContext);
+                    }
                 }
 
                 CurrentSearchContext = null;
@@ -80,13 +93,9 @@ namespace Coimbra.Editor
                     settings.Save();
                 }
             }
-            else if (ScriptableSettings.TryGet(_type, out settings!))
+            else
             {
-                SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
-            }
-            else if (scope == SettingsScope.Project && _editorFilePath == null && GUILayout.Button($"Create {_type.Name} asset", GUILayout.Height(30)))
-            {
-                CreateScriptableSettings();
+                SetSettingsEditor(UnityEditor.Editor.CreateEditor(ScriptableSettings.Get(_type)));
             }
         }
 
@@ -97,19 +106,12 @@ namespace Coimbra.Editor
             {
                 if (settingsEditor == null)
                 {
-                    if (ScriptableSettings.TryGet(_type, out ScriptableSettings? target))
-                    {
-                        SetSettingsEditor(UnityEditor.Editor.CreateEditor(target));
-                    }
+                    SetSettingsEditor(UnityEditor.Editor.CreateEditor(ScriptableSettings.Get(_type)));
                 }
                 else if (settingsEditor.target == null)
                 {
                     Object.DestroyImmediate(settingsEditor);
-
-                    if (ScriptableSettings.TryGet(_type, out ScriptableSettings? target))
-                    {
-                        SetSettingsEditor(UnityEditor.Editor.CreateEditor(target));
-                    }
+                    SetSettingsEditor(UnityEditor.Editor.CreateEditor(ScriptableSettings.Get(_type)));
                 }
             }
 
@@ -119,16 +121,23 @@ namespace Coimbra.Editor
             }
         }
 
-        internal static bool TryCreate(Type type, [NotNullWhen(true)] out ScriptableSettingsProvider? provider)
+        internal static ScriptableSettingsProvider CreateProjectSettingsProvider(Type type)
         {
-            ScriptableSettingsType scriptableSettingsType = ScriptableSettings.GetTypeData(type, out string? windowPath, out string? filePath, out string[]? keywords);
-            SettingsScope settingsScope = scriptableSettingsType.IsProjectSettings() ? SettingsScope.Project : SettingsScope.User;
-            provider = windowPath != null ? new ScriptableSettingsProvider(windowPath, type, settingsScope, filePath, keywords) : null;
+            ScriptableSettings.GetTypeData(type, out string? windowPath, out string? filePath, out string[]? keywords);
+            Debug.Assert(windowPath != null, $"{type} should not have null as the {nameof(ProjectSettingsAttribute.WindowPath)}.");
+
+            return new ScriptableSettingsProvider(windowPath!, type, SettingsScope.Project, filePath, keywords);
+        }
+
+        internal static bool TryCreatePreferencesProvider(Type type, [NotNullWhen(true)] out ScriptableSettingsProvider? provider)
+        {
+            ScriptableSettings.GetTypeData(type, out string? windowPath, out string? filePath, out string[]? keywords);
+            provider = windowPath != null ? new ScriptableSettingsProvider(windowPath, type, SettingsScope.User, filePath, keywords) : null;
 
             return provider != null;
         }
 
-        private void CreateScriptableSettings()
+        private void CreateAsset(ScriptableSettings settings)
         {
             string? path = EditorUtility.SaveFilePanel($"Create {_type.Name} File", "Assets", $"{_type.Name}.asset", "asset");
 
@@ -156,11 +165,14 @@ namespace Coimbra.Editor
             }
 
             string relativePath = "Assets/" + path.Substring(dataPath.Length);
-            ScriptableSettings settings = (ScriptableSettings)ScriptableObject.CreateInstance(_type);
+
             AssetDatabase.CreateAsset(settings, relativePath);
             EditorGUIUtility.PingObject(settings);
-            ScriptableSettings.Set(_type, settings);
-            SetSettingsEditor(UnityEditor.Editor.CreateEditor(settings));
+        }
+
+        private bool RequiresCreation(Object settings)
+        {
+            return scope == SettingsScope.Project && string.IsNullOrWhiteSpace(_editorFilePath) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(settings));
         }
 
         private void SetSettingsEditor(UnityEditor.Editor value)
