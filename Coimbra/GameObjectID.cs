@@ -5,21 +5,27 @@ using UnityEngine.Scripting;
 namespace Coimbra
 {
     /// <summary>
-    /// Strongly-typed version of the <see cref="UnityEngine.GameObject"/>'s <see cref="UnityEngine.Object.GetInstanceID"/>.
+    /// Strongly-typed version of the <see cref="UnityEngine.GameObject"/> <see cref="UnityEngine.Object.GetInstanceID"/>.
     /// </summary>
     [Preserve]
     public readonly struct GameObjectID : IEquatable<GameObjectID>
     {
         public readonly int Id;
 
+        [Obsolete("To ensure type-safety, use the constructor that requires a GameObject instead or the implicit operator.", true)]
         public GameObjectID(int id)
         {
             Id = id;
         }
 
+        public GameObjectID(GameObject gameObject)
+        {
+            Id = gameObject.GetInstanceID();
+        }
+
         public static implicit operator GameObjectID(GameObject gameObject)
         {
-            return new GameObjectID(gameObject.GetInstanceID());
+            return new GameObjectID(gameObject);
         }
 
         public static bool operator ==(GameObjectID left, GameObjectID right)

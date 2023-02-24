@@ -8,6 +8,7 @@
 - Changed everything from `ScriptableSettingsUtility` to be inside `ScriptableSettings` directly.
 - Changed Unity callbacks on `ScriptableSettings` to be non-virtual, with alternatives to use for each one.
 - Changed `ObjectUtility.Dispose` to call `IDisposable.Dispose` method before `Object.Destroy` to allow cleanup of components that never got awaken.
+- Changed `GameObjectID` to require a `GameObject` in the constructor.
 
 ## [11.0.5] - 2023-02-17
 

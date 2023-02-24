@@ -97,7 +97,7 @@ namespace Coimbra.Services.Pooling
                 case GameObjectPool.State.Loaded:
                 case GameObjectPool.State.LoadingInstances:
                 {
-                    _poolFromPrefab.Remove(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()));
+                    _poolFromPrefab.Remove((GameObject)pool.PrefabReference.Asset);
 
                     break;
                 }
@@ -258,7 +258,7 @@ namespace Coimbra.Services.Pooling
 
                 case GameObjectPool.State.LoadingInstances:
                 {
-                    _poolFromPrefab.Add(new GameObjectID(pool.PrefabReference.Asset.GetInstanceID()), pool);
+                    _poolFromPrefab.Add((GameObject)pool.PrefabReference.Asset, pool);
 
                     break;
                 }
