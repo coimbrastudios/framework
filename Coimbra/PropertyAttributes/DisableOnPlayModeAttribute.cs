@@ -5,5 +5,12 @@ namespace Coimbra
     /// </summary>
     /// <seealso cref="DisableAttribute"/>
     /// <seealso cref="DisableOnEditModeAttribute"/>
-    public sealed class DisableOnPlayModeAttribute : DisableAttribute { }
+    public sealed class DisableOnPlayModeAttribute : DisableAttributeBase
+    {
+        /// <inheritdoc/>
+        public override bool ShouldDisableGUI()
+        {
+            return ApplicationUtility.IsPlayMode;
+        }
+    }
 }

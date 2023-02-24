@@ -1,30 +1,22 @@
-using System;
-using UnityEngine;
-
 namespace Coimbra
 {
     /// <summary>
-    /// Display a message in the inspector.
+    /// Always display a message in the inspector.
     /// </summary>
     /// <seealso cref="MessageBoxOnEditModeAttribute"/>
     /// <seealso cref="MessageBoxOnPlayModeAttribute"/>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class MessageBoxAttribute : PropertyAttribute
+    public sealed class MessageBoxAttribute : MessageBoxAttributeBase
     {
-        public readonly string Message;
-
-        public readonly MessageBoxType Type;
-
-        public readonly InspectorArea Area;
-
         public MessageBoxAttribute(string message, InspectorArea area)
-            : this(message, MessageBoxType.None, area) { }
+            : base(message, area) { }
 
         public MessageBoxAttribute(string message, MessageBoxType type = MessageBoxType.None, InspectorArea area = InspectorArea.Fill)
+            : base(message, type, area) { }
+
+        /// <inheritdoc/>
+        public override bool ShouldDisplayMessageBox()
         {
-            Message = message;
-            Type = type;
-            Area = area;
+            return true;
         }
     }
 }

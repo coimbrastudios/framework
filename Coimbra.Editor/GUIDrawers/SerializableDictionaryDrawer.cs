@@ -46,7 +46,7 @@ namespace Coimbra.Editor
 
             ReorderableList list = property.FindPropertyRelative(ListProperty).ToReorderableList(InitializeReorderableList);
             FieldInfo scopeFieldInfo = list.serializedProperty.GetScopeInfo()!.FieldInfo;
-            list.draggable = GUI.enabled && scopeFieldInfo.GetCustomAttribute<DisableAttribute>() == null;
+            list.draggable = GUI.enabled;
 
             bool canResize = list.draggable && scopeFieldInfo.GetCustomAttribute<DisableResizeAttribute>() == null;
             list.displayAdd = canResize;
@@ -77,7 +77,7 @@ namespace Coimbra.Editor
             }
 
             FieldInfo scopeFieldInfo = list.serializedProperty.GetScopeInfo()!.FieldInfo;
-            list.draggable = GUI.enabled && scopeFieldInfo.GetCustomAttribute<DisableAttribute>() == null;
+            list.draggable = GUI.enabled;
 
             if (!list.draggable)
             {

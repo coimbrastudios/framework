@@ -1,4 +1,4 @@
-# [Coimbra Framework](Index.md): Editor Tools
+# [Coimbra Framework](Index.md): Editor Utilities
 
 This package offers some tools available in `Tools/Coimbra Framework/` and an option to configure a startup scene while playing in the editor.
 
@@ -32,6 +32,25 @@ The menu items available in `Tools/Coimbra Framework/` are:
 - `Request Script Reload`: The Unity Editor reloads script assemblies asynchronously on the next frame. This resets the state of all the scripts, but Unity does not compile any code that has changed since the previous compilation.
 - `Reset Play Mode Start Scene`: Reset the [EditorSceneManager.playModeStartScene] back to null, if set.
 - `Save Assets`: Saves all assets changes to disk. About the same as `File/Save Project` but also with a nice default shortcut at `Alt + Shift + S`.
+
+## GUI Scopes
+
+Some additional GUI scopes are provided for when creating custom inspectors:
+
+- [BackgroundColorScope](../Coimbra.Editor/GUIScopes/BackgroundColorScope.cs)
+- [HierarchyModeScope](../Coimbra.Editor/GUIScopes/HierarchyModeScope.cs)
+- [LabelWidthScope](../Coimbra.Editor/GUIScopes/LabelWidthScope.cs)
+- [ResetIndentLevelScope](../Coimbra.Editor/GUIScopes/ResetIndentLevelScope.cs)
+- [ShowMixedValueScope](../Coimbra.Editor/GUIScopes/ShowMixedValueScope.cs)
+
+## Utility Classes
+
+Some additional utility classes are provided to enable a smoother editor scripting experience:
+
+- [ActorUtility](../Coimbra.Editor/Utilities/ActorUtility.cs)
+- [EngineUtility](../Coimbra.Editor/Utilities/EngineUtility.cs)
+- [ReorderableListUtility](../Coimbra.Editor/Utilities/ReorderableListUtility.cs)
+- [SerializedPropertyUtility](../Coimbra.Editor/Utilities/SerializedPropertyUtility.cs)
 
 [Editor Startup Scene Settings]:<../Coimbra.Editor/EditorStartupSceneSettings.cs>
 

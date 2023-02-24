@@ -1,11 +1,16 @@
-using UnityEngine;
-
 namespace Coimbra
 {
     /// <summary>
-    /// Disable the field on the inspector.
+    /// Always disable the field on the inspector.
     /// </summary>
     /// <seealso cref="DisableOnEditModeAttribute"/>
     /// <seealso cref="DisableOnPlayModeAttribute"/>
-    public class DisableAttribute : PropertyAttribute { }
+    public sealed class DisableAttribute : DisableAttributeBase
+    {
+        /// <inheritdoc/>
+        public override bool ShouldDisableGUI()
+        {
+            return true;
+        }
+    }
 }

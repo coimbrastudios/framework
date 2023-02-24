@@ -4,11 +4,9 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Drawer for <see cref="DisableAttribute"/>, <see cref="DisableOnEditModeAttribute"/>, and <see cref="DisableOnPlayModeAttribute"/>.
+    /// Drawer for <see cref="DisableAttributeBase"/> and its inheritors.
     /// </summary>
-    [CustomPropertyDrawer(typeof(DisableAttribute))]
-    [CustomPropertyDrawer(typeof(DisableOnEditModeAttribute))]
-    [CustomPropertyDrawer(typeof(DisableOnPlayModeAttribute))]
+    [CustomPropertyDrawer(typeof(DisableAttributeBase), true)]
     public sealed class DisableDrawer : DecoratorDrawer
     {
         /// <inheritdoc/>
@@ -20,34 +18,9 @@ namespace Coimbra.Editor
         /// <inheritdoc/>
         public override void OnGUI(Rect position)
         {
-            switch (attribute)
+            if (attribute is DisableAttributeBase disableAttribute && disableAttribute.ShouldDisableGUI())
             {
-                case DisableOnEditModeAttribute _:
-                {
-                    if (ApplicationUtility.IsEditMode)
-                    {
-                        GUI.enabled = false;
-                    }
-
-                    break;
-                }
-
-                case DisableOnPlayModeAttribute _:
-                {
-                    if (ApplicationUtility.IsPlayMode)
-                    {
-                        GUI.enabled = false;
-                    }
-
-                    break;
-                }
-
-                default:
-                {
-                    GUI.enabled = false;
-
-                    break;
-                }
+                GUI.enabled = false;
             }
         }
     }

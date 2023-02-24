@@ -5,12 +5,18 @@ namespace Coimbra
     /// </summary>
     /// <seealso cref="MessageBoxAttribute"/>
     /// <seealso cref="MessageBoxOnPlayModeAttribute"/>
-    public sealed class MessageBoxOnEditModeAttribute : MessageBoxAttribute
+    public sealed class MessageBoxOnEditModeAttribute : MessageBoxAttributeBase
     {
         public MessageBoxOnEditModeAttribute(string message, InspectorArea area)
             : base(message, area) { }
 
         public MessageBoxOnEditModeAttribute(string message, MessageBoxType type = MessageBoxType.None, InspectorArea area = InspectorArea.Fill)
             : base(message, type, area) { }
+
+        /// <inheritdoc/>
+        public override bool ShouldDisplayMessageBox()
+        {
+            return ApplicationUtility.IsEditMode;
+        }
     }
 }

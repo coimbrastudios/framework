@@ -30,7 +30,10 @@ namespace Coimbra.Editor
 
             using EditorGUI.PropertyScope propertyScope = new(position, label, property);
 
-            EditorGUI.PropertyField(position, property, propertyScope.content, true);
+            using (new EditorGUI.DisabledScope(false))
+            {
+                EditorGUI.PropertyField(position, property, propertyScope.content, true);
+            }
         }
     }
 }

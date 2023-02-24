@@ -4,41 +4,29 @@ using UnityEngine;
 namespace Coimbra.Editor
 {
     /// <summary>
-    /// Drawer for <see cref="MessageBoxAttribute"/>, <see cref="MessageBoxOnEditModeAttribute"/>, and <see cref="MessageBoxOnPlayModeAttribute"/>.
+    /// Drawer for <see cref="MessageBoxAttributeBase"/> and its inheritors.
     /// </summary>
-    [CustomPropertyDrawer(typeof(MessageBoxAttribute))]
-    [CustomPropertyDrawer(typeof(MessageBoxOnEditModeAttribute))]
-    [CustomPropertyDrawer(typeof(MessageBoxOnPlayModeAttribute))]
+    [CustomPropertyDrawer(typeof(MessageBoxAttributeBase), true)]
     public sealed class MessageBoxDrawer : DecoratorDrawer
     {
         /// <inheritdoc/>
         public override float GetHeight()
         {
-            switch (attribute)
+            if (attribute is MessageBoxAttributeBase messageBoxAttribute && messageBoxAttribute.ShouldDisplayMessageBox())
             {
-                case MessageBoxOnEditModeAttribute _ when !ApplicationUtility.IsEditMode:
-                case MessageBoxOnPlayModeAttribute _ when !ApplicationUtility.IsPlayMode:
-                    return 0;
-
-                default:
-                {
-                    MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
-
-                    return EngineUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area, base.GetHeight());
-                }
+                return EngineUtility.GetMessageBoxHeight(messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area, base.GetHeight());
             }
+
+            return 0;
         }
 
         /// <inheritdoc/>
         public override void OnGUI(Rect position)
         {
-            if (position.height == 0)
+            if (attribute is MessageBoxAttributeBase messageBoxAttribute && messageBoxAttribute.ShouldDisplayMessageBox())
             {
-                return;
+                EngineUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area);
             }
-
-            MessageBoxAttribute messageBoxAttribute = (MessageBoxAttribute)attribute;
-            EngineUtility.DrawMessageBox(position, messageBoxAttribute.Message, messageBoxAttribute.Type, messageBoxAttribute.Area);
         }
     }
 }

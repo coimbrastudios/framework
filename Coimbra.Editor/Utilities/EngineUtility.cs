@@ -181,15 +181,18 @@ namespace Coimbra.Editor
                 type = type.GetGenericTypeDefinition();
             }
 
-            if (_propertyDrawers.TryGetValue(type, out PropertyDrawer propertyDrawer))
+            using (new EditorGUI.DisabledScope(false))
             {
+                if (_propertyDrawers.TryGetValue(type, out PropertyDrawer propertyDrawer))
+                {
 #pragma warning disable UNT0027
-                propertyDrawer.OnGUI(position, property, label);
+                    propertyDrawer.OnGUI(position, property, label);
 #pragma warning restore UNT0027
-            }
-            else
-            {
-                EditorGUI.PropertyField(position, property, label);
+                }
+                else
+                {
+                    EditorGUI.PropertyField(position, property, label);
+                }
             }
         }
 
