@@ -66,19 +66,19 @@ namespace Coimbra.Editor
         }
 
         /// <summary>
-        /// Helper method that uses <see cref="EngineUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsProvider.CurrentSearchContext"/>.
+        /// Helper method that uses <see cref="EngineUtility.TryMatchSearch"/> and <see cref="ScriptableSettingsSearchScope.CurrentSearch"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool TryMatchSearch(string targetContent)
         {
-            return EngineUtility.TryMatchSearch(ScriptableSettingsProvider.CurrentSearchContext, targetContent);
+            return EngineUtility.TryMatchSearch(ScriptableSettingsSearchScope.CurrentSearch, targetContent);
         }
 
         /// <inheritdoc cref="TryMatchSearch(string)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool TryMatchSearch(SerializedProperty property)
         {
-            return ScriptableSettingsProvider.CurrentSearchContext == null || TryMatchSearch(property.displayName);
+            return ScriptableSettingsSearchScope.CurrentSearch == null || TryMatchSearch(property.displayName);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Draws the default inspector with basic search functionality for either the Preferences window or the Project Settings window.
         /// </summary>
-        protected void DrawDefaultInspectorWithSearchSupport(HashSet<string> ignoredProperties)
+        protected void DrawDefaultInspectorWithSearchSupport(HashSet<string> ignoredProperties = null)
         {
             serializedObject.UpdateIfRequiredOrScript();
 
@@ -135,21 +135,14 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (ignoredProperties.Contains(iterator.name))
+                if (ignoredProperties?.Contains(iterator.name) ?? false)
                 {
                     continue;
                 }
 
                 using (new EditorGUI.DisabledScope(false))
                 {
-                    if (Type == ScriptableSettingsType.Custom)
-                    {
-                        EditorGUILayout.PropertyField(iterator, true);
-                    }
-                    else
-                    {
-                        TryPropertyField(iterator, true);
-                    }
+                    TryPropertyField(iterator, true);
                 }
             }
 
@@ -164,8 +157,8 @@ namespace Coimbra.Editor
             {
                 if (o is ScriptableSettings settings)
                 {
-                    EditorUtility.ClearDirty(o);
                     settings.SaveAsset();
+                    EditorUtility.ClearDirty(o);
                 }
             }
         }
@@ -173,7 +166,7 @@ namespace Coimbra.Editor
         /// <summary>
         /// Checks each property for a match with <paramref name="searchContext"/>.
         /// </summary>
-        protected bool HasSearchInterestInAnyProperty(in string searchContext, HashSet<string> ignoredProperties)
+        protected bool HasSearchInterestInAnyProperty(in string searchContext, HashSet<string> ignoredProperties = null)
         {
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;
@@ -182,7 +175,7 @@ namespace Coimbra.Editor
             {
                 enterChildren = false;
 
-                if (ignoredProperties.Contains(iterator.name))
+                if (ignoredProperties?.Contains(iterator.name) ?? false)
                 {
                     continue;
                 }

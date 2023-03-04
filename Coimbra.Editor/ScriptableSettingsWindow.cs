@@ -35,6 +35,9 @@ namespace Coimbra.Editor
         private int _filter;
 
         [SerializeField]
+        private string _searchContext = string.Empty;
+
+        [SerializeField]
         private Vector2 _scrollPosition;
 
         static ScriptableSettingsWindow()
@@ -75,7 +78,12 @@ namespace Coimbra.Editor
             {
                 using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
                 {
-                    _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup);
+                    using (new LabelWidthScope(35, LabelWidthScope.MagnitudeMode.Absolute))
+                    {
+                        _filter = EditorGUILayout.MaskField("Filter", _filter, FilterOptions, EditorStyles.toolbarPopup, GUILayout.Width(200));
+                    }
+
+                    _searchContext = EditorGUILayout.TextField(GUIContent.none, _searchContext, EditorStyles.toolbarSearchField);
                 }
 
                 using EditorGUILayout.ScrollViewScope scrollView = new(_scrollPosition);
@@ -110,6 +118,17 @@ namespace Coimbra.Editor
 
         private void DrawEditor(Type type, ScriptableSettings value, ref EditorState editorState)
         {
+            if (SplitSearchAt("t:", out string tokenValue, out string search) && !value.GetType().FullName.Contains(tokenValue, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return;
+            }
+
+            if (editorState.Editor is ScriptableSettingsEditor scriptableSettingsEditor && !scriptableSettingsEditor.HasSearchInterest(search))
+            {
+                return;
+            }
+
+            using (new ScriptableSettingsSearchScope(search))
             using (new EditorGUI.DisabledScope(editorState is { IsPredefinedType: true, WindowPath: null }))
             {
                 editorState.IsOpen = EditorGUILayout.InspectorTitlebar(editorState.IsOpen, editorState.Editor);
@@ -166,6 +185,32 @@ namespace Coimbra.Editor
 
                 editorState.Editor.OnInspectorGUI();
             }
+        }
+
+        private bool SplitSearchAt(string tokenKey, out string tokenValue, out string search)
+        {
+            search = _searchContext.Trim();
+
+            int tokenIndex = search.IndexOf(tokenKey, StringComparison.InvariantCultureIgnoreCase);
+
+            if (tokenIndex < 0 || search.Length == tokenKey.Length)
+            {
+                tokenValue = string.Empty;
+            }
+            else if (tokenIndex == 0)
+            {
+                string[] split = search[tokenKey.Length..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                search = split.Length > 1 ? split[1] : string.Empty;
+                tokenValue = split[0];
+            }
+            else
+            {
+                string[] split = search.Split(tokenKey, StringSplitOptions.RemoveEmptyEntries);
+                search = split[0];
+                tokenValue = split.Length > 1 ? split[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)[0] : string.Empty;
+            }
+
+            return !string.IsNullOrWhiteSpace(tokenValue);
         }
 
         private bool TryGetEditorState(Type type, ScriptableSettings? value, out EditorState editorState)

@@ -35,11 +35,6 @@ namespace Coimbra.Editor
             _type = type;
         }
 
-        /// <summary>
-        /// Gets the current set search context.
-        /// </summary>
-        public static string? CurrentSearchContext { get; private set; }
-
         /// <inheritdoc/>
         public override void OnFooterBarGUI()
         {
@@ -76,8 +71,8 @@ namespace Coimbra.Editor
                 }
 
                 using EditorGUI.ChangeCheckScope changeCheckScope = new();
-                CurrentSearchContext = searchContext;
 
+                using (new ScriptableSettingsSearchScope(searchContext))
                 using (new EditorGUI.DisabledScope(requiresCreation))
                 {
                     if (!keywords.Any() || TryMatchKeywords(searchContext))
@@ -85,8 +80,6 @@ namespace Coimbra.Editor
                         base.OnGUI(searchContext);
                     }
                 }
-
-                CurrentSearchContext = null;
 
                 if (changeCheckScope.changed)
                 {
