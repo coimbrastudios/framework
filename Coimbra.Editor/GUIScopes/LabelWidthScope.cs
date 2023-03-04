@@ -22,13 +22,19 @@ namespace Coimbra.Editor
             Absolute = 1,
         }
 
+        /// <summary>
+        /// The value before entering this scope.
+        /// </summary>
         public readonly float SavedMagnitude;
 
-        public readonly MagnitudeMode SavedMagnitudeMode;
+        /// <summary>
+        /// The <see cref="MagnitudeMode"/> of this scope.
+        /// </summary>
+        public readonly MagnitudeMode CurrentMagnitudeMode;
 
         public LabelWidthScope(float magnitude, MagnitudeMode magnitudeMode)
         {
-            switch (SavedMagnitudeMode = magnitudeMode)
+            switch (CurrentMagnitudeMode = magnitudeMode)
             {
                 case MagnitudeMode.Increment:
                 {
@@ -53,7 +59,7 @@ namespace Coimbra.Editor
 
         protected override void CloseScope()
         {
-            switch (SavedMagnitudeMode)
+            switch (CurrentMagnitudeMode)
             {
                 case MagnitudeMode.Increment:
                 {

@@ -8,6 +8,9 @@ namespace Coimbra.Editor
     /// </summary>
     public sealed class HierarchyModeScope : GUI.Scope
     {
+        /// <summary>
+        /// The value before entering this scope.
+        /// </summary>
         public readonly bool SavedHierarchyMode;
 
         public HierarchyModeScope()

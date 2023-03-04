@@ -1,6 +1,10 @@
+#nullable enable
+
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Coimbra
 {
@@ -65,11 +69,16 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Gets a value indicating whether we are currently inside a <see cref="TryReadAsset"/> call.
+        /// </summary>
+        public static bool IsReadingAsset { get; private set; }
+
+        /// <summary>
         /// Create a more human-readable string from the input value. Ex: CSEditorGUIUtility turns into CS Editor GUI Utility.
         /// </summary>
         /// <param name="value">The input value.</param>
         /// <returns>The more human-readable string.</returns>
-        public static string GetDisplayName(string value)
+        public static string GetDisplayName(string? value)
         {
             if (IsNullOrUnderscores(ref value, out int i))
             {
@@ -135,7 +144,43 @@ namespace Coimbra
             return $"{CoimbraUtility.PackageName}.{type.FullName}";
         }
 
-        private static bool IsNullOrUnderscores(ref string value, out int firstIndexOfNonUnderscore)
+        /// <summary>
+        /// Reads an asset data and destroys it immediately. Does nothing outside the editor.
+        /// </summary>
+        /// <param name="assetPath">The path to the asset, can be relative to the project folder.</param>
+        /// <param name="assetType">The type of the asset to be read. Will get the first instance of the given type at the given path.</param>
+        /// <param name="assetData">The data in EditorJsonUtility API format.</param>
+        /// <param name="prettyPrint">If true, format the output for readability. If false, format the output for minimum size. Default is false.</param>
+        /// <returns>True if the data was filled with a valid result. Always returns false outside the editor.</returns>
+        public static bool TryReadAsset(string assetPath, Type assetType, [NotNullWhen(true)] out string? assetData, bool prettyPrint = false)
+        {
+            assetData = null;
+#if UNITY_EDITOR
+            IsReadingAsset = true;
+
+            Object[] objects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(assetPath);
+
+            foreach (Object o in objects)
+            {
+                if (string.IsNullOrWhiteSpace(assetData) && assetType.IsInstanceOfType(o))
+                {
+                    assetData = UnityEditor.EditorJsonUtility.ToJson(o, prettyPrint);
+                }
+
+                Object.DestroyImmediate(o);
+            }
+
+            IsReadingAsset = false;
+
+            if (!string.IsNullOrWhiteSpace(assetData))
+            {
+                return true;
+            }
+#endif
+            return false;
+        }
+
+        private static bool IsNullOrUnderscores([NotNullWhen(false)] ref string? value, out int firstIndexOfNonUnderscore)
         {
             const char underscore = '_';
             firstIndexOfNonUnderscore = 0;

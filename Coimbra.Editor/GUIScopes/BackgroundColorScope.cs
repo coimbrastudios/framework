@@ -7,6 +7,9 @@ namespace Coimbra.Editor
     /// </summary>
     public sealed class BackgroundColorScope : GUI.Scope
     {
+        /// <summary>
+        /// The value before entering this scope.
+        /// </summary>
         public readonly Color SavedBackgroundColor;
 
         public BackgroundColorScope()
