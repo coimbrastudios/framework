@@ -4,6 +4,7 @@
 
 - Added `Destroy` and `Dispose` context menu options for `Actor`.
 - Added documentation for `ScriptableSettingsEditor`.
+- Added search option for `ScriptableSettings` window.
 - Changed documentation to better group some key elements of the framework and make it easier to read.
 - Changed `ScriptableSettings` APIs to always return a valid instance.
 - Changed everything from `ScriptableSettingsUtility` to be inside `ScriptableSettings` directly.
