@@ -28,7 +28,6 @@ namespace Coimbra.Editor
             UnityEditorInternals.OnEditorApplicationFocusChanged -= HandleEditorApplicationFocusChanged;
             UnityEditorInternals.OnEditorApplicationFocusChanged += HandleEditorApplicationFocusChanged;
             EditorApplication.delayCall += HandleDelayCall;
-            ScriptableSettings.IsQuitting = false;
             PlayerSettings.GetPreloadedAssets();
         }
 
@@ -157,7 +156,7 @@ namespace Coimbra.Editor
                         Object.DestroyImmediate(actorManager.gameObject);
                     }
 
-                    ScriptableSettings.IsQuitting = false;
+                    ApplicationUtility.IsQuitting = false;
                     Actor.OnPlayModeStateChanged();
 
                     break;

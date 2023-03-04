@@ -1,6 +1,6 @@
 # Changelog
 
-## [11.1.0] - UNRELEASED
+## [12.0.0] - UNRELEASED
 
 - Added `Destroy` and `Dispose` context menu options for `Actor`.
 - Added documentation for `ScriptableSettingsEditor`.
@@ -11,6 +11,7 @@
 - Changed Unity callbacks on `ScriptableSettings` to be non-virtual, with alternatives to use for each one.
 - Changed `ObjectUtility.Dispose` to call `IDisposable.Dispose` method before `Object.Destroy` to allow cleanup of components that never got awaken.
 - Changed `GameObjectID` to require a `GameObject` in the constructor.
+- Changed `ScriptablteSettings.IsQuitting` to `ApplicationUtility.IsQuitting` for more consistency.
 
 ## [11.0.5] - 2023-02-17
 

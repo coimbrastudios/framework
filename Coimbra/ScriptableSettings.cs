@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -37,17 +36,6 @@ namespace Coimbra
     [RequireDerived]
     public abstract class ScriptableSettings : ScriptableObject
     {
-#pragma warning disable CS0618
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindHandler) + " shouldn't be used anymore.")]
-        public delegate ScriptableSettings FindHandler(Type type);
-
-        // ReSharper disable once UnassignedReadonlyField
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(FindSingle) + " shouldn't be used anymore.")]
-        public static readonly FindHandler? FindSingle;
-#pragma warning restore CS0618
-
         internal static readonly Dictionary<Type, ScriptableSettings?> Instances = new();
 
         internal static readonly string[] FindAssetsFolders = new string[]
@@ -66,12 +54,6 @@ namespace Coimbra
         [HideInInspector]
         [FormerlySerializedAsBackingFieldOf("Type")]
         private ScriptableSettingsType _type;
-
-        static ScriptableSettings()
-        {
-            Application.quitting -= HandleApplicationQuitting;
-            Application.quitting += HandleApplicationQuitting;
-        }
 
         protected ScriptableSettings()
         {
@@ -100,11 +82,6 @@ namespace Coimbra
         public ScriptableSettingsType Type => _type;
 
         /// <summary>
-        /// Gets a value indicating whether the application is quitting.
-        /// </summary>
-        protected internal static bool IsQuitting { get; internal set; }
-
-        /// <summary>
         /// Gets the last set value for the specified type, or a default created one if none is set.
         /// </summary>
         /// <param name="type">The type of the settings.</param>
@@ -124,42 +101,6 @@ namespace Coimbra
         {
             return (T)GetOrCreate(typeof(T));
         }
-
-#pragma warning disable CS0618
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
-        public static ScriptableSettings GetOrFind(Type type, FindHandler? findHandler = null)
-        {
-            return Get(type);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
-        public static T GetOrFind<T>(FindHandler? findHandler = null)
-            where T : ScriptableSettings
-        {
-            return Get<T>();
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetType) + " shouldn't be used anymore, use " + nameof(GetTypeData) + " instead.")]
-        public static ScriptableSettingsType GetType(Type type)
-        {
-            return GetTypeData(type);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(GetType) + " shouldn't be used anymore, use " + nameof(GetTypeData) + " instead.")]
-        public static ScriptableSettingsType GetType<T>()
-            where T : ScriptableSettings
-        {
-            return GetTypeData(typeof(T));
-        }
-#pragma warning restore CS0618
 
         /// <summary>
         /// Gets the <see cref="ScriptableSettingsType"/> for the <paramref name="type"/>.
@@ -312,29 +253,6 @@ namespace Coimbra
         {
             Set(true, typeof(T), value);
         }
-
-#pragma warning disable CS0618
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
-        public static bool TryGetOrFind(Type type, out ScriptableSettings value, FindHandler? findHandler = null)
-        {
-            value = Get(type);
-
-            return true;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(nameof(ScriptableSettings) + "." + nameof(TryGetOrFind) + " shouldn't be used anymore, use either " + nameof(Get) + " or " + nameof(IsSet) + " instead.")]
-        public static bool TryGetOrFind<T>([NotNullWhen(true)] out T value, FindHandler? findHandler = null)
-            where T : ScriptableSettings
-        {
-            value = Get<T>();
-
-            return true;
-        }
-#pragma warning restore CS0618
 
         /// <summary>
         /// Compare if this instance content equals to another instance.
@@ -593,11 +511,6 @@ namespace Coimbra
             OnReset();
         }
 
-        private static void HandleApplicationQuitting()
-        {
-            IsQuitting = true;
-        }
-
         private static ScriptableSettings GetOrCreate(Type type)
         {
             if (Instances.TryGetValue(type, out ScriptableSettings? value))
@@ -666,7 +579,7 @@ namespace Coimbra
                 {
                     if (forceSet)
                     {
-                        if (!ApplicationUtility.IsReloadingScripts && !IsQuitting && !GetTypeData(type).IsEditorOnly())
+                        if (!ApplicationUtility.IsReloadingScripts && !ApplicationUtility.IsQuitting && !GetTypeData(type).IsEditorOnly())
                         {
                             Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} from \"{current}\"!", current);
                             Debug.Log($"Overriding {type} in {nameof(ScriptableSettings)} to \"{value}\"!", value);

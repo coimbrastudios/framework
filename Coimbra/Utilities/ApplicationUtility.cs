@@ -49,6 +49,11 @@ namespace Coimbra
         }
 
         /// <summary>
+        /// Gets a value indicating whether the application is quitting.
+        /// </summary>
+        public static bool IsQuitting { get; internal set; }
+
+        /// <summary>
         /// Gets a value indicating whether the scripts currently reloading.
         /// </summary>
         public static bool IsReloadingScripts { get; internal set; }
@@ -178,6 +183,18 @@ namespace Coimbra
             }
 #endif
             return false;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void HandleSubsystemRegistration()
+        {
+            Application.quitting -= HandleApplicationQuitting;
+            Application.quitting += HandleApplicationQuitting;
+        }
+
+        private static void HandleApplicationQuitting()
+        {
+            IsQuitting = true;
         }
 
         private static bool IsNullOrUnderscores([NotNullWhen(false)] ref string? value, out int firstIndexOfNonUnderscore)
