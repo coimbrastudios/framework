@@ -46,5 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _assertAwake: 0
   _activateOnSpawn: 0
-  _deactivateOnDespawn: 0
-  _deactivateOnInitializePrefab: 0
+  _deactivateOnDispose: 0

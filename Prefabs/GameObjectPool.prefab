@@ -46,8 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _assertAwake: 0
   _activateOnSpawn: 0
-  _deactivateOnDespawn: 0
-  _deactivateOnInitializePrefab: 0
+  _deactivateOnDispose: 0
   _currentState: 0
   _prefabReference:
     m_AssetGUID: 17492fdf615b4a846ab036096298467a
@@ -57,8 +56,9 @@ MonoBehaviour:
   _containerTransform: {fileID: 8488589644302647447}
   _loadOnInitialize: 0
   _canInstantiateOnSpawn: 1
+  _waitPrefabOnSpawn: 1
   _changeNameOnInstantiate: 1
-  _keepParentOnDespawn: 1
+  _keepParentWhenReturning: 1
   _desiredAvailableInstancesRange:
     _min: 1
     _max: 1
