@@ -20,7 +20,7 @@ namespace Coimbra.Editor
         {
             if (property.propertyType != SerializedPropertyType.ObjectReference)
             {
-                EditorGUI.LabelField(position, label.text, "Use DisallowSceneObjects with Object.");
+                EditorGUI.LabelField(position, label.text, "Use AssetsOnly with Object.");
 
                 return;
             }
