@@ -343,7 +343,7 @@ namespace Coimbra
                 }
 
                 _loadFrame = Time.frameCount;
-                _prefabActor = prefab.AsActor();
+                _prefabActor = prefab.GetOrInitializeActor();
                 _availableInstances = new List<Actor>(_desiredAvailableInstancesRange.Max + _shrinkStep);
                 ChangeCurrentState(State.LoadingInstances);
 

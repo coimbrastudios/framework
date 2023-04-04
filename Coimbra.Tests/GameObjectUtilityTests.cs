@@ -11,7 +11,7 @@ namespace Coimbra.Tests
         public void GivenGameObjectWithoutActor_WhenAsActor_ThenActorIsValid()
         {
             GameObject gameObject = new();
-            Actor actor = gameObject.AsActor();
+            Actor actor = gameObject.GetOrInitializeActor();
             Assert.That(actor, Is.Not.Null);
             Assert.That(actor.gameObject, Is.EqualTo(gameObject));
         }
@@ -20,7 +20,7 @@ namespace Coimbra.Tests
         public void GivenGameObjectWithActor_WhenAsActor_ThenActorIsStillUnique()
         {
             GameObject gameObject = new("Test", typeof(Actor));
-            Actor actor = gameObject.AsActor();
+            Actor actor = gameObject.GetOrInitializeActor();
             Assert.That(actor.gameObject, Is.EqualTo(gameObject));
             Assert.That(gameObject.GetComponents<Actor>().Length, Is.EqualTo(1));
         }
@@ -30,7 +30,7 @@ namespace Coimbra.Tests
         {
             GameObject gameObject = new("Test", typeof(Actor));
             Transform transform = gameObject.transform;
-            Assert.That(gameObject.AsActor(), Is.EqualTo(transform.gameObject.AsActor()));
+            Assert.That(gameObject.GetOrInitializeActor(), Is.EqualTo(transform.gameObject.GetOrInitializeActor()));
         }
     }
 }

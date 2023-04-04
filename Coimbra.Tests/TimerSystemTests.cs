@@ -15,7 +15,7 @@ namespace Coimbra.Tests
         [SetUp]
         public void SetUp()
         {
-            _timerService = new GameObject(nameof(TimerSystem)).AsActor<TimerSystem>();
+            _timerService = new GameObject(nameof(TimerSystem)).GetOrInitializeActor<TimerSystem>();
             Assert.IsNotNull(_timerService);
         }
 

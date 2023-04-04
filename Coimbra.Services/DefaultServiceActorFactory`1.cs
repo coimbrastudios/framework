@@ -33,7 +33,7 @@ namespace Coimbra.Services
         /// </returns>
         public IService GetService()
         {
-            return Object.FindObjectOfType<T>().TryGetValid(out T value) ? value : new GameObject(typeof(T).Name).AsActor<T>()!;
+            return Object.FindAnyObjectByType<T>().TryGetValid(out T value) ? value : new GameObject(typeof(T).Name).GetOrInitializeActor<T>()!;
         }
     }
 }

@@ -130,7 +130,7 @@ namespace Coimbra.Services.Pooling
                 return pool.Spawn(parent, spawnInWorldSpace);
             }
 
-            return Instantiate(prefab, parent, spawnInWorldSpace).AsActor();
+            return Instantiate(prefab, parent, spawnInWorldSpace).GetOrInitializeActor();
         }
 
         /// <inheritdoc/>
@@ -141,7 +141,7 @@ namespace Coimbra.Services.Pooling
                 return pool.Spawn(position, rotation, parent);
             }
 
-            return Instantiate(prefab, position, rotation, parent).AsActor();
+            return Instantiate(prefab, position, rotation, parent).GetOrInitializeActor();
         }
 
         /// <inheritdoc/>

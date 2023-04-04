@@ -25,7 +25,7 @@ namespace Coimbra
                 }
 
                 _hasActor = true;
-                _actor = gameObject.AsActor();
+                _actor = gameObject.GetOrInitializeActor();
 
                 return _actor;
             }

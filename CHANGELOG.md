@@ -12,6 +12,8 @@
 - Changed `ObjectUtility.Dispose` to call `IDisposable.Dispose` method before `Object.Destroy` to allow cleanup of components that never got awaken.
 - Changed `GameObjectID` to require a `GameObject` in the constructor.
 - Changed `ScriptablteSettings.IsQuitting` to `ApplicationUtility.IsQuitting` for more consistency.
+- Changed `GameObjectUtility.IsActor` to accept interfaces and to not initialize a new `Actor` instance if was about to fail.
+- Removed `GameObjectUtility.AsActor` and `GameObjectUtility.GetActor` in favor of new `GameObjectUtility.GetOrInitializeActor` API that is more explicit about its behaviour.
 
 ## [11.0.5] - 2023-02-17
 

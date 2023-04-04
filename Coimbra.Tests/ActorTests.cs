@@ -13,7 +13,7 @@ namespace Coimbra.Tests
         public void GivenActiveInstance_WhenDisabled_ThenActiveStateChangedTriggers_AndStateIsFalse()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            Actor prefab = new GameObject().AsActor();
+            Actor prefab = new GameObject().GetOrInitializeActor();
             Actor instance = Object.Instantiate(prefab);
             instance.Initialize();
 
@@ -30,7 +30,7 @@ namespace Coimbra.Tests
         public void GivenInactiveInstance_AndWasActive_WhenEnabled_ThenActivateStateChangedTriggers_AndStateIsTrue()
         {
             const string logFormat = "OnActivateStateChanged.state = {0}";
-            Actor prefab = new GameObject().AsActor();
+            Actor prefab = new GameObject().GetOrInitializeActor();
             Actor instance = Object.Instantiate(prefab);
             instance.Initialize();
             instance.GameObject.SetActive(false);
@@ -47,8 +47,8 @@ namespace Coimbra.Tests
         [Test]
         public void GivenActivePrefab_AndHasPool_WhenInstantiated_ThenIsNotPooled()
         {
-            Actor prefab = new GameObject().AsActor();
-            GameObjectPool pool = new GameObject().AsActor<GameObjectPool>();
+            Actor prefab = new GameObject().GetOrInitializeActor();
+            GameObjectPool pool = new GameObject().GetOrInitializeActor<GameObjectPool>();
             prefab.Initialize(pool, default);
 
             Actor instance = Object.Instantiate(prefab);
@@ -60,7 +60,7 @@ namespace Coimbra.Tests
         public IEnumerator GivenActiveInstance_WhenDestroyedByDestroyCall_ThenResultIsExplicitCall()
         {
             const string logFormat = "OnDestroyed.reason = {0}";
-            Actor instance = new GameObject().AsActor();
+            Actor instance = new GameObject().GetOrInitializeActor();
 
             instance.OnDestroying += delegate(Actor _, Actor.DestroyReason reason)
             {
